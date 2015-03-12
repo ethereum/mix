@@ -388,13 +388,13 @@ unsigned MixClient::installWatch(eth::LogFilter const& _f)
 	return installWatch(h);
 }
 
-void MixClient::uninstallWatch(unsigned _i)
+bool MixClient::uninstallWatch(unsigned _i)
 {
 	Guard l(m_filterLock);
 
 	auto it = m_watches.find(_i);
 	if (it == m_watches.end())
-		return;
+		return false;
 	auto id = it->second.id;
 	m_watches.erase(it);
 
@@ -402,6 +402,8 @@ void MixClient::uninstallWatch(unsigned _i)
 	if (fit != m_filters.end())
 		if (!--fit->second.refCount)
 			m_filters.erase(fit);
+
+	return true;
 }
 
 void MixClient::noteChanged(h256Set const& _filters)
