@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 2.8)
 cmake_policy(SET CMP0015 NEW)
 # let cmake autolink dependencies on windows
 cmake_policy(SET CMP0020 NEW)
@@ -7,13 +8,34 @@ if (${CMAKE_MAJOR_VERSION} GREATER 2)
 	cmake_policy(SET CMP0043 OLD)
 endif()
 
+project(mix)
+
+set(CMAKE_AUTOMOC ON)
+set(BUILD_DIR_NAME "build" CACHE STRING "The name of the build directory in cpp-ethereum")
+set(CPPETHEREUM_BUILD "${CMAKE_CURRENT_SOURCE_DIR}/../cpp-ethereum/${BUILD_DIR_NAME}")
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../cpp-ethereum-cmake)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-aux_source_directory(. SRC_LIST)
+set(GUI 1)
+set(JSONRPC 1)
+set(ETH_HAVE_WEBENGINE TRUE)
+add_definitions(-DETH_TRUE)
+include(EthDependencies)
+include(EthExecutableHelper)
+include(EthCompilerSettings)
+
+aux_source_directory("./src" SRC_LIST)
+message("SRC_LIST: ${SRC_LIST}")
 
 include_directories(BEFORE ${JSONCPP_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(BEFORE ..)
+include_directories(src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../cpp-ethereum)
+include_directories(${CPPETHEREUM_BUILD})
+
+set(CMAKE_LIBRARY_PATH ${CPPETHEREUM_BUILD} ${CMAKE_LIBRARY_PATH})
+
 
 if (("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang") AND NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.6") AND NOT APPLE)
 	# Supress warnings for qt headers for clang+ccache
@@ -25,6 +47,8 @@ if (APPLE)
     qt5_add_resources(UI_RESOURCES osx.qrc)
 endif()
 
+find_package(Eth)
+find_package(Qt5Core)
 find_package (Qt5WebEngine)
 if (APPLE AND (NOT "${Qt5Core_VERSION_STRING}" VERSION_LESS "5.5"))
 # TODO: remove indirect dependencies once macdeployqt is fixed
@@ -33,17 +57,11 @@ if (APPLE AND (NOT "${Qt5Core_VERSION_STRING}" VERSION_LESS "5.5"))
 	find_package (Qt5PrintSupport)
 endif()
 qt5_add_resources(UI_RESOURCES res.qrc qml.qrc)
+qt5_add_resources(UI_RESOURCES web.qrc)
 
-file(GLOB HEADERS "*.h")
+file(GLOB HEADERS "src/*.h")
 
 set(EXECUTABLE mix)
-
-if ("${Qt5WebEngine_VERSION_STRING}" VERSION_GREATER "5.3.0")
-	set (ETH_HAVE_WEBENGINE TRUE)
-	qt5_add_resources(UI_RESOURCES web.qrc)
-else()
-	qt5_add_resources(UI_RESOURCES noweb.qrc)
-endif()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
 	add_definitions(-DQT_QML_DEBUG)
@@ -55,8 +73,8 @@ eth_add_executable(${EXECUTABLE}
 	UI_RESOURCES ${UI_RESOURCES}
 )
 
-
-set(LIBRARIES "Qt5::Core;Qt5::Gui;Qt5::Widgets;Qt5::Network;Qt5::Quick;Qt5::Qml;webthree;ethereum;evm;ethcore;devcrypto;solidity;evmcore;devcore;jsqrc;web3jsonrpc")
+set(LIBRARIES "${ETH_CORE_LIBRARIES};${ETH_SOLIDITY_LIBRARY};${JSON_RPC_CPP_SERVER_LIBRARIES};${JSONCPP_LIBRARIES};${Boost_SYSTEM_LIBRARIES};${Boost_THREAD_LIBRARIES};${Boost_RANDOM_LIBRARIES};${CRYPTOPP_LIBRARIES};Qt5::Core;Qt5::Gui;Qt5::Widgets;Qt5::Network;Qt5::Quick;Qt5::Qml")
+message("LIBS: ${LIBRARIES}")
 if (${ETH_HAVE_WEBENGINE})
 	add_definitions(-DETH_HAVE_WEBENGINE)
 	list(APPEND LIBRARIES "Qt5::WebEngine")
@@ -65,6 +83,9 @@ if (APPLE AND (NOT "${Qt5Core_VERSION_STRING}" VERSION_LESS "5.5"))
 	list(APPEND LIBRARIES "Qt5::WebEngineCore")
 	list(APPEND LIBRARIES "Qt5::DBus")
 	list(APPEND LIBRARIES "Qt5::PrintSupport")
+endif()
+if (UNIX)
+    target_link_libraries(${EXECUTABLE} pthread)
 endif()
 
 target_link_libraries(${EXECUTABLE} ${LIBRARIES})
@@ -86,7 +107,7 @@ find_package(Qt5Test REQUIRED)
 set(TEST_EXECUTABLE mix_test)
 list(APPEND LIBRARIES "Qt5::QuickTest")
 list(APPEND LIBRARIES "Qt5::Test")
-list(REMOVE_ITEM SRC_LIST "./main.cpp")
+list(REMOVE_ITEM SRC_LIST "src/main.cpp")
 aux_source_directory(test SRC_LIST)
 file(GLOB HEADERS "test/*.h")
 add_executable(${TEST_EXECUTABLE} ${UI_RESOURCES} ${SRC_LIST} ${HEADERS})
