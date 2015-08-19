@@ -269,7 +269,7 @@ Rectangle {
 						width: labelWidth
 						Label
 						{
-							text: qsTr("Account")
+							text: qsTr("Deployment account")
 							anchors.right: parent.right
 							anchors.verticalCenter: parent.verticalCenter
 						}
@@ -302,7 +302,7 @@ Rectangle {
 						width: labelWidth
 						Label
 						{
-							text: qsTr("Gas Price")
+							text: qsTr("Gas price")
 							anchors.right: parent.right
 							anchors.verticalCenter: parent.verticalCenter
 						}
@@ -386,7 +386,7 @@ Rectangle {
 						width: labelWidth
 						Label
 						{
-							text: qsTr("Deployment Cost")
+							text: qsTr("Deployment cost")
 							anchors.right: parent.right
 							anchors.verticalCenter: parent.verticalCenter
 						}
@@ -513,7 +513,7 @@ Rectangle {
 				{
 					id: deployBtn
 					anchors.right: parent.right
-					text: qsTr("Deploy Contracts")
+					text: qsTr("Deploy contracts")
 					onClicked:
 					{
 						projectModel.deployedScenarioIndex = contractList.currentIndex
