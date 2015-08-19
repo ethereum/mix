@@ -87,12 +87,12 @@ Rectangle {
 				{
 					step: 2,
 					type:"package",
-					label: qsTr("Package Dapp")
+					label: qsTr("Package dapp")
 				},
 				{
 					step: 3,
 					type:"register",
-					label: qsTr("Register Dapp")
+					label: qsTr("Register dapp")
 				}
 			]
 
