@@ -222,6 +222,15 @@ dev::bytes ContractCallDataEncoder::decodeBytes(dev::bytes const& _rawValue)
 	return _rawValue;
 }
 
+QVariantList ContractCallDataEncoder::decodeStruct(SolidityType const& _type, dev::bytes const& _rawValue, unsigned const& _offset)
+{
+	QVariantList list;
+	int pos = static_cast<int>(_offset);
+	for (auto const& m: _type.members)
+		list.push_back(decodeType(m.type, _rawValue, pos));
+	return list;
+}
+
 QString ContractCallDataEncoder::toString(dev::bytes const& _b)
 {
 	return QString::fromStdString(dev::toJS(_b));
@@ -296,11 +305,20 @@ QJsonArray ContractCallDataEncoder::decodeArray(SolidityType const& _type, bytes
 	return array;
 }
 
-QVariant ContractCallDataEncoder::decode(SolidityType const& _type, bytes const& _value)
+QVariant ContractCallDataEncoder::decode(SolidityType const& _type, bytes const& _value, unsigned const& offset)
 {
-	bytesConstRef value(&_value);
 	bytes rawParam(32);
-	value.populate(&rawParam);
+	if (offset)
+	{
+		bytesConstRef value(_value.data() + static_cast<int>(offset), 32);
+		value.populate(&rawParam);
+	}
+	else
+	{
+		bytesConstRef value(&_value);
+		value.populate(&rawParam);
+	}
+
 	QSolidityType::Type type = _type.type;
 	if (type == QSolidityType::Type::SignedInteger || type == QSolidityType::Type::UnsignedInteger)
 		return QVariant::fromValue(toString(decodeInt(rawParam)));
@@ -311,7 +329,7 @@ QVariant ContractCallDataEncoder::decode(SolidityType const& _type, bytes const&
 	else if (type == QSolidityType::Type::String)
 		return QVariant::fromValue(toChar(decodeBytes(rawParam)));
 	else if (type == QSolidityType::Type::Struct)
-		return QVariant::fromValue(QString("struct")); //TODO
+		return decodeStruct(_type, _value, offset);
 	else if (type == QSolidityType::Type::Address)
 		return QVariant::fromValue(toString(decodeBytes(unpadLeft(rawParam))));
 	else if (type == QSolidityType::Type::Enum)
@@ -322,50 +340,63 @@ QVariant ContractCallDataEncoder::decode(SolidityType const& _type, bytes const&
 
 QString ContractCallDataEncoder::decodeEnum(bytes _value)
 {
-		return toString(decodeInt(_value));
+	return toString(decodeInt(_value));
 }
 
-QString ContractCallDataEncoder::decode(QVariableDeclaration* const& _param, bytes _value)
+QString ContractCallDataEncoder::decode(QVariableDeclaration* const& _param, bytes _value, unsigned const& _offset)
 {
 	SolidityType const& type = _param->type()->type();
-	return decode(type, _value).toString();
+	return decode(type, _value, _offset).toString();
 }
 
-QStringList ContractCallDataEncoder::decode(QList<QVariableDeclaration*> const& _returnParameters, bytes _value)
+QStringList ContractCallDataEncoder::decode(QList<QVariableDeclaration*> const& _returnParameters, bytes _value, unsigned const& _offset)
 {
 	bytes _v = _value;
 	QStringList r;
 	int readPosition = 0;
+	if (_offset)
+		readPosition = _offset;
 	for (int k = 0; k <_returnParameters.length(); k++)
 	{
 		QVariableDeclaration* dec = static_cast<QVariableDeclaration*>(_returnParameters.at(k));
 		SolidityType const& type = dec->type()->type();
-		if (type.array)
+		QString ret = decodeType(type, _value, readPosition).toString();
+		r.append(ret);
+	}
+	return r;
+}
+
+QVariant ContractCallDataEncoder::decodeType(SolidityType _type, bytes _value, int& _readPosition)
+{
+	if (_type.array)
+	{
+		QJsonArray array = decodeArray(_type, _value, _readPosition);
+		if (_type.type == SolidityType::String && array.count() <= 1)
 		{
-			QJsonArray array = decodeArray(type, _v, readPosition);
-			if (type.type == SolidityType::String && array.count() <= 1)
-			{
-				if (array.count() == 1)
-					r.append(array[0].toString());
-				else
-					r.append(QString());
-			}
+			if (array.count() == 1)
+				return array[0].toString();
 			else
-			{
-				QJsonDocument jsonDoc = QJsonDocument::fromVariant(array.toVariantList());
-				r.append(jsonDoc.toJson(QJsonDocument::Compact));
-			}
+				return QString();
 		}
 		else
 		{
-			bytesConstRef value(_value.data() + readPosition, 32);
-			bytes rawParam(32);
-			value.populate(&rawParam);
-			r.append(decode(type, rawParam).toString());
-			readPosition += 32;
+			QJsonDocument jsonDoc = QJsonDocument::fromVariant(array.toVariantList());
+			return jsonDoc.toJson(QJsonDocument::Compact);
 		}
 	}
-	return r;
+	else if (_type.members.size() > 0)
+	{
+		QVariantList ret = decodeStruct(_type, _value, _readPosition);
+		return ret;
+	}
+	else
+	{
+		bytesConstRef value(_value.data() + _readPosition, 32);
+		bytes rawParam(32);
+		value.populate(&rawParam);
+		_readPosition += 32;
+		return decode(_type, rawParam).toString();
+	}
 }
 
 

@@ -302,7 +302,7 @@ ColumnLayout {
 
 			Rectangle {
 				Layout.preferredWidth: 100
-				Layout.preferredHeight: 30				
+				Layout.preferredHeight: 30
 				ScenarioButton {
 					id: rebuild
 					text: qsTr("Rebuild")
@@ -399,12 +399,13 @@ ColumnLayout {
 							blockModel.append(model.blocks[j])
 
 						ensureNotFuturetime.start()
+
 						takeCodeSnapshot()
 						takeTxSnaphot()
 						takeAccountsSnapshot()
 						takeContractsSnapShot()
 						blinkReasons = []
-						clientModel.setupScenario(model);						
+						clientModel.setupScenario(model);
 					}
 
 					function takeContractsSnapShot()
@@ -660,5 +661,4 @@ ColumnLayout {
 		}
 	}
 }
-
 

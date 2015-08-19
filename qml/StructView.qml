@@ -92,8 +92,7 @@ Column
 				{
 					var ptype = members[index].type;
 					var pname = members[index].name;
-					var vals = value;
-
+					var vals = value
 					item.readOnly = context === "variable";
 					if (ptype.category === QSolidityType.Address)
 					{
@@ -109,8 +108,15 @@ Column
 					}
 					else if (ptype.category === QSolidityType.Struct && !item.members)
 					{
-						item.value = getValue();
-						item.members = ptype.members;
+						var val = {}
+						for (var k in members[index].type.members)
+						{
+							var param = members[index].type.members[k]
+							val[param.name] = vals[pname][k]
+						}
+
+						item.value = val
+						item.members = members[index].type.members
 					}
 					else
 						item.value = getValue();

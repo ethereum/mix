@@ -35,6 +35,7 @@ Dialog {
 		accountsModel.clear()
 		stateAccounts = []
 		var miner = 0
+
 		for (var k = 0; k < item.accounts.length; k++) {
 			accountsModel.append(item.accounts[k])
 			stateAccounts.push(item.accounts[k])
@@ -228,6 +229,29 @@ Dialog {
 								Layout.preferredWidth: 85
 								text: qsTr("Accounts")
 							}
+
+							Button
+							{
+								id: addAccount
+								anchors.top: accountsLabel.bottom
+								anchors.topMargin: 2
+								text: qsTr("Add")
+								onClicked:
+								{
+									newAddressWin.open()
+								}
+							}
+
+							Button
+							{
+								anchors.top: addAccount.bottom
+								anchors.topMargin: 2
+								text: qsTr("Copy")
+								onClicked:
+								{
+									clipboard.text = JSON.stringify(stateAccounts, null, "\t");
+								}
+							}
 						}
 
 						MessageDialog {
@@ -297,6 +321,108 @@ Dialog {
 							rowDelegate: Rectangle {
 								color: styleData.alternate ? "transparent" : "#f0f0f0"
 								height: 30
+							}
+						}
+					}
+
+					Dialog {
+						id: newAddressWin
+						modality: Qt.ApplicationModal
+						title: qsTr("New Account");
+
+						width: 300
+						height: 100
+
+						visible: false
+
+						function addAccount(ac)
+						{
+							accountsModel.append(ac)
+							stateAccounts.push(ac)
+							clientModel.addAccount(ac.secret);
+						}
+
+						contentItem: Rectangle {
+							anchors.fill: parent
+							ColumnLayout
+							{
+								anchors.fill: parent
+								anchors.margins: 10
+								RowLayout
+								{
+
+									DefaultLabel
+									{
+										text: qsTr("Secret")
+									}
+
+									TextField
+									{
+										Layout.preferredWidth: 230
+										id: input
+									}
+								}
+
+								RowLayout
+								{
+									id: error
+									visible: false
+									DefaultLabel
+									{
+										color: "red"
+										text: qsTr("bad formatting")
+									}
+								}
+
+								RowLayout
+								{
+									anchors.bottom: parent.bottom
+									anchors.right: parent.right;
+
+									Button {
+										id: okButton;
+										text: qsTr("OK");
+										onClicked: {
+											var ac;
+											if (input.text === "")
+												ac = projectModel.stateListModel.newAccount("O", QEther.Wei)
+											else
+											{
+												for (var k in stateAccounts)
+												{
+													if (stateAccounts[k].secret === input.text)
+													{
+														input.text = ""
+														newAddressWin.close()
+													}
+												}
+
+												var secret = input.text
+												secret = secret.toLowerCase()
+												var hexCheck = new RegExp("[0-9a-f]+");
+												if (secret.length !== 64 || !hexCheck.test(secret))
+												{
+													error.visible = true
+													return
+												}
+												ac = projectModel.stateListModel.newAccount("O", QEther.Wei, input.text)
+											}
+											error.visible = false
+											newAddressWin.addAccount(ac)
+											newAddressWin.close()
+											input.text = ""
+										}
+									}
+
+									Button {
+										text: qsTr("Cancel");
+										onClicked:
+										{
+											error.visible = false
+											newAddressWin.close()
+										}
+									}
+								}
 							}
 						}
 					}

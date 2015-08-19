@@ -29,7 +29,10 @@
 #include <QStandardPaths>
 #include <jsonrpccpp/server.h>
 #include <libethcore/CommonJS.h>
+#include <libethcore/KeyManager.h>
+#include <libsolidity/Types.h>
 #include <libethereum/Transaction.h>
+#include <libwebthree/WebThree.h>
 #include <libdevcore/FixedHash.h>
 #include "DebuggingStateWrapper.h"
 #include "Exceptions.h"
@@ -44,6 +47,7 @@
 
 using namespace dev;
 using namespace dev::eth;
+using namespace dev::solidity;
 using namespace std;
 
 namespace dev
@@ -257,6 +261,7 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 
 		m_accounts[address] = Account(qvariant_cast<QEther*>(account.value("balance"))->toU256Wei(), Account::NormalCreation);
 	}
+
 	m_ethAccounts->setAccounts(m_accountsSecret);
 
 	for (auto const& c: stateContracts)
@@ -566,8 +571,10 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 	QVariantList solCallStack;
 	map<int, QVariableDeclaration*> solLocals; //<stack pos, decl>
 	map<QString, QVariableDeclaration*> storageDeclarations; //<name, decl>
-
+	map<QString, SolidityDeclaration> localDecl; //<name, solDecl>
+	map<QString, u256> memoryLocation; //<name, location in memory>
 	unsigned prevInstructionIndex = 0;
+
 	for (MachineState const& s: _t.machineStates)
 	{
 		int instructionIndex = codeMaps[s.codeIndex][static_cast<unsigned>(s.curPC)];
@@ -582,7 +589,12 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 				//register new local variable initialization
 				auto localIter = contract->locals().find(LocationPair(instruction.getLocation().start, instruction.getLocation().end));
 				if (localIter != contract->locals().end())
+				{
+					localDecl[localIter.value().name] = localIter.value();
 					solLocals[s.stack.size()] = new QVariableDeclaration(debugData, localIter.value().name.toStdString(), localIter.value().type);
+					if (solLocals[s.stack.size()]->dataLocation() == DataLocation::Memory && memoryLocation.find(localIter.value().name) == memoryLocation.end())
+						memoryLocation[localIter.value().name] = s.stack[s.stack.size() - 1];
+				}
 			}
 
 			if (instruction.type() == eth::Tag)
@@ -596,6 +608,7 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 				{
 					solCallStack.pop_front();
 					solLocals.clear();
+					memoryLocation.clear();
 				}
 			}
 
@@ -609,10 +622,20 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 					if (l.second->type()->name().startsWith("mapping"))
 						break; //mapping type not yet managed
 					localDeclarations.push_back(QVariant::fromValue(l.second));
-					localValues[l.second->name()] = formatValue(l.second->type()->type(), s.stack[l.first]);
+					DataLocation loc = l.second->dataLocation();
+					if (loc == DataLocation::Memory)
+					{
+						u256 pos = memoryLocation[l.second->name()];
+						localValues[l.second->name()] = formatValue(l.second->type()->type(), s.memory, static_cast<unsigned>(pos));
+					}
+					else if (loc == DataLocation::Storage)
+						localValues[l.second->name()] = formatStorageValue(l.second->type()->type(), s.storage, localDecl[l.second->name()].offset, localDecl[l.second->name()].slot);
+					else
+						localValues[l.second->name()] = formatValue(l.second->type()->type(), s.stack[l.first]);
 				}
 			locals["variables"] = localDeclarations;
 			locals["values"] = localValues;
+
 
 			QVariantMap storage;
 			QVariantList storageDeclarationList;
@@ -656,7 +679,6 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 
 			solState = new QSolState(debugData, move(storage), move(solCallStack), move(locals), location.start, location.end, source);
 		}
-
 		states.append(QVariant::fromValue(new QMachineState(debugData, instructionIndex, s, codes[s.codeIndex], data[s.dataIndex], solState)));
 	}
 
@@ -666,9 +688,15 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 
 QVariant ClientModel::formatValue(SolidityType const& _type, u256 const& _value)
 {
-	ContractCallDataEncoder decoder;
 	bytes val = toBigEndian(_value);
-	QVariant res = decoder.decode(_type, val);
+	return formatValue(_type, val, 0);
+}
+
+QVariant ClientModel::formatValue(SolidityType const& _type, bytes const& _value, unsigned const& _offset)
+{
+	ContractCallDataEncoder decoder;
+	int pos = static_cast<int>(_offset);
+	QVariant res = decoder.decodeType(_type, _value, pos);
 	return res;
 }
 
@@ -686,28 +714,40 @@ QVariant ClientModel::formatStorageValue(SolidityType const& _type, unordered_ma
 	else if (_type.array)
 		count = _type.count;
 
+	if (_type.type == SolidityType::Struct)
+		count = _type.members.size();
+
+	SolidityType type = _type;
 	unsigned offset = _offset;
-	while (count--)
+	for (unsigned k = 0; k < count; ++k)
 	{
+		if (_type.type == SolidityType::Struct)
+			type = _type.members.at(k).type;
 
 		auto slotIter = _storage.find(slot);
 		u256 slotValue = slotIter != _storage.end() ? slotIter->second : u256();
 		bytes slotBytes = toBigEndian(slotValue);
-		auto start = slotBytes.end() - _type.size - offset;
-		bytes val(32 - _type.size); //prepend with zeroes
-		if (_type.type == SolidityType::SignedInteger && (*start & 0x80)) //extend sign
+		auto start = slotBytes.end() - type.size - offset;
+		bytes val(32 - type.size); //prepend with zeroes
+		if (type.type == SolidityType::SignedInteger && (*start & 0x80)) //extend sign
 			std::fill(val.begin(), val.end(), 0xff);
-		val.insert(val.end(), start, start + _type.size);
-		values.append(decoder.decode(_type, val));
-		offset += _type.size;
-		if ((offset + _type.size) > 32)
+		val.insert(val.end(), start, start + type.size);
+		values.append(decoder.decode(type, val));
+		offset += type.size;
+
+		if (_type.type == SolidityType::Struct)
+		{
+			slot++;
+			offset = _offset;
+		}
+		else if ((offset + type.size) > 32)
 		{
 			slot++;
 			offset = 0;
 		}
 	}
 
-	if (!_type.array)
+	if (!_type.array && !_type.type == SolidityType::Struct)
 		return values[0];
 
 	return QVariant::fromValue(values);
