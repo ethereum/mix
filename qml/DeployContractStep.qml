@@ -18,7 +18,7 @@ Rectangle {
 	anchors.fill: parent
 	id: root
 
-	property int labelWidth: 150
+	property int labelWidth: 150p
 	property bool verifyDeploy: true
 
 	function show()
@@ -103,7 +103,7 @@ Rectangle {
 			Label
 			{
 				Layout.fillWidth: true
-				text: qsTr("Pick Scenario to deploy")
+				text: qsTr("Pick scenario to deploy")
 			}
 
 			ComboBox
@@ -253,7 +253,7 @@ Rectangle {
 				{
 					anchors.left: parent.left
 					anchors.leftMargin: 105
-					text: qsTr("Deployment options")
+					text: qsTr("Select deployment options")
 				}
 
 				ListModel
