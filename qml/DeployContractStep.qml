@@ -18,7 +18,7 @@ Rectangle {
 	anchors.fill: parent
 	id: root
 
-	property int labelWidth: 150p
+	property int labelWidth: 150
 	property bool verifyDeploy: true
 
 	function show()
