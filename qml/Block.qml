@@ -18,7 +18,7 @@ ColumnLayout
 	property int blockWidth: Layout.preferredWidth - statusWidth - horizontalMargin
 	property int horizontalMargin: 10
 	property int trHeight: 35
-	spacing: 0
+	spacing: 1
 	property int openedTr: 0
 	property int blockIndex
 	property variant scenario
@@ -110,15 +110,13 @@ ColumnLayout
 				}
 			}
 
-			Image {
+			Button {
+				iconSource: "qrc:/qml/img/edit_combox.png"
 				anchors.verticalCenter: parent.verticalCenter
 				anchors.right: parent.right
 				anchors.rightMargin: 14
 				visible: number === -2
-				source: "qrc:/qml/img/edit_combox.png"
-				height: 15
-				fillMode: Image.PreserveAspectFit
-
+				height: 25
 				MouseArea
 				{
 					anchors.fill: parent
@@ -266,9 +264,6 @@ ColumnLayout
 					onClicked: {
 						if (!rowContentTr.selected)
 							rowContentTr.select()
-						else
-							rowContentTr.deselect()
-
 					}
 					onDoubleClicked:
 					{

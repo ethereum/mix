@@ -72,7 +72,7 @@ Rectangle {
 		spacing: 15
 		Rectangle
 		{
-			height: 15
+			height: 20
 			width: parent.width - 30
 			color: "transparent"
 			Row
@@ -80,7 +80,7 @@ Rectangle {
 				id: rowHeader
 				anchors.horizontalCenter: parent.horizontalCenter
 				anchors.top: rowHeader.parent.top
-				anchors.topMargin: 6
+				anchors.topMargin: 8
 				spacing: 5
 				Label {
 					id: fromLabel
@@ -118,13 +118,12 @@ Rectangle {
 				}
 			}
 
-			Image {
+			Button {
 				anchors.right: rowHeader.parent.right
 				anchors.top: rowHeader.parent.top
 				anchors.topMargin: 5
-				source: "qrc:/qml/img/edit_combox.png"
-				height: 15
-				fillMode: Image.PreserveAspectFit
+				iconSource: "qrc:/qml/img/edit_combox.png"
+				height: 25
 				visible: from.text !== ""
 				MouseArea
 				{

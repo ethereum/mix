@@ -131,12 +131,12 @@ Rectangle {
 				{
 					anchors.left: parent.left
 					anchors.leftMargin: 10
-					width: 30
+					width: 40
 					height: parent.height
 					color: "transparent"
 					anchors.verticalCenter: parent.verticalCenter
 					Image {
-						source: "qrc:/qml/img/leftarrow@2x.png"
+						source: "qrc:/qml/img/leftarrowcircle.png"
 						width: parent.width
 						fillMode: Image.PreserveAspectFit
 						anchors.centerIn: parent
@@ -162,7 +162,7 @@ Rectangle {
 			{
 				Layout.preferredWidth: parent.width
 				Layout.preferredHeight: parent.height
-				color: "#2C79D3"
+				color: "#accbf2"
 				Text {
 					id: trName
 					color: "white"
@@ -323,7 +323,7 @@ Rectangle {
 									style: SliderStyle {
 										groove: Rectangle {
 											implicitHeight: 3
-											color: "#7da4cd"
+											color: "#accbf2"
 											radius: 8
 										}
 										handle: Rectangle {

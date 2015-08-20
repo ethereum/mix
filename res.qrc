@@ -96,5 +96,6 @@
         <file>qml/img/edittransaction2@2x.png</file>
         <file>qml/img/edittransaction.png</file>
         <file>qml/img/edittransaction2.png</file>
+        <file>qml/img/leftarrowcircle.png</file>
     </qresource>
 </RCC>

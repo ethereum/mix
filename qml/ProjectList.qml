@@ -38,6 +38,7 @@ Item {
 				fillMode: Image.PreserveAspectFit
 				width: 32
 				height: 32
+				visible: false
 			}
 
 			Text

@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <boost/asio.hpp>
 #include "QVariableDeclaration.h"
 #include "QVariableDefinition.h"
 
@@ -61,7 +62,7 @@ public:
 	/// Decode bytes from ABI
 	dev::bytes decodeBytes(dev::bytes const& _rawValue);
 	/// Decode struct
-	QVariantList decodeStruct(SolidityType const& _type, dev::bytes const& _rawValue, unsigned const& _offset = 0);
+	QVariantList decodeStruct(SolidityType const& _type, dev::bytes const& _rawValue, int& _offset);
 	/// Decode array
 	QJsonArray decodeArray(SolidityType const& _type, bytes const& _value, int& pos);
 	/// Decode array items
@@ -70,11 +71,15 @@ public:
 	QString decodeEnum(bytes _value);
 	/// Decode type
 	QVariant decodeType(SolidityType _type, bytes _value, int& _readPosition);
-
+	/// Decode int
+	bigint decodeInt(dev::bytes const& _rawValue);
+	/// Format storage
+	QVariant formatStorageValue(SolidityType const& _type, std::unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot);
+	/// Decode raw array
+	QVariant decodeRawArray(SolidityType const& _type, bytes const& _value, int& pos);
 
 private:
 	unsigned encodeSingleItem(QString const& _data, SolidityType const& _type, bytes& _dest);
-	bigint decodeInt(dev::bytes const& _rawValue);
 	dev::bytes encodeInt(QString const& _str);
 	QString toString(dev::bigint const& _int);
 	dev::bytes encodeBool(QString const& _str);

@@ -27,6 +27,18 @@ ColumnLayout {
 	signal rebuilding
 	signal accountAdded(string address, string amount)
 
+	Keys.onUpPressed:
+	{
+		var next = blockModel.getNextTx(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
+		blockChainRepeater.select(next[0], next[1])
+	}
+
+	Keys.onDownPressed:
+	{
+		var prev = blockModel.getPrevTx(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
+		blockChainRepeater.select(prev[0], prev[1])
+	}
+
 	Connections
 	{
 		target: projectModel.stateListModel
@@ -178,6 +190,8 @@ ColumnLayout {
 				{
 					id: blockChainRepeater
 					model: blockModel
+					property int blockSelected
+					property int txSelected
 
 					function editTx(blockIndex, txIndex)
 					{
@@ -186,6 +200,8 @@ ColumnLayout {
 
 					function select(blockIndex, txIndex)
 					{
+						blockSelected = blockIndex
+						txSelected = txIndex
 						itemAt(blockIndex).select(txIndex)
 					}
 
@@ -285,6 +301,44 @@ ColumnLayout {
 		function setTransactionProperty(blockIndex, trIndex, propertyName, value)
 		{
 			blockModel.get(blockIndex).transactions.set(trIndex, { propertyName: value })
+		}
+
+		function getNextTx(blockIndex, txIndex)
+		{
+			var next = []
+			var nextTx = blockIndex
+			var nextBlock = txIndex
+			var txCount = blockModel.get(blockIndex).transactions.count;
+			if (txCount > txIndex)
+				nextTx = txIndex + 1
+			else if (blockModel.count > blockIndex)
+			{
+				nextTx = 0;
+				nextBlock = blockIndex + 1
+			}
+			next.push(nextBlock)
+			next.push(txIndex)
+			return next
+		}
+
+		function getPrevTx(blockIndex, txIndex)
+		{
+			var prev = []
+			var prevTx = blockIndex
+			var prevBlock = txIndex
+			if (txIndex === 0)
+			{
+				if (blockIndex !== 0)
+				{
+					prevBlock = blockIndex - 1
+					prevTx = blockModel.get(prevBlock).transactions.count - 1
+				}
+			}
+			else
+				txIndex = txIndex - 1
+			prev.push(prevBlock)
+			prev.push(prevTx)
+			return ret
 		}
 	}
 

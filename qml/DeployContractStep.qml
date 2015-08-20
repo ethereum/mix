@@ -251,8 +251,6 @@ Rectangle {
 
 				Label
 				{
-					anchors.left: parent.left
-					anchors.leftMargin: 105
 					text: qsTr("Deployment options")
 				}
 
@@ -270,7 +268,7 @@ Rectangle {
 						Label
 						{
 							text: qsTr("Account")
-							anchors.right: parent.right
+							anchors.left: parent.left
 							anchors.verticalCenter: parent.verticalCenter
 						}
 					}
@@ -303,7 +301,7 @@ Rectangle {
 						Label
 						{
 							text: qsTr("Gas Price")
-							anchors.right: parent.right
+							anchors.left: parent.left
 							anchors.verticalCenter: parent.verticalCenter
 						}
 					}
@@ -387,7 +385,7 @@ Rectangle {
 						Label
 						{
 							text: qsTr("Deployment Cost")
-							anchors.right: parent.right
+							anchors.left: parent.left
 							anchors.verticalCenter: parent.verticalCenter
 						}
 					}
