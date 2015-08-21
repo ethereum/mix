@@ -83,11 +83,12 @@ Rectangle
 			{
 				height: 20
 				width: parent.width - 30
+				anchors.horizontalCenter: parent.horizontalCenter
 				color: "transparent"
 				Row
 				{
 					id: rowHeader
-					anchors.horizontalCenter: parent.horizontalCenter
+					width: parent.width
 					anchors.top: rowHeader.parent.top
 					anchors.topMargin: 8
 					spacing: 5

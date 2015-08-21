@@ -38,8 +38,6 @@ Rectangle {
 
 	border.color: "#cccccc"
 	border.width: 1
-
-
 	Connections
 	{
 		id: deployStatus
@@ -144,7 +142,7 @@ Rectangle {
 							PropertyChanges { target: label; color: "white" }
 							PropertyChanges { target: labelContainer.border; color: "white" }
 							PropertyChanges { target: detail; color: "white" }
-							PropertyChanges { target: itemContainer; color: "#3395FE" }
+							PropertyChanges { target: itemContainer; color: "#accbf2" }
 						}
 					]
 				}
