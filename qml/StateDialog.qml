@@ -25,6 +25,7 @@ Dialog {
 	property var stateAccounts: []
 	property var stateContracts: []
 	signal accepted
+	signal closed
 
 	StateDialogStyle {
 		id: stateDialogStyle
@@ -67,6 +68,7 @@ Dialog {
 
 	function close() {
 		visible = false
+		closed()
 	}
 
 	function getItem() {

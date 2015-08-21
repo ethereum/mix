@@ -608,7 +608,6 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 				{
 					solCallStack.pop_front();
 					solLocals.clear();
-					memoryLocation.clear();
 					localDecl.clear();
 				}
 			}
@@ -662,7 +661,7 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 								storageDeclarations[storageDec->name()] = storageDec;
 							}
 							storageDeclarationList.push_back(QVariant::fromValue(storageDec));
-							//storageValues[storageDec->name()] = formatStorageValue(storageDec->type()->type(), s.storage, codeDec.offset, codeDec.slot);
+							storageValues[storageDec->name()] = formatStorageValue(storageDec->type()->type(), s.storage, codeDec.offset, codeDec.slot);
 						}
 					}
 				}
@@ -724,7 +723,7 @@ QVariant ClientModel::formatValue(SolidityType const& _type, bytes const& _value
 	return res;
 }
 
-QVariant ClientModel::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot)
+QVariant ClientModel::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned const& _offset, u256 const& _slot)
 {
 	ContractCallDataEncoder decoder;
 	return decoder.formatStorageValue(_type, _storage, _offset, _slot);

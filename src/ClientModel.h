@@ -266,7 +266,7 @@ private:
 	QString resolveToken(std::pair<QString, int> const& _value);
 	std::pair<QString, int> retrieveToken(QString const& _value);
 	std::pair<QString, int> resolvePair(QString const& _contractId);
-	QVariant formatStorageValue(SolidityType const& _type, std::unordered_map<dev::u256, dev::u256> const& _storage, unsigned _offset, dev::u256 const& _slot);
+	QVariant formatStorageValue(SolidityType const& _type, std::unordered_map<dev::u256, dev::u256> const& _storage, unsigned const& _offset, dev::u256 const& _slot);
 	void processNextTransactions();
 	void finalizeBlock();
 	void stopExecution();

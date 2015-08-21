@@ -32,7 +32,9 @@ Dialog {
 	property bool useTransactionDefaultValue: false
 	property alias stateAccounts: senderComboBox.model
 	property bool saveStatus
-	signal accepted;
+	signal accepted
+	signal closed
+
 	property int rowWidth: 500
 	StateDialogStyle {
 		id: transactionDialogStyle
@@ -167,6 +169,7 @@ Dialog {
 	function close()
 	{
 		visible = false;
+		closed()
 	}
 
 	function getItem()

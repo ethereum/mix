@@ -13,6 +13,7 @@ Column
 	property int transactionIndex
 	property string context
 	property bool readOnly
+	property variant parentDefinition
 	Layout.fillWidth: true
 	spacing: 0
 	property int colHeight
@@ -45,6 +46,7 @@ Column
 			Rectangle
 			{
 				Layout.preferredWidth: 150
+				id: labelVar
 				Row
 				{
 					anchors.right: parent.right
@@ -114,7 +116,6 @@ Column
 							var param = members[index].type.members[k]
 							val[param.name] = vals[pname][k]
 						}
-
 						item.value = val
 						item.members = members[index].type.members
 					}

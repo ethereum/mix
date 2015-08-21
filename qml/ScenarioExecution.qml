@@ -21,6 +21,11 @@ Rectangle {
 		}
 	}
 
+	onActiveFocusChanged:
+	{
+		blockChain.forceActiveFocus()
+	}
+
 	ScrollView
 	{
 		anchors.fill: parent
@@ -71,6 +76,7 @@ Rectangle {
 					{
 						watchers.clear()
 						blockChain.load(scenario, loader.selectedScenarioIndex)
+						blockChain.forceActiveFocus()
 					}
 				}
 

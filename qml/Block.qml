@@ -125,8 +125,7 @@ ColumnLayout
 						// load edit block panel
 						projectModel.stateListModel.editState(scenarioIndex)
 					}
-				}
-			
+				}			
 			}
 		}
 	}

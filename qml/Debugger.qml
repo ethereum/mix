@@ -337,6 +337,36 @@ Rectangle {
 										}
 									}
 								}
+
+								Rectangle
+								{
+									color: "transparent"
+									anchors.top: statesSlider.bottom
+									anchors.right: statesSlider.right
+									anchors.topMargin: 6
+									anchors.rightMargin: 33
+									height: 30
+									width: 50
+									Button {
+										Component.onCompleted:
+										{
+											updateLabel()
+										}
+
+										function updateLabel()
+										{
+											if (mainContent.debuggerPanel.assemblyMode)
+												text = qsTr("VM")
+											else
+												text = qsTr("Solidity")
+										}
+										onClicked:
+										{
+											mainContent.debuggerPanel.assemblyMode = !mainContent.debuggerPanel.assemblyMode;
+											updateLabel()
+										}
+									}
+								}
 							}
 						}
 					}
