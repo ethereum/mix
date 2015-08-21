@@ -244,14 +244,7 @@ Item {
 					width: 21
 					height: 21
 					focus: true
-				}
-
-				Rectangle
-				{
-					width: 1
-					height: parent.height - 10
-					color: webPreviewStyle.general.separatorColor
-					anchors.verticalCenter: parent.verticalCenter
+					tooltip: qsTr("Reload")
 				}
 
 				CheckBox {
@@ -267,14 +260,6 @@ Item {
 					focus: true
 				}
 
-				Rectangle
-				{
-					width: 1
-					height: parent.height - 10
-					color: webPreviewStyle.general.separatorColor
-					anchors.verticalCenter: parent.verticalCenter
-				}
-
 				Button
 				{
 					height: 22
@@ -282,6 +267,7 @@ Item {
 					anchors.verticalCenter: parent.verticalCenter
 					action: expressionAction
 					iconSource: "qrc:/qml/img/console.png"
+					tooltip: qsTr("JS console")
 				}
 
 				Action {
