@@ -57,6 +57,7 @@ Item {
 	property string registerUrlTrHash
 	property int registerContentHashBlockNumber: -1
 	property int registerUrlBlockNumber: -1
+	property alias deploymentDialog: deploymentDialog
 
 	//interface
 	function saveAll() { ProjectModelCode.saveAll(); }

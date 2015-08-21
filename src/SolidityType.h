@@ -25,6 +25,7 @@ along with cpp-ethereum.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QString>
 #include <vector>
+#include <libsolidity/Types.h>
 #include <libdevcore/Common.h>
 
 namespace dev
@@ -58,6 +59,7 @@ struct SolidityType
 	std::vector<SolidityDeclaration> members; //for struct
 	std::vector<QString> enumNames; //for enum
 	std::shared_ptr<SolidityType const> baseType;
+	solidity::DataLocation dataLocation;
 };
 
 struct SolidityDeclaration

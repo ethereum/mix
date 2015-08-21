@@ -543,7 +543,10 @@ void CodeModel::retrieveSubType(SolidityType& _wrapperType, dev::solidity::Type 
 
 SolidityType CodeModel::nodeType(dev::solidity::Type const* _type)
 {
-	SolidityType r { SolidityType::Type::UnsignedInteger, 32, 1, false, false, QString::fromStdString(_type->toString(true)), std::vector<SolidityDeclaration>(), std::vector<QString>(), nullptr };
+	SolidityType r { SolidityType::Type::UnsignedInteger, 32, 1, false, false, QString::fromStdString(_type->toString(true)), std::vector<SolidityDeclaration>(), std::vector<QString>(), nullptr, DataLocation::CallData };
+	auto ref = static_cast<ReferenceType const*>(_type);
+	if (ref)
+		r.dataLocation = ref->location();
 	if (!_type)
 		return r;
 	switch (_type->getCategory())
@@ -695,4 +698,3 @@ QVariantList GasMapWrapper::gasCostsBy(QString _contractName, QString _functionN
 	}
 	return gasMap;
 }
-

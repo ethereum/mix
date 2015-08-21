@@ -238,6 +238,7 @@ Rectangle {
 						debugPanel.visible = false
 						scenarioExe.visible = true
 						scenarioExe.width = debugPanel.width
+						scenarioExe.forceActiveFocus()
 					}
 				}
 			}

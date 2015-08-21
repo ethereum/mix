@@ -27,6 +27,18 @@ ColumnLayout {
 	signal rebuilding
 	signal accountAdded(string address, string amount)
 
+	Keys.onUpPressed:
+	{
+		var prev = blockModel.getPrevTx(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
+		blockChainRepeater.select(prev[0], prev[1])
+	}
+
+	Keys.onDownPressed:
+	{
+		var next = blockModel.getNextTx(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
+		blockChainRepeater.select(next[0], next[1])
+	}
+
 	Connections
 	{
 		target: projectModel.stateListModel
@@ -73,23 +85,23 @@ ColumnLayout {
 
 
 	onChainChanged: {
-			if (rebuild.txSha3[blockIndex][txIndex] !== codeModel.sha3(JSON.stringify(model.blocks[blockIndex].transactions[txIndex])))
+		if (rebuild.txSha3[blockIndex][txIndex] !== codeModel.sha3(JSON.stringify(model.blocks[blockIndex].transactions[txIndex])))
+		{
+			rebuild.txChanged.push(rebuild.txSha3[blockIndex][txIndex])
+			rebuild.needRebuild("txChanged")
+		}
+		else {
+			for (var k in rebuild.txChanged)
 			{
-				rebuild.txChanged.push(rebuild.txSha3[blockIndex][txIndex])
-				rebuild.needRebuild("txChanged")
-			}
-			else {
-				for (var k in rebuild.txChanged)
+				if (rebuild.txChanged[k] === rebuild.txSha3[blockIndex][txIndex])
 				{
-					if (rebuild.txChanged[k] === rebuild.txSha3[blockIndex][txIndex])
-					{
-						rebuild.txChanged.splice(k, 1)
-						break
-					}
+					rebuild.txChanged.splice(k, 1)
+					break
 				}
-				if (rebuild.txChanged.length === 0)
-					rebuild.notNeedRebuild("txChanged")
 			}
+			if (rebuild.txChanged.length === 0)
+				rebuild.notNeedRebuild("txChanged")
+		}
 	}
 
 	onWidthChanged:
@@ -144,6 +156,14 @@ ColumnLayout {
 
 	Rectangle
 	{
+		MouseArea
+		{
+			anchors.fill: parent
+			onClicked:
+			{
+				blockChainPanel.forceActiveFocus()
+			}
+		}
 		Layout.preferredHeight: 500
 		Layout.preferredWidth: parent.width
 		border.color: "#cccccc"
@@ -174,10 +194,25 @@ ColumnLayout {
 					trHeight: 60
 				}
 
+				Connections
+				{
+					target: projectModel.stateDialog
+					onAccepted:
+					{
+						blockChainPanel.forceActiveFocus()
+					}
+					onClosed:
+					{
+						blockChainPanel.forceActiveFocus()
+					}
+				}
+
 				Repeater // List of blocks
 				{
 					id: blockChainRepeater
 					model: blockModel
+					property int blockSelected
+					property int txSelected
 
 					function editTx(blockIndex, txIndex)
 					{
@@ -186,7 +221,10 @@ ColumnLayout {
 
 					function select(blockIndex, txIndex)
 					{
+						blockSelected = blockIndex
+						txSelected = txIndex
 						itemAt(blockIndex).select(txIndex)
+						blockChainPanel.forceActiveFocus()
 					}
 
 					Block
@@ -286,6 +324,41 @@ ColumnLayout {
 		{
 			blockModel.get(blockIndex).transactions.set(trIndex, { propertyName: value })
 		}
+
+		function getNextTx(blockIndex, txIndex)
+		{
+			var next = []
+			var nextTx = txIndex
+			var nextBlock = blockIndex
+			var txCount = blockModel.get(blockIndex).transactions.count;
+			if (txCount - 1 > txIndex)
+				nextTx = txIndex + 1
+			else if (blockModel.count - 1 > blockIndex)
+			{
+				nextTx = 0;
+				nextBlock = blockIndex + 1
+			}
+			next.push(nextBlock)
+			next.push(nextTx)
+			return next
+		}
+
+		function getPrevTx(blockIndex, txIndex)
+		{
+			var prev = []
+			var prevTx = txIndex
+			var prevBlock = blockIndex
+			if (txIndex === 0 && blockIndex !== 0)
+			{
+				prevBlock = blockIndex - 1
+				prevTx = blockModel.get(prevBlock).transactions.count - 1
+			}
+			else if (txIndex > 0)
+				prevTx = txIndex - 1
+			prev.push(prevBlock)
+			prev.push(prevTx)
+			return prev;
+		}
 	}
 
 	Rectangle
@@ -302,7 +375,7 @@ ColumnLayout {
 
 			Rectangle {
 				Layout.preferredWidth: 100
-				Layout.preferredHeight: 30				
+				Layout.preferredHeight: 30
 				ScenarioButton {
 					id: rebuild
 					text: qsTr("Rebuild")
@@ -399,12 +472,14 @@ ColumnLayout {
 							blockModel.append(model.blocks[j])
 
 						ensureNotFuturetime.start()
+
 						takeCodeSnapshot()
 						takeTxSnaphot()
 						takeAccountsSnapshot()
 						takeContractsSnapShot()
 						blinkReasons = []
-						clientModel.setupScenario(model);						
+						clientModel.setupScenario(model);
+						blockChainPanel.forceActiveFocus()
 					}
 
 					function takeContractsSnapShot()
@@ -657,8 +732,14 @@ ColumnLayout {
 				blockModel.setTransaction(blockIndex, transactionIndex, item)
 				chainChanged(blockIndex, transactionIndex, item)
 			}
+			blockChainPanel.forceActiveFocus()
 		}
+
+		onClosed:
+		{
+			blockChainPanel.forceActiveFocus()
+		}
+
 	}
 }
-
 

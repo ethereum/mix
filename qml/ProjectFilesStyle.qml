@@ -23,7 +23,7 @@ QtObject {
 		property string color: "#4d4d4d"
 		property string sectionColor: "#808080"
 		property string selectedColor: "white"
-		property string highlightColor: "#4a90e2"
+		property string highlightColor: "#accbf2"
 		property int height: 35
 		property int fileNameHeight: 30
 		property int fontSize: absoluteSize(2)// 13
