@@ -60,7 +60,7 @@ Rectangle {
 			anchors.top: parent.top
 			Layout.fillWidth: true
 
-			text: qsTr("Upload and update your Dapp assets")
+			text: qsTr("Upload and update your dapp assets")
 		}
 
 		RowLayout
@@ -72,7 +72,7 @@ Rectangle {
 				Layout.preferredWidth: col.width / 5
 				Label
 				{
-					text: qsTr("Save Package to")
+					text: qsTr("Save packaged dapp to")
 					anchors.left: parent.left
 					anchors.verticalCenter: parent.verticalCenter
 				}
@@ -159,7 +159,7 @@ Rectangle {
 		Label
 		{
 			Layout.preferredWidth: 300
-			text: qsTr("You have to upload the package to a remote folder, or use a service like pastebin")
+			text: qsTr("To share your dapp, upload the package to a remote folder by copying the Base64 to a service like pastebin")
 			wrapMode: Text.WordWrap
 			clip: true
 		}

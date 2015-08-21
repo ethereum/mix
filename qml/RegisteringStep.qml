@@ -96,7 +96,7 @@ Rectangle {
 		{
 			anchors.top: parent.top
 			Layout.fillWidth: true
-			text: qsTr("Register your Dapp on the Name registrar Contract")
+			text: qsTr("Register the internet and Ethereum URL of your dapp on the main name registrar to make it easily accesible to users")
 		}
 
 		RowLayout

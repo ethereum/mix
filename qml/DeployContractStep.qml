@@ -103,7 +103,7 @@ Rectangle {
 			Label
 			{
 				Layout.fillWidth: true
-				text: qsTr("Pick Scenario to deploy")
+				text: qsTr("Pick scenario to deploy")
 			}
 
 			ComboBox
@@ -251,7 +251,9 @@ Rectangle {
 
 				Label
 				{
-					text: qsTr("Deployment options")
+					anchors.left: parent.left
+					anchors.leftMargin: 105
+					text: qsTr("Select deployment options")
 				}
 
 				ListModel
@@ -267,7 +269,7 @@ Rectangle {
 						width: labelWidth
 						Label
 						{
-							text: qsTr("Account")
+							text: qsTr("Deployment account")
 							anchors.left: parent.left
 							anchors.verticalCenter: parent.verticalCenter
 						}
@@ -300,7 +302,7 @@ Rectangle {
 						width: labelWidth
 						Label
 						{
-							text: qsTr("Gas Price")
+							text: qsTr("Gas price")
 							anchors.left: parent.left
 							anchors.verticalCenter: parent.verticalCenter
 						}
@@ -384,7 +386,7 @@ Rectangle {
 						width: labelWidth
 						Label
 						{
-							text: qsTr("Deployment Cost")
+							text: qsTr("Deployment cost")
 							anchors.left: parent.left
 							anchors.verticalCenter: parent.verticalCenter
 						}
@@ -511,7 +513,7 @@ Rectangle {
 				{
 					id: deployBtn
 					anchors.right: parent.right
-					text: qsTr("Deploy Contracts")
+					text: qsTr("Deploy contracts")
 					onClicked:
 					{
 						projectModel.deployedScenarioIndex = contractList.currentIndex
