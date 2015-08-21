@@ -51,6 +51,7 @@ RowLayout {
 		readOnly: !edit
 		visible: edit
 		id: etherValueEdit;
+		Layout.fillWidth: true
 	}
 
 	ComboBox

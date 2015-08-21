@@ -212,11 +212,10 @@ Item {
 				anchors.leftMargin: 3
 				spacing: 3
 
-				DefaultTextField
+				TextField
 				{
 					id: urlInput
 					anchors.verticalCenter: parent.verticalCenter
-					height: 21
 					width: 300
 					Keys.onEnterPressed:
 					{

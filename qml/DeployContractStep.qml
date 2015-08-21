@@ -280,7 +280,7 @@ Rectangle {
 						id: accountsList
 						textRole: "id"
 						model: accountsModel
-						Layout.preferredWidth: 235
+						Layout.fillWidth: true
 						onCurrentTextChanged:
 						{
 							worker.currentAccount = currentText
@@ -404,82 +404,68 @@ Rectangle {
 
 				Rectangle
 				{
-					border.color: "#cccccc"
-					border.width: 2
 					Layout.fillWidth: true
 					Layout.preferredHeight: parent.height + 25
 					color: "transparent"
 					id: rectDeploymentVariable
-					ScrollView
+					ColumnLayout
 					{
-						anchors.fill: parent
-                        anchors.topMargin: 4
-                        anchors.bottomMargin: 4
-						ColumnLayout
+						width: parent.width - 7
+						RowLayout
 						{
-							RowLayout
+							id: deployedRow
+							Layout.fillWidth: true
+							Rectangle
 							{
-								id: deployedRow
-								Layout.fillWidth: true
-								Rectangle
+								width: labelWidth
+								Label
 								{
-									width: labelWidth
-									Label
-									{
-										id: labelAddresses
-										text: qsTr("Deployed Contracts")
-										anchors.right: parent.right
-										anchors.verticalCenter: parent.verticalCenter
-									}
-								}
-
-								ColumnLayout
-								{
-									anchors.top: parent.top
-									anchors.topMargin: 1
-									width: parent.width
-									id: deployedAddresses
-									function refresh()
-									{
-										textAddresses.text = ""
-										deployedRow.visible = Object.keys(projectModel.deploymentAddresses).length > 0
-										textAddresses.text = JSON.stringify(projectModel.deploymentAddresses, null, ' ')
-									}
-									TextArea
-									{
-										anchors.fill: parent
-										id: textAddresses
-									}
+									id: labelAddresses
+									text: qsTr("Deployed Contracts")
+									anchors.right: parent.right
+									anchors.verticalCenter: parent.verticalCenter
 								}
 							}
 
-							RowLayout
+							TextArea
 							{
-								id: verificationRow
 								Layout.fillWidth: true
-								visible: Object.keys(projectModel.deploymentAddresses).length > 0
-								Rectangle
+								id: deployedAddresses
+								function refresh()
 								{
-									width: labelWidth
-									Label
-									{
-										text: qsTr("Verifications")
-										anchors.right: parent.right
-										anchors.verticalCenter: parent.verticalCenter
-									}
+									textAddresses.text = ""
+									deployedRow.visible = Object.keys(projectModel.deploymentAddresses).length > 0
+									text = JSON.stringify(projectModel.deploymentAddresses, null, ' ')
 								}
+							}
+						}
 
-								TextArea
-								{
-									id: verificationTextArea
-									visible: false
-								}
-
+						RowLayout
+						{
+							id: verificationRow
+							Layout.fillWidth: true
+							visible: Object.keys(projectModel.deploymentAddresses).length > 0
+							Rectangle
+							{
+								width: labelWidth
 								Label
 								{
-									id: verificationLabel
-									visible: true
+									text: qsTr("Verifications")
+									anchors.right: parent.right
+									anchors.verticalCenter: parent.verticalCenter
 								}
+							}
+
+							TextArea
+							{
+								id: verificationTextArea
+								visible: false
+							}
+
+							Label
+							{
+								id: verificationLabel
+								visible: true
 							}
 						}
 					}

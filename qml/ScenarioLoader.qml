@@ -213,6 +213,7 @@ ColumnLayout
 					id: scenarioNameEdit
 					anchors.left: deleteImg.right
 					anchors.leftMargin: 2
+					anchors.verticalCenter: parent.verticalCenter
 					height: parent.height
 					z: 5
 					visible: false
@@ -250,17 +251,6 @@ ColumnLayout
 						scenarioList.model.get(scenarioList.currentIndex).title = scenarioNameEdit.text
 						scenarioList.currentIndex = scenarioList.currentIndex
 						renamed(projectModel.stateListModel.getState(scenarioList.currentIndex))
-					}
-
-					style: TextFieldStyle {
-						background: Rectangle {
-									radius: 2
-									implicitWidth: 100
-									implicitHeight: 30
-									color: "white"
-									border.color: "#cccccc"
-									border.width: 1
-								}
 					}
 
 					InverseMouseArea {
