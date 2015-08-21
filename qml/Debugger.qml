@@ -356,9 +356,9 @@ Rectangle {
 										function updateLabel()
 										{
 											if (mainContent.debuggerPanel.assemblyMode)
-												text = qsTr("VM")
-											else
 												text = qsTr("Solidity")
+											else
+												text = qsTr("VM")
 										}
 										onClicked:
 										{

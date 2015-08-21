@@ -184,7 +184,7 @@ function selectState(stateIndex)
 function highlightSelection(index)
 {
 	if (statesList.visible)
-		statesList.positionViewAtRow(index, ListView.Visible);
+		statesList.positionViewAtRow(index, ListView.Center);
 	statesList.selection.clear();
 	statesList.selection.select(index);
 }
