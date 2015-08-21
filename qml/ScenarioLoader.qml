@@ -42,15 +42,27 @@ ColumnLayout
 
 		Row
 		{
-			Layout.preferredWidth: 100 * 5 + 30
+			Layout.preferredWidth: 100 * 6 + 130
 			Layout.preferredHeight: 50
 			spacing: 25
 
 			Rectangle
 			{
 				color: "white"
-				width: 251 + 30
+				width: 180
 				height: 30
+
+				Rectangle
+				{
+					anchors.top: parent.bottom
+					anchors.topMargin: 15
+					width: parent.width
+					Label
+					{
+						text: qsTr("Scenario")
+						anchors.centerIn: parent
+					}
+				}
 
 				Rectangle
 				{
@@ -58,66 +70,7 @@ ColumnLayout
 					width: 10
 					height: parent.height
 					anchors.left: parent.left
-					anchors.leftMargin: -5
 					radius: 15
-				}
-
-				Image {
-					source: "qrc:/qml/img/edittransaction.png"
-					height: parent.height - 10
-					fillMode: Image.PreserveAspectFit
-					anchors.left: parent.left
-					anchors.top: parent.top
-					anchors.topMargin: 4
-					id: editImg
-					MouseArea
-					{
-						anchors.fill: parent
-						onClicked:
-						{
-							scenarioNameEdit.toggleEdit()
-						}
-					}
-				}
-
-				Image {
-					source: "qrc:/qml/img/delete_sign.png"
-					height: parent.height - 16
-					fillMode: Image.PreserveAspectFit
-					id: deleteImg
-					anchors.left: editImg.right
-					anchors.top: parent.top
-					anchors.topMargin: 8
-					visible: projectModel.stateListModel.count > 1
-					MouseArea
-					{
-						anchors.fill: parent
-						onClicked:
-						{
-							if (projectModel.stateListModel.count > 1)
-							{
-								projectModel.stateListModel.deleteState(scenarioList.currentIndex)
-								scenarioList.init()
-							}
-						}
-					}
-				}
-
-				Label
-				{
-
-					MouseArea
-					{
-						anchors.fill: parent
-						onClicked:
-						{
-							if (projectModel.stateListModel.count > 1)
-							{
-								projectModel.stateListModel.deleteState(scenarioList.currentIndex)
-								scenarioList.init()
-							}
-						}
-					}
 				}
 
 				Connections
@@ -217,7 +170,7 @@ ColumnLayout
 					height: parent.height
 					z: 5
 					visible: false
-					width: 150
+					width: 185
 					Keys.onEnterPressed:
 					{
 						toggleEdit()
@@ -265,7 +218,64 @@ ColumnLayout
 
 				Rectangle
 				{
-					width: 1					
+					width: 10
+					height: parent.height
+					anchors.right: parent.right
+					anchors.rightMargin: -4
+					color: "white"
+					radius: 15
+				}
+			}
+
+
+			Rectangle
+			{
+				width: 100 * 6
+				height: 30
+				color: "transparent"
+
+				ScenarioButton {
+					id: editScenario
+					width: 100
+					height: parent.height
+					sourceImg: "qrc:/qml/img/edittransaction.png"
+					onClicked: {
+						scenarioNameEdit.toggleEdit()
+					}
+					text: qsTr("Edit Title")
+					roundRight: false
+					roundLeft: true
+				}
+
+				Rectangle
+				{
+					width: 1
+					height: parent.height
+					anchors.right: deleteScenario.left
+					color: "#ededed"
+				}
+
+				ScenarioButton {
+					id: deleteScenario
+					width: 100
+					height: parent.height
+					anchors.left: editScenario.right
+					sourceImg: "qrc:/qml/img/warningicon.png"
+					onClicked: {
+						if (projectModel.stateListModel.count > 1)
+						{
+							projectModel.stateListModel.deleteState(scenarioList.currentIndex)
+							scenarioList.init()
+						}
+					}
+					text: qsTr("Delete")
+					roundRight: false
+					roundLeft: false
+				}
+
+				Rectangle
+				{
+					width: 1
 					height: parent.height
 					anchors.right: addScenario.left
 					color: "#ededed"
@@ -273,10 +283,9 @@ ColumnLayout
 
 				ScenarioButton {
 					id: addScenario
-					anchors.left: scenarioList.right
 					width: 100
 					height: parent.height
-					buttonShortcut: ""
+					anchors.left: deleteScenario.right
 					sourceImg: "qrc:/qml/img/restoreicon@2x.png"
 					onClicked: {
 						var item = projectModel.stateListModel.createDefaultState();
@@ -286,23 +295,24 @@ ColumnLayout
 						scenarioList.currentIndex = projectModel.stateListModel.count - 1
 						clientModel.setupScenario(item);
 					}
-					text: qsTr("New...")
-					roundRight: true
+					text: qsTr("New")
+					roundRight: false
 					roundLeft: false
 				}
-			}
 
-
-			Rectangle
-			{
-				width: 100 * 3
-				height: 30
-				color: "transparent"
+				Rectangle
+				{
+					width: 1
+					height: parent.height
+					anchors.right: restoreScenario.left
+					color: "#ededed"
+				}
 
 				ScenarioButton {
 					id: restoreScenario
 					width: 100
 					height: parent.height
+					anchors.left: addScenario.right
 					buttonShortcut: ""
 					sourceImg: "qrc:/qml/img/restoreicon@2x.png"
 					onClicked: {
@@ -319,7 +329,7 @@ ColumnLayout
 						}
 					}
 					roundRight: false
-					roundLeft: true
+					roundLeft: false
 				}
 
 				Rectangle
