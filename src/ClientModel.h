@@ -29,8 +29,8 @@
 #include <QQmlListProperty>
 #include <QVariantMap>
 #include <QFuture>
-#include <QVariableDeclaration.h>
 #include <libethereum/Account.h>
+#include "QVariableDeclaration.h"
 #include "MachineStates.h"
 #include "QEther.h"
 

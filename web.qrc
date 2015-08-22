@@ -41,5 +41,8 @@
 		<file>qml/html/cm/xml.js</file>
 		<file>qml/html/codeeditor.html</file>
 		<file>qml/html/codeeditor.js</file>
+		<file alias="web3.js">../cpp-ethereum/libjsqrc/ethereumjs/dist/web3.js</file>
+		<file alias="admin.js">../cpp-ethereum/libjsqrc/admin.js</file>
+		<file alias="setup.js">../cpp-ethereum/libjsqrc/setup.js</file>
 	</qresource>
 </RCC>
