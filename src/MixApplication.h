@@ -42,11 +42,7 @@ class ApplicationService: public QObject
 public:
 	ApplicationService();
 	int systemPointSize() const { return m_systemPointSize; }
-#ifdef ETH_HAVE_WEBENGINE
 	bool haveWebEngine() const { return true; }
-#else
-	bool haveWebEngine() const { return false; }
-#endif
 
 private:
 	int m_systemPointSize = 0;
