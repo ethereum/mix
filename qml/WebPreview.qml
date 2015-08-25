@@ -96,7 +96,7 @@ Item {
 
 	Connections {
 		target: clientModel
-		onRunComplete: reload();
+		onSetupFinished: reload();
 	}
 
 	Connections {

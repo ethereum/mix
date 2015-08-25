@@ -287,6 +287,7 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 	m_client->resetState(m_accounts, Secret(_scenario.value("miner").toMap().value("secret").toString().toStdString()));
 	if (m_queueTransactions.count() > 0 && trToExecute)
 	{
+		m_executionCtx = ExecutionCtx::Rebuild;
 		setupExecutionChain();
 		processNextTransactions();
 	}
@@ -307,6 +308,9 @@ void ClientModel::stopExecution()
 	disconnect(this, &ClientModel::runStateChanged, this, &ClientModel::finalizeBlock);
 	disconnect(this, &ClientModel::runFailed, this, &ClientModel::stopExecution);
 	m_running = false;
+	if (m_executionCtx == ExecutionCtx::Rebuild)
+		setupFinished();
+	m_executionCtx = ExecutionCtx::Idle;
 }
 
 void ClientModel::finalizeBlock()
@@ -490,6 +494,7 @@ void ClientModel::executeTr(QVariantMap _tr)
 	if (!m_running)
 	{
 		m_running = true;
+		m_executionCtx = ExecutionCtx::ExecuteTx;
 		setupExecutionChain();
 		processNextTransactions();
 	}

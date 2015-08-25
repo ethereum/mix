@@ -76,9 +76,8 @@ Rectangle {
 				verifyDeploy = false
 				verificationTextArea.visible = true
 				verificationLabel.visible = false
-				verificationTextArea.text = ""
-				deploymentStepChanged("following transactions are invalidated:")
-				verificationTextArea.text += "\n" + qsTr("Transactions lost") + "\n"
+				verificationTextArea.text = qsTr("Following transactions are invalidated:") + "\n"
+				deploymentStepChanged(qsTr("Following transactions are invalidated:"))
 				verificationTextArea.textColor = "red"
 				for (var k in trLost)
 				{
@@ -126,7 +125,12 @@ Rectangle {
 						for (var k = 0; k < projectModel.stateListModel.get(currentIndex).blocks.count; k++)
 						{
 							for (var j = 0; j < projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.count; j++)
-								trListModel.append(projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.get(j));
+							{
+								var tx = projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.get(j)
+								console.log(JSON.stringify(tx))
+								if (tx.isFunctionCall || tx.isContractCreation)
+									trListModel.append(projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.get(j));
+							}
 						}
 						for (var k = 0; k < trListModel.count; k++)
 							trList.itemAt(k).init()
@@ -430,10 +434,10 @@ Rectangle {
 							TextArea
 							{
 								Layout.fillWidth: true
+								Layout.preferredHeight: 100
 								id: deployedAddresses
 								function refresh()
 								{
-									textAddresses.text = ""
 									deployedRow.visible = Object.keys(projectModel.deploymentAddresses).length > 0
 									text = JSON.stringify(projectModel.deploymentAddresses, null, ' ')
 								}
@@ -460,6 +464,9 @@ Rectangle {
 							{
 								id: verificationTextArea
 								visible: false
+								Layout.preferredHeight: 65
+								Layout.fillWidth: true
+
 							}
 
 							Label
@@ -468,6 +475,7 @@ Rectangle {
 								visible: true
 							}
 						}
+
 					}
 				}
 			}

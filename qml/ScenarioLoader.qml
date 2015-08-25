@@ -84,7 +84,6 @@ ColumnLayout
 				ComboBox
 				{
 					id: scenarioList
-					anchors.left: deleteImg.right
 					anchors.leftMargin: 2
 					model: projectModel.stateListModel
 					anchors.top: parent.top
@@ -164,7 +163,6 @@ ColumnLayout
 				TextField
 				{
 					id: scenarioNameEdit
-					anchors.left: deleteImg.right
 					anchors.leftMargin: 2
 					anchors.verticalCenter: parent.verticalCenter
 					height: parent.height

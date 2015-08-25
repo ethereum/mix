@@ -44,6 +44,7 @@ Dialog {
 				miner = k
 		}
 
+		contractsModel.clear()
 		stateContracts = []
 		if (item.contracts) {
 			for (k = 0; k < item.contracts.length; k++) {
@@ -166,7 +167,7 @@ Dialog {
 							TableViewColumn {
 								role: "name"
 								title: qsTr("Name")
-								width: 230
+								width: 260
 								delegate: Item {
 									RowLayout {
 										height: 25
@@ -175,6 +176,7 @@ Dialog {
 										Button {
 											iconSource: "qrc:/qml/img/delete_sign.png"
 											action: deleteContractAction
+											anchors.verticalCenter: parent.verticalCenter
 										}
 
 										Action {
@@ -187,6 +189,7 @@ Dialog {
 										}
 
 										DefaultTextField {
+											Layout.fillWidth: true
 											anchors.verticalCenter: parent.verticalCenter
 											onTextChanged: {
 												if (styleData.row > -1)
@@ -201,9 +204,11 @@ Dialog {
 							TableViewColumn {
 								role: "balance"
 								title: qsTr("Balance")
-								width: 200
+								width: 230
 								delegate: Item {
 									Ether {
+										width: parent.width
+										anchors.verticalCenter: parent.verticalCenter
 										edit: true
 										displayFormattedValue: false
 										value: styleData.value
@@ -271,14 +276,16 @@ Dialog {
 							TableViewColumn {
 								role: "name"
 								title: qsTr("Name")
-								width: 230
+								width: 260
 								delegate: Item {
 									RowLayout {
 										height: 25
 										width: parent.width
+										anchors.verticalCenter: parent.verticalCenter
 										Button {
 											iconSource: "qrc:/qml/img/delete_sign.png"
 											action: deleteAccountAction
+											anchors.verticalCenter: parent.verticalCenter
 										}
 
 										Action {
@@ -291,6 +298,7 @@ Dialog {
 										}
 
 										DefaultTextField {
+											Layout.fillWidth: true
 											anchors.verticalCenter: parent.verticalCenter
 											onTextChanged: {
 												if (styleData.row > -1) {
@@ -311,9 +319,11 @@ Dialog {
 							TableViewColumn {
 								role: "balance"
 								title: qsTr("Balance")
-								width: 200
+								width: 230
 								delegate: Item {
 									Ether {
+										width: parent.width
+										anchors.verticalCenter: parent.verticalCenter
 										edit: true
 										displayFormattedValue: false
 										value: styleData.value
