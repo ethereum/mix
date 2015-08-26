@@ -160,6 +160,13 @@ class ClientModel: public QObject
 {
 	Q_OBJECT
 
+	enum ExecutionCtx
+	{
+		Rebuild,
+		ExecuteTx,
+		Idle
+	};
+
 public:
 	ClientModel();
 	~ClientModel();
@@ -250,6 +257,8 @@ signals:
 	void stateCleared();
 	/// new state has been processed
 	void newState(unsigned _record, QVariantMap _accounts);
+	/// setupFinished (blockChain has been rebuilt).
+	void setupFinished();
 
 private:
 	RecordLogEntry* lastBlock() const;
@@ -291,6 +300,7 @@ private:
 	QList<QVariantList> m_queueTransactions;
 	mutable boost::shared_mutex x_queueTransactions;
 	QString m_dbpath;
+	ExecutionCtx m_executionCtx;
 };
 
 }
