@@ -37,6 +37,7 @@ endif()
 
 qt5_add_resources(UI_RESOURCES res.qrc qml.qrc)
 qt5_add_resources(UI_RESOURCES web.qrc)
+qt5_add_resources(UI_RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/web3.qrc)
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
 	add_definitions(-DQT_QML_DEBUG)
@@ -61,6 +62,13 @@ eth_package(${EXECUTABLE}
 # eth_install_executable is defined in cmake/EthExecutableHelper.cmake
 eth_install_executable(${EXECUTABLE}
 	QMLDIR ${CMAKE_CURRENT_SOURCE_DIR}/qml
+)
+
+#generate web3.qrc
+set(ETH_WEB3JS_SOURCES ${ETH_DIR}/libjsqrc/setup.js ${ETH_DIR}/libjsqrc/admin.js ${ETH_DIR}/libjsqrc/ethereumjs/dist/web3.js)
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/web3.qrc
+	DEPENDS ${ETH_WEB3JS_SOURCES}
+	COMMAND ${CMAKE_COMMAND} -DETH_RES_FILES="${ETH_WEB3JS_SOURCES}" -DETH_QRC_DEST="${CMAKE_CURRENT_BINARY_DIR}/web3.qrc" -P "${ETH_SCRIPTS_DIR}/genqrc.cmake"
 )
 
 #add qml asnd stdc files to project tree in Qt creator
