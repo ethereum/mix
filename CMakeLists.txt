@@ -29,11 +29,12 @@ aux_source_directory("./src" SRC_LIST)
 file(GLOB HEADERS "src/*.h")
 
 eth_name(EXECUTABLE Mix)
+find_package(Qt5Core)
+
 if (APPLE)
 	qt5_add_resources(UI_RESOURCES osx.qrc)
 endif()
 
-find_package(Qt5Core)
 qt5_add_resources(UI_RESOURCES res.qrc qml.qrc)
 qt5_add_resources(UI_RESOURCES web.qrc)
 
