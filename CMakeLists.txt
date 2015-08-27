@@ -49,7 +49,7 @@ eth_add_executable(${EXECUTABLE}
 	UI_RESOURCES ${UI_RESOURCES}
 )
 
-eth_use(${EXECUTABLE} REQUIRED Qt::Core Qt::Widgets Qt::WebEngine EthCore WebThreeJsonRpc)
+eth_use(${EXECUTABLE} REQUIRED Qt::Core Qt::Widgets Qt::WebEngine Eth::ethereum Web3::web3jsonrpc)
 eth_use(${EXECUTABLE} OPTIONAL Solidity)
 
 eth_package(${EXECUTABLE}
