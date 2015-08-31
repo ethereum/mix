@@ -36,7 +36,7 @@ RowLayout
 		Layout.preferredHeight: parent.height
 		color: "transparent"
 		anchors.top: parent.top
-		property bool saveStatus
+		property bool saveStatus		
 		Image {
 			anchors.top: parent.top
 			anchors.left: parent.left
@@ -46,6 +46,7 @@ RowLayout
 			source: "qrc:/qml/img/recyclediscard@2x.png"
 			width: statusWidth + 10
 			fillMode: Image.PreserveAspectFit
+			visible: !isCall
 		}
 
 		Component.onCompleted:
@@ -71,6 +72,8 @@ RowLayout
 			onClicked:
 			{
 				parent.saveStatus = !parent.saveStatus
+				if (isCall)
+					parent.saveStatus = false
 			}
 		}
 	}
@@ -80,7 +83,7 @@ RowLayout
 		Layout.preferredWidth: blockWidth
 		Layout.preferredHeight: trHeight
 		height: trHeight
-		color: "#DEDCDC"
+		color: isCall ? callColor : txColor
 		id: rowContentTr
 		anchors.top: parent.top
 
@@ -97,7 +100,7 @@ RowLayout
 		function select()
 		{
 			rowContentTr.selected = true
-			rowContentTr.color = selectedBlockColor
+			rowContentTr.color = selectedTxColor
 			hash.color = selectedBlockForeground
 			func.color = selectedBlockForeground
 			if (isCall)
@@ -110,7 +113,7 @@ RowLayout
 		function deselect()
 		{
 			rowContentTr.selected = false
-			rowContentTr.color = "#DEDCDC"
+			rowContentTr.color = isCall ? callColor : txColor
 			hash.color = labelColor
 			func.color = labelColor
 		}
@@ -184,7 +187,7 @@ RowLayout
 					anchors.verticalCenter: parent.verticalCenter
 					text: qsTr("(JavaScript call)")
 					font.italic: true
-					font.pointSize: dbgStyle.absoluteSize(1)
+					font.pointSize: dbgStyle.absoluteSize(-2)
 					color: labelColor
 					anchors.left: func.right
 					anchors.leftMargin: 10
@@ -221,7 +224,7 @@ RowLayout
 			width: debugActionWidth
 			fillMode: Image.PreserveAspectFit
 			anchors.horizontalCenter: parent.horizontalCenter
-			visible: tx !== undefined && tx.recordIndex !== undefined
+			visible: tx !== null && tx !== undefined && tx.recordIndex !== undefined
 		}
 		MouseArea
 		{

@@ -142,6 +142,8 @@ ColumnLayout {
 		for (var b in model.blocks)
 			blockModel.append(model.blocks[b])
 		previousWidth = width
+		blockChainRepeater.hideCalls()
+		toggleCallsBtn.text = toggleCallsBtn.getText()
 	}
 
 	property int statusWidth: 30
@@ -186,7 +188,10 @@ ColumnLayout {
 				{
 					anchors.left: parent.left
 					anchors.leftMargin: statusWidth
-					text:
+					id: toggleCallsBtn
+					text: getText()
+
+					function getText()
 					{
 						if (blockChainRepeater.callsDisplayed)
 							return qsTr("only tx")
@@ -196,10 +201,16 @@ ColumnLayout {
 
 					onClicked:
 					{
+						toggleCalls()
+					}
+
+					function toggleCalls()
+					{
 						if (blockChainRepeater.callsDisplayed)
 							blockChainRepeater.hideCalls()
 						else
 							blockChainRepeater.displayCalls()
+						text = getText()
 					}
 				}
 
@@ -237,7 +248,7 @@ ColumnLayout {
 					property bool callsDisplayed
 					property int blockSelected
 					property int txSelected
-					property int callSelected: 0					
+					property int callSelected: 0
 
 					function editTx(blockIndex, txIndex)
 					{
@@ -255,19 +266,19 @@ ColumnLayout {
 
 					function displayCalls()
 					{
-						callsDisplayed = true
 						for (var k in blockChainPanel.calls)
 						{
 							var ref = JSON.parse(k)
 							itemAt(ref[0]).displayNextCalls(ref[1], blockChainPanel.calls[k])
 						}
+						callsDisplayed = true
 					}
 
 					function hideCalls()
 					{
-						callsDisplayed = false
 						for (var k = 0; k < blockChainRepeater.count; k++)
 							blockChainRepeater.itemAt(k).hideNextCalls()
+						callsDisplayed = false
 					}
 
 					Block
@@ -422,6 +433,7 @@ ColumnLayout {
 				else
 					prev.push(blockChainRepeater.callSelected - 1)
 			}
+			console.log(JSON.stringify(prev))
 			return prev
 		}
 
@@ -438,6 +450,8 @@ ColumnLayout {
 				nextTx = 0;
 				nextBlock = blockIndex + 1
 			}
+			else
+				nextTx = 0
 			next.push(nextBlock)
 			next.push(nextTx)
 			return next
@@ -544,7 +558,7 @@ ColumnLayout {
 					onClicked:
 					{
 						if (ensureNotFuturetime.running)
-							return;
+							return
 						blockChainPanel.calls = {}
 						rebuilding()
 						stopBlinking()
@@ -770,6 +784,7 @@ ColumnLayout {
 								tr.returned = _r.returned
 								tr.recordIndex = _r.recordIndex
 								tr.logs = _r.logs
+								tr.isCall = false
 								tr.sender = _r.sender
 								tr.returnParameters = _r.returnParameters
 								var trModel = blockModel.getTransaction(blockIndex, trIndex)
@@ -788,6 +803,7 @@ ColumnLayout {
 						itemTr.saveStatus = false
 						itemTr.functionId = _r.function
 						itemTr.contractId = _r.contract
+						itemTr.isCall = false
 						itemTr.gasAuto = true
 						itemTr.parameters = _r.parameters
 						itemTr.isContractCreation = itemTr.functionId === itemTr.contractId
@@ -810,6 +826,7 @@ ColumnLayout {
 						var i = [blockIndex, trIndex]
 						if (!blockChainPanel.calls[JSON.stringify(i)])
 							blockChainPanel.calls[JSON.stringify(i)] = []
+						_r.isCall = true
 						blockChainPanel.calls[JSON.stringify(i)].push(_r)
 						if (blockChainRepeater.callsDisplayed)
 						{

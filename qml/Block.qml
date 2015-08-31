@@ -25,8 +25,11 @@ ColumnLayout
 	property string labelColor: "#414141"
 
 
-	property string selectedBlockColor: "#accbf2"
+	property string selectedTxColor: "#accbf2"
+	property string selectedCallColor: "#d7"
 	property string selectedBlockForeground: "#445e7f"
+	property string txColor: "#DEDCDC"
+	property string callColor: "#e6e5e5"
 
 	property int scenarioIndex
 	signal txSelected(var txIndex, var callIndex)

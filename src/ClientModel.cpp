@@ -131,6 +131,7 @@ void ClientModel::mine()
 	{
 		try
 		{
+			sleep(1); //ensure not future time
 			m_client->mine();
 			newBlock();
 			m_mining = false;
