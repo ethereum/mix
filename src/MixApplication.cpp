@@ -36,11 +36,7 @@
 #include "HttpServer.h"
 #include "InverseMouseArea.h"
 
-extern int qInitResources_js();
 using namespace dev::mix;
-
-
-
 
 ApplicationService::ApplicationService()
 {
