@@ -507,6 +507,15 @@ ColumnLayout {
 			anchors.topMargin: 10
 			spacing: 20
 
+			Connections
+			{
+				target: clientModel
+				onSetupFinished:
+				{
+					reloadFrontend.startBlinking()
+				}
+			}
+
 			Rectangle {
 				Layout.preferredWidth: 100
 				Layout.preferredHeight: 30
@@ -654,6 +663,25 @@ ColumnLayout {
 				}
 			}
 
+			Rectangle {
+				Layout.preferredWidth: 100
+				Layout.preferredHeight: 30
+				ScenarioButton {
+					id: reloadFrontend
+					text: qsTr("Reload Frontend")
+					width: 100
+					height: 30
+					roundLeft: true
+					roundRight: true
+					onClicked:
+					{
+						mainContent.webView.reload()
+						reloadFrontend.stopBlinking()
+					}
+					buttonShortcut: ""
+					sourceImg: "qrc:/qml/img/recycleicon@2x.png"
+				}
+			}
 
 			Rectangle
 			{

@@ -22,6 +22,11 @@ ColumnLayout
 		gasPriceInput.formatInput()
 	}
 
+	function toHexWei()
+	{
+		return "0x" + gasPrice.toWei().hexValue()
+	}
+
 	Component.onCompleted:
 	{
 		gasPriceDefaultCheckbox.checked = defaultGasPrice

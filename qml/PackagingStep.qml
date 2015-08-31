@@ -205,7 +205,7 @@ Rectangle {
 		Button
 		{
 			Layout.preferredWidth: 200
-			text: qsTr("Open pastebin")
+			text: qsTr("Host in pastebin.com")
 			onClicked:
 			{
 				Qt.openUrlExternally("http://pastebin.com/");

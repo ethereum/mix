@@ -386,9 +386,12 @@ Rectangle {
 						property bool loaded: false
 						onGasPriceLoaded:
 						{
-							gasPriceConf.init(worker.gasPriceInt.value())
-							gasPriceLoad.loaded = true
-							ctrDeployCtrLabel.calculateContractDeployGas()
+							if (!loaded)
+							{
+								gasPriceConf.init(worker.gasPriceInt.value())
+								ctrDeployCtrLabel.calculateContractDeployGas()
+							}
+							loaded = true
 						}
 					}
 				}
@@ -422,7 +425,11 @@ Rectangle {
 							var ether = QEtherHelper.createBigInt(cost);
 							var gasTotal = ether.multiply(gasPriceConf.gasPrice.toWei());
 							if (gasTotal)
+							{
+								console.log("lklj " + gasTotal.value())
 								gasToUseInput.value = QEtherHelper.createEther(gasTotal.value(), QEther.Wei, parent);
+							}
+
 						}
 					}
 
@@ -511,7 +518,7 @@ Rectangle {
 								{
 									id: resetDialog
 									text: qsTr("This action removes all the properties related to this deployment (including contract addresses and packaged ressources).")
-									onAccepted: {
+									onYes: {
 										worker.forceStopPooling()
 										if (projectModel.deploymentDir && projectModel.deploymentDir !== "")
 											fileIo.deleteDir(projectModel.deploymentDir)
@@ -634,7 +641,7 @@ Rectangle {
 				{
 					id: warning
 					text: qsTr("Contracts are going to be deployed. Are you sure? (Another actions may be required on the remote node in order to complere deployment)")
-					onAccepted: {
+					onYes: {
 						deployBtn.deploy()
 					}
 					standardButtons: StandardButton.Yes | StandardButton.No
@@ -653,7 +660,7 @@ Rectangle {
 					function deploy()
 					{
 						projectModel.deployedScenarioIndex = contractList.currentIndex
-						NetworkDeploymentCode.deployContracts(root.gas, gasPriceInput.toHexWei(), function(addresses, trHashes)
+						NetworkDeploymentCode.deployContracts(root.gas, gasPriceConf.toHexWei(), function(addresses, trHashes)
 						{
 							projectModel.deploymentTrHashes = trHashes
 							worker.verifyHashes(trHashes, function (nb, trLost)
