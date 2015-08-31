@@ -24,23 +24,21 @@ ColumnLayout {
 	property variant debugTrRequested: []
 	signal chainChanged(var blockIndex, var txIndex, var item)
 	signal chainReloaded
-	signal txSelected(var blockIndex, var txIndex)
+	signal txSelected(var blockIndex, var txIndex, var callIndex)
 	signal rebuilding
 	signal accountAdded(string address, string amount)
 	signal changeSelection(var current, var next, var direction)
 
 	Keys.onUpPressed:
 	{
-		//var prev = blockModel.getPrevTx(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
-		//changeSelection([blockChainRepeater.blockSelected, blockChainRepeater.txSelected], prev, 1)
-		//blockChainRepeater.select(prev[0], prev[1], prev.length > 2 ? prev[2] : undefined)
+		var prev = blockModel.getPrevItem(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
+		blockChainRepeater.select(prev[0], prev[1], prev.length > 2 ? prev[2] : -1)
 	}
 
 	Keys.onDownPressed:
 	{
-		//var next = blockModel.getNextTx(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
-		//changeSelection([blockChainRepeater.blockSelected, blockChainRepeater.txSelected], next, -1)
-		//blockChainRepeater.select(next[0], next[1], next.length > 2 ? next[2] : undefined)
+		var next = blockModel.getNextItem(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
+		blockChainRepeater.select(next[0], next[1], next.length > 2 ? next[2] : -1)
 	}
 
 	Connections
@@ -239,20 +237,19 @@ ColumnLayout {
 					property bool callsDisplayed
 					property int blockSelected
 					property int txSelected
-					property int callSelected: 0
+					property int callSelected: 0					
 
 					function editTx(blockIndex, txIndex)
 					{
 						itemAt(blockIndex).editTx(txIndex)
 					}
 
-					function select(blockIndex, txIndex, direction)
+					function select(blockIndex, txIndex, callIndex)
 					{
-						if (direction === undefined)
-							direction = +1
 						blockSelected = blockIndex
 						txSelected = txIndex
-						itemAt(blockIndex).select(txIndex, direction)
+						callSelected = callIndex
+						itemAt(blockIndex).select(txIndex, callIndex)
 						blockChainPanel.forceActiveFocus()
 					}
 
@@ -261,9 +258,8 @@ ColumnLayout {
 						callsDisplayed = true
 						for (var k in blockChainPanel.calls)
 						{
-							var blockIndex =  parseInt(k.split(":")[0]) - 1
-							var trIndex = parseInt(k.split(":")[1])
-							itemAt(blockIndex).displayNextCalls(trIndex, blockChainPanel.calls[k])
+							var ref = JSON.parse(k)
+							itemAt(ref[0]).displayNextCalls(ref[1], blockChainPanel.calls[k])
 						}
 					}
 
@@ -281,9 +277,22 @@ ColumnLayout {
 							target: block
 							onTxSelected:
 							{
-								blockChainPanel.txSelected(index, txIndex)
+								blockChainRepeater.blockSelected = blockIndex
+								blockChainRepeater.txSelected = txIndex
+								blockChainRepeater.callSelected = callIndex
+								blockChainPanel.txSelected(index, txIndex, callIndex)
 							}
 						}
+
+						Connections
+						{
+							target: blockChainRepeater
+							onCallsDisplayedChanged:
+							{
+								block.Layout.preferredHeight = block.calculateHeight()
+							}
+						}
+
 						id: block
 						scenario: blockChainPanel.model
 						Layout.preferredWidth: blockChainScrollView.width
@@ -374,44 +383,46 @@ ColumnLayout {
 
 		function getNextItem(blockIndex, txIndex)
 		{
+			var next = [blockIndex, txIndex]
 			if (!blockChainRepeater.callsDisplayed)
-				return getNextTx(blockIndex, txIndex)
+			{
+				next = getNextTx(blockIndex, txIndex)
+				next.push(-1)
+			}
 			else
 			{
 				if (isLastCall())
 				{
-					var next = getNextTx(blockIndex, txIndex)
-					var current = blockChainPanel.calls[JSON.stringify(next)]
-					if (current)
-						next.push(0)
+					next = getNextTx(blockIndex, txIndex)
+					next.push(-1)
 				}
 				else
-					next.push(blockChainRepeater.callSelected++)
-				console.log(JSON.stringify(next))
-				return next
+					next.push(blockChainRepeater.callSelected + 1)
 			}
+			return next
 		}
 
 		function getPrevItem(blockIndex, txIndex)
 		{
-			console.log(" calls " + JSON.stringify(blockChainPanel.calls))
+			var prev = [blockIndex, txIndex]
 			if (!blockChainRepeater.callsDisplayed)
-				return getPrevTx(blockIndex, txIndex)
+			{
+				prev = getPrevTx(blockIndex, txIndex)
+				prev.push(-1)
+			}
 			else
 			{
-				if (isFirstCall())
+				if (blockChainRepeater.callSelected === -1)
 				{
-					var prev = getPrevTx(blockIndex, txIndex)
-					console.log(" -- " + JSON.stringify(prev))
+					prev = getPrevTx(blockIndex, txIndex)
 					var current = blockChainPanel.calls[JSON.stringify(prev)]
 					if (current)
 						prev.push(current.length - 1)
 				}
 				else
-					prev.push(blockChainRepeater.callSelected--)
-				console.log(JSON.stringify(prev))
-				return prev
+					prev.push(blockChainRepeater.callSelected - 1)
 			}
+			return prev
 		}
 
 		function getNextTx(blockIndex, txIndex)
@@ -459,9 +470,14 @@ ColumnLayout {
 		{
 			var i = [blockChainRepeater.blockSelected, blockChainRepeater.txSelected]
 			var current = blockChainPanel.calls[JSON.stringify(i)]
-			var callnb = current.length
-			var call = blockChainRepeater.callSelected
-			return call > callnb
+			if (current)
+			{
+				var callnb = current.length
+				var call = blockChainRepeater.callSelected
+				return call === callnb - 1
+			}
+			else
+				return true
 		}
 	}
 
@@ -763,7 +779,7 @@ ColumnLayout {
 								trModel.sender = _r.sender
 								trModel.returnParameters = _r.returnParameters
 								blockModel.setTransaction(blockIndex, trIndex, trModel)
-								blockChainRepeater.select(blockIndex, trIndex)
+								blockChainRepeater.select(blockIndex, trIndex, -1)
 								return;
 							}
 						}
@@ -785,7 +801,7 @@ ColumnLayout {
 						itemTr.returnParameters = _r.returnParameters
 						model.blocks[model.blocks.length - 1].transactions.push(itemTr)
 						blockModel.appendTransaction(itemTr)
-						blockChainRepeater.select(blockIndex, trIndex)
+						blockChainRepeater.select(blockIndex, trIndex, -1)
 					}
 					else
 					{
@@ -795,6 +811,11 @@ ColumnLayout {
 						if (!blockChainPanel.calls[JSON.stringify(i)])
 							blockChainPanel.calls[JSON.stringify(i)] = []
 						blockChainPanel.calls[JSON.stringify(i)].push(_r)
+						if (blockChainRepeater.callsDisplayed)
+						{
+							blockChainRepeater.hideCalls()
+							blockChainRepeater.displayCalls()
+						}
 					}
 				}
 

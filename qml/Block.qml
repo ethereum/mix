@@ -29,16 +29,22 @@ ColumnLayout
 	property string selectedBlockForeground: "#445e7f"
 
 	property int scenarioIndex
-	signal txSelected(var txIndex)
+	signal txSelected(var txIndex, var callIndex)
 
 	function calculateHeight()
 	{
 		if (transactions)
 		{
-			if (index >= 0)
-				return trHeight + trHeight * transactions.count + openedTr
-			else
-				return trHeight
+			var h = trHeight
+			h += trHeight * transactions.count
+			if (blockChainRepeater.callsDisplayed)
+				for (var k = 0; k < transactions.count; k++)
+				{
+					var calls = blockChainPanel.calls[JSON.stringify([blockIndex, k])]
+					if (calls)
+						h += trHeight * calls.length
+				}
+			return h;
 		}
 		else
 			return trHeight
@@ -52,10 +58,12 @@ ColumnLayout
 		transactionDialog.open(txIndex, blockIndex,  transactions.get(txIndex))
 	}
 
-	function select(txIndex, direction)
+	function select(txIndex, callIndex)
 	{
-		transactionRepeater.itemAt(txIndex).changeSelection([blockIndex, txIndex], [blockIndex, txIndex], direction)
-		//transactionRepeater.itemAt(txIndex).select(direction)
+		if (callIndex === -1)
+			transactionRepeater.itemAt(txIndex).select()
+		else
+			transactionRepeater.itemAt(txIndex).selectCall(callIndex) //callsRepeater.itemAt(callIndex).select()
 	}
 
 	function displayNextCalls(trIndex, calls)
@@ -145,78 +153,31 @@ ColumnLayout
 	Repeater // List of transactions
 	{
 		id: transactionRepeater
-
-
-
 		model: transactions
 		ColumnLayout
 		{
 			spacing: 1
 			property int selectedIndex: -1
+			property int txIndex: index
 			property bool selected: false
 			id: columnTx
 
 			function select()
 			{
 				tx.select()
-			}
+			}			
 
-			function changeSelection(current, next, direction)
+			function selectCall(index)
 			{
-				console.log("change " )
-				if (current[0] === blockIndex && current[1] === index)
-				{
-					if (!selected)
-					{
-						selected = true
-						if (direction === +1)
-						{
-							selectedIndex = -1
-						}
-						else
-						{
-							selectedIndex = callsModel.count - 1
-						}
-
-					}
-					else
-					{
-						selectedIndex = selectedIndex + direction
-					}
-
-					if (selectedIndex === -1)
-					{
-						tx.select()
-					}
-					else if (selectedIndex > -1 && selectedIndex < callsModel.count)
-					{
-						callsRepeater.itemAt(selectedIndex).select()
-						tx.de
-					}
-					else
-					{
-						//hightlight the next tr
-						blockChainPanel.blockChainRepeater.select(next[0], next[1], direction);
-						selected = false
-					}
-				}
-				else
-					selected = false
-			}
-
-			Connections
-			{
-				target: blockChainPanel
-				onChangeSelection:
-				{
-					columnTx.changeSelection(current, next)
-				}
+				callsRepeater.itemAt(index).highlight()
 			}
 
 			Transaction
 			{
 				id: tx
 				tx: transactions.get(index)
+				txIndex: index
+				callIndex: -1
 				isCall: false
 
 				function select(direction)
@@ -234,6 +195,8 @@ ColumnLayout
 			{
 				for (var k in calls)
 					callsModel.append(calls[k])
+				root.Layout.preferredHeight = calculateHeight()
+				root.height = calculateHeight()
 			}
 
 			function hideCalls()
@@ -253,6 +216,8 @@ ColumnLayout
 				Transaction
 				{
 					tx: callsModel.get(index)
+					txIndex: columnTx.txIndex
+					callIndex: index
 					isCall: true
 				}
 			}

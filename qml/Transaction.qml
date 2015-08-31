@@ -16,6 +16,8 @@ RowLayout
 	property bool isCall
 
 	property variant tx
+	property int txIndex
+	property int callIndex
 
 	function highlight()
 	{
@@ -87,7 +89,7 @@ RowLayout
 		{
 			target: blockChainPanel
 			onTxSelected: {
-				if (root.blockIndex !== blockIndex || index !== txIndex)
+				if (root.blockIndex !== blockIndex || rowTransaction.txIndex !== txIndex || rowTransaction.callIndex !== callIndex)
 					rowContentTr.deselect()
 			}
 		}
@@ -98,7 +100,11 @@ RowLayout
 			rowContentTr.color = selectedBlockColor
 			hash.color = selectedBlockForeground
 			func.color = selectedBlockForeground
-			txSelected(index)
+			if (isCall)
+				txSelected(txIndex, callIndex)
+			else
+				txSelected(txIndex, -1)
+			blockChainPanel.forceActiveFocus()
 		}
 
 		function deselect()
@@ -215,7 +221,7 @@ RowLayout
 			width: debugActionWidth
 			fillMode: Image.PreserveAspectFit
 			anchors.horizontalCenter: parent.horizontalCenter
-			visible: tx && tx.recordIndex !== undefined
+			visible: tx !== undefined && tx.recordIndex !== undefined
 		}
 		MouseArea
 		{
