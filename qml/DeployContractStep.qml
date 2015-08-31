@@ -65,29 +65,34 @@ Rectangle {
 
 	function updateVerification(blockNumber, trLost)
 	{
-		var nb = parseInt(blockNumber - projectModel.deployBlockNumber)
-		verificationTextArea.visible = false
-		verificationLabel.visible = true
-		if (nb >= 10)
-		{
-			verificationLabel.text = qsTr("contracts deployment verified")
-			verificationLabel.color = "green"
-		}
+		if (projectModel.deployBlockNumber === "")
+			verificationLabel.text = ""
 		else
 		{
-			verificationLabel.text = nb
-			if (trLost.length > 0)
+			var nb = parseInt(blockNumber - projectModel.deployBlockNumber)
+			verificationTextArea.visible = false
+			verificationLabel.visible = true
+			if (nb >= 10)
 			{
-				verifyDeploy = false
-				verificationTextArea.visible = true
-				verificationLabel.visible = false
-				verificationTextArea.text = qsTr("Following transactions are invalidated:") + "\n"
-				deploymentStepChanged(qsTr("Following transactions are invalidated:"))
-				verificationTextArea.textColor = "red"
-				for (var k in trLost)
+				verificationLabel.text = qsTr("contracts deployment verified")
+				verificationLabel.color = "green"
+			}
+			else
+			{
+				verificationLabel.text = nb
+				if (trLost.length > 0)
 				{
-					deploymentStepChanged(trLost[k])
-					verificationTextArea.text += trLost[k] + "\n"
+					verifyDeploy = false
+					verificationTextArea.visible = true
+					verificationLabel.visible = false
+					verificationTextArea.text = qsTr("Following transactions are invalidated:") + "\n"
+					deploymentStepChanged(qsTr("Following transactions are invalidated:"))
+					verificationTextArea.textColor = "red"
+					for (var k in trLost)
+					{
+						deploymentStepChanged(trLost[k])
+						verificationTextArea.text += trLost[k] + "\n"
+					}
 				}
 			}
 		}
@@ -480,10 +485,40 @@ Rectangle {
 									anchors.leftMargin: -18
 									width: 20
 									height: 20
+									id: copyBtn
 									getContent: function()
 									{
 										return JSON.stringify(projectModel.deploymentAddresses, null, ' ')
 									}
+								}
+
+								Button
+								{
+									iconSource: "qrc:/qml/img/action_reset.png"
+									tooltip: qsTr("Reset")
+									width: 20
+									height: 20
+									anchors.top: copyBtn.bottom
+									anchors.left: parent.left
+									anchors.leftMargin: -18
+									onClicked:
+									{
+										resetDialog.open()
+									}
+								}
+
+								MessageDialog
+								{
+									id: resetDialog
+									text: qsTr("This action removes all the properties related to this deployment (including contract addresses and packaged ressources).")
+									onAccepted: {
+										worker.forceStopPooling()
+										if (projectModel.deploymentDir && projectModel.deploymentDir !== "")
+											fileIo.deleteDir(projectModel.deploymentDir)
+										projectModel.cleanDeploymentStatus()
+										deploymentDialog.steps.reset()
+									}
+									standardButtons: StandardButton.Yes | StandardButton.No
 								}
 
 								ScrollView
@@ -510,7 +545,6 @@ Rectangle {
 												function refresh()
 												{
 													addresses.clear()
-													deployedRow.visible = Object.keys(projectModel.deploymentAddresses).length > 0
 													for (var k in projectModel.deploymentAddresses)
 													{
 														if (k.indexOf("<") === 0)
@@ -574,7 +608,7 @@ Rectangle {
 								TextArea
 								{
 									id: verificationTextArea
-									visible: false && Object.keys(projectModel.deploymentAddresses).length > 0
+									visible: false
 									font.pointSize: 10
 									backgroundVisible: false
 									anchors.fill: parent
@@ -584,7 +618,7 @@ Rectangle {
 							Label
 							{
 								id: verificationLabel
-								visible: true && Object.keys(projectModel.deploymentAddresses).length > 0
+								visible: true
 							}
 						}
 					}
@@ -595,29 +629,11 @@ Rectangle {
 			{
 				Layout.preferredWidth: parent.width
 				Layout.alignment: Qt.BottomEdge
-				Button
-				{
-					Layout.preferredHeight: 22
-					anchors.right: deployBtn.left
-					text: qsTr("Reset")
-					action: clearDeployAction
-				}
-
-				Action {
-					id: clearDeployAction
-					onTriggered: {
-						worker.forceStopPooling()
-						if (projectModel.deploymentDir && projectModel.deploymentDir !== "")
-							fileIo.deleteDir(projectModel.deploymentDir)
-						projectModel.cleanDeploymentStatus()
-						deploymentDialog.steps.reset()
-					}
-				}
 
 				MessageDialog
 				{
 					id: warning
-					text: qsTr("Contracts are going to be deployed. Are you sure? (Another actions may be required by the remote node in order to complere deployment)")
+					text: qsTr("Contracts are going to be deployed. Are you sure? (Another actions may be required on the remote node in order to complere deployment)")
 					onAccepted: {
 						deployBtn.deploy()
 					}

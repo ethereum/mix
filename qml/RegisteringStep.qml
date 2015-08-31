@@ -244,13 +244,17 @@ Rectangle {
 				}
 			}
 
-			GasPrice
+			Item
 			{
-				id: gasPriceConf
-				onGasPriceChanged: ctrRegisterLabel.calculateRegisterGas()
-				defaultGasPrice: true
 				Layout.preferredWidth: 450
-				width: 450
+				Layout.preferredHeight: 60
+				GasPrice
+				{
+					id: gasPriceConf
+					onGasPriceChanged: ctrRegisterLabel.calculateRegisterGas()
+					defaultGasPrice: true
+					width: parent.width
+				}
 			}
 
 			Connections
@@ -389,9 +393,8 @@ Rectangle {
 				verificationEthUrl.text = ""
 				verificationUrl.text = ""
 				projectModel.cleanRegisteringStatus()
-				var gasPrice = deploymentDialog.deployStep.gasPrice.toHexWei()
-				parent.registerHash(gasPrice, function(){
-					parent.registerUrl(gasPrice, function(){})
+				parent.registerHash(gasPriceConf.gasPrice, function(){
+					parent.registerUrl(gasPriceConf.gasPrice, function(){})
 				})
 			}
 		}

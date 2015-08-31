@@ -102,5 +102,6 @@
         <file>qml/Transaction.qml</file>
         <file>qml/CopyButton.qml</file>
         <file>qml/GasPrice.qml</file>
+        <file>qml/img/action_reset.png</file>
     </qresource>
 </RCC>

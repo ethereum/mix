@@ -29,9 +29,7 @@ Rectangle {
 	function reset()
 	{
 		for (var k in deployLogs.logs)
-		{
 			deployLogs.logs[k] = ""
-		}
 		deployLogs.switchLogs()
 		refreshCurrent()
 	}

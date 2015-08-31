@@ -68,6 +68,7 @@ RowLayout {
 	Rectangle
 	{
 		Layout.fillWidth: true
+		visible: edit
 		DefaultTextField
 		{
 			anchors.verticalCenter: parent.verticalCenter
