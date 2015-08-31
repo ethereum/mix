@@ -12,8 +12,9 @@ import QtQuick.Controls.Styles 1.1
 
 RowLayout {
 	id: etherEdition
-	property bool displayFormattedValue;
-	property bool edit;
+	property bool displayFormattedValue
+	property bool edit
+	property bool readOnly
 	property variant value;
 	property bool displayUnitSelection
 	onValueChanged: update()
@@ -21,12 +22,21 @@ RowLayout {
 	signal amountChanged
 	signal unitChanged
 
+	onReadOnlyChanged:
+	{
+		readonlytxt.visible = readOnly
+		etherValueEdit.visible = !readOnly
+		readonlytxt.text = etherValueEdit.text
+		units.enabled = !readOnly
+	}
+
 
 	function update()
 	{
 		if (value)
 		{
 			etherValueEdit.text = value.value;
+			readonlytxt.text = value.value
 			selectUnit(value.unit);
 		}
 	}
@@ -36,26 +46,69 @@ RowLayout {
 		units.currentIndex = unit;
 	}
 
-
-	DefaultTextField
+	function formatInput()
 	{
-		onTextChanged:
+		if (value !== undefined)
 		{
-			if (value !== undefined)
+			var v = value.format()
+			var ether = v.split(" ")
+			etherValueEdit.text = ether[0]
+			readonlytxt.text = ether[0]
+			for (var k = 0; k < unitsModel.count; k++)
 			{
-				value.setValue(text)
-				formattedValue.text = value.format();
-				amountChanged()
+				if (unitsModel.get(k).text === ether[1])
+				{
+					units.currentIndex = k
+					break;
+				}
 			}
 		}
-		readOnly: !edit
-		visible: edit
-		id: etherValueEdit;
+	}
+
+	Rectangle
+	{
 		Layout.fillWidth: true
+		DefaultTextField
+		{
+			anchors.verticalCenter: parent.verticalCenter
+			width: parent.width
+			anchors.left: parent.left
+			onTextChanged:
+			{
+				if (value !== undefined)
+				{
+					value.setValue(text)
+					formattedValue.text = value.format();
+					amountChanged()
+				}
+			}
+			readOnly: etherEdition.readOnly
+			visible: edit
+			id: etherValueEdit;
+		}
+
+		TextField
+		{
+			anchors.verticalCenter: parent.verticalCenter
+			width: parent.width
+			anchors.left: parent.left
+			id: readonlytxt
+			readOnly: true
+			visible: false
+			style: TextFieldStyle {
+				background: Rectangle
+				{
+					color: "#cccccc"
+					radius: 4
+					width: etherValueEdit.width
+				}
+			}
+		}
 	}
 
 	ComboBox
 	{
+		Layout.preferredWidth: 100
 		id: units
 		visible: displayUnitSelection;
 		onCurrentTextChanged:
@@ -94,6 +147,7 @@ RowLayout {
 
 	Text
 	{
+		Layout.preferredWidth: 100
 		visible: displayFormattedValue
 		id: formattedValue
 	}

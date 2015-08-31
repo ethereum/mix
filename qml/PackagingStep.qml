@@ -16,7 +16,7 @@ Rectangle {
 	id: root
 	property string packageHash
 	property string packageBase64
-	property alias localPackageUrl: localPackageUrl.text
+	property alias localPackageUrl: localPackageUrl.originalText
 	property alias lastDeployDate: lastDeployLabel.text
 	property string deploymentId
 	property string packageDir
@@ -59,8 +59,8 @@ Rectangle {
 		{
 			anchors.top: parent.top
 			Layout.fillWidth: true
-
 			text: qsTr("Upload and update your dapp assets")
+			font.bold: true
 		}
 
 		RowLayout
@@ -70,6 +70,7 @@ Rectangle {
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 5
+				anchors.verticalCenter: parent.verticalCenter
 				Label
 				{
 					text: qsTr("Save packaged dapp to")
@@ -80,6 +81,7 @@ Rectangle {
 
 			DefaultTextField
 			{
+				anchors.verticalCenter: parent.verticalCenter
 				id: packageFolder
 				visible: true
 				Layout.preferredWidth: 360
@@ -88,47 +90,24 @@ Rectangle {
 
 			Button
 			{
-				text: qsTr("select")
+				iconSource: "qrc:/qml/img/Folder-Open.png"
+				anchors.verticalCenter: parent.verticalCenter
+				tooltip: qsTr("Select folder")
 				onClicked: {
 					ressourcesFolder.target = packageFolder
 					ressourcesFolder.open()
 				}
 			}
-		}
-
-		Rectangle
-		{
-			Layout.fillWidth: true
-			Layout.preferredHeight: 40
-			color: "transparent"
 			Button
 			{
 				id: generatePackageBtn
-				anchors.left: parent.left
-				anchors.leftMargin: 10
+				anchors.verticalCenter: parent.verticalCenter
 				text: qsTr("Generate Package")
 				onClicked:
 				{
 					NetworkDeploymentCode.packageDapp(projectModel.deploymentAddresses);
 					projectModel.saveProject()
 					root.packaged()
-				}
-			}
-
-			RowLayout
-			{
-				anchors.top: generatePackageBtn.bottom
-				anchors.topMargin: 10
-				visible: root.lastDeployDate !== ""
-				Label
-				{
-					id: lastPackage
-					text: qsTr("Last Package")
-				}
-
-				Label
-				{
-					id: lastDeployLabel
 				}
 			}
 		}
@@ -140,6 +119,7 @@ Rectangle {
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 5
+				anchors.verticalCenter: parent.verticalCenter
 				Label
 				{
 					text: qsTr("Local package URL")
@@ -148,58 +128,91 @@ Rectangle {
 				}
 			}
 
-			DefaultTextField
+			TextField
 			{
+				anchors.verticalCenter: parent.verticalCenter
+				Layout.preferredWidth: 360
 				id: localPackageUrl
-				Layout.preferredWidth: 450
 				readOnly: true
+				property var originalText
+				property bool updating: false
+
+				function init()
+				{
+					if (updating)
+						return
+					updating = true
+					if (originalText.length > 48)
+						text = originalText.substring(0, 46) + "..."
+					cursorPosition = 0
+					updating = false
+				}
+
+				onOriginalTextChanged:
+				{
+					init()
+				}
+
+				style: TextFieldStyle {
+					background: Rectangle
+					{
+					width: 360
+					color: "#cccccc"
+					radius: 2
+				}
+			}
+		}
+
+		CopyButton
+		{
+			anchors.verticalCenter: parent.verticalCenter
+			getContent: function()
+			{
+				return localPackageUrl.originalText;
 			}
 		}
 
 		Label
 		{
-			Layout.preferredWidth: 300
-			text: qsTr("To share your dapp, upload the package to a remote folder by copying the Base64 to a service like pastebin")
-			wrapMode: Text.WordWrap
-			clip: true
+			anchors.verticalCenter: parent.verticalCenter
+			id: lastDeployLabel
 		}
+	}
 
-		Rectangle
+	Label
+	{
+		Layout.preferredWidth: 400
+		text: qsTr("To share your dapp, upload the package to a remote folder by copying the Base64 to a service like pastebin")
+		wrapMode: Text.WordWrap
+		clip: true
+	}
+
+	RowLayout
+	{
+		Layout.preferredWidth: 420
+		Layout.preferredHeight: 20
+
+		Button
 		{
-			color: "transparent"
-			Layout.fillWidth: true
-			Layout.preferredHeight: 20
-			Button
+			Layout.preferredWidth: 200
+			text: qsTr("Copy Base64")
+			onClicked:
 			{
-				Layout.preferredWidth: 200
-				text: qsTr("Copy Base64")
-				anchors.left: parent.left
-				anchors.leftMargin: 10
-				onClicked:
-				{
-					clipboard.text = deploymentDialog.packageStep.packageBase64;
-				}
+				clipboard.text = deploymentDialog.packageStep.packageBase64;
 			}
 		}
 
-		Rectangle
+		Button
 		{
-			color: "transparent"
-			Layout.fillWidth: true
-			Layout.preferredHeight: 20
-			Button
+			Layout.preferredWidth: 200
+			text: qsTr("Open pastebin")
+			onClicked:
 			{
-				Layout.preferredWidth: 200
-				text: qsTr("Open pastebin")
-				anchors.left: parent.left
-				anchors.leftMargin: 10
-				onClicked:
-				{
-					Qt.openUrlExternally("http://pastebin.com/");
-				}
+				Qt.openUrlExternally("http://pastebin.com/");
 			}
 		}
 	}
+}
 }
 
 

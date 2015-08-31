@@ -782,6 +782,11 @@ RecordLogEntry* ClientModel::lastBlock() const
 	return record;
 }
 
+RecordLogEntry* ClientModel::lastTransaction() const
+{
+	return m_lastTransaction;
+}
+
 void ClientModel::onStateReset()
 {
 	m_contractAddresses.clear();
@@ -834,6 +839,7 @@ void ClientModel::onNewTransaction()
 	unsigned block = m_client->number() + 1;
 	unsigned recordIndex = tr.executonIndex;
 	QString transactionIndex = tr.isCall() ? QObject::tr("Call") : QString("%1:%2").arg(block).arg(tr.transactionIndex);
+
 	QString address = QString::fromStdString(toJS(tr.address));
 	QString value = QString::fromStdString(toString(tr.value));
 	QString contract = address;
@@ -983,6 +989,8 @@ void ClientModel::onNewTransaction()
 
 	RecordLogEntry* log = new RecordLogEntry(recordIndex, transactionIndex, contract, function, value, address, returned, tr.isCall(), RecordLogEntry::RecordType::Transaction,
 											 gasUsed, sender, label, inputParameters, returnParameters, logs);
+	if (transactionIndex != QObject::tr("Call"))
+		m_lastTransaction = log;
 	QQmlEngine::setObjectOwnership(log, QQmlEngine::JavaScriptOwnership);
 	emit newRecord(log);
 

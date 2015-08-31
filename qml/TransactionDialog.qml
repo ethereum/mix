@@ -40,6 +40,7 @@ Dialog {
 		id: transactionDialogStyle
 	}
 
+
 	function open(index, blockIdx, item) {
 		transactionIndex = index
 		blockIndex = blockIdx

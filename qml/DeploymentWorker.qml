@@ -21,6 +21,8 @@ Item
 	property variant accounts: []
 	property alias pooler: pooler
 	signal gasPriceLoaded()
+	signal nodeUnreachable(string message)
+	signal nodeReachable
 
 	function renewCtx()
 	{
@@ -36,7 +38,7 @@ Item
 
 		TransactionHelper.rpcCall(requests, function(arg1, arg2)
 		{
-
+			nodeReachable()
 			var ids = JSON.parse(arg2)[0].result;
 			requests = [];
             accounts = []
@@ -61,7 +63,9 @@ Item
 					balances[accounts[k].id] = ether
 				}
 			}, function(){});
-		}, function(){});
+		}, function(message){
+			nodeUnreachable(message)
+		});
 
 		NetworkDeploymentCode.gasPrice(function(price) {
 			gasPrice = price;

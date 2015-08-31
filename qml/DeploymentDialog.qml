@@ -15,7 +15,7 @@ Dialog {
 	id: modalDeploymentDialog
 	modality: Qt.ApplicationModal
 	width: 1000
-	height: 450
+	height: 550
 	visible: false
 
 	property alias deployStep: deployStep
@@ -60,6 +60,7 @@ Dialog {
 				id: explanation
 				Layout.preferredWidth: parent.width - 50
 				Layout.preferredHeight: 50
+				height: 50
 				color: "transparent"
 				Label
 				{

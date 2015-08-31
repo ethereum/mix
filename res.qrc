@@ -97,5 +97,10 @@
         <file>qml/img/edittransaction.png</file>
         <file>qml/img/edittransaction2.png</file>
         <file>qml/img/leftarrowcircle.png</file>
+        <file>qml/img/clipboard_copy.png</file>
+        <file>qml/img/Folder-Open.png</file>
+        <file>qml/Transaction.qml</file>
+        <file>qml/CopyButton.qml</file>
+        <file>qml/GasPrice.qml</file>
     </qresource>
 </RCC>
