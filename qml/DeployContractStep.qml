@@ -17,8 +17,10 @@ Rectangle {
 	signal deployed
 	anchors.fill: parent
 	id: root
+	property var gasByTx
 	property var gasUsed
 	property int labelWidth: 150
+	property int selectedScenarioIndex
 
 
 	function show()
@@ -38,6 +40,7 @@ Rectangle {
 			accountsList.currentIndex = 0
 		}
 		worker.renewCtx()
+		selectedScenarioIndex = 0
 	}
 
 	function calculateContractDeployGas()
@@ -46,6 +49,7 @@ Rectangle {
 			return;
 		var sce = projectModel.stateListModel.getState(contractList.currentIndex)
 		worker.estimateGas(sce, function(gas) {
+			gasByTx = gas
 			gasUsed = 0
 			for (var k in gas)
 				gasUsed += gas[k]
@@ -96,15 +100,14 @@ Rectangle {
 						return
 					connectState = -1
 					nodeError.visible = true
-					deploylabel.visible = false
 				}
+
 				onNodeReachable:
 				{
 					if (!root.visible && connectState === 1)
 						return
 					connectState = 1
 					nodeError.visible = false
-					deploylabel.visible = true
 				}
 			}
 
@@ -159,6 +162,7 @@ Rectangle {
 
 					function change()
 					{
+						selectedScenarioIndex = currentIndex
 						trListModel.clear()
 						if (currentIndex > -1)
 						{

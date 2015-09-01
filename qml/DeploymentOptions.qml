@@ -449,8 +449,8 @@ Rectangle
 
 			function deploy()
 			{
-				projectModel.deployedScenarioIndex = contractList.currentIndex
-				NetworkDeploymentCode.deployContracts(root.gas, gasPriceConf.toHexWei(), function(addresses, trHashes)
+				projectModel.deployedScenarioIndex = deployStep.selectedScenarioIndex
+				NetworkDeploymentCode.deployContracts(deployStep.gasByTx, gasPriceConf.toHexWei(), function(addresses, trHashes)
 				{
 					projectModel.deploymentTrHashes = trHashes
 					worker.verifyHashes(trHashes, function (nb, trLost)
