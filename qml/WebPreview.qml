@@ -87,17 +87,7 @@ Item {
 			webView.loadHtml(containerPage, httpServer.url + "/WebContainer.html")
 
 		}
-	}
-
-	Connections {
-		target: codeModel
-		onContractInterfaceChanged: reload();
-	}
-
-	Connections {
-		target: clientModel
-		onSetupFinished: reload();
-	}
+	}	
 
 	Connections {
 		target: projectModel

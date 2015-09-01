@@ -2,6 +2,7 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.0
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.3
+import QtQuick.Dialogs 1.2
 import Qt.labs.settings 1.0
 import "js/TransactionHelper.js" as TransactionHelper
 import "js/NetworkDeployment.js" as NetworkDeploymentCode
@@ -12,7 +13,6 @@ Rectangle {
 	property variant paramsModel: []
 	property variant worker
 	property variant gas: []
-	property alias gasPrice: gasPriceInput
 	color: "#E3E3E3E3"
 	signal deployed
 	anchors.fill: parent
@@ -22,6 +22,11 @@ Rectangle {
 	property bool verifyDeploy: true
 
 	function show()
+	{
+		init()
+	}
+
+	function init()
 	{
 		visible = true
 		contractList.currentIndex = 0
@@ -60,29 +65,34 @@ Rectangle {
 
 	function updateVerification(blockNumber, trLost)
 	{
-		var nb = parseInt(blockNumber - projectModel.deployBlockNumber)
-		verificationTextArea.visible = false
-		verificationLabel.visible = true
-		if (nb >= 10)
-		{
-			verificationLabel.text = qsTr("contracts deployment verified")
-			verificationLabel.color = "green"
-		}
+		if (projectModel.deployBlockNumber === "")
+			verificationLabel.text = ""
 		else
 		{
-			verificationLabel.text = nb
-			if (trLost.length > 0)
+			var nb = parseInt(blockNumber - projectModel.deployBlockNumber)
+			verificationTextArea.visible = false
+			verificationLabel.visible = true
+			if (nb >= 10)
 			{
-				verifyDeploy = false
-				verificationTextArea.visible = true
-				verificationLabel.visible = false
-				verificationTextArea.text = qsTr("Following transactions are invalidated:") + "\n"
-				deploymentStepChanged(qsTr("Following transactions are invalidated:"))
-				verificationTextArea.textColor = "red"
-				for (var k in trLost)
+				verificationLabel.text = qsTr("contracts deployment verified")
+				verificationLabel.color = "green"
+			}
+			else
+			{
+				verificationLabel.text = nb
+				if (trLost.length > 0)
 				{
-					deploymentStepChanged(trLost[k])
-					verificationTextArea.text += trLost[k] + "\n"
+					verifyDeploy = false
+					verificationTextArea.visible = true
+					verificationLabel.visible = false
+					verificationTextArea.text = qsTr("Following transactions are invalidated:") + "\n"
+					deploymentStepChanged(qsTr("Following transactions are invalidated:"))
+					verificationTextArea.textColor = "red"
+					for (var k in trLost)
+					{
+						deploymentStepChanged(trLost[k])
+						verificationTextArea.text += trLost[k] + "\n"
+					}
 				}
 			}
 		}
@@ -102,7 +112,24 @@ Rectangle {
 			Label
 			{
 				Layout.fillWidth: true
+				text: qsTr("Ethereum node URL")
+				font.bold: true
+			}
+
+			TextField
+			{
+				Layout.preferredWidth: parent.width - 20
+				text: appSettings.nodeAddress;
+				onTextChanged: {
+					appSettings.nodeAddress = text
+					root.init()
+				}
+			}
+
+			Label
+			{
 				text: qsTr("Pick scenario to deploy")
+				font.bold: true
 			}
 
 			ComboBox
@@ -127,7 +154,6 @@ Rectangle {
 							for (var j = 0; j < projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.count; j++)
 							{
 								var tx = projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.get(j)
-								console.log(JSON.stringify(tx))
 								if (tx.isFunctionCall || tx.isContractCreation)
 									trListModel.append(projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.get(j));
 							}
@@ -255,9 +281,43 @@ Rectangle {
 
 				Label
 				{
+					id: deploylabel
 					anchors.left: parent.left
 					anchors.leftMargin: 105
 					text: qsTr("Select deployment options")
+					font.bold: true
+				}
+
+
+				Label
+				{
+					id: nodeError
+					visible: false
+					color: "red"
+					Layout.fillWidth: true
+					text: qsTr("Unable to contact Ethereum node on ") + appSettings.nodeAddress
+				}
+
+				Connections
+				{
+					target: worker
+					property int connectState: 0
+					onNodeUnreachable:
+					{
+						if (!root.visible && connectState === -1)
+							return
+						connectState = -1
+						nodeError.visible = true
+						deploylabel.visible = false
+					}
+					onNodeReachable:
+					{
+						if (!root.visible && connectState === 1)
+							return
+						connectState = 1
+						nodeError.visible = false
+						deploylabel.visible = true
+					}
 				}
 
 				ListModel
@@ -277,7 +337,7 @@ Rectangle {
 							anchors.left: parent.left
 							anchors.verticalCenter: parent.verticalCenter
 						}
-					}
+					}					
 
 					ComboBox
 					{
@@ -303,7 +363,7 @@ Rectangle {
 					Layout.fillWidth: true
 					Rectangle
 					{
-						width: labelWidth
+						Layout.preferredWidth: labelWidth
 						Label
 						{
 							text: qsTr("Gas price")
@@ -312,34 +372,11 @@ Rectangle {
 						}
 					}
 
-					Ether
+					GasPrice
 					{
-						id: gasPriceInput
-						displayUnitSelection: true
-						displayFormattedValue: true
-						edit: true
-
-						function toHexWei()
-						{
-							return "0x" + gasPriceInput.value.toWei().hexValue()
-						}
-					}
-
-					Connections
-					{
-						target: gasPriceInput
-						onValueChanged:
-						{
-							ctrDeployCtrLabel.calculateContractDeployGas()
-						}
-						onAmountChanged:
-						{
-							ctrDeployCtrLabel.setCost()
-						}
-						onUnitChanged:
-						{
-							ctrDeployCtrLabel.setCost()
-						}
+						id: gasPriceConf
+						onGasPriceChanged: ctrDeployCtrLabel.setCost()
+						defaultGasPrice: true
 					}
 
 					Connections
@@ -349,9 +386,12 @@ Rectangle {
 						property bool loaded: false
 						onGasPriceLoaded:
 						{
-							gasPriceInput.value = QEtherHelper.createEther(worker.gasPriceInt.value(), QEther.Wei)
-							gasPriceLoad.loaded = true
-							ctrDeployCtrLabel.calculateContractDeployGas()
+							if (!loaded)
+							{
+								gasPriceConf.init(worker.gasPriceInt.value())
+								ctrDeployCtrLabel.calculateContractDeployGas()
+							}
+							loaded = true
 						}
 					}
 				}
@@ -380,9 +420,17 @@ Rectangle {
 
 					function setCost()
 					{
-						var ether = QEtherHelper.createBigInt(cost);
-						var gasTotal = ether.multiply(gasPriceInput.value);
-						gasToUseInput.value = QEtherHelper.createEther(gasTotal.value(), QEther.Wei, parent);
+						if (gasPriceConf.gasPrice)
+						{
+							var ether = QEtherHelper.createBigInt(cost);
+							var gasTotal = ether.multiply(gasPriceConf.gasPrice.toWei());
+							if (gasTotal)
+							{
+								console.log("lklj " + gasTotal.value())
+								gasToUseInput.value = QEtherHelper.createEther(gasTotal.value(), QEther.Wei, parent);
+							}
+
+						}
 					}
 
 					Rectangle
@@ -414,7 +462,7 @@ Rectangle {
 					id: rectDeploymentVariable
 					ColumnLayout
 					{
-						width: parent.width - 7
+						width: parent.width
 						RowLayout
 						{
 							id: deployedRow
@@ -426,47 +474,152 @@ Rectangle {
 								{
 									id: labelAddresses
 									text: qsTr("Deployed Contracts")
-									anchors.right: parent.right
-									anchors.verticalCenter: parent.verticalCenter
-								}
+									anchors.left: parent.left
+									anchors.verticalCenter: parent.verticalCenter									
+								}								
 							}
 
-							TextArea
+							Rectangle
 							{
+								color: "#cccccc"
 								Layout.fillWidth: true
 								Layout.preferredHeight: 100
-								id: deployedAddresses
-								function refresh()
+
+								CopyButton
 								{
-									deployedRow.visible = Object.keys(projectModel.deploymentAddresses).length > 0
-									text = JSON.stringify(projectModel.deploymentAddresses, null, ' ')
+									anchors.top: parent.top
+									anchors.left: parent.left
+									anchors.leftMargin: -18
+									width: 20
+									height: 20
+									id: copyBtn
+									getContent: function()
+									{
+										return JSON.stringify(projectModel.deploymentAddresses, null, ' ')
+									}
+								}
+
+								Button
+								{
+									iconSource: "qrc:/qml/img/action_reset.png"
+									tooltip: qsTr("Reset")
+									width: 20
+									height: 20
+									anchors.top: copyBtn.bottom
+									anchors.left: parent.left
+									anchors.leftMargin: -18
+									onClicked:
+									{
+										resetDialog.open()
+									}
+								}
+
+								MessageDialog
+								{
+									id: resetDialog
+									text: qsTr("This action removes all the properties related to this deployment (including contract addresses and packaged ressources).")
+									onYes: {
+										worker.forceStopPooling()
+										if (projectModel.deploymentDir && projectModel.deploymentDir !== "")
+											fileIo.deleteDir(projectModel.deploymentDir)
+										projectModel.cleanDeploymentStatus()
+										deploymentDialog.steps.reset()
+									}
+									standardButtons: StandardButton.Yes | StandardButton.No
+								}
+
+								ScrollView
+								{
+									anchors.fill: parent
+									Rectangle
+									{
+										anchors.fill: parent
+										color: "#cccccc"
+										anchors.margins: 8
+										ColumnLayout
+										{
+											spacing: 1
+											ListModel
+											{
+												id: addresses
+											}
+
+											Repeater
+											{
+												id: deployedAddresses
+												Layout.fillWidth: true
+
+												function refresh()
+												{
+													addresses.clear()
+													for (var k in projectModel.deploymentAddresses)
+													{
+														if (k.indexOf("<") === 0)
+															addresses.append({ name: k, address: projectModel.deploymentAddresses[k]})
+													}
+												}
+
+												model: addresses
+												Item
+												{
+													height: 40
+													Label
+													{
+														id: name
+														text: addresses.get(index).name
+														font.pointSize: 10
+													}
+
+													Label
+													{
+														anchors.top: name.bottom
+														anchors.left: name.left
+														anchors.leftMargin: 30
+														id: address
+														text: addresses.get(index).address
+														font.pointSize: 9
+													}
+												}
+											}
+										}
+									}
 								}
 							}
+						}
+
+						Style
+						{
+							id: style
 						}
 
 						RowLayout
 						{
 							id: verificationRow
 							Layout.fillWidth: true
-							visible: Object.keys(projectModel.deploymentAddresses).length > 0
 							Rectangle
 							{
 								width: labelWidth
 								Label
 								{
 									text: qsTr("Verifications")
-									anchors.right: parent.right
+									anchors.left: parent.left
 									anchors.verticalCenter: parent.verticalCenter
 								}
 							}
 
-							TextArea
+							Rectangle
 							{
-								id: verificationTextArea
-								visible: false
 								Layout.preferredHeight: 65
 								Layout.fillWidth: true
-
+								color: "#cccccc"
+								TextArea
+								{
+									id: verificationTextArea
+									visible: false
+									font.pointSize: 10
+									backgroundVisible: false
+									anchors.fill: parent
+								}
 							}
 
 							Label
@@ -475,7 +628,6 @@ Rectangle {
 								visible: true
 							}
 						}
-
 					}
 				}
 			}
@@ -484,23 +636,15 @@ Rectangle {
 			{
 				Layout.preferredWidth: parent.width
 				Layout.alignment: Qt.BottomEdge
-				Button
-				{
-					Layout.preferredHeight: 22
-					anchors.right: deployBtn.left
-					text: qsTr("Reset")
-					action: clearDeployAction
-				}
 
-				Action {
-					id: clearDeployAction
-					onTriggered: {
-						worker.forceStopPooling()
-						if (projectModel.deploymentDir && projectModel.deploymentDir !== "")
-							fileIo.deleteDir(projectModel.deploymentDir)
-						projectModel.cleanDeploymentStatus()
-						deploymentDialog.steps.reset()
+				MessageDialog
+				{
+					id: warning
+					text: qsTr("Contracts are going to be deployed. Are you sure? (Another actions may be required on the remote node in order to complere deployment)")
+					onYes: {
+						deployBtn.deploy()
 					}
+					standardButtons: StandardButton.Yes | StandardButton.No
 				}
 
 				Button
@@ -510,8 +654,13 @@ Rectangle {
 					text: qsTr("Deploy contracts")
 					onClicked:
 					{
+						warning.open()
+					}
+
+					function deploy()
+					{
 						projectModel.deployedScenarioIndex = contractList.currentIndex
-						NetworkDeploymentCode.deployContracts(root.gas, gasPriceInput.toHexWei(), function(addresses, trHashes)
+						NetworkDeploymentCode.deployContracts(root.gas, gasPriceConf.toHexWei(), function(addresses, trHashes)
 						{
 							projectModel.deploymentTrHashes = trHashes
 							worker.verifyHashes(trHashes, function (nb, trLost)

@@ -23,7 +23,7 @@ Rectangle
 	property var blockIndex
 	property var txIndex
 
-	property string selectedBlockColor: "#accbf2"
+	property string selectedTxColor: "#accbf2"
 	property string selectedBlockForeground: "#445e7f"
 
 	function clear()
@@ -72,7 +72,7 @@ Rectangle
 	}
 
 	Rectangle {
-		color: selectedBlockColor
+		color: selectedTxColor
 		anchors.fill: parent
 		anchors.margins: 10
 		radius: 4

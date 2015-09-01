@@ -25,20 +25,29 @@ ColumnLayout
 	property string labelColor: "#414141"
 
 
-	property string selectedBlockColor: "#accbf2"
+	property string selectedTxColor: "#accbf2"
+	property string selectedCallColor: "#d7"
 	property string selectedBlockForeground: "#445e7f"
+	property string txColor: "#DEDCDC"
+	property string callColor: "#e6e5e5"
 
 	property int scenarioIndex
-	signal txSelected(var txIndex)
+	signal txSelected(var txIndex, var callIndex)
 
 	function calculateHeight()
 	{
 		if (transactions)
 		{
-			if (index >= 0)
-				return trHeight + trHeight * transactions.count + openedTr
-			else
-				return trHeight
+			var h = trHeight
+			h += trHeight * transactions.count
+			if (blockChainRepeater.callsDisplayed)
+				for (var k = 0; k < transactions.count; k++)
+				{
+					var calls = blockChainPanel.calls[JSON.stringify([blockIndex, k])]
+					if (calls)
+						h += trHeight * calls.length
+				}
+			return h;
 		}
 		else
 			return trHeight
@@ -52,9 +61,23 @@ ColumnLayout
 		transactionDialog.open(txIndex, blockIndex,  transactions.get(txIndex))
 	}
 
-	function select(txIndex)
+	function select(txIndex, callIndex)
 	{
-		transactionRepeater.itemAt(txIndex).select()
+		if (callIndex === -1)
+			transactionRepeater.itemAt(txIndex).select()
+		else
+			transactionRepeater.itemAt(txIndex).selectCall(callIndex) //callsRepeater.itemAt(callIndex).select()
+	}
+
+	function displayNextCalls(trIndex, calls)
+	{
+		transactionRepeater.itemAt(trIndex).displayCalls(calls)
+	}
+
+	function hideNextCalls()
+	{
+		for (var k = 0; k < transactionRepeater.count; k++)
+			transactionRepeater.itemAt(k).hideCalls()
 	}
 
 	onOpenedTrChanged:
@@ -125,7 +148,7 @@ ColumnLayout
 						// load edit block panel
 						projectModel.stateListModel.editState(scenarioIndex)
 					}
-				}			
+				}
 			}
 		}
 	}
@@ -134,236 +157,71 @@ ColumnLayout
 	{
 		id: transactionRepeater
 		model: transactions
-		RowLayout
+		ColumnLayout
 		{
-			id: rowTransaction
-			Layout.preferredHeight: trHeight
-			spacing: 0
+			spacing: 1
+			property int selectedIndex: -1
+			property int txIndex: index
+			property bool selected: false
+			id: columnTx
 
 			function select()
 			{
-				rowContentTr.select()
+				tx.select()
+			}			
+
+			function selectCall(index)
+			{
+				callsRepeater.itemAt(index).highlight()
 			}
 
-			function displayContent()
+			Transaction
 			{
-				logsText.text = ""
-				if (index >= 0 && transactions.get(index).logs && transactions.get(index).logs.count)
+				id: tx
+				tx: transactions.get(index)
+				txIndex: index
+				callIndex: -1
+				isCall: false
+
+				function select(direction)
 				{
-					for (var k = 0; k < transactions.get(index).logs.count; k++)
-					{
-						var log = transactions.get(index).logs.get(k)
-						if (log.name)
-							logsText.text += log.name + ":\n"
-						else
-							logsText.text += "log:\n"
-
-						if (log.param)
-							for (var i = 0; i < log.param.count; i++)
-							{
-								var p = log.param.get(i)
-								logsText.text += p.name + " = " + p.value + " - indexed:" + p.indexed + "\n"
-							}
-						else {
-							logsText.text += "From : " + log.address + "\n"
-						}
-					}
-					logsText.text += "\n\n"
-				}
-				rowDetailedContent.visible = !rowDetailedContent.visible
-			}
-
-			Rectangle
-			{
-				id: trSaveStatus
-				Layout.preferredWidth: statusWidth
-				Layout.preferredHeight: parent.height
-				color: "transparent"
-				anchors.top: parent.top
-				property bool saveStatus
-				Image {
-					anchors.top: parent.top
-					anchors.left: parent.left
-					anchors.leftMargin: -4
-					anchors.topMargin: 0
-					id: saveStatusImage
-					source: "qrc:/qml/img/recyclediscard@2x.png"
-					width: statusWidth + 10
-					fillMode: Image.PreserveAspectFit
-				}
-
-				Component.onCompleted:
-				{
-					if (index >= 0)
-						saveStatus = transactions.get(index).saveStatus
-				}
-
-				onSaveStatusChanged:
-				{
-					if (saveStatus)
-						saveStatusImage.source = "qrc:/qml/img/recyclekeep@2x.png"
-					else
-						saveStatusImage.source = "qrc:/qml/img/recyclediscard@2x.png"
-
-					if (index >= 0)
-						transactions.get(index).saveStatus = saveStatus
-						transactionModel[index].saveStatus = saveStatus
-				}
-
-				MouseArea {
-					id: statusMouseArea
-					anchors.fill: parent
-					onClicked:
-					{
-						parent.saveStatus = !parent.saveStatus
-					}
-				}
-			}
-
-			Rectangle
-			{
-				Layout.preferredWidth: blockWidth
-				Layout.preferredHeight: trHeight
-				height: trHeight
-				color: "#DEDCDC"
-				id: rowContentTr
-				anchors.top: parent.top
-
-				property bool selected: false
-				Connections
-				{
-					target: blockChainPanel
-					onTxSelected: {
-						if (root.blockIndex !== blockIndex || index !== txIndex)
-							rowContentTr.deselect()
-					}
-				}
-
-				function select()
-				{
-					rowContentTr.selected = true	
-					rowContentTr.color = selectedBlockColor
-					hash.color = selectedBlockForeground
-					func.color = selectedBlockForeground
-					txSelected(index)
-
+					highlight()
 				}
 
 				function deselect()
 				{
-					rowContentTr.selected = false
-					rowContentTr.color = "#DEDCDC"
-					hash.color = labelColor
-					func.color = labelColor
-				}
-
-				MouseArea
-				{
-					anchors.fill: parent
-					onClicked: {
-						if (!rowContentTr.selected)
-							rowContentTr.select()
-					}
-					onDoubleClicked:
-					{
-						root.editTx(index)
-					}
-				}
-
-				RowLayout
-				{
-					Layout.fillWidth: true
-					Layout.preferredHeight: trHeight - 10
-					anchors.verticalCenter: parent.verticalCenter
-					Rectangle
-					{
-						Layout.preferredWidth: fromWidth
-						anchors.left: parent.left
-						anchors.leftMargin: horizontalMargin
-						Text
-						{
-							id: hash
-							width: parent.width - 30
-							elide: Text.ElideRight
-							anchors.verticalCenter: parent.verticalCenter
-							maximumLineCount: 1
-							color: labelColor
-							font.pointSize: dbgStyle.absoluteSize(1)
-							font.bold: true
-							text: {
-								if (index >= 0)
-									return clientModel.resolveAddress(transactions.get(index).sender)
-								else
-									return ""
-							}
-						}
-					}
-
-					Rectangle
-					{
-						Layout.preferredWidth: toWidth
-						Text
-						{
-							id: func
-							text: {
-								if (index >= 0)
-									parent.parent.userFrienldyToken(transactions.get(index).label)
-								else
-									return ""
-							}
-							elide: Text.ElideRight
-							anchors.verticalCenter: parent.verticalCenter
-							color: labelColor
-							font.pointSize: dbgStyle.absoluteSize(1)
-							font.bold: true
-							maximumLineCount: 1
-							width: parent.width
-						}
-					}
-
-					function userFrienldyToken(value)
-					{
-						if (value && value.indexOf("<") === 0)
-						{
-							if (value.split("> ")[1] === " - ")
-								return value.split(" - ")[0].replace("<", "")
-							else
-								return value.split(" - ")[0].replace("<", "") + "." + value.split("> ")[1] + "()";
-						}
-						else
-							return value
-					}					
+					highlight()
 				}
 			}
 
-			Rectangle
+			function displayCalls(calls)
 			{
-				width: debugActionWidth
-				height: trHeight - 10
-				anchors.right: rowContentTr.right
-				anchors.top: rowContentTr.top
-				anchors.rightMargin: 10
-				color: "transparent"
+				for (var k in calls)
+					callsModel.append(calls[k])
+				root.Layout.preferredHeight = calculateHeight()
+				root.height = calculateHeight()
+			}
 
-				Image {
-					id: debugImg
-					source: "qrc:/qml/img/rightarrowcircle.png"
-					width: debugActionWidth
-					fillMode: Image.PreserveAspectFit
-					anchors.horizontalCenter: parent.horizontalCenter
-					visible: transactions.get(index).recordIndex !== undefined
-				}
-				MouseArea
+			function hideCalls()
+			{
+				callsModel.clear()
+			}
+
+			ListModel
+			{
+				id: callsModel
+			}
+
+			Repeater
+			{
+				id: callsRepeater
+				model: callsModel
+				Transaction
 				{
-					anchors.fill: parent
-					onClicked:
-					{
-						if (transactions.get(index).recordIndex !== undefined)
-						{
-							debugTrRequested = [ blockIndex, index ]
-							clientModel.debugRecord(transactions.get(index).recordIndex);
-						}
-					}
+					tx: callsModel.get(index)
+					txIndex: columnTx.txIndex
+					callIndex: index
+					isCall: true
 				}
 			}
 		}

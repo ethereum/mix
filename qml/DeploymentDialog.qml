@@ -15,7 +15,7 @@ Dialog {
 	id: modalDeploymentDialog
 	modality: Qt.ApplicationModal
 	width: 1000
-	height: 450
+	height: 550
 	visible: false
 
 	property alias deployStep: deployStep
@@ -60,6 +60,7 @@ Dialog {
 				id: explanation
 				Layout.preferredWidth: parent.width - 50
 				Layout.preferredHeight: 50
+				height: 50
 				color: "transparent"
 				Label
 				{
@@ -72,14 +73,9 @@ Dialog {
 					anchors.left: info.right
 					anchors.leftMargin: 7
 					id: linkText
-					text: '<html><style type="text/css"></style><a href="https://github.com/ethereum/wiki/wiki/Mix:-The-DApp-IDE#deployment-to-network">guide to uploading</a></html>'
-					onLinkActivated: Qt.openUrlExternally("https://github.com/ethereum/wiki/wiki/Mix:-The-DApp-IDE#deployment-to-network")
+					text: '<a href="https://github.com/ethereum/wiki/wiki/Mix:-The-DApp-IDE#deployment-to-network">guide to uploading</a>'
+					onLinkActivated: Qt.openUrlExternally(link)
 					anchors.verticalCenter: parent.verticalCenter
-					MouseArea
-					{
-						anchors.fill: parent
-						cursorShape: Qt.PointingHandCursor
-					}
 				}
 			}
 

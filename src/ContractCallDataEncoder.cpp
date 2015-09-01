@@ -429,7 +429,7 @@ QStringList ContractCallDataEncoder::decode(QList<QVariableDeclaration*> const& 
 
 QVariant ContractCallDataEncoder::decodeType(SolidityType _type, bytes _value, int& _readPosition)
 {
-	if (_value.size() < static_cast<unsigned>(_readPosition))
+	if (_value.size() <= static_cast<unsigned>(_readPosition))
 		return QVariant();
 	if (_type.array)
 	{

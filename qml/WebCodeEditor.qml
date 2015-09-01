@@ -110,7 +110,13 @@ Item {
 		id: editorBrowser
 		url: "qrc:///qml/html/codeeditor.html"
 		anchors.fill: parent
-		experimental.settings.javascriptCanAccessClipboard: true
+		Component.onCompleted:
+		{
+			if (experimental.settings)
+				experimental.settings.javascriptCanAccessClipboard = true
+			else if (settings)
+				settings.javascriptCanAccessClipboard = true
+		}
 		onJavaScriptConsoleMessage:  {
 			console.log("editor: " + sourceID + ":" + lineNumber + ":" + message);
 		}

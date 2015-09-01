@@ -92,7 +92,7 @@ class RecordLogEntry: public QObject
 	Q_ENUMS(RecordType)
 	/// Recording index
 	Q_PROPERTY(unsigned recordIndex MEMBER m_recordIndex CONSTANT)
-	/// Human readable transaction bloack and transaction index
+	/// Human readable transaction block and transaction index
 	Q_PROPERTY(QString transactionIndex MEMBER m_transactionIndex CONSTANT)
 	/// Contract name if any
 	Q_PROPERTY(QString contract MEMBER m_contract CONSTANT)
@@ -180,6 +180,8 @@ public:
 	Q_PROPERTY(QVariantList gasCosts READ gasCosts NOTIFY gasCostsChanged)
 	/// @returns the last block
 	Q_PROPERTY(RecordLogEntry* lastBlock READ lastBlock CONSTANT)
+	/// @returns the last transaction
+	Q_PROPERTY(RecordLogEntry* lastTransaction READ lastTransaction CONSTANT)
 	/// ethereum.js RPC request entry point
 	/// @param _message RPC request in Json format
 	/// @returns RPC response in Json format
@@ -262,6 +264,7 @@ signals:
 
 private:
 	RecordLogEntry* lastBlock() const;
+	RecordLogEntry* lastTransaction() const;
 	QVariantMap contractAddresses() const;
 	QVariantList gasCosts() const;
 	void executeSequence(std::vector<TransactionSettings> const& _sequence);
@@ -301,6 +304,7 @@ private:
 	mutable boost::shared_mutex x_queueTransactions;
 	QString m_dbpath;
 	ExecutionCtx m_executionCtx;
+	RecordLogEntry* m_lastTransaction;
 };
 
 }

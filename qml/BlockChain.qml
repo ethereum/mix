@@ -15,6 +15,7 @@ ColumnLayout {
 	id: blockChainPanel
 	property alias trDialog: transactionDialog
 	property alias blockChainRepeater: blockChainRepeater
+	property var calls: ({})
 	property variant model
 	property int scenarioIndex
 	property var states: ({})
@@ -23,20 +24,21 @@ ColumnLayout {
 	property variant debugTrRequested: []
 	signal chainChanged(var blockIndex, var txIndex, var item)
 	signal chainReloaded
-	signal txSelected(var blockIndex, var txIndex)
+	signal txSelected(var blockIndex, var txIndex, var callIndex)
 	signal rebuilding
 	signal accountAdded(string address, string amount)
+	signal changeSelection(var current, var next, var direction)
 
 	Keys.onUpPressed:
 	{
-		var prev = blockModel.getPrevTx(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
-		blockChainRepeater.select(prev[0], prev[1])
+		var prev = blockModel.getPrevItem(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
+		blockChainRepeater.select(prev[0], prev[1], prev.length > 2 ? prev[2] : -1)
 	}
 
 	Keys.onDownPressed:
 	{
-		var next = blockModel.getNextTx(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
-		blockChainRepeater.select(next[0], next[1])
+		var next = blockModel.getNextItem(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
+		blockChainRepeater.select(next[0], next[1], next.length > 2 ? next[2] : -1)
 	}
 
 	Connections
@@ -140,6 +142,8 @@ ColumnLayout {
 		for (var b in model.blocks)
 			blockModel.append(model.blocks[b])
 		previousWidth = width
+		blockChainRepeater.hideCalls()
+		toggleCallsBtn.text = toggleCallsBtn.getText()
 	}
 
 	property int statusWidth: 30
@@ -180,6 +184,36 @@ ColumnLayout {
 				width: parent.width
 				spacing: 20
 
+				Button
+				{
+					anchors.left: parent.left
+					anchors.leftMargin: statusWidth
+					id: toggleCallsBtn
+					text: getText()
+
+					function getText()
+					{
+						if (blockChainRepeater.callsDisplayed)
+							return qsTr("only tx")
+						else
+							return qsTr("tx + calls")
+					}
+
+					onClicked:
+					{
+						toggleCalls()
+					}
+
+					function toggleCalls()
+					{
+						if (blockChainRepeater.callsDisplayed)
+							blockChainRepeater.hideCalls()
+						else
+							blockChainRepeater.displayCalls()
+						text = getText()
+					}
+				}
+
 				Block
 				{
 					id: genesis
@@ -211,20 +245,40 @@ ColumnLayout {
 				{
 					id: blockChainRepeater
 					model: blockModel
+					property bool callsDisplayed
 					property int blockSelected
 					property int txSelected
+					property int callSelected: 0
 
 					function editTx(blockIndex, txIndex)
 					{
 						itemAt(blockIndex).editTx(txIndex)
 					}
 
-					function select(blockIndex, txIndex)
+					function select(blockIndex, txIndex, callIndex)
 					{
 						blockSelected = blockIndex
 						txSelected = txIndex
-						itemAt(blockIndex).select(txIndex)
+						callSelected = callIndex
+						itemAt(blockIndex).select(txIndex, callIndex)
 						blockChainPanel.forceActiveFocus()
+					}
+
+					function displayCalls()
+					{
+						for (var k in blockChainPanel.calls)
+						{
+							var ref = JSON.parse(k)
+							itemAt(ref[0]).displayNextCalls(ref[1], blockChainPanel.calls[k])
+						}
+						callsDisplayed = true
+					}
+
+					function hideCalls()
+					{
+						for (var k = 0; k < blockChainRepeater.count; k++)
+							blockChainRepeater.itemAt(k).hideNextCalls()
+						callsDisplayed = false
 					}
 
 					Block
@@ -234,9 +288,22 @@ ColumnLayout {
 							target: block
 							onTxSelected:
 							{
-								blockChainPanel.txSelected(index, txIndex)
+								blockChainRepeater.blockSelected = blockIndex
+								blockChainRepeater.txSelected = txIndex
+								blockChainRepeater.callSelected = callIndex
+								blockChainPanel.txSelected(index, txIndex, callIndex)
 							}
 						}
+
+						Connections
+						{
+							target: blockChainRepeater
+							onCallsDisplayedChanged:
+							{
+								block.Layout.preferredHeight = block.calculateHeight()
+							}
+						}
+
 						id: block
 						scenario: blockChainPanel.model
 						Layout.preferredWidth: blockChainScrollView.width
@@ -325,6 +392,51 @@ ColumnLayout {
 			blockModel.get(blockIndex).transactions.set(trIndex, { propertyName: value })
 		}
 
+		function getNextItem(blockIndex, txIndex)
+		{
+			var next = [blockIndex, txIndex]
+			if (!blockChainRepeater.callsDisplayed)
+			{
+				next = getNextTx(blockIndex, txIndex)
+				next.push(-1)
+			}
+			else
+			{
+				if (isLastCall())
+				{
+					next = getNextTx(blockIndex, txIndex)
+					next.push(-1)
+				}
+				else
+					next.push(blockChainRepeater.callSelected + 1)
+			}
+			return next
+		}
+
+		function getPrevItem(blockIndex, txIndex)
+		{
+			var prev = [blockIndex, txIndex]
+			if (!blockChainRepeater.callsDisplayed)
+			{
+				prev = getPrevTx(blockIndex, txIndex)
+				prev.push(-1)
+			}
+			else
+			{
+				if (blockChainRepeater.callSelected === -1)
+				{
+					prev = getPrevTx(blockIndex, txIndex)
+					var current = blockChainPanel.calls[JSON.stringify(prev)]
+					if (current)
+						prev.push(current.length - 1)
+				}
+				else
+					prev.push(blockChainRepeater.callSelected - 1)
+			}
+			console.log(JSON.stringify(prev))
+			return prev
+		}
+
 		function getNextTx(blockIndex, txIndex)
 		{
 			var next = []
@@ -338,6 +450,8 @@ ColumnLayout {
 				nextTx = 0;
 				nextBlock = blockIndex + 1
 			}
+			else
+				nextTx = 0
 			next.push(nextBlock)
 			next.push(nextTx)
 			return next
@@ -359,6 +473,26 @@ ColumnLayout {
 			prev.push(prevTx)
 			return prev;
 		}
+
+		function isFirstCall()
+		{
+			var call = blockChainRepeater.callSelected
+			return (call === 0)
+		}
+
+		function isLastCall()
+		{
+			var i = [blockChainRepeater.blockSelected, blockChainRepeater.txSelected]
+			var current = blockChainPanel.calls[JSON.stringify(i)]
+			if (current)
+			{
+				var callnb = current.length
+				var call = blockChainRepeater.callSelected
+				return call === callnb - 1
+			}
+			else
+				return true
+		}
 	}
 
 	Rectangle
@@ -372,6 +506,15 @@ ColumnLayout {
 			anchors.top: parent.top
 			anchors.topMargin: 10
 			spacing: 20
+
+			Connections
+			{
+				target: clientModel
+				onSetupFinished:
+				{
+					reloadFrontend.startBlinking()
+				}
+			}
 
 			Rectangle {
 				Layout.preferredWidth: 100
@@ -424,7 +567,8 @@ ColumnLayout {
 					onClicked:
 					{
 						if (ensureNotFuturetime.running)
-							return;
+							return
+						blockChainPanel.calls = {}
 						rebuilding()
 						stopBlinking()
 						states = []
@@ -519,6 +663,25 @@ ColumnLayout {
 				}
 			}
 
+			Rectangle {
+				Layout.preferredWidth: 100
+				Layout.preferredHeight: 30
+				ScenarioButton {
+					id: reloadFrontend
+					text: qsTr("Reload Frontend")
+					width: 100
+					height: 30
+					roundLeft: true
+					roundRight: true
+					onClicked:
+					{
+						mainContent.webView.reload()
+						reloadFrontend.stopBlinking()
+					}
+					buttonShortcut: ""
+					sourceImg: "qrc:/qml/img/recycleicon@2x.png"
+				}
+			}
 
 			Rectangle
 			{
@@ -616,6 +779,7 @@ ColumnLayout {
 
 			Connections
 			{
+				id: clientListenner
 				target: clientModel
 				onNewBlock:
 				{
@@ -635,49 +799,69 @@ ColumnLayout {
 				}
 				onNewRecord:
 				{
-					var blockIndex =  parseInt(_r.transactionIndex.split(":")[0]) - 1
-					var trIndex = parseInt(_r.transactionIndex.split(":")[1])
-					if (blockIndex <= model.blocks.length - 1)
+					if (_r.transactionIndex !== "Call")
 					{
-						var item = model.blocks[blockIndex]
-						if (trIndex <= item.transactions.length - 1)
+						var blockIndex =  parseInt(_r.transactionIndex.split(":")[0]) - 1
+						var trIndex = parseInt(_r.transactionIndex.split(":")[1])
+						if (blockIndex <= model.blocks.length - 1)
 						{
-							var tr = item.transactions[trIndex]
-							tr.returned = _r.returned
-							tr.recordIndex = _r.recordIndex
-							tr.logs = _r.logs
-							tr.sender = _r.sender
-							tr.returnParameters = _r.returnParameters
-							var trModel = blockModel.getTransaction(blockIndex, trIndex)
-							trModel.returned = _r.returned
-							trModel.recordIndex = _r.recordIndex
-							trModel.logs = _r.logs
-							trModel.sender = _r.sender
-							trModel.returnParameters = _r.returnParameters
-							blockModel.setTransaction(blockIndex, trIndex, trModel)
-							blockChainRepeater.select(blockIndex, trIndex)
-							return;
+							var item = model.blocks[blockIndex]
+							if (trIndex <= item.transactions.length - 1)
+							{
+								var tr = item.transactions[trIndex]
+								tr.returned = _r.returned
+								tr.recordIndex = _r.recordIndex
+								tr.logs = _r.logs
+								tr.isCall = false
+								tr.sender = _r.sender
+								tr.returnParameters = _r.returnParameters
+								var trModel = blockModel.getTransaction(blockIndex, trIndex)
+								trModel.returned = _r.returned
+								trModel.recordIndex = _r.recordIndex
+								trModel.logs = _r.logs
+								trModel.sender = _r.sender
+								trModel.returnParameters = _r.returnParameters
+								blockModel.setTransaction(blockIndex, trIndex, trModel)
+								blockChainRepeater.select(blockIndex, trIndex, -1)
+								return;
+							}
+						}
+						// tr is not in the list.
+						var itemTr = TransactionHelper.defaultTransaction()
+						itemTr.saveStatus = false
+						itemTr.functionId = _r.function
+						itemTr.contractId = _r.contract
+						itemTr.isCall = false
+						itemTr.gasAuto = true
+						itemTr.parameters = _r.parameters
+						itemTr.isContractCreation = itemTr.functionId === itemTr.contractId
+						itemTr.label = _r.label
+						itemTr.isFunctionCall = itemTr.functionId !== "" && itemTr.functionId !== "<none>"
+						itemTr.returned = _r.returned
+						itemTr.value = QEtherHelper.createEther(_r.value, QEther.Wei)
+						itemTr.sender = _r.sender
+						itemTr.recordIndex = _r.recordIndex
+						itemTr.logs = _r.logs
+						itemTr.returnParameters = _r.returnParameters
+						model.blocks[model.blocks.length - 1].transactions.push(itemTr)
+						blockModel.appendTransaction(itemTr)
+						blockChainRepeater.select(blockIndex, trIndex, -1)
+					}
+					else
+					{
+						var blockIndex =  parseInt(clientModel.lastTransaction.transactionIndex.split(":")[0]) - 1
+						var trIndex = parseInt(clientModel.lastTransaction.transactionIndex.split(":")[1])
+						var i = [blockIndex, trIndex]
+						if (!blockChainPanel.calls[JSON.stringify(i)])
+							blockChainPanel.calls[JSON.stringify(i)] = []
+						_r.isCall = true
+						blockChainPanel.calls[JSON.stringify(i)].push(_r)
+						if (blockChainRepeater.callsDisplayed)
+						{
+							blockChainRepeater.hideCalls()
+							blockChainRepeater.displayCalls()
 						}
 					}
-					// tr is not in the list.
-					var itemTr = TransactionHelper.defaultTransaction()
-					itemTr.saveStatus = false
-					itemTr.functionId = _r.function
-					itemTr.contractId = _r.contract
-					itemTr.gasAuto = true
-					itemTr.parameters = _r.parameters
-					itemTr.isContractCreation = itemTr.functionId === itemTr.contractId
-					itemTr.label = _r.label
-					itemTr.isFunctionCall = itemTr.functionId !== "" && itemTr.functionId !== "<none>"
-					itemTr.returned = _r.returned
-					itemTr.value = QEtherHelper.createEther(_r.value, QEther.Wei)
-					itemTr.sender = _r.sender
-					itemTr.recordIndex = _r.recordIndex
-					itemTr.logs = _r.logs
-					itemTr.returnParameters = _r.returnParameters
-					model.blocks[model.blocks.length - 1].transactions.push(itemTr)
-					blockModel.appendTransaction(itemTr)
-					blockChainRepeater.select(blockIndex, trIndex)
 				}
 
 				onNewState: {

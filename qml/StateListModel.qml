@@ -93,6 +93,7 @@ Item {
 		for (var key in t.parameters)
 			r.parameters[key] = t.parameters[key];
 
+		r.isCall = false
 		return r;
 	}
 
