@@ -49,7 +49,6 @@ Rectangle {
 		anchors.top: parent.top
 		anchors.topMargin: 10
 		width: parent.width
-
 		id: col
 		spacing: 20
 		anchors.left: parent.left
@@ -177,41 +176,7 @@ Rectangle {
 			anchors.verticalCenter: parent.verticalCenter
 			id: lastDeployLabel
 		}
-	}
-
-	Label
-	{
-		Layout.preferredWidth: 400
-		text: qsTr("To share your dapp, upload the package to a remote folder by copying the Base64 to a service like pastebin")
-		wrapMode: Text.WordWrap
-		clip: true
-	}
-
-	RowLayout
-	{
-		Layout.preferredWidth: 420
-		Layout.preferredHeight: 20
-
-		Button
-		{
-			Layout.preferredWidth: 200
-			text: qsTr("Copy Base64")
-			onClicked:
-			{
-				clipboard.text = deploymentDialog.packageStep.packageBase64;
-			}
-		}
-
-		Button
-		{
-			Layout.preferredWidth: 200
-			text: qsTr("Host in pastebin.com")
-			onClicked:
-			{
-				Qt.openUrlExternally("http://pastebin.com/");
-			}
-		}
-	}
+	}	
 }
 }
 

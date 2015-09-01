@@ -184,49 +184,63 @@ ColumnLayout {
 				width: parent.width
 				spacing: 20
 
-				Button
+
+				Rectangle
 				{
-					anchors.left: parent.left
-					anchors.leftMargin: statusWidth
-					id: toggleCallsBtn
-					text: getText()
-
-					function getText()
-					{
-						if (blockChainRepeater.callsDisplayed)
-							return qsTr("only tx")
-						else
-							return qsTr("tx + calls")
-					}
-
-					onClicked:
-					{
-						toggleCalls()
-					}
-
-					function toggleCalls()
-					{
-						if (blockChainRepeater.callsDisplayed)
-							blockChainRepeater.hideCalls()
-						else
-							blockChainRepeater.displayCalls()
-						text = getText()
-					}
-				}
-
-				Block
-				{
-					id: genesis
-					scenario: blockChainPanel.model
-					scenarioIndex: scenarioIndex
+					Layout.preferredHeight: 80
 					Layout.preferredWidth: blockChainScrollView.width
-					Layout.preferredHeight: 60
-					blockIndex: -1
-					transactions: []
-					status: ""
-					number: -2
-					trHeight: 60
+					color: "transparent"
+
+					Button
+					{
+						anchors.left: parent.left
+						anchors.leftMargin: statusWidth
+						id: toggleCallsBtn
+						text: getText()
+						Layout.preferredHeight: 40
+
+						function getText()
+						{
+							if (blockChainRepeater.callsDisplayed)
+								return qsTr("transactions only")
+							else
+								return qsTr("transactions + calls")
+						}
+
+						onClicked:
+						{
+							toggleCalls()
+						}
+
+						function toggleCalls()
+						{
+							if (blockChainRepeater.callsDisplayed)
+								blockChainRepeater.hideCalls()
+							else
+								blockChainRepeater.displayCalls()
+							text = getText()
+						}
+					}
+
+					Block
+					{
+						id: genesis
+						anchors.top: toggleCallsBtn.bottom
+						scenario: blockChainPanel.model
+						scenarioIndex: scenarioIndex
+						Layout.preferredWidth: blockChainScrollView.width
+						Layout.preferredHeight: 60
+						width: blockChainScrollView.width
+						height: 60
+						blockIndex: -1
+						transactions: []
+						status: ""
+						number: -2
+						trHeight: 60
+					}
 				}
+
+
 
 				Connections
 				{
@@ -691,7 +705,7 @@ ColumnLayout {
 
 				ScenarioButton {
 					id: addTransaction
-					text: qsTr("Add Tx")
+					text: qsTr("Add Tx...")
 					onClicked:
 					{
 						if (model && model.blocks)
@@ -827,22 +841,7 @@ ColumnLayout {
 							}
 						}
 						// tr is not in the list.
-						var itemTr = TransactionHelper.defaultTransaction()
-						itemTr.saveStatus = false
-						itemTr.functionId = _r.function
-						itemTr.contractId = _r.contract
-						itemTr.isCall = false
-						itemTr.gasAuto = true
-						itemTr.parameters = _r.parameters
-						itemTr.isContractCreation = itemTr.functionId === itemTr.contractId
-						itemTr.label = _r.label
-						itemTr.isFunctionCall = itemTr.functionId !== "" && itemTr.functionId !== "<none>"
-						itemTr.returned = _r.returned
-						itemTr.value = QEtherHelper.createEther(_r.value, QEther.Wei)
-						itemTr.sender = _r.sender
-						itemTr.recordIndex = _r.recordIndex
-						itemTr.logs = _r.logs
-						itemTr.returnParameters = _r.returnParameters
+						var itemTr = fillTx(_r, false)
 						model.blocks[model.blocks.length - 1].transactions.push(itemTr)
 						blockModel.appendTransaction(itemTr)
 						blockChainRepeater.select(blockIndex, trIndex, -1)
@@ -854,14 +853,36 @@ ColumnLayout {
 						var i = [blockIndex, trIndex]
 						if (!blockChainPanel.calls[JSON.stringify(i)])
 							blockChainPanel.calls[JSON.stringify(i)] = []
-						_r.isCall = true
-						blockChainPanel.calls[JSON.stringify(i)].push(_r)
+						var itemTr = fillTx(_r, true)
+						blockChainPanel.calls[JSON.stringify(i)].push(itemTr)
 						if (blockChainRepeater.callsDisplayed)
 						{
 							blockChainRepeater.hideCalls()
 							blockChainRepeater.displayCalls()
 						}
 					}
+				}
+
+				function fillTx(_r, _isCall)
+				{
+					// tr is not in the list.
+					var itemTr = TransactionHelper.defaultTransaction()
+					itemTr.saveStatus = false
+					itemTr.functionId = _r.function
+					itemTr.contractId = _r.contract
+					itemTr.isCall = _isCall
+					itemTr.gasAuto = true
+					itemTr.parameters = _r.parameters
+					itemTr.isContractCreation = itemTr.functionId === itemTr.contractId
+					itemTr.label = _r.label
+					itemTr.isFunctionCall = itemTr.functionId !== "" && itemTr.functionId !== "<none>"
+					itemTr.returned = _r.returned
+					itemTr.value = QEtherHelper.createEther(_r.value, QEther.Wei)
+					itemTr.sender = _r.sender
+					itemTr.recordIndex = _r.recordIndex
+					itemTr.logs = _r.logs
+					itemTr.returnParameters = _r.returnParameters
+					return itemTr
 				}
 
 				onNewState: {

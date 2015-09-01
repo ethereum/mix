@@ -82,11 +82,21 @@ Rectangle {
 				},
 				{
 					step: 2,
+					type:"option",
+					label: qsTr("Deployment option")
+				},
+				{
+					step: 3,
 					type:"package",
 					label: qsTr("Package dapp")
 				},
 				{
-					step: 3,
+					step: 4,
+					type:"upload",
+					label: qsTr("Upload dapp")
+				},
+				{
+					step: 5,
 					type:"register",
 					label: qsTr("Register dapp")
 				}

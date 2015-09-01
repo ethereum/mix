@@ -17,9 +17,11 @@ Rectangle {
 	signal deployed
 	anchors.fill: parent
 	id: root
-
+	property var gasByTx
+	property var gasUsed
 	property int labelWidth: 150
-	property bool verifyDeploy: true
+	property int selectedScenarioIndex
+
 
 	function show()
 	{
@@ -31,234 +33,250 @@ Rectangle {
 		visible = true
 		contractList.currentIndex = 0
 		contractList.change()
-		accountsModel.clear()
-		for (var k in worker.accounts)
-			accountsModel.append(worker.accounts[k])
 
 		if (worker.currentAccount === "" && worker.accounts.length > 0)
 		{
 			worker.currentAccount = worker.accounts[0].id
 			accountsList.currentIndex = 0
 		}
-
-		verifyDeployedContract()
-		deployedAddresses.refresh()
-
 		worker.renewCtx()
-		verifyDeploy = true
-		worker.pooler.onTriggered.connect(function() {
-			if (root.visible && verifyDeploy)
-				verifyDeployedContract();
-		})
+		selectedScenarioIndex = 0
 	}
 
-	function verifyDeployedContract()
+	function calculateContractDeployGas()
 	{
-		if (projectModel.deployBlockNumber !== -1)
-		{
-			worker.verifyHashes(projectModel.deploymentTrHashes, function (bn, trLost)
-			{
-				root.updateVerification(bn, trLost)
-			});
-		}
+		if (!root.visible)
+			return;
+		var sce = projectModel.stateListModel.getState(contractList.currentIndex)
+		worker.estimateGas(sce, function(gas) {
+			gasByTx = gas
+			gasUsed = 0
+			for (var k in gas)
+				gasUsed += gas[k]
+			gasUsedLabel.text = gasUsed
+		});
 	}
 
-	function updateVerification(blockNumber, trLost)
+	ColumnLayout
 	{
-		if (projectModel.deployBlockNumber === "")
-			verificationLabel.text = ""
-		else
-		{
-			var nb = parseInt(blockNumber - projectModel.deployBlockNumber)
-			verificationTextArea.visible = false
-			verificationLabel.visible = true
-			if (nb >= 10)
-			{
-				verificationLabel.text = qsTr("contracts deployment verified")
-				verificationLabel.color = "green"
-			}
-			else
-			{
-				verificationLabel.text = nb
-				if (trLost.length > 0)
-				{
-					verifyDeploy = false
-					verificationTextArea.visible = true
-					verificationLabel.visible = false
-					verificationTextArea.text = qsTr("Following transactions are invalidated:") + "\n"
-					deploymentStepChanged(qsTr("Following transactions are invalidated:"))
-					verificationTextArea.textColor = "red"
-					for (var k in trLost)
-					{
-						deploymentStepChanged(trLost[k])
-						verificationTextArea.text += trLost[k] + "\n"
-					}
-				}
-			}
-		}
-	}
-
-	RowLayout
-	{
+		anchors.top: parent.top
 		anchors.fill: parent
 		anchors.margins: 10
-		ColumnLayout
+		id: chooseSceCol
+
+		Label
 		{
 			anchors.top: parent.top
-			Layout.preferredWidth: parent.width * 0.40 - 20
-			Layout.fillHeight: true
+			Layout.fillWidth: true
+			text: qsTr("Choose node and scenario")
+			font.bold: true
+		}
+
+		RowLayout
+		{
+			Layout.fillWidth: true
+			Layout.preferredHeight: 60
 			id: scenarioList
 
-			Label
+			Rectangle
 			{
-				Layout.fillWidth: true
-				text: qsTr("Ethereum node URL")
-				font.bold: true
+				Layout.preferredWidth: chooseSceCol.width / 5
+				anchors.verticalCenter: parent.verticalCenter
+				Label
+				{
+					anchors.left: parent.left
+					anchors.verticalCenter: parent.verticalCenter
+					text: qsTr("Ethereum node URL")
+				}				
+			}
+
+			Connections
+			{
+				target: worker
+				property int connectState: 0
+				onNodeUnreachable:
+				{
+					if (!root.visible && connectState === -1)
+						return
+					connectState = -1
+					nodeError.visible = true
+				}
+
+				onNodeReachable:
+				{
+					if (!root.visible && connectState === 1)
+						return
+					connectState = 1
+					nodeError.visible = false
+				}
 			}
 
 			TextField
 			{
-				Layout.preferredWidth: parent.width - 20
+				Layout.preferredWidth: 500
 				text: appSettings.nodeAddress;
 				onTextChanged: {
 					appSettings.nodeAddress = text
 					root.init()
 				}
-			}
 
-			Label
-			{
-				text: qsTr("Pick scenario to deploy")
-				font.bold: true
-			}
-
-			ComboBox
-			{
-				id: contractList
-				Layout.preferredWidth: parent.width - 20
-				model: projectModel.stateListModel
-				textRole: "title"
-				onCurrentIndexChanged:
+				Label
 				{
-					if (root.visible)
-						change()
-				}
-
-				function change()
-				{
-					trListModel.clear()
-					if (currentIndex > -1)
-					{
-						for (var k = 0; k < projectModel.stateListModel.get(currentIndex).blocks.count; k++)
-						{
-							for (var j = 0; j < projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.count; j++)
-							{
-								var tx = projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.get(j)
-								if (tx.isFunctionCall || tx.isContractCreation)
-									trListModel.append(projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.get(j));
-							}
-						}
-						for (var k = 0; k < trListModel.count; k++)
-							trList.itemAt(k).init()
-						ctrDeployCtrLabel.calculateContractDeployGas();
-					}
+					id: nodeError
+					anchors.top: parent.bottom
+					visible: false
+					color: "red"
+					text: qsTr("Unable to contact Ethereum node on ") + appSettings.nodeAddress
 				}
 			}
+		}
 
+		RowLayout
+		{
 			Rectangle
 			{
-				Layout.fillHeight: true
-				Layout.preferredWidth: parent.width - 20
-				id: trContainer
-				color: "white"
-				border.color: "#cccccc"
-				border.width: 1
-				ScrollView
+				Layout.preferredWidth: chooseSceCol.width / 5
+				anchors.verticalCenter: parent.verticalCenter
+				Label
 				{
-					anchors.fill: parent
-					horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
-					ColumnLayout
+					text: qsTr("Pick scenario to deploy")
+					anchors.left: parent.left
+					anchors.verticalCenter: parent.verticalCenter
+				}
+			}
+
+			ColumnLayout
+			{
+				Layout.preferredWidth: 400
+				ComboBox
+				{
+					id: contractList
+					Layout.fillWidth: true
+					model: projectModel.stateListModel
+					textRole: "title"
+					onCurrentIndexChanged:
 					{
-						spacing: 0
+						if (root.visible)
+							change()
+					}
 
-						ListModel
+					function change()
+					{
+						selectedScenarioIndex = currentIndex
+						trListModel.clear()
+						if (currentIndex > -1)
 						{
-							id: trListModel
-						}
-
-						Repeater
-						{
-							id: trList
-							model: trListModel
-							ColumnLayout
+							for (var k = 0; k < projectModel.stateListModel.get(currentIndex).blocks.count; k++)
 							{
-								Layout.fillWidth: true
-								spacing: 5
-								Layout.preferredHeight:
+								for (var j = 0; j < projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.count; j++)
 								{
-									if (index > -1)
-										return 20 + trListModel.get(index)["parameters"].count * 20
-									else
-										return 20
+									var tx = projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.get(j)
+									if (tx.isFunctionCall || tx.isContractCreation)
+										trListModel.append(projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.get(j));
 								}
+							}
+							for (var k = 0; k < trListModel.count; k++)
+								trList.itemAt(k).init()
+							calculateContractDeployGas()
+						}
+					}
+				}
 
-								function init()
-								{
-									paramList.clear()
-									if (trListModel.get(index).parameters)
-									{
-										for (var k in trListModel.get(index).parameters)
-											paramList.append({ "name": k, "value": trListModel.get(index).parameters[k] })
-									}
-								}
+				Rectangle
+				{
+					Layout.fillHeight: true
+					Layout.fillWidth: true
+					id: trContainer
+					color: "white"
+					border.color: "#cccccc"
+					border.width: 1
+					ScrollView
+					{
+						anchors.fill: parent
+						horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+						ColumnLayout
+						{
+							spacing: 0
 
-								Label
-								{
-									id: trLabel
-									Layout.preferredHeight: 20
-									anchors.left: parent.left
-									anchors.top: parent.top
-									anchors.topMargin: 5
-									anchors.leftMargin: 10
-									text:
-									{
-										if (index > -1)
-											return trListModel.get(index).label
-										else
-											return ""
-									}
-								}
+							ListModel
+							{
+								id: trListModel
+							}
 
-								ListModel
+							Repeater
+							{
+								id: trList
+								model: trListModel
+								ColumnLayout
 								{
-									id: paramList
-								}
-
-								Repeater
-								{
+									Layout.fillWidth: true
+									spacing: 5
 									Layout.preferredHeight:
 									{
 										if (index > -1)
-											return trListModel.get(index)["parameters"].count * 20
+											return 20 + trListModel.get(index)["parameters"].count * 20
 										else
-											return 0
+											return 20
 									}
-									model: paramList
+
+									function init()
+									{
+										paramList.clear()
+										if (trListModel.get(index).parameters)
+										{
+											for (var k in trListModel.get(index).parameters)
+												paramList.append({ "name": k, "value": trListModel.get(index).parameters[k] })
+										}
+									}
+
 									Label
 									{
+										id: trLabel
 										Layout.preferredHeight: 20
 										anchors.left: parent.left
-										anchors.leftMargin: 20
-										text: name + "=" + value
-										font.italic: true
+										anchors.top: parent.top
+										anchors.topMargin: 5
+										anchors.leftMargin: 10
+										text:
+										{
+											if (index > -1)
+												return trListModel.get(index).label
+											else
+												return ""
+										}
 									}
-								}
 
-								Rectangle
-								{
-									Layout.preferredWidth: scenarioList.width
-									Layout.preferredHeight: 1
-									color: "#cccccc"
+									ListModel
+									{
+										id: paramList
+									}
+
+									Repeater
+									{
+										Layout.preferredHeight:
+										{
+											if (index > -1)
+												return trListModel.get(index)["parameters"].count * 20
+											else
+												return 0
+										}
+										model: paramList
+										Label
+										{
+											Layout.preferredHeight: 20
+											anchors.left: parent.left
+											anchors.leftMargin: 20
+											text: name + "=" + value
+											font.italic: true
+										}
+									}
+
+									Rectangle
+									{
+										Layout.preferredWidth: chooseSceCol.width
+										Layout.preferredHeight: 1
+										color: "#cccccc"
+									}
 								}
 							}
 						}
@@ -267,415 +285,26 @@ Rectangle {
 			}
 		}
 
-		ColumnLayout
+		RowLayout
 		{
-			anchors.top: parent.top
-			Layout.preferredHeight: parent.height - 25
-			ColumnLayout
+			Layout.fillWidth: true
+			Layout.preferredHeight: 60
+			Rectangle
 			{
-				anchors.top: parent.top
-				Layout.preferredWidth: parent.width * 0.60
-				Layout.fillHeight: true
-				id: deploymentOption
-				spacing: 8
-
+				Layout.preferredWidth: chooseSceCol.width / 5
+				anchors.verticalCenter: parent.verticalCenter
 				Label
 				{
-					id: deploylabel
 					anchors.left: parent.left
-					anchors.leftMargin: 105
-					text: qsTr("Select deployment options")
-					font.bold: true
-				}
-
-
-				Label
-				{
-					id: nodeError
-					visible: false
-					color: "red"
-					Layout.fillWidth: true
-					text: qsTr("Unable to contact Ethereum node on ") + appSettings.nodeAddress
-				}
-
-				Connections
-				{
-					target: worker
-					property int connectState: 0
-					onNodeUnreachable:
-					{
-						if (!root.visible && connectState === -1)
-							return
-						connectState = -1
-						nodeError.visible = true
-						deploylabel.visible = false
-					}
-					onNodeReachable:
-					{
-						if (!root.visible && connectState === 1)
-							return
-						connectState = 1
-						nodeError.visible = false
-						deploylabel.visible = true
-					}
-				}
-
-				ListModel
-				{
-					id: accountsModel
-				}
-
-				RowLayout
-				{
-					Layout.fillWidth: true
-					Rectangle
-					{
-						width: labelWidth
-						Label
-						{
-							text: qsTr("Deployment account")
-							anchors.left: parent.left
-							anchors.verticalCenter: parent.verticalCenter
-						}
-					}					
-
-					ComboBox
-					{
-						id: accountsList
-						textRole: "id"
-						model: accountsModel
-						Layout.fillWidth: true
-						onCurrentTextChanged:
-						{
-							worker.currentAccount = currentText
-							accountBalance.text = worker.balance(currentText).format()
-						}
-					}
-
-					Label
-					{
-						id: accountBalance
-					}
-				}
-
-				RowLayout
-				{
-					Layout.fillWidth: true
-					Rectangle
-					{
-						Layout.preferredWidth: labelWidth
-						Label
-						{
-							text: qsTr("Gas price")
-							anchors.left: parent.left
-							anchors.verticalCenter: parent.verticalCenter
-						}
-					}
-
-					GasPrice
-					{
-						id: gasPriceConf
-						onGasPriceChanged: ctrDeployCtrLabel.setCost()
-						defaultGasPrice: true
-					}
-
-					Connections
-					{
-						target: worker
-						id: gasPriceLoad
-						property bool loaded: false
-						onGasPriceLoaded:
-						{
-							if (!loaded)
-							{
-								gasPriceConf.init(worker.gasPriceInt.value())
-								ctrDeployCtrLabel.calculateContractDeployGas()
-							}
-							loaded = true
-						}
-					}
-				}
-
-				RowLayout
-				{
-					id: ctrDeployCtrLabel
-					Layout.fillWidth: true
-					property int cost
-					function calculateContractDeployGas()
-					{
-						if (!root.visible)
-							return;
-						var sce = projectModel.stateListModel.getState(contractList.currentIndex)
-						worker.estimateGas(sce, function(gas) {
-							if (gasPriceLoad.loaded)
-							{
-								root.gas = gas
-								cost = 0
-								for (var k in gas)
-									cost += gas[k]
-								setCost()
-							}
-						});
-					}
-
-					function setCost()
-					{
-						if (gasPriceConf.gasPrice)
-						{
-							var ether = QEtherHelper.createBigInt(cost);
-							var gasTotal = ether.multiply(gasPriceConf.gasPrice.toWei());
-							if (gasTotal)
-							{
-								console.log("lklj " + gasTotal.value())
-								gasToUseInput.value = QEtherHelper.createEther(gasTotal.value(), QEther.Wei, parent);
-							}
-
-						}
-					}
-
-					Rectangle
-					{
-						width: labelWidth
-						Label
-						{
-							text: qsTr("Deployment cost")
-							anchors.left: parent.left
-							anchors.verticalCenter: parent.verticalCenter
-						}
-					}
-
-					Ether
-					{
-						id: gasToUseInput
-						displayUnitSelection: false
-						displayFormattedValue: true
-						edit: false
-						Layout.preferredWidth: 350
-					}
-				}
-
-				Rectangle
-				{
-					Layout.fillWidth: true
-					Layout.preferredHeight: parent.height + 25
-					color: "transparent"
-					id: rectDeploymentVariable
-					ColumnLayout
-					{
-						width: parent.width
-						RowLayout
-						{
-							id: deployedRow
-							Layout.fillWidth: true
-							Rectangle
-							{
-								width: labelWidth
-								Label
-								{
-									id: labelAddresses
-									text: qsTr("Deployed Contracts")
-									anchors.left: parent.left
-									anchors.verticalCenter: parent.verticalCenter									
-								}								
-							}
-
-							Rectangle
-							{
-								color: "#cccccc"
-								Layout.fillWidth: true
-								Layout.preferredHeight: 100
-
-								CopyButton
-								{
-									anchors.top: parent.top
-									anchors.left: parent.left
-									anchors.leftMargin: -18
-									width: 20
-									height: 20
-									id: copyBtn
-									getContent: function()
-									{
-										return JSON.stringify(projectModel.deploymentAddresses, null, ' ')
-									}
-								}
-
-								Button
-								{
-									iconSource: "qrc:/qml/img/action_reset.png"
-									tooltip: qsTr("Reset")
-									width: 20
-									height: 20
-									anchors.top: copyBtn.bottom
-									anchors.left: parent.left
-									anchors.leftMargin: -18
-									onClicked:
-									{
-										resetDialog.open()
-									}
-								}
-
-								MessageDialog
-								{
-									id: resetDialog
-									text: qsTr("This action removes all the properties related to this deployment (including contract addresses and packaged ressources).")
-									onYes: {
-										worker.forceStopPooling()
-										if (projectModel.deploymentDir && projectModel.deploymentDir !== "")
-											fileIo.deleteDir(projectModel.deploymentDir)
-										projectModel.cleanDeploymentStatus()
-										deploymentDialog.steps.reset()
-									}
-									standardButtons: StandardButton.Yes | StandardButton.No
-								}
-
-								ScrollView
-								{
-									anchors.fill: parent
-									Rectangle
-									{
-										anchors.fill: parent
-										color: "#cccccc"
-										anchors.margins: 8
-										ColumnLayout
-										{
-											spacing: 1
-											ListModel
-											{
-												id: addresses
-											}
-
-											Repeater
-											{
-												id: deployedAddresses
-												Layout.fillWidth: true
-
-												function refresh()
-												{
-													addresses.clear()
-													for (var k in projectModel.deploymentAddresses)
-													{
-														if (k.indexOf("<") === 0)
-															addresses.append({ name: k, address: projectModel.deploymentAddresses[k]})
-													}
-												}
-
-												model: addresses
-												Item
-												{
-													height: 40
-													Label
-													{
-														id: name
-														text: addresses.get(index).name
-														font.pointSize: 10
-													}
-
-													Label
-													{
-														anchors.top: name.bottom
-														anchors.left: name.left
-														anchors.leftMargin: 30
-														id: address
-														text: addresses.get(index).address
-														font.pointSize: 9
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-
-						Style
-						{
-							id: style
-						}
-
-						RowLayout
-						{
-							id: verificationRow
-							Layout.fillWidth: true
-							Rectangle
-							{
-								width: labelWidth
-								Label
-								{
-									text: qsTr("Verifications")
-									anchors.left: parent.left
-									anchors.verticalCenter: parent.verticalCenter
-								}
-							}
-
-							Rectangle
-							{
-								Layout.preferredHeight: 65
-								Layout.fillWidth: true
-								color: "#cccccc"
-								TextArea
-								{
-									id: verificationTextArea
-									visible: false
-									font.pointSize: 10
-									backgroundVisible: false
-									anchors.fill: parent
-								}
-							}
-
-							Label
-							{
-								id: verificationLabel
-								visible: true
-							}
-						}
-					}
+					anchors.verticalCenter: parent.verticalCenter
+					text: qsTr("Gas used")
 				}
 			}
 
-			Rectangle
+			Label
 			{
-				Layout.preferredWidth: parent.width
-				Layout.alignment: Qt.BottomEdge
-
-				MessageDialog
-				{
-					id: warning
-					text: qsTr("Contracts are going to be deployed. Are you sure? (Another actions may be required on the remote node in order to complere deployment)")
-					onYes: {
-						deployBtn.deploy()
-					}
-					standardButtons: StandardButton.Yes | StandardButton.No
-				}
-
-				Button
-				{
-					id: deployBtn
-					anchors.right: parent.right
-					text: qsTr("Deploy contracts")
-					onClicked:
-					{
-						warning.open()
-					}
-
-					function deploy()
-					{
-						projectModel.deployedScenarioIndex = contractList.currentIndex
-						NetworkDeploymentCode.deployContracts(root.gas, gasPriceConf.toHexWei(), function(addresses, trHashes)
-						{
-							projectModel.deploymentTrHashes = trHashes
-							worker.verifyHashes(trHashes, function (nb, trLost)
-							{
-								projectModel.deployBlockNumber = nb
-								projectModel.saveProject()
-								root.updateVerification(nb, trLost)
-								root.deployed()
-							})
-							projectModel.deploymentAddresses = addresses
-							projectModel.saveProject()
-							deployedAddresses.refresh()
-						});
-					}
-				}
+				Layout.preferredWidth: 500
+				id: gasUsedLabel
 			}
 		}
 	}

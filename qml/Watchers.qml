@@ -22,6 +22,7 @@ Rectangle
 	property variant bc
 	property var blockIndex
 	property var txIndex
+	property var callIndex
 
 	property string selectedTxColor: "#accbf2"
 	property string selectedBlockForeground: "#445e7f"
@@ -42,7 +43,7 @@ Rectangle
 		accounts.add(address, amount)
 	}
 
-	function updateWidthTx(_tx, _state, _blockIndex, _txIndex)
+	function updateWidthTx(_tx, _state, _blockIndex, _txIndex, _callIndex)
 	{
 		from.text = clientModel.resolveAddress(_tx.sender)
 		to.text = _tx.label
@@ -50,6 +51,7 @@ Rectangle
 		tx = _tx
 		blockIndex  = _blockIndex
 		txIndex = _txIndex
+		callIndex = _callIndex
 		currentState = _state
 		inputParams.init()
 		if (_tx.isContractCreation)

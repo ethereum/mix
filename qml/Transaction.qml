@@ -233,7 +233,7 @@ RowLayout
 			{
 				if (tx.recordIndex !== undefined)
 				{
-					debugTrRequested = [ blockIndex, index ]
+					debugTrRequested = [ blockIndex, txIndex ]
 					clientModel.debugRecord(tx.recordIndex);
 				}
 			}

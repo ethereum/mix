@@ -14,7 +14,7 @@ import "."
 Dialog {
 	id: modalDeploymentDialog
 	modality: Qt.ApplicationModal
-	width: 1000
+	width: 1050
 	height: 550
 	visible: false
 
@@ -107,9 +107,19 @@ Dialog {
 							selected = deployStep
 							break;
 						}
+						case "option":
+						{
+							selected = optionStep
+							break;
+						}
 						case "package":
 						{
 							selected = packageStep
+							break;
+						}
+						case "upload":
+						{
+							selected = uploadStep
 							break;
 						}
 						case "register":
@@ -133,9 +143,24 @@ Dialog {
 						worker: worker
 					}
 
+					DeploymentOptions
+					{
+						id: optionStep
+						visible: false
+						worker: worker
+						deployStep: deployStep
+					}
+
 					PackagingStep
 					{
 						id: packageStep
+						visible: false
+						worker: worker
+					}
+
+					UploadPackage
+					{
+						id: uploadStep
 						visible: false
 						worker: worker
 					}
