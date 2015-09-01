@@ -66,7 +66,7 @@ ColumnLayout
 		if (callIndex === -1)
 			transactionRepeater.itemAt(txIndex).select()
 		else
-			transactionRepeater.itemAt(txIndex).selectCall(callIndex) //callsRepeater.itemAt(callIndex).select()
+			transactionRepeater.itemAt(txIndex).selectCall(callIndex)
 	}
 
 	function displayNextCalls(trIndex, calls)

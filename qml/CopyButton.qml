@@ -12,7 +12,7 @@ Button
 	tooltip: qsTr("Copy to clipboard")
 	onClicked:
 	{
-		clipboard.text =  getContent() //localPackageUrl.originalText;
+		clipboard.text = getContent()
 	}
 }
 

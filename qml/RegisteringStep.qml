@@ -95,7 +95,7 @@ Rectangle {
 		Label
 		{
 			anchors.top: parent.top
-			Layout.fillWidth: true
+			Layout.preferredWidth: 300
 			text: qsTr("Register the internet and Ethereum URL of your dapp on the main name registrar to make it easily accesible to users")
 			font.bold: true
 		}
@@ -121,6 +121,19 @@ Rectangle {
 				text: "c6d9d2cd449a754c494264e1809c50e34d64562b"
 				visible: true
 				Layout.preferredWidth: 450
+			}
+		}
+
+		Connections
+		{
+			target: worker
+			onNodeUnreachable:
+			{
+				registerDappBtn.enabled = false
+			}
+			onNodeReachable:
+			{
+				registerDappBtn.enabled = true
 			}
 		}
 
@@ -387,6 +400,7 @@ Rectangle {
 			anchors.right: parent.right
 			anchors.rightMargin: 10
 			text: qsTr("Register Dapp")
+			id: registerDappBtn
 			width: 30
 			onClicked:
 			{
@@ -397,6 +411,7 @@ Rectangle {
 					parent.registerUrl(gasPriceConf.gasPrice, function(){})
 				})
 			}
+			enabled: applicationUrlEthCtrl.text != "" && applicationUrlHttpCtrl.text != "" && registrarAddr.text != "" && registrarAddr.text.length === 40
 		}
 	}
 }
