@@ -240,7 +240,7 @@ Rectangle {
 									State {
 										name: "selected"
 										PropertyChanges { target: label; color: "white" }
-										PropertyChanges { target: labelContainer.border; color: "white" }
+										PropertyChanges { target: labelContainer.border; width: 0 }
 										PropertyChanges { target: detail; color: "white" }
 										PropertyChanges { target: itemContainer; color: "#accbf2" }
 										PropertyChanges { target: labelContainer; color: "#accbf2" }
