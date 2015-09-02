@@ -269,7 +269,13 @@ Item {
 		{
 			var state = stateList[index]
 			var item = fromPlainStateItem(toPlainStateItem(state))
-			item.title = qsTr("Copy of") + " " + state.title
+			var dup = 0
+			for (var k in stateList)
+			{
+				if (stateList[k].title.indexOf(state.title) !== -1)
+					dup++
+			}
+			item.title = state.title + " " + dup;
 			appendState(item)
 			save()
 		}

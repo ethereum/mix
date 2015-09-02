@@ -5,25 +5,31 @@ import QtQuick.Controls.Styles 1.3
 
 Rectangle {
 	anchors.fill: parent
-	color: "white"
+	color: "#e9eff7"
 	property var worker
 	property variant sel
+	property variant menuSel
 	signal selected(string step)
 	id: root
 
 	function refreshCurrent()
 	{
-		menu.itemAt(sel).select()
+		topMenu.itemAt(menuSel).select(sel)
 	}
 
 	function init()
 	{
-		menu.itemAt(0).select()
+		topMenu.itemAt(0).select(0)
 	}
 
 	function itemClicked(step)
 	{
 		selected(step)
+	}
+
+	function unselect(tMenu, menu)
+	{
+		topMenu.itemAt(tMenu).unselect(menu)
 	}
 
 	function reset()
@@ -73,114 +79,230 @@ Rectangle {
 		spacing: 0
 		Repeater
 		{
-			id: menu
+			id: topMenu
 			model: [
 				{
 					step: 1,
-					type:"deploy",
-					label: qsTr("Deploy contracts")
+					type: "DEPLOY",
+					label: qsTr("Deploy contracts"),
+					actions:[
+						{
+							step: 1,
+							type:"deploy",
+							label: qsTr("Select Scenario")
+						},
+						{
+							step: 2,
+							type:"option",
+							label: qsTr("Select Deployment\noption and deploy")
+						}]
 				},
 				{
 					step: 2,
-					type:"option",
-					label: qsTr("Deployment option")
+					type:"PACKAGE",
+					label: qsTr("Package dapp"),
+					actions: [{
+							step: 3,
+							type:"package",
+							label: qsTr("Generate local\npackage")
+						},
+						{
+							step: 4,
+							type:"upload",
+							label: qsTr("Upload and share\npackage")
+						}]
 				},
 				{
 					step: 3,
-					type:"package",
-					label: qsTr("Package dapp")
-				},
-				{
-					step: 4,
-					type:"upload",
-					label: qsTr("Upload dapp")
-				},
-				{
-					step: 5,
-					type:"register",
-					label: qsTr("Register dapp")
-				}
-			]
+					type:"REGISTER",
+					label: qsTr("Register"),
+					actions: [{
+							step: 5,
+							type:"register",
+							label: qsTr("Register dapp")
+						}]
+				}]
 
 			Rectangle
 			{
-				Layout.preferredHeight: 50
-				Layout.fillWidth: true
-				color: "white"
-				id: itemContainer
+				id: top
+				color: "transparent"
 
-				function select()
+				height:
 				{
-					if (sel !== undefined)
-					{
-						menu.itemAt(sel).unselect()
-					}
-					labelContainer.state = "selected"
-					sel = index
-					itemClicked(menu.model[index].type)
-					deployLogs.switchLogs()
+					return 30 + 50 * topMenu.model[index].actions.length
 				}
 
-				function unselect()
+				Layout.preferredHeight:
 				{
-					labelContainer.state = ""
+					return 30 + 50 * topMenu.model[index].actions.length
 				}
 
-				Rectangle {
-					width: 40
-					height: 40
-					color: "transparent"
-					border.color: "#cccccc"
-					border.width: 2
-					radius: width*0.5
-					anchors.verticalCenter: parent.verticalCenter
+				function select(index)
+				{
+					menu.itemAt(index).select()
+				}
+
+				function unselect(index)
+				{
+					menu.itemAt(index).unselect()
+				}
+
+				Label
+				{
+					text: topMenu.model[index].label
+					id: topMenuLabel
+					font.italic: true
+					anchors.top: parent.top
 					anchors.left: parent.left
-					anchors.leftMargin: 10
-					id: labelContainer
-					Label
+					anchors.topMargin: 2
+					anchors.leftMargin: 4
+				}
+
+				ColumnLayout
+				{
+					anchors.top: topMenuLabel.bottom
+					anchors.left: parent.left
+					id: col
+					property int topIndex
+					Component.onCompleted:
 					{
-						color: "#cccccc"
-						id: label
-						anchors.centerIn: parent
-						text: menu.model[index].step
+						topIndex = index
 					}
-					states: [
-						State {
-							name: "selected"
-							PropertyChanges { target: label; color: "white" }
-							PropertyChanges { target: labelContainer.border; color: "white" }
-							PropertyChanges { target: detail; color: "white" }
-							PropertyChanges { target: itemContainer; color: "#accbf2" }
+
+					Repeater
+					{
+						id: menu
+						model: topMenu.model[index].actions
+						Rectangle
+						{
+							Layout.preferredHeight: 50
+							Layout.fillWidth: true
+							color: "white"
+							id: itemContainer
+
+							Component.onCompleted:
+							{
+								Layout.preferredHeight = 50
+								Layout.preferredWidth = col.width
+							}
+
+							function select()
+							{
+								if (sel !== undefined)
+									 root.unselect(menuSel, sel)
+								labelContainer.state = "selected"
+								sel = index
+								menuSel = col.topIndex
+								itemClicked(menu.model[index].type)
+								deployLogs.switchLogs()
+							}
+
+							function unselect()
+							{
+								labelContainer.state = ""
+							}
+
+							MouseArea
+							{
+								anchors.fill: parent
+								onClicked:
+								{
+									itemContainer.select()
+								}
+							}
+
+							Rectangle {
+
+								Component.onCompleted:
+								{
+									width =  40
+									height = 40
+								}
+								width: 40
+								height: 40
+								color: "transparent"
+								border.color: "#cccccc"
+								border.width: 2
+								radius: width * 0.5
+								anchors.verticalCenter: parent.verticalCenter
+								anchors.left: parent.left
+								anchors.leftMargin: 10
+								id: labelContainer
+								Label
+								{
+									color: "#cccccc"
+									id: label
+									anchors.centerIn: parent
+									text: menu.model[index].step
+								}
+								states: [
+									State {
+										name: "selected"
+										PropertyChanges { target: label; color: "white" }
+										PropertyChanges { target: labelContainer.border; width: 0 }
+										PropertyChanges { target: detail; color: "white" }
+										PropertyChanges { target: itemContainer; color: "#accbf2" }
+										PropertyChanges { target: labelContainer; color: "#accbf2" }
+										PropertyChanges { target: nameContainer; color: "#accbf2" }
+									}
+								]
+
+								MouseArea
+								{
+									anchors.fill: parent
+									onClicked:
+									{
+										itemContainer.select()
+									}
+								}
+							}
+
+							Rectangle
+							{
+								anchors.left: label.parent.right
+								width: parent.width - 40
+								height: 40
+								color: "transparent"
+								anchors.verticalCenter: parent.verticalCenter
+								id: nameContainer
+								Component.onCompleted:
+								{
+									width = 140
+									height = 40
+								}
+								Label
+								{
+									id: detail
+									color: "black"
+									anchors.verticalCenter: parent.verticalCenter
+									anchors.left: parent.left
+									anchors.leftMargin: 5
+									text: menu.model[index].label
+									MouseArea
+									{
+										anchors.fill: parent
+										onClicked:
+										{
+											itemContainer.select()
+										}
+									}
+								}
+							}
 						}
-					]
-				}
+					}
 
-				Rectangle
-				{
-					anchors.verticalCenter: parent.verticalCenter
-					anchors.left: label.parent.right
-					width: parent.width - 40
-					height: 40
-					color: "transparent"
-					Label
+
+					Rectangle
 					{
-						id: detail
-						color: "black"
-						anchors.verticalCenter: parent.verticalCenter
-						anchors.left: parent.left
-						anchors.leftMargin: 10
-						text: menu.model[index].label
+						Layout.preferredWidth: col.width
+						Layout.preferredHeight: 2
+						anchors.bottom: parent.bottom
+						color: "#cccccc"
 					}
 				}
 
-				MouseArea
-				{
-					anchors.fill: parent
-					onClicked:
-					{
-						itemContainer.select()
-					}
-				}
+
 			}
 		}
 
