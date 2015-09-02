@@ -361,12 +361,15 @@ function newJsFile() {
 }
 
 function newContract() {
-	createAndAddFile("contract", "sol", contractTemplate);
+	var ctrName = "contract" + projectListModel.count
+	var ctr = contractTemplate.replace("Contract", ctrName)
+	createAndAddFile("contract", "sol", ctr, ctrName + ".sol");
 }
 
 
-function createAndAddFile(name, extension, content) {
-	var fileName = generateFileName(name, extension);
+function createAndAddFile(name, extension, content, fileName) {
+	if (!fileName)
+		fileName = generateFileName(name, extension);
 	var filePath = projectPath + fileName;
 	if (!fileIo.fileExists(filePath))
 		fileIo.writeFile(filePath, content);

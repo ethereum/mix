@@ -316,7 +316,7 @@ ColumnLayout
 					onClicked: {
 						restore()
 					}
-					text: qsTr("Restore")
+					text: qsTr("Reset")
 					function restore()
 					{
 						var state = projectModel.stateListModel.reloadStateFromProject(scenarioList.currentIndex)
