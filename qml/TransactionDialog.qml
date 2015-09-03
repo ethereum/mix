@@ -304,6 +304,7 @@ Dialog {
 
 				RowLayout
 				{
+					Layout.preferredHeight: 80
 					Rectangle
 					{
 						Layout.preferredWidth: 150
@@ -313,14 +314,14 @@ Dialog {
 							text: qsTr("Sender Account")
 						}
 					}
-
 					ComboBox {
+
 						function select(secret)
 						{
 							for (var i in model)
 								if (model[i].secret === secret)
 								{
-									currentIndex = i;
+									currentIndex = i;									
 									break;
 								}
 						}
@@ -329,6 +330,38 @@ Dialog {
 						currentIndex: 0
 						textRole: "name"
 						editable: false
+
+						onCurrentIndexChanged:
+						{
+							update()
+						}
+
+						onModelChanged:
+						{
+							update()
+						}
+
+						Component.onCompleted: {
+							update()
+						}
+
+						function update()
+						{
+							for (var i in model)
+								if (model[i].name === currentText)
+								{
+									addressCopy.originalText = model[i].address
+									break;
+								}
+						}
+
+						DisableInput
+						{
+							width: 350
+							anchors.top: parent.bottom
+							anchors.topMargin: 5
+							id: addressCopy
+						}
 					}
 				}
 

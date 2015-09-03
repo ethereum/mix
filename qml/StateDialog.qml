@@ -36,14 +36,12 @@ Dialog {
 		accountsModel.clear()
 		stateAccounts = []
 		var miner = 0
-
 		for (var k = 0; k < item.accounts.length; k++) {
 			accountsModel.append(item.accounts[k])
 			stateAccounts.push(item.accounts[k])
 			if (item.miner && item.accounts[k].name === item.miner.name)
 				miner = k
 		}
-
 		contractsModel.clear()
 		stateContracts = []
 		if (item.contracts) {
@@ -55,11 +53,11 @@ Dialog {
 
 		visible = true
 		isDefault = setDefault
-		console.log(isDefault)
 		defaultCheckBox.checked = isDefault
 		comboMiner.model = stateAccounts
 		comboMiner.currentIndex = miner
 		forceActiveFocus()
+
 	}
 
 	function acceptAndClose() {
@@ -242,21 +240,21 @@ Dialog {
 								id: addAccount
 								anchors.top: accountsLabel.bottom
 								anchors.topMargin: 2
-								text: qsTr("Add")
+								iconSource: "qrc:/qml/img/Write.png"
+								tooltip: qsTr("Add new account")
 								onClicked:
 								{
+									newAddressWin.accounts = stateAccounts
 									newAddressWin.open()
 								}
 							}
 
-							Button
+							CopyButton
 							{
 								anchors.top: addAccount.bottom
 								anchors.topMargin: 2
-								text: qsTr("Copy")
-								onClicked:
-								{
-									clipboard.text = JSON.stringify(stateAccounts, null, "\t");
+								getContent: function() {
+									return JSON.stringify(stateAccounts, null, "\t");
 								}
 							}
 						}
@@ -276,14 +274,14 @@ Dialog {
 							TableViewColumn {
 								role: "name"
 								title: qsTr("Name")
-								width: 260
+								width: 400
 								delegate: Item {
 									RowLayout {
-										height: 25
+										height: 60
 										width: parent.width
-										anchors.verticalCenter: parent.verticalCenter
+
 										Button {
-											iconSource: "qrc:/qml/img/delete_sign.png"
+											iconSource: "qrc:/qml/img/Trash.png"
 											action: deleteAccountAction
 											anchors.verticalCenter: parent.verticalCenter
 										}
@@ -297,145 +295,63 @@ Dialog {
 											}
 										}
 
+										Component.onCompleted:
+										{
+											addressCopy.originalText = stateAccounts[styleData.row].address
+										}
+
 										DefaultTextField {
-											Layout.fillWidth: true
-											anchors.verticalCenter: parent.verticalCenter
+											anchors.top: parent.top
+											Layout.preferredWidth: 100
 											onTextChanged: {
-												if (styleData.row > -1) {
+												if (styleData.row > -1 && stateAccounts[styleData.row]) {
 													stateAccounts[styleData.row].name = text
 													var index = comboMiner.currentIndex
 													comboMiner.model = stateAccounts
 													comboMiner.currentIndex = index
 												}
+												cursorPosition = 0
 											}
 											text: {
 												return styleData.value
 											}
+
+											DisableInput
+											{
+												anchors.top: parent.bottom
+												anchors.topMargin: 5
+												id: addressCopy
+												width: 400
+											}
+										}
+
+										Ether {
+											anchors.top: parent.top
+											Layout.preferredWidth: 400
+											edit: true
+											displayFormattedValue: false
+											value: stateAccounts[styleData.row].balance
+											displayUnitSelection: true
 										}
 									}
 								}
 							}
 
-							TableViewColumn {
-								role: "balance"
-								title: qsTr("Balance")
-								width: 230
-								delegate: Item {
-									Ether {
-										width: parent.width
-										anchors.verticalCenter: parent.verticalCenter
-										edit: true
-										displayFormattedValue: false
-										value: styleData.value
-									}
-								}
-							}
 							rowDelegate: Rectangle {
 								color: styleData.alternate ? "transparent" : "#f0f0f0"
-								height: 30
+								height: 60
 							}
 						}
 					}
 
-					Dialog {
+					NewAccount
+					{
 						id: newAddressWin
-						modality: Qt.ApplicationModal
-						title: qsTr("New Account");
-
-						width: 300
-						height: 100
-
-						visible: false
-
-						function addAccount(ac)
+						onAccepted:
 						{
 							accountsModel.append(ac)
 							stateAccounts.push(ac)
 							clientModel.addAccount(ac.secret);
-						}
-
-						contentItem: Rectangle {
-							anchors.fill: parent
-							ColumnLayout
-							{
-								anchors.fill: parent
-								anchors.margins: 10
-								RowLayout
-								{
-
-									DefaultLabel
-									{
-										text: qsTr("Secret")
-									}
-
-									TextField
-									{
-										Layout.preferredWidth: 230
-										id: input
-									}
-								}
-
-								RowLayout
-								{
-									id: error
-									visible: false
-									DefaultLabel
-									{
-										color: "red"
-										text: qsTr("bad formatting")
-									}
-								}
-
-								RowLayout
-								{
-									anchors.bottom: parent.bottom
-									anchors.right: parent.right;
-
-									Button {
-										id: okButton;
-										text: qsTr("OK");
-										onClicked: {
-											var ac;
-											if (input.text === "")
-												ac = projectModel.stateListModel.newAccount("O", QEther.Wei)
-											else
-											{
-												for (var k in stateAccounts)
-												{
-													if (stateAccounts[k].secret === input.text)
-													{
-														input.text = ""
-														newAddressWin.close()
-													}
-												}
-
-												var secret = input.text
-												secret = secret.toLowerCase()
-												var hexCheck = new RegExp("[0-9a-f]+");
-												if (secret.length !== 64 || !hexCheck.test(secret))
-												{
-													error.visible = true
-													return
-												}
-												ac = projectModel.stateListModel.newAccount("O", QEther.Wei, input.text)
-											}
-											error.visible = false
-											newAddressWin.addAccount(ac)
-											newAddressWin.close()
-											input.text = ""
-										}
-									}
-
-									Button {
-										text: qsTr("Cancel");
-										onClicked:
-										{
-											error.visible = false
-											newAddressWin.close()
-										}
-									}
-								}
-							}
 						}
 					}
 

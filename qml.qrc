@@ -79,5 +79,7 @@
         <file>qml/DeploymentWorker.qml</file>
         <file>qml/DeploymentOptions.qml</file>
         <file>qml/UploadPackage.qml</file>
+        <file>qml/DisableInput.qml</file>
+        <file>qml/NewAccount.qml</file>
     </qresource>
 </RCC>

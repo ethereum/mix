@@ -210,6 +210,19 @@ Rectangle
 				title: qsTr("ACCOUNTS")
 				role: "accounts"
 				_data: currentState
+				function computeData()
+				{
+					model.clear()
+					var ret = []
+					for (var k in currentState.accounts)
+					{
+						var label = k
+						var nickName = blockChain.getAccountNickname(k)
+						if (nickName !== k && nickName !== "")
+							label += " (" + blockChain.getAccountNickname(k) + ")"
+						model.append({ "key": label, "value": currentState.accounts[k] })
+					}
+				}
 			}
 
 			KeyValuePanel
