@@ -131,7 +131,7 @@ void ClientModel::mine()
 	{
 		try
 		{
-			sleep(1); //ensure not future time
+			std::this_thread::sleep_for(std::chrono::seconds(1)); //ensure not future time
 			m_client->mine();
 			newBlock();
 			m_mining = false;
