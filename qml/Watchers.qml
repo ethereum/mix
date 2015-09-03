@@ -22,8 +22,9 @@ Rectangle
 	property variant bc
 	property var blockIndex
 	property var txIndex
+	property var callIndex
 
-	property string selectedBlockColor: "#accbf2"
+	property string selectedTxColor: "#accbf2"
 	property string selectedBlockForeground: "#445e7f"
 
 	function clear()
@@ -42,7 +43,7 @@ Rectangle
 		accounts.add(address, amount)
 	}
 
-	function updateWidthTx(_tx, _state, _blockIndex, _txIndex)
+	function updateWidthTx(_tx, _state, _blockIndex, _txIndex, _callIndex)
 	{
 		from.text = clientModel.resolveAddress(_tx.sender)
 		to.text = _tx.label
@@ -50,6 +51,7 @@ Rectangle
 		tx = _tx
 		blockIndex  = _blockIndex
 		txIndex = _txIndex
+		callIndex = _callIndex
 		currentState = _state
 		inputParams.init()
 		if (_tx.isContractCreation)
@@ -72,7 +74,7 @@ Rectangle
 	}
 
 	Rectangle {
-		color: selectedBlockColor
+		color: selectedTxColor
 		anchors.fill: parent
 		anchors.margins: 10
 		radius: 4
@@ -81,57 +83,80 @@ Rectangle
 			spacing: 15
 			Rectangle
 			{
-				height: 20
+				height: 20 * 3
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
 				color: "transparent"
-				Row
+
+				ColumnLayout
 				{
-					id: rowHeader
-					width: parent.width
-					anchors.top: rowHeader.parent.top
-					anchors.topMargin: 8
-					spacing: 5
-					Label {
-						id: fromLabel
-						text: qsTr("from")
-						visible: false
-						color: selectedBlockForeground
+					height: parent.height
+					anchors.top: parent.top
+					anchors.topMargin: 5
+					Row
+					{
+						Layout.preferredWidth: parent.width
+						spacing: 5
+						Label {
+							id: fromLabel
+							text: qsTr("from")
+							visible: from.text != ""
+							color: selectedBlockForeground
+							font.italic: true
+						}
+						Label {
+							id: from
+							color: selectedBlockForeground
+							maximumLineCount: 1
+							clip: true
+							width: 350
+						}
 					}
-					Label {
-						id: from
-						color: selectedBlockForeground
-						elide: Text.ElideRight
-						maximumLineCount: 1
-						clip: true
-						width: 200
+
+					Row
+					{
+						Layout.preferredWidth: parent.width
+						spacing: 5
+						Label {
+							id: toLabel
+							text: qsTr("to")
+							visible: to.text != ""
+							color: selectedBlockForeground
+							font.italic: true
+						}
+						Label {
+							id: to
+							color: selectedBlockForeground
+							maximumLineCount: 1
+							clip: true
+							width: 100
+						}
 					}
-					Label {
-						id: toLabel
-						text: qsTr("to")
-						visible: false
-						color: selectedBlockForeground
-					}
-					Label {
-						id: to
-						color: selectedBlockForeground
-						elide: Text.ElideRight
-						maximumLineCount: 1
-						clip: true
-						width: 100
-					}
-					Label {
-						id: value
-						color: selectedBlockForeground
-						font.italic: true
-						clip: true
+
+					Row
+					{
+						Layout.preferredWidth: parent.width
+						spacing: 5
+						Label {
+							id: valueLabel
+							text: qsTr("value")
+							visible: value.text != ""
+							color: selectedBlockForeground
+							font.italic: true
+						}
+						Label {
+							id: value
+							color: selectedBlockForeground
+							font.italic: true
+							clip: true
+						}
 					}
 				}
 
 				Button {
-					anchors.right: rowHeader.parent.right
-					anchors.top: rowHeader.parent.top
-					anchors.topMargin: 5
+					anchors.right: parent.right
+					anchors.top: parent.top
+					anchors.topMargin: 20
 					iconSource: "qrc:/qml/img/edit_combox.png"
 					height: 25
 					visible: from.text !== ""

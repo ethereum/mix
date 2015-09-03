@@ -93,6 +93,7 @@ Item {
 		for (var key in t.parameters)
 			r.parameters[key] = t.parameters[key];
 
+		r.isCall = false
 		return r;
 	}
 
@@ -264,11 +265,26 @@ Item {
 			return { name: name, secret: _secret, balance: amount, address: address };
 		}
 
+		function titleExists(stateList, title)
+		{
+			for (var k in stateList)
+			{
+				if (stateList[k].title === title)
+					return true;
+			}
+			return false;
+		}
+
 		function duplicateState(index)
 		{
 			var state = stateList[index]
 			var item = fromPlainStateItem(toPlainStateItem(state))
-			item.title = qsTr("Copy of") + " " + state.title
+
+			var copyIndex = 1;
+			while (titleExists(stateList, state.title + "_" + copyIndex))
+				copyIndex++;
+			item.title = state.title + "_" + copyIndex;
+
 			appendState(item)
 			save()
 		}

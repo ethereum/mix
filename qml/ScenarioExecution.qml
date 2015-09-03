@@ -95,14 +95,21 @@ Rectangle {
 					{
 						currentSelectedBlock = blockIndex
 						currentSelectedTx = txIndex
-						updateWatchers(blockIndex, txIndex)
+						updateWatchers(blockIndex, txIndex, callIndex)
 					}
 
-					function updateWatchers(blockIndex, txIndex)
+					function updateWatchers(blockIndex, txIndex, callIndex)
 					{
-						var tx = blockChain.model.blocks[blockIndex].transactions[txIndex]
+						var tx;
+						if (callIndex === -1)
+							tx = blockChain.model.blocks[blockIndex].transactions[txIndex]
+						else
+						{
+							var calls = blockChain.calls[JSON.stringify([blockIndex, txIndex])]
+							tx = calls[callIndex]
+						}
 						var state = blockChain.getState(tx.recordIndex)
-						watchers.updateWidthTx(tx, state, blockIndex, txIndex)
+						watchers.updateWidthTx(tx, state, blockIndex, txIndex, callIndex)
 					}
 
 					onRebuilding: {
