@@ -39,9 +39,7 @@ ColumnLayout {
 			{
 				var keys = Object.keys(_data[role])
 				for (var k in keys)
-				{
 					modelKeyValue.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": _data[role][keys[k]] })
-				}
 			}
 		}
 	}

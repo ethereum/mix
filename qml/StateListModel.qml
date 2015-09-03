@@ -248,19 +248,23 @@ Item {
 		signal defaultStateChanged;
 		signal stateListModelReady;
 		signal stateRun(int index)
-		signal stateDeleted(int index)
+		signal stateDeleted(int index)		
 
 		function defaultTransactionItem()
 		{
 			return TransactionHelper.defaultTransaction();
 		}
 
-		function newAccount(_balance, _unit, _secret)
+		function newAccount(_balance, _unit, _secret, _nickName)
 		{
 			if (!_secret)
 				_secret = clientModel.newSecret();
 			var address = clientModel.address(_secret);
-			var name = qsTr("Account") + "-" + address.substring(0, 4);
+			var name
+			if (_nickName && _nickName !== "")
+				name = _nickName
+			else
+				name = address
 			var amount = QEtherHelper.createEther(_balance, _unit)			
 			return { name: name, secret: _secret, balance: amount, address: address };
 		}

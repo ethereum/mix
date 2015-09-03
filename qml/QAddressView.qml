@@ -169,16 +169,15 @@ ColumnLayout
 					trCombobox.selected = true;
 				}
 				else if (textinput.text.indexOf("<") === 0)
-				{
 					textinput.text = "";
-				}
 				indexChanged();
 			}
 
 			onCurrentIndexChanged: {
+				addressCopy.originalText = currentText
 				if (!isArray())
 					update()
-			}
+			}			
 		}
 
 		Button

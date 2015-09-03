@@ -127,58 +127,24 @@ Rectangle {
 				}
 			}
 
-			TextField
+			DisableInput
 			{
 				anchors.verticalCenter: parent.verticalCenter
-				Layout.preferredWidth: 360
+				Layout.preferredWidth: 359
 				id: localPackageUrl
-				readOnly: true
-				property var originalText
-				property bool updating: false
 
-				function init()
+				Label
 				{
-					if (updating)
-						return
-					updating = true
-					if (originalText.length > 48)
-						text = originalText.substring(0, 46) + "..."
-					cursorPosition = 0
-					updating = false
-				}
-
-				onOriginalTextChanged:
-				{
-					init()
-				}
-
-				style: TextFieldStyle {
-					background: Rectangle
-					{
-					width: 360
-					color: "#cccccc"
-					radius: 2
+					anchors.left: parent.right
+					anchors.leftMargin: 50
+					anchors.verticalCenter: parent.verticalCenter
+					id: lastDeployLabel
 				}
 			}
 		}
-
-		CopyButton
-		{
-			anchors.verticalCenter: parent.verticalCenter
-			getContent: function()
-			{
-				return localPackageUrl.originalText;
-			}
-		}
-
-		Label
-		{
-			anchors.verticalCenter: parent.verticalCenter
-			id: lastDeployLabel
-		}
-	}	
+	}
 }
-}
+
 
 
 
