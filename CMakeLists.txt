@@ -52,14 +52,6 @@ eth_add_executable(${EXECUTABLE}
 eth_use(${EXECUTABLE} REQUIRED Qt::Core Qt::Widgets Qt::WebEngine Eth::ethereum Web3::web3jsonrpc)
 eth_use(${EXECUTABLE} OPTIONAL Solidity)
 
-# TODO: fix eth_package for mix
-#eth_package(${EXECUTABLE}
-    #NAME "Mix"
-    #DESCRIPTION "Mix IDE"
-    #WIN_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/mix.ico"
-    #OSX_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/mix.icns"
-#)
-
 # eth_install_executable is defined in cmake/EthExecutableHelper.cmake
 eth_install_executable(${EXECUTABLE}
 	QMLDIR ${CMAKE_CURRENT_SOURCE_DIR}/qml
