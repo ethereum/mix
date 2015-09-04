@@ -51,6 +51,7 @@ ColumnLayout
 				color: "white"
 				width: 180
 				height: 30
+				id: scenarioCont
 
 				Rectangle
 				{
@@ -70,6 +71,7 @@ ColumnLayout
 					width: 10
 					height: parent.height
 					anchors.left: parent.left
+					anchors.leftMargin: -4
 					radius: 15
 				}
 
@@ -84,12 +86,12 @@ ColumnLayout
 				ComboBox
 				{
 					id: scenarioList
-					anchors.leftMargin: 2
+					anchors.left: parent.left
 					model: projectModel.stateListModel
 					anchors.top: parent.top
 					textRole: "title"
 					height: parent.height
-					width: 150
+					width: 182
 					signal updateView()
 
 					onCurrentIndexChanged:
@@ -121,12 +123,35 @@ ColumnLayout
 							anchors.fill: parent
 							color: "white"
 							Label {
+								Image {
+									id: up
+									anchors.top: parent.top
+									anchors.right: parent.right
+									anchors.topMargin: -4
+									source: "qrc:/qml/img/Up.png"
+									width: 10
+									height: 10
+								}
+
+								Image {
+									id: down
+									anchors.bottom: parent.bottom
+									anchors.bottomMargin: -5
+									anchors.right: parent.right
+									source: "qrc:/qml/img/Down.png"
+									width: 10
+									height: 10
+								}
 								id: comboLabel
 								maximumLineCount: 1
 								elide: Text.ElideRight
 								width: parent.width
 								anchors.verticalCenter: parent.verticalCenter
 								anchors.left: parent.left
+								anchors.leftMargin: -6
+								anchors.top: parent.top
+								anchors.topMargin: 3
+
 								Component.onCompleted:
 								{
 									comboLabel.updateLabel()
@@ -163,12 +188,13 @@ ColumnLayout
 				TextField
 				{
 					id: scenarioNameEdit
-					anchors.leftMargin: 2
-					anchors.verticalCenter: parent.verticalCenter
+					anchors.left: scenarioCont.left
+					anchors.top: parent.top
+					anchors.leftMargin: -4
 					height: parent.height
 					z: 5
 					visible: false
-					width: 185
+					width: 190
 					Keys.onEnterPressed:
 					{
 						toggleEdit()
@@ -196,6 +222,13 @@ ColumnLayout
 					function save()
 					{
 						outsideClick.active = false
+
+						for (var k = 0; k < projectModel.stateListModel.count; ++k)
+						{
+								if (projectModel.stateListModel.get(k).title === scenarioNameEdit.text)
+									return //title already exists
+						}
+
 						projectModel.stateListModel.getState(scenarioList.currentIndex).title = scenarioNameEdit.text
 						projectModel.saveProjectFile()
 						saved(state)
@@ -260,15 +293,26 @@ ColumnLayout
 					anchors.left: editScenario.right
 					sourceImg: "qrc:/qml/img/warningicon.png"
 					onClicked: {
+						deleteWarning.open()
+					}
+					text: qsTr("Delete")
+					roundRight: false
+					roundLeft: false
+				}
+
+				MessageDialog
+				{
+					id: deleteWarning
+					text: qsTr("Are you sure to delete this scenario ?")
+					onYes:
+					{
 						if (projectModel.stateListModel.count > 1)
 						{
 							projectModel.stateListModel.deleteState(scenarioList.currentIndex)
 							scenarioList.init()
 						}
 					}
-					text: qsTr("Delete")
-					roundRight: false
-					roundLeft: false
+					standardButtons: StandardButton.Yes | StandardButton.No
 				}
 
 				Rectangle

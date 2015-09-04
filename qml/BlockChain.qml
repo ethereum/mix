@@ -123,6 +123,16 @@ ColumnLayout {
 		previousWidth = width
 	}
 
+	function getAccountNickname(address)
+	{
+		for (var k = 0; k < model.accounts.length; ++k)
+		{
+			if ("0x" + model.accounts[k].address === address)
+				return model.accounts[k].name
+		}
+		return address
+	}
+
 	function getState(record)
 	{
 		return states[record]
@@ -274,7 +284,8 @@ ColumnLayout {
 						blockSelected = blockIndex
 						txSelected = txIndex
 						callSelected = callIndex
-						itemAt(blockIndex).select(txIndex, callIndex)
+						if (itemAt(blockIndex))
+							itemAt(blockIndex).select(txIndex, callIndex)
 						blockChainPanel.forceActiveFocus()
 					}
 
@@ -535,7 +546,7 @@ ColumnLayout {
 				Layout.preferredHeight: 30
 				ScenarioButton {
 					id: rebuild
-					text: qsTr("Rebuild")
+					text: qsTr("Rebuild Scenario")
 					width: 100
 					height: 30
 					roundLeft: true
@@ -896,14 +907,10 @@ ColumnLayout {
 
 			ScenarioButton {
 				id: newAccount
-				text: qsTr("New Account")
+				text: qsTr("New Account...")
 				onClicked: {
-					var ac = projectModel.stateListModel.newAccount("O", QEther.Wei)
-					model.accounts.push(ac)
-					clientModel.addAccount(ac.secret);
-					for (var k in Object.keys(blockChainPanel.states))
-						blockChainPanel.states[k].accounts["0x" + ac.address] = "0 wei" // add the account in all the previous state (balance at O)
-					accountAdded("0x" + ac.address, "0")
+					newAddressWin.accounts = model.accounts
+					newAddressWin.open()
 				}
 				Layout.preferredWidth: 100
 				Layout.preferredHeight: 30
@@ -911,6 +918,16 @@ ColumnLayout {
 				sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
 				roundLeft: true
 				roundRight: true
+			}
+
+			NewAccount
+			{
+				id: newAddressWin
+				onAccepted:
+				{
+					model.accounts.push(ac)
+					clientModel.addAccount(ac.secret);
+				}
 			}
 		}
 	}
