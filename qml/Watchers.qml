@@ -99,7 +99,7 @@ Rectangle
 						spacing: 5
 						Label {
 							id: fromLabel
-							text: qsTr("from")
+							text: qsTr("From:")
 							visible: from.text != ""
 							color: selectedBlockForeground
 							font.italic: true
@@ -119,7 +119,7 @@ Rectangle
 						spacing: 5
 						Label {
 							id: toLabel
-							text: qsTr("to")
+							text: qsTr("To:")
 							visible: to.text != ""
 							color: selectedBlockForeground
 							font.italic: true
@@ -129,7 +129,7 @@ Rectangle
 							color: selectedBlockForeground
 							maximumLineCount: 1
 							clip: true
-							width: 100
+							width: 350
 						}
 					}
 
@@ -139,7 +139,7 @@ Rectangle
 						spacing: 5
 						Label {
 							id: valueLabel
-							text: qsTr("value")
+							text: qsTr("Value:")
 							visible: value.text != ""
 							color: selectedBlockForeground
 							font.italic: true
@@ -149,6 +149,7 @@ Rectangle
 							color: selectedBlockForeground
 							font.italic: true
 							clip: true
+							width: 350
 						}
 					}
 				}
@@ -214,14 +215,15 @@ Rectangle
 				{
 					model.clear()
 					var ret = []
-					for (var k in currentState.accounts)
-					{
-						var label = k
-						var nickName = blockChain.getAccountNickname(k)
-						if (nickName !== k && nickName !== "")
-							label += " (" + blockChain.getAccountNickname(k) + ")"
-						model.append({ "key": label, "value": currentState.accounts[k] })
-					}
+					if (currentState)
+						for (var k in currentState.accounts)
+						{
+							var label = k
+							var nickName = blockChain.getAccountNickname(k)
+							if (nickName !== k && nickName !== "")
+								label += " (" + blockChain.getAccountNickname(k) + ")"
+							model.append({ "key": label, "value": currentState.accounts[k] })
+						}
 				}
 			}
 

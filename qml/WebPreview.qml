@@ -265,13 +265,10 @@ Item {
 					onTriggered:
 					{
 						expressionPanel.visible = !expressionPanel.visible;
+						expressionPanel.updateView()
 						if (expressionPanel.visible)
-						{
-							webView.width = webView.parent.width - 350
 							expressionInput.forceActiveFocus();
-						}
-						else
-							webView.width = webView.parent.width
+
 					}
 				}
 			}
@@ -314,7 +311,10 @@ Item {
 				Layout.preferredWidth: 350
 				Layout.fillHeight: true
 				spacing: 0
-				visible: false
+				Component.onCompleted: {
+					updateView()
+				}
+
 				function addExpression()
 				{
 					if (expressionInput.text === "")
@@ -325,6 +325,14 @@ Item {
 						resultTextArea.text = "> " + result + "\n\n" + resultTextArea.text;
 						expressionInput.text = "";
 					});
+				}
+
+				function updateView()
+				{
+					if (expressionPanel.visible)
+						webView.width = webView.parent.width - 350
+					else
+						webView.width = webView.parent.width
 				}
 
 				Row
@@ -402,8 +410,8 @@ Item {
 						onFocusChanged:
 						{
 							if (!focus && text == "")
-								text = qsTr("Expression");
-							if (focus && text === qsTr("Expression"))
+								text = qsTr("Enter Expression");
+							if (focus && text === qsTr("Enter Expression"))
 								text = "";
 						}
 
