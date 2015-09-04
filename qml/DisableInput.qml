@@ -10,7 +10,6 @@ import "js/QEtherHelper.js" as QEtherHelper
 
 TextField
 {
-
 	id: localPackageUrl
 	readOnly: true
 	property var originalText
@@ -31,7 +30,6 @@ TextField
 
 	Component.onCompleted:
 	{
-		localPackageUrl.width = localPackageUrl.width - 7 - buttonCopy.width
 		init()
 	}
 
