@@ -107,5 +107,6 @@
         <file>qml/img/Down.png</file>
         <file>qml/img/Write.png</file>
         <file>qml/img/Trash.png</file>
+        <file>qml/img/edit_rename.png</file>
     </qresource>
 </RCC>

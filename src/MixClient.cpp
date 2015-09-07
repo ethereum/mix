@@ -349,7 +349,7 @@ eth::BlockInfo MixClient::blockInfo() const
 	return BlockInfo(bc().block());
 }
 
-void MixClient::setBeneficiary(Address _us)
+void MixClient::setBeneficiary(Address const& _us)
 {
 	WriteGuard l(x_state);
 	m_postMine.setBeneficiary(_us);

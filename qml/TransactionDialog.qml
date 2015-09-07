@@ -350,7 +350,7 @@ Dialog {
 							for (var i in model)
 								if (model[i].name === currentText)
 								{
-									addressCopy.originalText = model[i].address
+									addressCopyInput.originalText = model[i].address
 									break;
 								}
 						}
@@ -360,7 +360,7 @@ Dialog {
 							width: 350
 							anchors.top: parent.bottom
 							anchors.topMargin: 5
-							id: addressCopy
+							id: addressCopyInput
 						}
 					}
 				}

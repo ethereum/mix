@@ -196,7 +196,9 @@ Rectangle {
 						horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
 						ColumnLayout
 						{
-							spacing: 0
+							spacing: 5
+							anchors.top: parent.top
+							anchors.topMargin: 5
 
 							ListModel
 							{
@@ -210,7 +212,7 @@ Rectangle {
 								ColumnLayout
 								{
 									Layout.fillWidth: true
-									spacing: 5
+									spacing: 2
 									Layout.preferredHeight:
 									{
 										if (index > -1)
@@ -234,8 +236,7 @@ Rectangle {
 										id: trLabel
 										Layout.preferredHeight: 20
 										anchors.left: parent.left
-										anchors.top: parent.top
-										anchors.topMargin: 5
+
 										anchors.leftMargin: 10
 										text:
 										{
@@ -260,22 +261,25 @@ Rectangle {
 											else
 												return 0
 										}
+										Layout.fillWidth: true
 										model: paramList
 										Label
 										{
 											Layout.preferredHeight: 20
 											anchors.left: parent.left
 											anchors.leftMargin: 20
-											text: name + "=" + value
+											text: name + " = " + value
 											font.italic: true
 										}
 									}
 
 									Rectangle
 									{
+										anchors.bottom: parent.bottom
 										Layout.preferredWidth: chooseSceCol.width
 										Layout.preferredHeight: 1
 										color: "#cccccc"
+										visible: true
 									}
 								}
 							}

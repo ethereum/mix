@@ -330,7 +330,10 @@ Dialog {
 											Layout.preferredWidth: 400
 											edit: true
 											displayFormattedValue: false
-											value: stateAccounts[styleData.row].balance
+											value: {
+												if (stateAccounts[styleData.row])
+													return stateAccounts[styleData.row].balance
+											}
 											displayUnitSelection: true
 										}
 									}

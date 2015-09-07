@@ -174,7 +174,6 @@ ColumnLayout
 			}
 
 			onCurrentIndexChanged: {
-				addressCopy.originalText = currentText
 				if (!isArray())
 					update()
 			}			
