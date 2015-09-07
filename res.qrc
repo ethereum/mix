@@ -103,10 +103,10 @@
         <file>qml/CopyButton.qml</file>
         <file>qml/GasPrice.qml</file>
         <file>qml/img/action_reset.png</file>
-        <file>qml/img/Up.png</file>
-        <file>qml/img/Down.png</file>
         <file>qml/img/Write.png</file>
         <file>qml/img/Trash.png</file>
         <file>qml/img/edit_rename.png</file>
+        <file>qml/img/up.png</file>
+        <file>qml/img/down.png</file>
     </qresource>
 </RCC>
