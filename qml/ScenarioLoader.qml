@@ -128,9 +128,9 @@ ColumnLayout
 									anchors.top: parent.top
 									anchors.right: parent.right
 									anchors.topMargin: -4
-									source: "qrc:/qml/img/Up.png"
-									width: 10
-									height: 10
+									source: "qrc:/qml/img/up.png"
+									width: 15
+									height: 15
 								}
 
 								Image {
@@ -138,9 +138,9 @@ ColumnLayout
 									anchors.bottom: parent.bottom
 									anchors.bottomMargin: -5
 									anchors.right: parent.right
-									source: "qrc:/qml/img/Down.png"
-									width: 10
-									height: 10
+									source: "qrc:/qml/img/down.png"
+									width: 15
+									height: 15
 								}
 								id: comboLabel
 								maximumLineCount: 1

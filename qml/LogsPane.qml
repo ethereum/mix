@@ -141,7 +141,7 @@ Rectangle
 								else
 								{
 									logContent.elide = Text.ElideNone;
-									logContent.wrapMode = Text.WordWrap;
+									logContent.wrapMode = Text.Wrap;
 									parent.height = logContent.lineCount * 30;
 								}
 							}
@@ -184,7 +184,7 @@ Rectangle
 							id: logContent
 							text: content;
 							font.family: logStyle.generic.layout.logLabelFont
-							width: logStyle.generic.layout.contentWidth
+							width: logStyle.generic.layout.contentWidth - 50
 							font.pointSize: appStyle.absoluteSize(-1)
 							anchors.verticalCenter: parent.verticalCenter
 							elide: Text.ElideRight
