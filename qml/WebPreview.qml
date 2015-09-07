@@ -6,6 +6,8 @@ import QtQuick.Controls.Styles 1.1
 import QtWebEngine 1.0
 import QtWebEngine.experimental 1.0
 import HttpServer 1.0
+import "js/TransactionHelper.js" as TransactionHelper
+import "js/QEtherHelper.js" as QEtherHelper
 import "."
 
 Item {
@@ -39,16 +41,17 @@ Item {
 
 	function updateContract() {
 		var contracts = {};
-		for (var c in codeModel.contracts) {
-			var contract = codeModel.contracts[c];
-			var address = clientModel.contractAddresses[contract.contract.name];
-			if (address) {
-				contracts[c] = {
-					name: contract.contract.name,
-					address: address,
-					interface: JSON.parse(contract.contractInterface),
-				};
-			}
+
+		for (var c in clientModel.contractAddresses)
+		{
+			var address = clientModel.contractAddresses[c];
+			var name = TransactionHelper.contractFromToken(c)
+			var contract = codeModel.contracts[name];
+			contracts[c] = {
+				name: contract.contract.name,
+				address: address,
+				interface: JSON.parse(contract.contractInterface),
+			};
 		}
 		webView.runJavaScript("updateContracts(" + JSON.stringify(contracts) + ")");
 	}
@@ -85,7 +88,6 @@ Item {
 			//We need to load the container using file scheme so that web security would allow loading local files in iframe
 			var containerPage = fileIo.readFile("qrc:///qml/html/WebContainer.html");
 			webView.loadHtml(containerPage, httpServer.url + "/WebContainer.html")
-
 		}
 	}	
 
@@ -179,7 +181,7 @@ Item {
 				if (accept && accept.indexOf("text/html") >= 0 && !_request.headers["http_x_requested_with"])
 				{
 					//navigate to page request, inject deployment script
-					content = "<script>web3=parent.web3;BigNumber=parent.BigNumber;contracts=parent.contracts;</script>\n" + content;
+					content = "<script>web3=parent.web3;BigNumber=parent.BigNumber;contracts=parent.contracts;ctrAddresses=parent.ctrAddresses;</script>\n" + content;
 					_request.setResponseContentType("text/html");
 				}
 				_request.setResponse(content);

@@ -206,7 +206,10 @@ QVariantMap ClientModel::contractAddresses() const
 {
 	QVariantMap res;
 	for (auto const& c: m_contractAddresses)
-		res.insert(c.first.first, QString::fromStdString(toJS(c.second)));
+	{
+		res.insert(serializeToken(c.first), QString::fromStdString(toJS(c.second))); //key will be like <Contract - 0>
+		res.insert(c.first.first, QString::fromStdString(toJS(c.second))); //we keep like Contract (compatibility with old project
+	}
 	return res;
 }
 
@@ -530,6 +533,11 @@ std::pair<QString, int> ClientModel::retrieveToken(QString const& _value)
 	ret.first = _value;
 	ret.second = m_contractAddresses.size();
 	return ret;
+}
+
+QString ClientModel::serializeToken(std::pair<QString, int> const& _value) const
+{
+	return "<" + _value.first + " - " + QString::number(_value.second) + ">";
 }
 
 void ClientModel::showDebugger()
@@ -983,7 +991,7 @@ void ClientModel::onNewTransaction()
 		{
 			if (ctr.second == tr.address)
 			{
-				contract = "<" + ctr.first.first + " - " + QString::number(ctr.first.second) + ">";
+				contract = serializeToken(ctr.first);
 				break;
 			}
 		}
