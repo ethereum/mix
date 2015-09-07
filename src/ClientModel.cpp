@@ -1003,7 +1003,6 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 	if (transactionIndex != QObject::tr("Call"))
 		m_lastTransaction = log;
 	QQmlEngine::setObjectOwnership(log, QQmlEngine::JavaScriptOwnership);
-	emit newRecord(log);
 
 	// retrieving all accounts balance
 	QVariantMap state;
@@ -1020,6 +1019,7 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 	}
 	state.insert("accounts", accountBalances);
 	emit newState(recordIndex, state);
+	emit newRecord(log);
 }
 
 }
