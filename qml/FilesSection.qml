@@ -147,21 +147,9 @@ Rectangle
 					{
 						z: 6
 						anchors.right: rowFileName.left
-						anchors.rightMargin: 3
+						anchors.rightMargin: 8
 						anchors.verticalCenter: parent.verticalCenter
 						spacing: 3
-						Button
-						{
-							iconSource: "qrc:/qml/img/Trash.png"
-							tooltip: qsTr("Delete")
-							width: 15
-							height: 15
-							onClicked:
-							{
-								deleteConfirmation.open();
-							}
-							anchors.verticalCenter: parent.verticalCenter
-						}
 
 						Button
 						{
@@ -177,6 +165,18 @@ Rectangle
 							anchors.verticalCenter: parent.verticalCenter
 						}
 
+						Button
+						{
+							iconSource: "qrc:/qml/img/Trash.png"
+							tooltip: qsTr("Delete")
+							width: 15
+							height: 15
+							onClicked:
+							{
+								deleteConfirmation.open();
+							}
+							anchors.verticalCenter: parent.verticalCenter
+						}
 					}
 
 					Row {

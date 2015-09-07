@@ -12,6 +12,10 @@ Rectangle {
 	property string fillColor
 	property alias roundLeft: left.visible
 	property alias roundRight: right.visible
+	property alias direction: blinkTimer.direction
+	property alias index: blinkTimer.index
+	property string color
+	property alias isBlinking: blinkTimer.running
 	signal clicked
 
 	function startBlinking()
@@ -23,6 +27,25 @@ Rectangle {
 	function stopBlinking()
 	{
 		blinkTimer.stop()
+	}
+
+	function setBlinking(_index, _direction, _color)
+	{
+		blinkTimer.index = _index
+		blinkTimer.direction = _direction
+		updateColor(_color)
+	}
+
+	function updateColor(_color)
+	{
+		left.color = _color
+		right.color = _color
+		contentRectangle.color = _color
+	}
+
+	onColorChanged:
+	{
+		updateColor(buttonActionContainer.color)
 	}
 
 	Rectangle
@@ -51,10 +74,8 @@ Rectangle {
 			property int direction: 1
 			onTriggered: {
 				index = index + direction
-				var color = parent.colorGradient[index]
-				left.color = color
-				right.color = color
-				parent.color = parent.colorGradient[index]
+				color = parent.colorGradient[index]
+				updateColor(color)
 				if (index >= parent.colorGradient.length - 1)
 					direction = -1
 				else if (index <= 0)

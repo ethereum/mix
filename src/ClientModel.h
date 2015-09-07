@@ -89,6 +89,7 @@ struct TransactionSettings
 class RecordLogEntry: public QObject
 {
 	Q_OBJECT
+	Q_ENUMS(TxSource)
 	Q_ENUMS(RecordType)
 	/// Recording index
 	Q_PROPERTY(unsigned recordIndex MEMBER m_recordIndex CONSTANT)
@@ -120,6 +121,8 @@ class RecordLogEntry: public QObject
 	Q_PROPERTY(QVariantMap returnParameters MEMBER m_returnParameters CONSTANT)
 	/// logs
 	Q_PROPERTY(QVariantList logs MEMBER m_logs CONSTANT)
+	/// logs
+	Q_PROPERTY(TxSource source MEMBER m_source CONSTANT)
 
 public:
 	enum RecordType
@@ -128,12 +131,19 @@ public:
 		Block
 	};
 
+	enum TxSource
+	{
+		Web3,
+		MixGui
+	};
+
+
 	RecordLogEntry():
 		m_recordIndex(0), m_call(false), m_type(RecordType::Transaction) {}
 	RecordLogEntry(unsigned _recordIndex, QString _transactionIndex, QString _contract, QString _function, QString _value, QString _address, QString _returned, bool _call, RecordType _type, QString _gasUsed,
-				   QString _sender, QString _label, QVariantMap _inputParameters, QVariantMap _returnParameters, QVariantList _logs):
+				   QString _sender, QString _label, QVariantMap _inputParameters, QVariantMap _returnParameters, QVariantList _logs, TxSource _source):
 		m_recordIndex(_recordIndex), m_transactionIndex(_transactionIndex), m_contract(_contract), m_function(_function), m_value(_value), m_address(_address), m_returned(_returned), m_call(_call), m_type(_type), m_gasUsed(_gasUsed),
-		m_sender(_sender), m_label(_label), m_inputParameters(_inputParameters), m_returnParameters(_returnParameters), m_logs(_logs) {}
+		m_sender(_sender), m_label(_label), m_inputParameters(_inputParameters), m_returnParameters(_returnParameters), m_logs(_logs), m_source(_source) {}
 
 private:
 	unsigned m_recordIndex;
@@ -151,6 +161,7 @@ private:
 	QVariantMap m_inputParameters;
 	QVariantMap m_returnParameters;
 	QVariantList m_logs;
+	TxSource m_source;
 };
 
 /**
@@ -270,7 +281,7 @@ private:
 	void executeSequence(std::vector<TransactionSettings> const& _sequence);
 	Address deployContract(bytes const& _code, TransactionSettings const& _tr = TransactionSettings());
 	void callAddress(Address const& _contract, bytes const& _data, TransactionSettings const& _tr);
-	void onNewTransaction();
+	void onNewTransaction(RecordLogEntry::TxSource _source);
 	void onStateReset();
 	void showDebuggerForTransaction(ExecutionResult const& _t);
 	QVariant formatValue(SolidityType const& _type, dev::u256 const& _value);

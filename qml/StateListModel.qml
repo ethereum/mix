@@ -112,7 +112,7 @@ Item {
 		return {
 			title: s.title,
 			blocks: s.blocks.map(toPlainBlockItem),
-			transactions: s.transactions.map(toPlainTransactionItem),
+			transactions: s.transactions.filter(function(t) { return t.saveStatus; }).map(toPlainTransactionItem),
 			accounts: s.accounts.map(toPlainAccountItem),
 			contracts: s.contracts.map(toPlainAccountItem),
 			miner: s.miner
@@ -134,7 +134,7 @@ Item {
 		var r = {
 			hash: b.hash,
 			number: b.number,
-			transactions: b.transactions.map(toPlainTransactionItem),
+			transactions: b.transactions.filter(function(t) { return t.saveStatus; }).map(toPlainTransactionItem),
 			status: b.status
 		}
 		return r;

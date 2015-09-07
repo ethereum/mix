@@ -538,6 +538,8 @@ ColumnLayout {
 				onSetupFinished:
 				{
 					reloadFrontend.startBlinking()
+					if (rebuild.isBlinking)
+						reloadFrontend.setBlinking(rebuild.index, rebuild.direction, rebuild.color)
 				}
 			}
 
@@ -561,6 +563,8 @@ ColumnLayout {
 					function needRebuild(reason)
 					{
 						rebuild.startBlinking()
+						if (reloadFrontend.isBlinking)
+							rebuild.setBlinking(reloadFrontend.index, reloadFrontend.direction, reloadFrontend.color)
 						blinkReasons.push(reason)
 					}
 
@@ -878,7 +882,7 @@ ColumnLayout {
 				{
 					// tr is not in the list.
 					var itemTr = TransactionHelper.defaultTransaction()
-					itemTr.saveStatus = false
+					itemTr.saveStatus = _r.source === 0 ? false : true //? 0 coming from Web3, 1 coming from MixGui
 					itemTr.functionId = _r.function
 					itemTr.contractId = _r.contract
 					itemTr.isCall = _isCall
