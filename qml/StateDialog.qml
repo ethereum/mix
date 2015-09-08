@@ -335,6 +335,9 @@ Dialog {
 													return stateAccounts[styleData.row].balance
 											}
 											displayUnitSelection: true
+											Component.onCompleted: {
+												formatInput()
+											}
 										}
 									}
 								}

@@ -127,7 +127,7 @@ Rectangle {
 				id: watchers
 				bc: blockChain
 				Layout.fillWidth: true
-				Layout.preferredHeight: 740
+				Layout.preferredHeight: 800
 			}
 
 			Rectangle

@@ -166,18 +166,21 @@ Rectangle {
 						trListModel.clear()
 						if (currentIndex > -1)
 						{
-							for (var k = 0; k < projectModel.stateListModel.get(currentIndex).blocks.count; k++)
+							if (projectModel.stateListModel)
 							{
-								for (var j = 0; j < projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.count; j++)
+								for (var k = 0; k < projectModel.stateListModel.get(currentIndex).blocks.count; k++)
 								{
-									var tx = projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.get(j)
-									if (tx.isFunctionCall || tx.isContractCreation)
-										trListModel.append(projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.get(j));
+									for (var j = 0; j < projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.count; j++)
+									{
+										var tx = projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.get(j)
+										if (tx.isFunctionCall || tx.isContractCreation)
+											trListModel.append(projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.get(j));
+									}
 								}
+								for (var k = 0; k < trListModel.count; k++)
+									trList.itemAt(k).init()
+								calculateContractDeployGas()
 							}
-							for (var k = 0; k < trListModel.count; k++)
-								trList.itemAt(k).init()
-							calculateContractDeployGas()
 						}
 					}
 				}

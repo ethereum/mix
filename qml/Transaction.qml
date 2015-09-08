@@ -153,9 +153,17 @@ RowLayout
 					font.bold: true
 					text: {
 						if (tx)
-							return clientModel.resolveAddress(tx.sender)
+							return bc.addAccountNickname(clientModel.resolveAddress(tx.sender), true)
 						else
 							return ""
+					}
+
+					Image {
+						anchors.right: parent.right
+						source: "qrc:/qml/img/right.png"
+						fillMode: Image.PreserveAspectFit
+						anchors.verticalCenter: parent.verticalCenter
+						width: 20
 					}
 				}
 			}
@@ -168,7 +176,7 @@ RowLayout
 					id: func
 					text: {
 						if (tx)
-							parent.parent.userFrienldyToken(tx.label)
+							return bc.formatRecipientLabel(tx)
 						else
 							return ""
 					}

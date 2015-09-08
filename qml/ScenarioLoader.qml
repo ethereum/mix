@@ -293,7 +293,8 @@ ColumnLayout
 					anchors.left: editScenario.right
 					sourceImg: "qrc:/qml/img/warningicon.png"
 					onClicked: {
-						deleteWarning.open()
+						if (projectModel.stateListModel.count > 1)
+							deleteWarning.open()
 					}
 					text: qsTr("Delete")
 					roundRight: false
@@ -306,11 +307,8 @@ ColumnLayout
 					text: qsTr("Are you sure to delete this scenario ?")
 					onYes:
 					{
-						if (projectModel.stateListModel.count > 1)
-						{
-							projectModel.stateListModel.deleteState(scenarioList.currentIndex)
-							scenarioList.init()
-						}
+						projectModel.stateListModel.deleteState(scenarioList.currentIndex)
+						scenarioList.init()
 					}
 					standardButtons: StandardButton.Yes | StandardButton.No
 				}
@@ -335,7 +333,7 @@ ColumnLayout
 						projectModel.stateListModel.appendState(item)
 						projectModel.stateListModel.save()
 						scenarioList.currentIndex = projectModel.stateListModel.count - 1
-						clientModel.setupScenario(item);
+						scenarioNameEdit.toggleEdit()
 					}
 					text: qsTr("New")
 					roundRight: false
@@ -386,16 +384,27 @@ ColumnLayout
 					id: saveScenario
 					anchors.left: restoreScenario.right
 					text: qsTr("Save")
-					onClicked: {
-						projectModel.saveProjectFile()
-						saved(state)
-					}
+					onClicked: save()
 					width: 100
 					height: parent.height
 					buttonShortcut: ""
 					sourceImg: "qrc:/qml/img/saveicon@2x.png"
 					roundRight: false
 					roundLeft: false
+
+					function save()
+					{
+						projectModel.saveProjectFile()
+						saved(state)
+					}
+				}
+
+				Connections
+				{
+					target: clientModel
+					onSetupFinished: {
+						saveScenario.save()
+					}
 				}
 
 				Rectangle
@@ -414,6 +423,8 @@ ColumnLayout
 					onClicked: {
 						projectModel.stateListModel.duplicateState(scenarioList.currentIndex)
 						duplicated(state)
+						scenarioList.currentIndex = projectModel.stateListModel.count - 1
+						scenarioNameEdit.toggleEdit()
 					}
 					width: 100
 					height: parent.height
