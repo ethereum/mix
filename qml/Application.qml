@@ -186,7 +186,7 @@ ApplicationWindow {
 
 	Action {
 		id: editStatesAction
-		text: qsTr("Edit Scenarii")
+		text: qsTr("Edit Scenarios")
 		shortcut: "Ctrl+Alt+E"
 		onTriggered: stateList.open();
 	}

@@ -269,17 +269,26 @@ Item {
 			return { name: name, secret: _secret, balance: amount, address: address };
 		}
 
+		function titleExists(stateList, title)
+		{
+			for (var k in stateList)
+			{
+				if (stateList[k].title === title)
+					return true;
+			}
+			return false;
+		}
+
 		function duplicateState(index)
 		{
 			var state = stateList[index]
 			var item = fromPlainStateItem(toPlainStateItem(state))
-			var dup = 0
-			for (var k in stateList)
-			{
-				if (stateList[k].title.indexOf(state.title) !== -1)
-					dup++
-			}
-			item.title = state.title + " " + dup;
+
+			var copyIndex = 1;
+			while (titleExists(stateList, state.title + "_" + copyIndex))
+				copyIndex++;
+			item.title = state.title + "_" + copyIndex;
+
 			appendState(item)
 			save()
 		}
