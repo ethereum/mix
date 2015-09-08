@@ -157,7 +157,7 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 	m_bytes = _compiler.bytecode(_contractName.toStdString());
 
 	dev::solidity::InterfaceHandler interfaceHandler;
-	m_contractInterface = QString::fromStdString(interfaceHandler.ABIInterface(contractDefinition));
+	m_contractInterface = QString::fromStdString(interfaceHandler.abiInterface(contractDefinition));
 	if (m_contractInterface.isEmpty())
 		m_contractInterface = "[]";
 	if (contractDefinition.location().sourceName.get())
@@ -371,7 +371,7 @@ void CodeModel::gasEstimation(solidity::CompilerStack const& _cs)
 
 		if (!contractDefinition.isFullyImplemented())
 			continue;
-		dev::solidity::SourceUnit const& sourceUnit = _cs.AST(*contractDefinition.location().sourceName);
+		dev::solidity::SourceUnit const& sourceUnit = _cs.ast(*contractDefinition.location().sourceName);
 		AssemblyItems const* items = _cs.runtimeAssemblyItems(n);
 		std::map<ASTNode const*, GasMeter::GasConsumption> gasCosts = GasEstimator::breakToStatementLevel(GasEstimator::structuralEstimation(*items, std::vector<ASTNode const*>({&sourceUnit})), {&sourceUnit});
 
@@ -456,7 +456,7 @@ void CodeModel::collectContracts(dev::solidity::CompilerStack const& _cs, std::v
 	SourceMaps sourceMaps;
 	for (std::string const& sourceName: _sourceNames)
 	{
-		dev::solidity::SourceUnit const& source = _cs.AST(sourceName);
+		dev::solidity::SourceUnit const& source = _cs.ast(sourceName);
 		SourceMap sourceMap;
 		CollectLocationsVisitor collector(&sourceMap);
 		source.accept(collector);
