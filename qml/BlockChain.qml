@@ -28,6 +28,7 @@ ColumnLayout {
 	signal rebuilding
 	signal accountAdded(string address, string amount)
 	signal changeSelection(var current, var next, var direction)
+	property bool firstLoad: true
 
 	Keys.onUpPressed:
 	{
@@ -39,6 +40,11 @@ ColumnLayout {
 	{
 		var next = blockModel.getNextItem(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
 		blockChainRepeater.select(next[0], next[1], next.length > 2 ? next[2] : -1)
+	}
+
+	function build()
+	{
+		rebuild.build()
 	}
 
 	Connections
@@ -64,24 +70,34 @@ ColumnLayout {
 	{
 		target: codeModel
 		onContractRenamed: {
+			if (firstLoad)
+				return
 			rebuild.needRebuild("ContractRenamed")
 		}
 		onNewContractCompiled: {
+			if (firstLoad)
+				return
 			rebuild.needRebuild("NewContractCompiled")
 		}
 		onCompilationComplete: {
-			for (var c in rebuild.contractsHex)
+			if (firstLoad)
 			{
-				if (codeModel.contracts[c] === undefined || codeModel.contracts[c].codeHex !== rebuild.contractsHex[c])
-				{
-					if (!rebuild.containsRebuildCause("CodeChanged"))
-					{
-						rebuild.needRebuild("CodeChanged")
-					}
-					return
-				}
+				if (runOnProjectLoad)
+					blockChain.build()
 			}
-			rebuild.notNeedRebuild("CodeChanged")
+			else
+			{
+				for (var c in rebuild.contractsHex)
+				{
+					if (codeModel.contracts[c] === undefined || codeModel.contracts[c].codeHex !== rebuild.contractsHex[c])
+					{
+						if (!rebuild.containsRebuildCause("CodeChanged"))
+							rebuild.needRebuild("CodeChanged")
+						return
+					}
+				}
+				rebuild.notNeedRebuild("CodeChanged")
+			}
 		}
 	}
 
@@ -210,7 +226,7 @@ ColumnLayout {
 	{
 		if (!scenario)
 			return;
-		if (model)
+		if (model && firstLoad)
 			rebuild.startBlinking()
 		model = scenario
 		scenarioIndex = index
@@ -221,7 +237,7 @@ ColumnLayout {
 			blockModel.append(model.blocks[b])
 		previousWidth = width
 		blockChainRepeater.hideCalls()
-		toggleCallsBtn.text = toggleCallsBtn.getText()
+		toggleCallsBtn.text = toggleCallsBtn.getText()		
 	}
 
 	property int statusWidth: 30
@@ -317,8 +333,6 @@ ColumnLayout {
 						trHeight: 60
 					}
 				}
-
-
 
 				Connections
 				{
@@ -605,9 +619,13 @@ ColumnLayout {
 				target: clientModel
 				onSetupFinished:
 				{
-					reloadFrontend.startBlinking()
+					if (!firstLoad)
+						reloadFrontend.startBlinking()
+					else
+						reloadFrontend.reload()
 					if (rebuild.isBlinking)
 						reloadFrontend.setBlinking(rebuild.index, rebuild.direction, rebuild.color)
+					firstLoad = false
 				}
 			}
 
@@ -661,11 +679,12 @@ ColumnLayout {
 							rebuild.stopBlinking()
 					}
 
-					onClicked:
+					function build()
 					{
 						if (ensureNotFuturetime.running)
 							return
 						blockChainPanel.calls = {}
+						stopBlinking()
 						rebuilding()
 						stopBlinking()
 						states = []
@@ -723,6 +742,11 @@ ColumnLayout {
 						blockChainPanel.forceActiveFocus()
 					}
 
+					onClicked:
+					{
+						build()
+					}
+
 					function takeContractsSnapShot()
 					{
 						contractsSha3 = codeModel.sha3(JSON.stringify(model.contracts))
@@ -772,11 +796,15 @@ ColumnLayout {
 					roundRight: true
 					onClicked:
 					{
-						mainContent.webView.reload()
-						reloadFrontend.stopBlinking()
+						reload()
 					}
 					buttonShortcut: ""
 					sourceImg: "qrc:/qml/img/recycleicon@2xGrey.png"
+					function reload()
+					{
+						mainContent.webView.reload()
+						reloadFrontend.stopBlinking()
+					}
 				}
 			}
 
