@@ -44,9 +44,10 @@ Rectangle
 	}
 
 	function updateWidthTx(_tx, _state, _blockIndex, _txIndex, _callIndex)
-	{
-		from.text = clientModel.resolveAddress(_tx.sender)
-		to.text = _tx.label
+	{		
+		var addr = clientModel.resolveAddress(_tx.sender)
+		from.text =  blockChain.addAccountNickname(addr, true)
+		to.text = blockChain.formatRecipientLabel(_tx)
 		value.text = _tx.value.format()
 		tx = _tx
 		blockIndex  = _blockIndex
@@ -218,10 +219,7 @@ Rectangle
 					if (currentState)
 						for (var k in currentState.accounts)
 						{
-							var label = k
-							var nickName = blockChain.getAccountNickname(k)
-							if (nickName !== k && nickName !== "")
-								label += " (" + blockChain.getAccountNickname(k) + ")"
+							var label = blockChain.addAccountNickname(k, false)
 							model.append({ "key": label, "value": currentState.accounts[k] })
 						}
 				}

@@ -127,10 +127,60 @@ ColumnLayout {
 	{
 		for (var k = 0; k < model.accounts.length; ++k)
 		{
-			if ("0x" + model.accounts[k].address === address)
+			var addr = model.accounts[k].address.indexOf("0x") === 0 ? model.accounts[k].address : "0x" + model.accounts[k].address
+			if (addr === address)
 				return model.accounts[k].name
 		}
 		return address
+	}
+
+	function addContractAddress(token, label, truncate)
+	{
+		var addr = getContractAddress(token)
+		if (addr === token)
+			return label
+		else
+		{
+			addr = truncate ? addr.substring(0, 10) + "..." : addr
+			return addr + " (" + label.replace(token, TransactionHelper.contractFromToken(label)) + ")"
+		}
+	}
+
+	function getContractAddress(token)
+	{
+		for (var k in clientModel.contractAddresses)
+		{
+			if (k === token)
+				return clientModel.contractAddresses[k]
+		}
+		return token
+	}
+
+	function addAccountNickname(address, truncate)
+	{
+		var name = getAccountNickname(address)
+		if (address !== name)
+		{
+			var addr = truncate ? address.substring(0, 10) + "..." : address
+			return addr + " (" + name + ")"
+		}
+		else
+			return address
+	}
+
+	function formatRecipientLabel(_tx)
+	{
+		if (!_tx.isFunctionCall)
+		{
+			if (_tx.contractId.indexOf("0x") === 0)
+				return addAccountNickname(_tx.contractId, true)
+			else
+				return addContractAddress(_tx.contractId, _tx.contractId, true)
+		}
+		else if (_tx.isContractCreation)
+			return _tx.label
+		else
+			return addContractAddress(_tx.contractId, _tx.label, true)
 	}
 
 	function getState(record)
@@ -708,7 +758,7 @@ ColumnLayout {
 						reloadFrontend.stopBlinking()
 					}
 					buttonShortcut: ""
-					sourceImg: "qrc:/qml/img/recycleicon@2x.png"
+					sourceImg: "qrc:/qml/img/recycleicon@2xGrey.png"
 				}
 			}
 
@@ -734,8 +784,8 @@ ColumnLayout {
 							}
 
 							var item = TransactionHelper.defaultTransaction()
+							transactionDialog.execute = !rebuild.isBlinking
 							transactionDialog.stateAccounts = model.accounts
-							transactionDialog.execute = true
 							transactionDialog.editMode = false
 							transactionDialog.open(model.blocks[model.blocks.length - 1].transactions.length, model.blocks.length - 1, item)
 						}

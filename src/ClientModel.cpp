@@ -982,11 +982,7 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 			break;
 		}
 	}
-	QString label;
-	if (function != QObject::tr("<none>"))
-		label = contract + "." + function + "()";
-	else
-		label = contract;
+
 
 	if (!creation)
 		for (auto const& ctr: m_contractAddresses)
@@ -997,6 +993,12 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 				break;
 			}
 		}
+
+	QString label;
+	if (function != QObject::tr("<none>"))
+		label = contract + "." + function + "()";
+	else
+		label = address;
 
 	RecordLogEntry* log = new RecordLogEntry(recordIndex, transactionIndex, contract, function, value, address, returned, tr.isCall(), RecordLogEntry::RecordType::Transaction,
 											 gasUsed, sender, label, inputParameters, returnParameters, logs, _source);
