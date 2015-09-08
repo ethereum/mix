@@ -686,7 +686,6 @@ ColumnLayout {
 						blockChainPanel.calls = {}
 						stopBlinking()
 						rebuilding()
-						stopBlinking()
 						states = []
 						var retBlocks = [];
 						var bAdded = 0;
