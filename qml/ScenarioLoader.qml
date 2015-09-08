@@ -128,9 +128,9 @@ ColumnLayout
 									anchors.top: parent.top
 									anchors.right: parent.right
 									anchors.topMargin: -4
-									source: "qrc:/qml/img/Up.png"
-									width: 10
-									height: 10
+									source: "qrc:/qml/img/up.png"
+									width: 15
+									height: 15
 								}
 
 								Image {
@@ -138,9 +138,9 @@ ColumnLayout
 									anchors.bottom: parent.bottom
 									anchors.bottomMargin: -5
 									anchors.right: parent.right
-									source: "qrc:/qml/img/Down.png"
-									width: 10
-									height: 10
+									source: "qrc:/qml/img/down.png"
+									width: 15
+									height: 15
 								}
 								id: comboLabel
 								maximumLineCount: 1
@@ -293,7 +293,8 @@ ColumnLayout
 					anchors.left: editScenario.right
 					sourceImg: "qrc:/qml/img/warningicon.png"
 					onClicked: {
-						deleteWarning.open()
+						if (projectModel.stateListModel.count > 1)
+							deleteWarning.open()
 					}
 					text: qsTr("Delete")
 					roundRight: false
@@ -306,11 +307,8 @@ ColumnLayout
 					text: qsTr("Are you sure to delete this scenario ?")
 					onYes:
 					{
-						if (projectModel.stateListModel.count > 1)
-						{
-							projectModel.stateListModel.deleteState(scenarioList.currentIndex)
-							scenarioList.init()
-						}
+						projectModel.stateListModel.deleteState(scenarioList.currentIndex)
+						scenarioList.init()
 					}
 					standardButtons: StandardButton.Yes | StandardButton.No
 				}
@@ -335,7 +333,7 @@ ColumnLayout
 						projectModel.stateListModel.appendState(item)
 						projectModel.stateListModel.save()
 						scenarioList.currentIndex = projectModel.stateListModel.count - 1
-						clientModel.setupScenario(item);
+						scenarioNameEdit.toggleEdit()
 					}
 					text: qsTr("New")
 					roundRight: false
@@ -386,16 +384,27 @@ ColumnLayout
 					id: saveScenario
 					anchors.left: restoreScenario.right
 					text: qsTr("Save")
-					onClicked: {
-						projectModel.saveProjectFile()
-						saved(state)
-					}
+					onClicked: save()
 					width: 100
 					height: parent.height
 					buttonShortcut: ""
 					sourceImg: "qrc:/qml/img/saveicon@2x.png"
 					roundRight: false
 					roundLeft: false
+
+					function save()
+					{
+						projectModel.saveProjectFile()
+						saved(state)
+					}
+				}
+
+				Connections
+				{
+					target: clientModel
+					onSetupFinished: {
+						saveScenario.save()
+					}
 				}
 
 				Rectangle
@@ -414,6 +423,8 @@ ColumnLayout
 					onClicked: {
 						projectModel.stateListModel.duplicateState(scenarioList.currentIndex)
 						duplicated(state)
+						scenarioList.currentIndex = projectModel.stateListModel.count - 1
+						scenarioNameEdit.toggleEdit()
 					}
 					width: 100
 					height: parent.height

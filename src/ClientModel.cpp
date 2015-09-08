@@ -103,7 +103,9 @@ void ClientModel::init(QString _dbpath)
 
 	m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, std::vector<KeyPair>());
 	m_web3Server.reset(new Web3Server(*m_rpcConnector.get(), m_ethAccounts, std::vector<KeyPair>(), m_client.get()));
-	connect(m_web3Server.get(), &Web3Server::newTransaction, this, &ClientModel::onNewTransaction, Qt::DirectConnection);
+	connect(m_web3Server.get(), &Web3Server::newTransaction, this, [=]() {
+		onNewTransaction(RecordLogEntry::TxSource::Web3);
+	}, Qt::DirectConnection);
 }
 
 QString ClientModel::apiCall(QString const& _message)
@@ -206,7 +208,10 @@ QVariantMap ClientModel::contractAddresses() const
 {
 	QVariantMap res;
 	for (auto const& c: m_contractAddresses)
-		res.insert(c.first.first, QString::fromStdString(toJS(c.second)));
+	{
+		res.insert(serializeToken(c.first), QString::fromStdString(toJS(c.second))); //key will be like <Contract - 0>
+		res.insert(c.first.first, QString::fromStdString(toJS(c.second))); //we keep like Contract (compatibility with old project
+	}
 	return res;
 }
 
@@ -386,7 +391,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 				if (!transaction.isFunctionCall)
 				{
 					callAddress(Address(address.toStdString()), bytes(), transaction);
-					onNewTransaction();
+					onNewTransaction(RecordLogEntry::TxSource::MixGui);
 					continue;
 				}
 				ContractCallDataEncoder encoder;
@@ -465,7 +470,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 						callAddress(contractAddressIter->second, encoder.encodedData(), transaction);
 				}
 				m_gasCosts.append(m_client->lastExecution().gasUsed);
-				onNewTransaction();
+				onNewTransaction(RecordLogEntry::TxSource::MixGui);
 				TransactionException exception = m_client->lastExecution().excepted;
 				if (exception != TransactionException::None)
 					break;
@@ -530,6 +535,11 @@ std::pair<QString, int> ClientModel::retrieveToken(QString const& _value)
 	ret.first = _value;
 	ret.second = m_contractAddresses.size();
 	return ret;
+}
+
+QString ClientModel::serializeToken(std::pair<QString, int> const& _value) const
+{
+	return "<" + _value.first + " - " + QString::number(_value.second) + ">";
 }
 
 void ClientModel::showDebugger()
@@ -778,7 +788,7 @@ RecordLogEntry* ClientModel::lastBlock() const
 	strGas << blockInfo.gasUsed();
 	stringstream strNumber;
 	strNumber << blockInfo.number();
-	RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList());
+	RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList(), RecordLogEntry::TxSource::MixGui);
 	QQmlEngine::setObjectOwnership(record, QQmlEngine::JavaScriptOwnership);
 	return record;
 }
@@ -798,7 +808,7 @@ void ClientModel::onStateReset()
 	emit stateCleared();
 }
 
-void ClientModel::onNewTransaction()
+void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 {
 	ExecutionResult const& tr = m_client->lastExecution();
 
@@ -972,28 +982,29 @@ void ClientModel::onNewTransaction()
 			break;
 		}
 	}
-	QString label;
-	if (function != QObject::tr("<none>"))
-		label = contract + "." + function + "()";
-	else
-		label = contract;
+
 
 	if (!creation)
 		for (auto const& ctr: m_contractAddresses)
 		{
 			if (ctr.second == tr.address)
 			{
-				contract = "<" + ctr.first.first + " - " + QString::number(ctr.first.second) + ">";
+				contract = serializeToken(ctr.first);
 				break;
 			}
 		}
 
+	QString label;
+	if (function != QObject::tr("<none>"))
+		label = contract + "." + function + "()";
+	else
+		label = address;
+
 	RecordLogEntry* log = new RecordLogEntry(recordIndex, transactionIndex, contract, function, value, address, returned, tr.isCall(), RecordLogEntry::RecordType::Transaction,
-											 gasUsed, sender, label, inputParameters, returnParameters, logs);
+											 gasUsed, sender, label, inputParameters, returnParameters, logs, _source);
 	if (transactionIndex != QObject::tr("Call"))
 		m_lastTransaction = log;
 	QQmlEngine::setObjectOwnership(log, QQmlEngine::JavaScriptOwnership);
-	emit newRecord(log);
 
 	// retrieving all accounts balance
 	QVariantMap state;
@@ -1010,6 +1021,7 @@ void ClientModel::onNewTransaction()
 	}
 	state.insert("accounts", accountBalances);
 	emit newState(recordIndex, state);
+	emit newRecord(log);
 }
 
 }

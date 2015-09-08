@@ -51,6 +51,7 @@ Dialog {
 		gasAutoCheck.checked = item.gasAuto ? true : false;
 		gasPriceField.value = item.gasPrice;
 		valueField.value = item.value;
+		valueField.formatInput()
 		var contractId = item.contractId;
 		var functionId = item.functionId;
 
@@ -207,7 +208,8 @@ Dialog {
 			if (recipientsAccount.current().type === "address")
 			{
 				item.functionId = "";
-				item.isFunctionCall = false;
+				item.isFunctionCall = false
+				item.label = item.contractId
 			}
 		}
 		else
@@ -216,6 +218,7 @@ Dialog {
 			item.functionId = item.contractId;
 			item.label = item.contractId + "." + item.contractId + "()";
 		}
+		console.log(JSON.stringify(item))
 		item.saveStatus = saveStatus
 		item.sender = senderComboBox.model[senderComboBox.currentIndex].secret;
 		item.parameters = paramValues;

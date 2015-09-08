@@ -178,7 +178,6 @@ Rectangle {
 					id: contentView
 					Layout.fillHeight: true
 					Layout.fillWidth: true
-
 					Splitter {
 						id: codeWebSplitter
 						anchors.fill: parent
