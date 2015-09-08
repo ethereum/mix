@@ -168,6 +168,24 @@ ColumnLayout {
 			return address
 	}
 
+	function addContractName(address, truncate)
+	{
+		for (var k in clientModel.contractAddresses)
+		{
+			var addr = clientModel.contractAddresses[k].indexOf("0x") === 0 ? clientModel.contractAddresses[k] : "0x" + clientModel.contractAddresses[k]
+			if (address === addr)
+			{
+				var name = TransactionHelper.contractFromToken(k)
+				if (name !== k)
+				{
+					addr = truncate ? addr.substring(0, 10) + "..." : addr
+					return addr + " (" + name  + ")"
+				}
+			}
+		}
+		return address
+	}
+
 	function formatRecipientLabel(_tx)
 	{
 		if (!_tx.isFunctionCall)

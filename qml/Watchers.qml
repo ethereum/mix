@@ -220,6 +220,8 @@ Rectangle
 						for (var k in currentState.accounts)
 						{
 							var label = blockChain.addAccountNickname(k, false)
+							if (label === k)
+								label = blockChain.addContractName(k) //try to resolve the contract name
 							model.append({ "key": label, "value": currentState.accounts[k] })
 						}
 				}
