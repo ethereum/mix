@@ -64,7 +64,7 @@ public:
 private:
 	LocationPair nodeLocation(ASTNode const& _node)
 	{
-		return LocationPair(_node.getLocation().start, _node.getLocation().end);
+		return LocationPair(_node.location().start, _node.location().end);
 	}
 
 	virtual bool visit(FunctionDefinition const&) override
@@ -81,8 +81,8 @@ private:
 	virtual bool visit(VariableDeclaration const& _node) override
 	{
 		SolidityDeclaration decl;
-		decl.type = CodeModel::nodeType(_node.getType().get());
-		decl.name = QString::fromStdString(_node.getName());
+		decl.type = CodeModel::nodeType(_node.type().get());
+		decl.name = QString::fromStdString(_node.name());
 		decl.slot = 0;
 		decl.offset = 0;
 		if (m_functionScope)
@@ -104,18 +104,18 @@ public:
 private:
 	LocationPair nodeLocation(ASTNode const& _node)
 	{
-		return LocationPair(_node.getLocation().start, _node.getLocation().end);
+		return LocationPair(_node.location().start, _node.location().end);
 	}
 
 	virtual bool visit(FunctionDefinition const& _node) override
 	{
-		m_sourceMap->functions.insert(nodeLocation(_node), QString::fromStdString(_node.getName()));
+		m_sourceMap->functions.insert(nodeLocation(_node), QString::fromStdString(_node.name()));
 		return true;
 	}
 
 	virtual bool visit(ContractDefinition const& _node) override
 	{
-		m_sourceMap->contracts.insert(nodeLocation(_node), QString::fromStdString(_node.getName()));
+		m_sourceMap->contracts.insert(nodeLocation(_node), QString::fromStdString(_node.name()));
 		return true;
 	}
 
@@ -128,12 +128,12 @@ QHash<unsigned, SolidityDeclarations> collectStorage(dev::solidity::ContractDefi
 	QHash<unsigned, SolidityDeclarations> result;
 	dev::solidity::ContractType contractType(_contract);
 
-	for (auto v : contractType.getStateVariables())
+	for (auto v : contractType.stateVariables())
 	{
 		dev::solidity::VariableDeclaration const* declaration = std::get<0>(v);
 		dev::u256 slot = std::get<1>(v);
 		unsigned offset = std::get<2>(v);
-		result[static_cast<unsigned>(slot)].push_back(SolidityDeclaration { QString::fromStdString(declaration->getName()), CodeModel::nodeType(declaration->getType().get()), slot, offset });
+		result[static_cast<unsigned>(slot)].push_back(SolidityDeclaration { QString::fromStdString(declaration->name()), CodeModel::nodeType(declaration->type().get()), slot, offset });
 	}
 	return result;
 }
@@ -150,24 +150,24 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 	m_sourceHash(qHash(_source))
 {
 	std::string name = _contractName.toStdString();
-	ContractDefinition const& contractDefinition = _compiler.getContractDefinition(name);
+	ContractDefinition const& contractDefinition = _compiler.contractDefinition(name);
 	m_contract.reset(new QContractDefinition(nullptr, &contractDefinition));
 	QQmlEngine::setObjectOwnership(m_contract.get(), QQmlEngine::CppOwnership);
 	m_contract->moveToThread(QApplication::instance()->thread());
-	m_bytes = _compiler.getBytecode(_contractName.toStdString());
+	m_bytes = _compiler.bytecode(_contractName.toStdString());
 
 	dev::solidity::InterfaceHandler interfaceHandler;
-	m_contractInterface = QString::fromStdString(interfaceHandler.getABIInterface(contractDefinition));
+	m_contractInterface = QString::fromStdString(interfaceHandler.abiInterface(contractDefinition));
 	if (m_contractInterface.isEmpty())
 		m_contractInterface = "[]";
-	if (contractDefinition.getLocation().sourceName.get())
-		m_documentId = QString::fromStdString(*contractDefinition.getLocation().sourceName);
+	if (contractDefinition.location().sourceName.get())
+		m_documentId = QString::fromStdString(*contractDefinition.location().sourceName);
 
 	CollectLocalsVisitor visitor(&m_locals);
 	m_storage = collectStorage(contractDefinition);
 	contractDefinition.accept(visitor);
-	m_assemblyItems = *_compiler.getRuntimeAssemblyItems(name);
-	m_constructorAssemblyItems = *_compiler.getAssemblyItems(name);
+	m_assemblyItems = *_compiler.runtimeAssemblyItems(name);
+	m_constructorAssemblyItems = *_compiler.assemblyItems(name);
 }
 
 QString CompiledContract::codeHex() const
@@ -361,18 +361,18 @@ void CodeModel::gasEstimation(solidity::CompilerStack const& _cs)
 	if (m_gasCostsMaps)
 		m_gasCostsMaps->deleteLater();
 	m_gasCostsMaps = new GasMapWrapper;
-	for (std::string n: _cs.getContractNames())
+	for (std::string n: _cs.contractNames())
 	{
-		ContractDefinition const& contractDefinition = _cs.getContractDefinition(n);
-		QString sourceName = QString::fromStdString(*contractDefinition.getLocation().sourceName);
+		ContractDefinition const& contractDefinition = _cs.contractDefinition(n);
+		QString sourceName = QString::fromStdString(*contractDefinition.location().sourceName);
 
 		if (!m_gasCostsMaps->contains(sourceName))
 			m_gasCostsMaps->insert(sourceName, QVariantList());
 
 		if (!contractDefinition.isFullyImplemented())
 			continue;
-		dev::solidity::SourceUnit const& sourceUnit = _cs.getAST(*contractDefinition.getLocation().sourceName);
-		AssemblyItems const* items = _cs.getRuntimeAssemblyItems(n);
+		dev::solidity::SourceUnit const& sourceUnit = _cs.ast(*contractDefinition.location().sourceName);
+		AssemblyItems const* items = _cs.runtimeAssemblyItems(n);
 		std::map<ASTNode const*, GasMeter::GasConsumption> gasCosts = GasEstimator::breakToStatementLevel(GasEstimator::structuralEstimation(*items, std::vector<ASTNode const*>({&sourceUnit})), {&sourceUnit});
 
 		auto gasToString = [](GasMeter::GasConsumption const& _gas)
@@ -386,46 +386,46 @@ void CodeModel::gasEstimation(solidity::CompilerStack const& _cs)
 		// Structural gas costs (per opcode)
 		for (auto gasItem = gasCosts.begin(); gasItem != gasCosts.end(); ++gasItem)
 		{
-			SourceLocation const& location = gasItem->first->getLocation();
+			SourceLocation const& itemLocation = gasItem->first->location();
 			GasMeter::GasConsumption cost = gasItem->second;
-			m_gasCostsMaps->push(sourceName, location.start, location.end, gasToString(cost), cost.isInfinite, GasMap::type::Statement);
+			m_gasCostsMaps->push(sourceName, itemLocation.start, itemLocation.end, gasToString(cost), cost.isInfinite, GasMap::type::Statement);
 		}
 
-		eth::AssemblyItems const& runtimeAssembly = *_cs.getRuntimeAssemblyItems(n);
-		QString contractName = QString::fromStdString(contractDefinition.getName());
+		eth::AssemblyItems const& runtimeAssembly = *_cs.runtimeAssemblyItems(n);
+		QString contractName = QString::fromStdString(contractDefinition.name());
 		// Functional gas costs (per function, but also for accessors)
-		for (auto it: contractDefinition.getInterfaceFunctions())
+		for (auto it: contractDefinition.interfaceFunctions())
 		{
 			if (!it.second->hasDeclaration())
 				continue;
-			SourceLocation loc = it.second->getDeclaration().getLocation();
+			SourceLocation loc = it.second->declaration().location();
 			GasMeter::GasConsumption cost = GasEstimator::functionalEstimation(runtimeAssembly, it.second->externalSignature());
 			m_gasCostsMaps->push(sourceName, loc.start, loc.end, gasToString(cost), cost.isInfinite, GasMap::type::Function,
-								 contractName, QString::fromStdString(it.second->getDeclaration().getName()));
+								 contractName, QString::fromStdString(it.second->declaration().name()));
 		}
-		if (auto const* fallback = contractDefinition.getFallbackFunction())
+		if (auto const* fallback = contractDefinition.fallbackFunction())
 		{
-			SourceLocation loc = fallback->getLocation();
+			SourceLocation loc = fallback->location();
 			GasMeter::GasConsumption cost = GasEstimator::functionalEstimation(runtimeAssembly, "INVALID");
 			m_gasCostsMaps->push(sourceName, loc.start, loc.end, gasToString(cost), cost.isInfinite, GasMap::type::Function,
 								 contractName, "fallback");
 		}
-		for (auto const& it: contractDefinition.getDefinedFunctions())
+		for (auto const& it: contractDefinition.definedFunctions())
 		{
 			if (it->isPartOfExternalInterface() || it->isConstructor())
 				continue;
-			SourceLocation loc = it->getLocation();
-			size_t entry = _cs.getFunctionEntryPoint(n, *it);
+			SourceLocation loc = it->location();
+			size_t entry = _cs.functionEntryPoint(n, *it);
 			GasEstimator::GasConsumption cost = GasEstimator::GasConsumption::infinite();
 			if (entry > 0)
 				cost = GasEstimator::functionalEstimation(runtimeAssembly, entry, *it);
 			m_gasCostsMaps->push(sourceName, loc.start, loc.end, gasToString(cost), cost.isInfinite, GasMap::type::Function,
-								 contractName, QString::fromStdString(it->getName()));
+								 contractName, QString::fromStdString(it->name()));
 		}
-		if (auto const* constructor = contractDefinition.getConstructor())
+		if (auto const* constructor = contractDefinition.constructor())
 		{
-			SourceLocation loc = constructor->getLocation();
-			GasMeter::GasConsumption cost = GasEstimator::functionalEstimation(*_cs.getAssemblyItems(n));
+			SourceLocation loc = constructor->location();
+			GasMeter::GasConsumption cost = GasEstimator::functionalEstimation(*_cs.assemblyItems(n));
 			m_gasCostsMaps->push(sourceName, loc.start, loc.end, gasToString(cost), cost.isInfinite, GasMap::type::Constructor,
 								 contractName, contractName);
 		}
@@ -456,21 +456,21 @@ void CodeModel::collectContracts(dev::solidity::CompilerStack const& _cs, std::v
 	SourceMaps sourceMaps;
 	for (std::string const& sourceName: _sourceNames)
 	{
-		dev::solidity::SourceUnit const& source = _cs.getAST(sourceName);
+		dev::solidity::SourceUnit const& source = _cs.ast(sourceName);
 		SourceMap sourceMap;
 		CollectLocationsVisitor collector(&sourceMap);
 		source.accept(collector);
 		sourceMaps.insert(QString::fromStdString(sourceName), std::move(sourceMap));
 	}
-	for (std::string n: _cs.getContractNames())
+	for (std::string n: _cs.contractNames())
 	{
 		if (c_predefinedContracts.count(n) != 0)
 			continue;
 		QString name = QString::fromStdString(n);
-		ContractDefinition const& contractDefinition = _cs.getContractDefinition(n);
+		ContractDefinition const& contractDefinition = _cs.contractDefinition(n);
 		if (!contractDefinition.isFullyImplemented())
 			continue;
-		QString sourceName = QString::fromStdString(*contractDefinition.getLocation().sourceName);
+		QString sourceName = QString::fromStdString(*contractDefinition.location().sourceName);
 		auto sourceIter = m_pendingContracts.find(sourceName);
 		QString source = sourceIter != m_pendingContracts.end() ? sourceIter->second : QString();
 		CompiledContract* contract = new CompiledContract(_cs, name, source);
@@ -524,9 +524,9 @@ dev::bytes const& CodeModel::getStdContractCode(const QString& _contractName, co
 	solidity::CompilerStack cs(false);
 	cs.setSource(source);
 	cs.compile(false);
-	for (std::string const& name: cs.getContractNames())
+	for (std::string const& name: cs.contractNames())
 	{
-		dev::bytes code = cs.getBytecode(name);
+		dev::bytes code = cs.bytecode(name);
 		m_compiledContracts.insert(std::make_pair(QString::fromStdString(name), std::move(code)));
 	}
 	return m_compiledContracts.at(_contractName);
@@ -534,10 +534,10 @@ dev::bytes const& CodeModel::getStdContractCode(const QString& _contractName, co
 
 void CodeModel::retrieveSubType(SolidityType& _wrapperType, dev::solidity::Type const* _type)
 {
-	if (_type->getCategory() == Type::Category::Array)
+	if (_type->category() == Type::Category::Array)
 	{
 		ArrayType const* arrayType = dynamic_cast<ArrayType const*>(_type);
-		_wrapperType.baseType = std::make_shared<dev::mix::SolidityType const>(nodeType(arrayType->getBaseType().get()));
+		_wrapperType.baseType = std::make_shared<dev::mix::SolidityType const>(nodeType(arrayType->baseType().get()));
 	}
 }
 
@@ -549,12 +549,12 @@ SolidityType CodeModel::nodeType(dev::solidity::Type const* _type)
 		r.dataLocation = ref->location();
 	if (!_type)
 		return r;
-	switch (_type->getCategory())
+	switch (_type->category())
 	{
 	case Type::Category::Integer:
 	{
 		IntegerType const* it = dynamic_cast<IntegerType const*>(_type);
-		r.size = it->getNumBits() / 8;
+		r.size = it->numBits() / 8;
 		r.type = it->isAddress() ? SolidityType::Type::Address : it->isSigned() ? SolidityType::Type::SignedInteger : SolidityType::Type::UnsignedInteger;
 	}
 		break;
@@ -580,11 +580,11 @@ SolidityType CodeModel::nodeType(dev::solidity::Type const* _type)
 			r.type = SolidityType::Type::Bytes;
 		else
 		{
-			SolidityType elementType = nodeType(array->getBaseType().get());
+			SolidityType elementType = nodeType(array->baseType().get());
 			elementType.name = r.name;
 			r = elementType;
 		}
-		r.count = static_cast<unsigned>(array->getLength());
+		r.count = static_cast<unsigned>(array->length());
 		r.dynamicSize = _type->isDynamicallySized();
 		r.array = true;
 		retrieveSubType(r, _type);
@@ -594,17 +594,17 @@ SolidityType CodeModel::nodeType(dev::solidity::Type const* _type)
 	{
 		r.type = SolidityType::Type::Enum;
 		EnumType const* e = dynamic_cast<EnumType const*>(_type);
-		for(auto const& enumValue: e->getEnumDefinition().getMembers())
-			r.enumNames.push_back(QString::fromStdString(enumValue->getName()));
+		for(auto const& enumValue: e->enumDefinition().members())
+			r.enumNames.push_back(QString::fromStdString(enumValue->name()));
 	}
 		break;
 	case Type::Category::Struct:
 	{
 		r.type = SolidityType::Type::Struct;
 		StructType const* s = dynamic_cast<StructType const*>(_type);
-		for(auto const& structMember: s->getMembers())
+		for(auto const& structMember: s->members())
 		{
-			auto slotAndOffset = s->getStorageOffsetsOfMember(structMember.name);
+			auto slotAndOffset = s->storageOffsetsOfMember(structMember.name);
 			r.members.push_back(SolidityDeclaration { QString::fromStdString(structMember.name), nodeType(structMember.type.get()), slotAndOffset.first, slotAndOffset.second });
 		}
 	}

@@ -34,15 +34,15 @@ using namespace dev::mix;
 QContractDefinition::QContractDefinition(QObject* _parent, dev::solidity::ContractDefinition const* _contract): QBasicNodeDefinition(_parent, _contract)
 {
 	QObject* parent = _parent ? _parent : this;
-	if (_contract->getConstructor() != nullptr)
-		m_constructor = new QFunctionDefinition(parent, ContractType(*_contract).getConstructorType());
+	if (_contract->constructor() != nullptr)
+		m_constructor = new QFunctionDefinition(parent, ContractType(*_contract).constructorType());
 	else
 		m_constructor = new QFunctionDefinition(parent);
 
-	for (auto const& it: _contract->getInterfaceFunctions())
+	for (auto const& it: _contract->interfaceFunctions())
 		m_functions.append(new QFunctionDefinition(parent, it.second));
 
-	for (auto const& it: _contract->getEvents())
+	for (auto const& it: _contract->events())
 		m_events.append(new QFunctionDefinition(parent, it));
 
 }
