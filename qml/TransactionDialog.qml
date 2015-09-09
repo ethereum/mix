@@ -464,7 +464,8 @@ Dialog {
 						{
 							if (rbbuttonList.current.objectName === "trTypeExecute")
 								loadFunctions(TransactionHelper.contractFromToken(currentValue()))
-							addrRecipient.originalText = getAddress()
+							var addr = getAddress()
+							addrRecipient.originalText = addr.indexOf("0x") === 0 ? addr.replace("0x", "") : addr
 						}
 
 						DisableInput

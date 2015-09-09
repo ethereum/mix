@@ -56,7 +56,7 @@ ColumnLayout
 		anchors.top: parent.top
 		anchors.topMargin: 10
 		id: btnRowContainer
-		property int minimalWidth: 100 * 6 + 130
+		property int minimalWidth: 100 * 6 + 180
 
 		Row
 		{
@@ -67,7 +67,7 @@ ColumnLayout
 			Rectangle
 			{
 				color: "white"
-				width: 130
+				width: 180
 				height: 30
 				id: scenarioCont
 
