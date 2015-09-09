@@ -192,6 +192,7 @@ Rectangle
 				id: gasPriceConf
 				onGasPriceChanged: ctrDeployCtrLabel.setCost()
 				defaultGasPrice: true
+				defaultUnit: QEther.Finney
 			}
 
 			Connections
@@ -285,35 +286,6 @@ Rectangle
 					{
 						return JSON.stringify(projectModel.deploymentAddresses, null, ' ')
 					}
-				}
-
-				Button
-				{
-					iconSource: "qrc:/qml/img/action_reset.png"
-					tooltip: qsTr("Reset")
-					width: 20
-					height: 20
-					anchors.top: copyBtn.bottom
-					anchors.left: parent.left
-					anchors.leftMargin: -18
-					onClicked:
-					{
-						resetDialog.open()
-					}
-				}
-
-				MessageDialog
-				{
-					id: resetDialog
-					text: qsTr("This action removes all the properties related to this deployment (including contract addresses and packaged ressources).")
-					onYes: {
-						worker.forceStopPooling()
-						if (projectModel.deploymentDir && projectModel.deploymentDir !== "")
-							fileIo.deleteDir(projectModel.deploymentDir)
-						projectModel.cleanDeploymentStatus()
-						deploymentDialog.steps.reset()
-					}
-					standardButtons: StandardButton.Yes | StandardButton.No
 				}
 
 				ScrollView
@@ -439,9 +411,35 @@ Rectangle
 
 		Button
 		{
+			id: resetBtn
+			anchors.right: deployBtn.left
+			anchors.rightMargin: 5
+			text: qsTr("Reset")
+			onClicked:
+			{
+				resetDialog.open()
+			}
+		}
+
+		MessageDialog
+		{
+			id: resetDialog
+			text: qsTr("This action removes all the properties related to this deployment (including contract addresses and packaged ressources).")
+			onYes: {
+				worker.forceStopPooling()
+				if (projectModel.deploymentDir && projectModel.deploymentDir !== "")
+					fileIo.deleteDir(projectModel.deploymentDir)
+				projectModel.cleanDeploymentStatus()
+				deploymentDialog.steps.reset()
+			}
+			standardButtons: StandardButton.Yes | StandardButton.No
+		}
+
+		Button
+		{
 			id: deployBtn
 			anchors.right: parent.right
-			text: qsTr("Deploy contracts")
+			text: qsTr("Deploy Scenario")
 			onClicked:
 			{
 				warning.open()

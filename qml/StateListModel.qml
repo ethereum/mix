@@ -231,11 +231,7 @@ Item {
 			stateListModel.contractsValidated(item.contracts)
 			stateListModel.get(stateDialog.stateIndex).miner = item.miner
 			stateList[stateDialog.stateIndex].miner = item.miner
-			if (item.defaultState)
-			{
-				stateListModel.defaultStateIndex = stateDialog.stateIndex
-				stateListModel.defaultStateChanged()
-			}
+			projectModel.saveProject()
 		}
 	}
 
@@ -248,7 +244,13 @@ Item {
 		signal defaultStateChanged;
 		signal stateListModelReady;
 		signal stateRun(int index)
-		signal stateDeleted(int index)		
+		signal stateDeleted(int index)
+
+		function setDefaultState(index)
+		{
+			defaultStateIndex = index
+			stateListModel.defaultStateChanged()
+		}
 
 		function defaultTransactionItem()
 		{
@@ -378,7 +380,7 @@ Item {
 
 		function addState() {
 			var item = createDefaultState();
-			stateDialog.open(stateListModel.count, item, false);
+			stateDialog.open(stateListModel.count, item);
 		}
 
 		function appendState(item)
@@ -388,7 +390,7 @@ Item {
 		}
 
 		function editState(index) {
-			stateDialog.open(index, stateList[index], defaultStateIndex === index);
+			stateDialog.open(index, stateList[index]);
 		}
 
 		function getState(index) {

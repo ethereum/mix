@@ -146,7 +146,7 @@ Rectangle
 					Row
 					{
 						z: 6
-						anchors.right: rowFileName.left
+						anchors.right: parent.right
 						anchors.rightMargin: 8
 						anchors.verticalCenter: parent.verticalCenter
 						spacing: 3

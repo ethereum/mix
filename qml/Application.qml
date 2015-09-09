@@ -115,6 +115,7 @@ ApplicationWindow {
 		Menu {
 			title: qsTr("Scenario")
 			MenuItem { action: editStatesAction }
+			MenuItem { action: setAsDefaultAction }
 		}
 		Menu {
 			title: qsTr("Debug")
@@ -191,6 +192,17 @@ ApplicationWindow {
 		onTriggered: stateList.open();
 	}
 
+	Action {
+		id: setAsDefaultAction
+		text: qsTr("Set current scenario as default")
+		shortcut: "Ctrl+Alt+D"
+		onTriggered:
+		{
+			projectModel.stateListModel.setDefaultState(mainContent.rightPane.bc.scenarioIndex)
+			projectModel.saveProjectFile()
+		}
+	}
+
 	Connections {
 		target: projectModel.stateListModel
 
@@ -250,7 +262,7 @@ ApplicationWindow {
 
 	Action {
 		id: toggleRunOnLoadAction
-		text: qsTr("Load State on Startup")
+		text: qsTr("Load Scenario on Startup")
 		shortcut: ""
 		checkable: true
 		checked: mainContent.runOnProjectLoad

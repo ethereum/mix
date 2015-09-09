@@ -136,7 +136,8 @@ Rectangle {
 			Rectangle
 			{
 				Layout.preferredWidth: chooseSceCol.width / 5
-				anchors.verticalCenter: parent.verticalCenter
+				anchors.top: parent.top
+				anchors.topMargin: 12
 				Label
 				{
 					text: qsTr("Pick scenario to deploy")
@@ -190,9 +191,7 @@ Rectangle {
 					Layout.fillHeight: true
 					Layout.fillWidth: true
 					id: trContainer
-					color: "white"
-					border.color: "#cccccc"
-					border.width: 1
+					color: "#cccccc"
 					ScrollView
 					{
 						anchors.fill: parent
@@ -281,7 +280,7 @@ Rectangle {
 										anchors.bottom: parent.bottom
 										Layout.preferredWidth: chooseSceCol.width
 										Layout.preferredHeight: 1
-										color: "#cccccc"
+										color: "#ededed"
 										visible: true
 									}
 								}

@@ -1026,6 +1026,7 @@ ColumnLayout {
 				{
 					model.accounts.push(ac)
 					clientModel.addAccount(ac.secret);
+					projectModel.saveProject()
 				}
 			}
 		}
