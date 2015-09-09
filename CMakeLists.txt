@@ -58,7 +58,7 @@ eth_install_executable(${EXECUTABLE}
 )
 
 #generate web3.qrc
-set(ETH_WEB3JS_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../js/setup.js ${CMAKE_CURRENT_SOURCE_DIR}/../js/admin.js ${CMAKE_CURRENT_SOURCE_DIR}/../js/web3.js/dist/web3.js)
+set(ETH_WEB3JS_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../webthree-helpers/js/setup.js ${CMAKE_CURRENT_SOURCE_DIR}/../webthree-helpers/js/admin.js ${CMAKE_CURRENT_SOURCE_DIR}/../web3.js/dist/web3.js)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/web3.qrc
 	DEPENDS ${ETH_WEB3JS_SOURCES}
 	COMMAND ${CMAKE_COMMAND} -DETH_RES_FILES="${ETH_WEB3JS_SOURCES}" -DETH_QRC_DEST="${CMAKE_CURRENT_BINARY_DIR}/web3.qrc" -P "${ETH_SCRIPTS_DIR}/genqrc.cmake"
