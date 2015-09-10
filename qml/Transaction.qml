@@ -36,7 +36,7 @@ RowLayout
 		Layout.preferredHeight: parent.height
 		color: "transparent"
 		anchors.top: parent.top
-		property bool saveStatus		
+		property bool saveStatus
 		Image {
 			anchors.top: parent.top
 			anchors.left: parent.left
@@ -83,7 +83,7 @@ RowLayout
 		Layout.preferredWidth: blockWidth
 		Layout.preferredHeight: trHeight
 		height: trHeight
-		color: isCall ? callColor : txColor
+		color: rowContentTr.selected ? selectedTxColor : (status === "mined" ? (isCall ? callColor : txColor) : halfOpacity)
 		id: rowContentTr
 		anchors.top: parent.top
 
@@ -100,7 +100,6 @@ RowLayout
 		function select()
 		{
 			rowContentTr.selected = true
-			rowContentTr.color = selectedTxColor
 			hash.color = selectedBlockForeground
 			func.color = selectedBlockForeground
 			if (isCall)
@@ -113,7 +112,6 @@ RowLayout
 		function deselect()
 		{
 			rowContentTr.selected = false
-			rowContentTr.color = isCall ? callColor : txColor
 			hash.color = labelColor
 			func.color = labelColor
 		}
@@ -148,6 +146,7 @@ RowLayout
 					elide: Text.ElideRight
 					anchors.verticalCenter: parent.verticalCenter
 					maximumLineCount: 1
+					clip: true
 					color: labelColor
 					font.pointSize: dbgStyle.absoluteSize(1)
 					font.bold: true
@@ -185,6 +184,7 @@ RowLayout
 					color: labelColor
 					font.pointSize: dbgStyle.absoluteSize(1)
 					font.bold: true
+					clip: true
 					maximumLineCount: 1
 					width: parent.width
 				}
@@ -197,6 +197,7 @@ RowLayout
 					font.italic: true
 					font.pointSize: dbgStyle.absoluteSize(-2)
 					color: labelColor
+					clip: true
 					anchors.left: func.right
 					anchors.leftMargin: 10
 				}

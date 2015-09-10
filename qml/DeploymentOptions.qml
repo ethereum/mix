@@ -411,32 +411,6 @@ Rectangle
 
 		Button
 		{
-			id: resetBtn
-			anchors.right: deployBtn.left
-			anchors.rightMargin: 5
-			text: qsTr("Reset")
-			onClicked:
-			{
-				resetDialog.open()
-			}
-		}
-
-		MessageDialog
-		{
-			id: resetDialog
-			text: qsTr("This action removes all the properties related to this deployment (including contract addresses and packaged ressources).")
-			onYes: {
-				worker.forceStopPooling()
-				if (projectModel.deploymentDir && projectModel.deploymentDir !== "")
-					fileIo.deleteDir(projectModel.deploymentDir)
-				projectModel.cleanDeploymentStatus()
-				deploymentDialog.steps.reset()
-			}
-			standardButtons: StandardButton.Yes | StandardButton.No
-		}
-
-		Button
-		{
 			id: deployBtn
 			anchors.right: parent.right
 			text: qsTr("Deploy Scenario")

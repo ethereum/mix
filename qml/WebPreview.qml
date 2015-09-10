@@ -202,7 +202,7 @@ Item {
 				anchors.top: parent.top
 				anchors.fill: parent
 				anchors.leftMargin: 3
-				spacing: 3
+				spacing: 10
 
 				TextField
 				{
@@ -228,14 +228,42 @@ Item {
 					}
 				}
 
-				Button {
-					iconSource: "qrc:/qml/img/available_updates.png"
-					action: buttonReloadAction
-					anchors.verticalCenter: parent.verticalCenter
-					width: 21
-					height: 21
-					focus: true
-					tooltip: qsTr("Reload")
+				Rectangle {
+					width: 30
+					height: 30
+					ScenarioButton {
+						id: reloadFrontend
+						text: qsTr("Reload frontend")
+						width: 30
+						height: 30
+						roundLeft: true
+						roundRight: true
+						onClicked:
+						{
+							reload()
+						}
+						buttonShortcut: ""
+						sourceImg: "qrc:/qml/img/recycleicon@2x.png"
+						function reload()
+						{
+							mainContent.webView.reload()
+							reloadFrontend.stopBlinking()
+						}
+					}
+				}
+
+				Connections
+				{
+					target: clientModel
+					property bool firstLoad: true
+					onSetupFinished:
+					{
+						if (firstLoad)
+							reloadFrontend.reload()
+						else
+							reloadFrontend.startBlinking()
+						firstLoad = false
+					}
 				}
 
 				CheckBox {
@@ -253,8 +281,8 @@ Item {
 
 				Button
 				{
-					height: 22
-					width: 22
+					height: 30
+					width: 30
 					anchors.verticalCenter: parent.verticalCenter
 					action: expressionAction
 					iconSource: "qrc:/qml/img/console.png"

@@ -179,6 +179,33 @@ Dialog {
 				Layout.fillWidth: true
 				Layout.preferredHeight: 30
 				color: "transparent"
+
+				Button
+				{
+					id: resetBtn
+					anchors.left: parent.left
+					anchors.leftMargin: 205
+					text: qsTr("Reset")
+					onClicked:
+					{
+						resetDialog.open()
+					}
+				}
+
+				MessageDialog
+				{
+					id: resetDialog
+					text: qsTr("This action removes all the properties related to this deployment (including contract addresses and packaged ressources).")
+					onYes: {
+						worker.forceStopPooling()
+						if (projectModel.deploymentDir && projectModel.deploymentDir !== "")
+							fileIo.deleteDir(projectModel.deploymentDir)
+						projectModel.cleanDeploymentStatus()
+						deploymentDialog.steps.reset()
+					}
+					standardButtons: StandardButton.Yes | StandardButton.No
+				}
+
 				Button
 				{
 					text: qsTr("Cancel")

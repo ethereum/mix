@@ -16,6 +16,7 @@ Rectangle {
 	property alias index: blinkTimer.index
 	property string color
 	property alias isBlinking: blinkTimer.running
+	property alias displayLabel: labelCont.visible
 	signal clicked
 
 	function startBlinking()
@@ -46,6 +47,11 @@ Rectangle {
 	onColorChanged:
 	{
 		updateColor(buttonActionContainer.color)
+	}
+
+	onWidthChanged:
+	{
+		btnLabel.visible = width > 80
 	}
 
 	Rectangle
@@ -116,6 +122,7 @@ Rectangle {
 					color: "transparent"
 				}
 			}
+			tooltip: buttonActionContainer.text
 		}
 
 		Action {
@@ -139,6 +146,7 @@ Rectangle {
 
 	Rectangle
 	{
+		id: labelCont
 		anchors.top: contentRectangle.bottom
 		anchors.topMargin: 15
 		width: parent.width
@@ -146,6 +154,7 @@ Rectangle {
 		{
 			text: buttonActionContainer.text
 			anchors.centerIn: parent
+			id: btnLabel
 		}
 	}
 }
