@@ -13,6 +13,7 @@ ColumnLayout
 {
 	property bool defaultGasPrice
 	property variant gasPrice
+	property var defaultUnit
 
 	function init(value)
 	{
@@ -30,6 +31,11 @@ ColumnLayout
 	Component.onCompleted:
 	{
 		gasPriceDefaultCheckbox.checked = defaultGasPrice
+		if (!gasPriceInput.value)
+		{
+			gasPriceInput.value = QEtherHelper.createEther("0", QEther.Finney)
+			gasPrice = QEtherHelper.createEther("0", QEther.Finney)
+		}
 	}
 
 	RowLayout

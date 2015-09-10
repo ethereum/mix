@@ -15,10 +15,9 @@ Dialog {
 
 	width: 630
 	height: 660
-	title: qsTr("Edit Genesis Parameters")
+	title: qsTr("Edit Starting Parameters")
 	visible: false
 
-	property alias isDefault: defaultCheckBox.checked
 	property alias minerComboBox: comboMiner
 	property int stateIndex
 	property var stateTransactions: []
@@ -31,7 +30,7 @@ Dialog {
 		id: stateDialogStyle
 	}
 
-	function open(index, item, setDefault) {
+	function open(index, item) {
 		stateIndex = index
 		accountsModel.clear()
 		stateAccounts = []
@@ -52,8 +51,6 @@ Dialog {
 		}
 
 		visible = true
-		isDefault = setDefault
-		defaultCheckBox.checked = isDefault
 		comboMiner.model = stateAccounts
 		comboMiner.currentIndex = miner
 		forceActiveFocus()
@@ -81,7 +78,6 @@ Dialog {
 				break
 			}
 		}
-		item.defaultState = defaultCheckBox.checked
 		return item
 	}
 
@@ -358,6 +354,7 @@ Dialog {
 							accountsModel.append(ac)
 							stateAccounts.push(ac)
 							clientModel.addAccount(ac.secret);
+							projectModel.saveProject()
 						}
 					}
 
@@ -381,23 +378,6 @@ Dialog {
 					CommonSeparator {
 						Layout.fillWidth: true
 					}
-
-					RowLayout {
-						Layout.fillWidth: true
-						DefaultLabel {
-							Layout.preferredWidth: 85
-							text: qsTr("Default")
-						}
-						CheckBox {
-							id: defaultCheckBox
-							Layout.fillWidth: true
-						}
-					}
-
-					CommonSeparator {
-						Layout.fillWidth: true
-					}
-
 				}
 
 				RowLayout {

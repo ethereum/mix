@@ -210,7 +210,7 @@ QVariantMap ClientModel::contractAddresses() const
 	for (auto const& c: m_contractAddresses)
 	{
 		res.insert(serializeToken(c.first), QString::fromStdString(toJS(c.second))); //key will be like <Contract - 0>
-		res.insert(c.first.first, QString::fromStdString(toJS(c.second))); //we keep like Contract (compatibility with old project
+		res.insert(c.first.first, QString::fromStdString(toJS(c.second))); //we keep name like Contract (compatibility with old projects)
 	}
 	return res;
 }

@@ -146,7 +146,7 @@ RowLayout {
 		}
 	}
 
-	Text
+	Label
 	{
 		Layout.preferredWidth: 100
 		visible: displayFormattedValue

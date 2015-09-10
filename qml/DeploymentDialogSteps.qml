@@ -94,7 +94,7 @@ Rectangle {
 						{
 							step: 2,
 							type:"option",
-							label: qsTr("Select Deployment\noption and deploy")
+							label: qsTr("Deploy Scenario")
 						}]
 				},
 				{
@@ -177,13 +177,17 @@ Rectangle {
 						Rectangle
 						{
 							Layout.preferredHeight: 50
-							Layout.fillWidth: true
+							Layout.preferredWidth: col.width
 							color: "white"
-							id: itemContainer
+							border.color: "red"
+							border.width: 4
+							id: itemContainer							
 
 							Component.onCompleted:
 							{
 								Layout.preferredHeight = 50
+								height = 50
+								width = col.width
 								Layout.preferredWidth = col.width
 							}
 
@@ -212,8 +216,8 @@ Rectangle {
 								}
 							}
 
-							Rectangle {
-
+							Rectangle
+							{
 								Component.onCompleted:
 								{
 									width =  40

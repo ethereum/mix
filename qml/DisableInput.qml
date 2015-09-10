@@ -36,7 +36,7 @@ TextField
 	style: TextFieldStyle {
 		background: Rectangle
 		{
-		width: 360
+		width: localPackageUrl.width
 		color: "#cccccc"
 		radius: 2
 	}

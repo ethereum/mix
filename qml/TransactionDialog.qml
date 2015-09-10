@@ -218,7 +218,6 @@ Dialog {
 			item.functionId = item.contractId;
 			item.label = item.contractId + "." + item.contractId + "()";
 		}
-		console.log(JSON.stringify(item))
 		item.saveStatus = saveStatus
 		item.sender = senderComboBox.model[senderComboBox.currentIndex].secret;
 		item.parameters = paramValues;
@@ -443,7 +442,7 @@ Dialog {
 				}
 
 				RowLayout
-				{
+				{					
 					Rectangle
 					{
 						Layout.preferredWidth: 150
@@ -457,12 +456,24 @@ Dialog {
 
 					QAddressView
 					{
+						Layout.preferredWidth: 350
+						width: 350
 						id: recipientsAccount
 						displayInput: false
 						onIndexChanged:
 						{
 							if (rbbuttonList.current.objectName === "trTypeExecute")
 								loadFunctions(TransactionHelper.contractFromToken(currentValue()))
+							var addr = getAddress()
+							addrRecipient.originalText = addr.indexOf("0x") === 0 ? addr.replace("0x", "") : addr
+						}
+
+						DisableInput
+						{
+							Layout.preferredWidth: 350
+							anchors.top: parent.bottom
+							anchors.topMargin: 1
+							id: addrRecipient
 						}
 					}
 

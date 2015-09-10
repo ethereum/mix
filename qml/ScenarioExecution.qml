@@ -10,6 +10,7 @@ import "."
 
 
 Rectangle {
+	id: root
 	color: "#ededed"
 	property alias bc: blockChain
 
@@ -17,6 +18,8 @@ Rectangle {
 	{
 		target:  projectModel
 		onProjectLoaded: {
+			if (projectModel.stateListModel.defaultStateIndex)
+				loader.selectedScenarioIndex = projectModel.stateListModel.defaultStateIndex
 			loader.init()
 		}
 	}

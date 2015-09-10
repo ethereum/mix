@@ -31,6 +31,22 @@ ColumnLayout
 	{
 	}
 
+	function updateWidth(_width)
+	{
+		var w;
+		if (_width < btnRowContainer.minimalWidth)
+			w = (_width - 130) / 6
+		else
+			w = 100
+		editScenario.width = w
+		deleteScenario.width = w
+		duplicateScenario.width = w
+		addScenario.width = w
+		restoreScenario.width = w
+		saveScenario.width = w
+		rowBtn.width = 6 * w
+	}
+
 	RowLayout
 	{
 		Layout.preferredWidth: 560
@@ -39,10 +55,12 @@ ColumnLayout
 		spacing: 0
 		anchors.top: parent.top
 		anchors.topMargin: 10
+		id: btnRowContainer
+		property int minimalWidth: 100 * 6 + 180
 
 		Row
 		{
-			Layout.preferredWidth: 100 * 6 + 130
+			Layout.preferredWidth: parent.minimalWidth
 			Layout.preferredHeight: 50
 			spacing: 25
 
@@ -264,7 +282,7 @@ ColumnLayout
 				width: 100 * 6
 				height: 30
 				color: "transparent"
-
+				id: rowBtn
 				ScenarioButton {
 					id: editScenario
 					width: 100
