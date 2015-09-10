@@ -23,13 +23,12 @@ ColumnLayout
 	property int blockIndex
 	property variant scenario
 	property string labelColor: "#414141"
-
-
 	property string selectedTxColor: "#accbf2"
 	property string selectedCallColor: "#d7"
 	property string selectedBlockForeground: "#445e7f"
 	property string txColor: "#DEDCDC"
 	property string callColor: "#e6e5e5"
+	property string halfOpacity: "#f3f2f2"
 
 	property int scenarioIndex
 	signal txSelected(var txIndex, var callIndex)
@@ -96,7 +95,7 @@ ColumnLayout
 		Layout.preferredWidth: blockWidth
 		height: 10
 		anchors.bottom: rowHeader.top
-		color: "#DEDCDC"
+		color: status === "mined" ? txColor : halfOpacity
 		radius: 15
 		anchors.left: parent.left
 		anchors.leftMargin: statusWidth
@@ -113,7 +112,7 @@ ColumnLayout
 		{
 			Layout.preferredWidth: blockWidth
 			Layout.preferredHeight: trHeight
-			color: "#DEDCDC"
+			color: status === "mined" ? txColor : halfOpacity
 			anchors.left: parent.left
 			anchors.leftMargin: statusWidth
 			Label {

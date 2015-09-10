@@ -29,6 +29,11 @@ Rectangle {
 		blockChain.forceActiveFocus()
 	}
 
+	onWidthChanged:
+	{
+		loader.updateWidth(width)
+	}
+
 	ScrollView
 	{
 		anchors.fill: parent
@@ -49,10 +54,9 @@ Rectangle {
 				spacing: 10				
 				ScenarioLoader
 				{
-					anchors.horizontalCenter: parent.horizontalCenter
 					height: 100
-					Layout.preferredWidth: 400
-					width: 400
+					Layout.preferredWidth: parent.width
+					width: parent.width
 					id: loader
 				}
 
@@ -86,7 +90,7 @@ Rectangle {
 				BlockChain
 				{
 					id: blockChain
-					width: parent.width
+					Layout.preferredWidth: parent.width
 				}
 
 				Connections

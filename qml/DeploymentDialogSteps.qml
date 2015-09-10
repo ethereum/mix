@@ -77,6 +77,7 @@ Rectangle {
 		anchors.fill: parent
 		anchors.margins: 1
 		spacing: 0
+		anchors.top: parent.top
 		Repeater
 		{
 			id: topMenu
@@ -127,12 +128,7 @@ Rectangle {
 			{
 				id: top
 				color: "transparent"
-
-				height:
-				{
-					return 30 + 50 * topMenu.model[index].actions.length
-				}
-
+				Layout.fillWidth: true
 				Layout.preferredHeight:
 				{
 					return 30 + 50 * topMenu.model[index].actions.length
@@ -148,20 +144,26 @@ Rectangle {
 					menu.itemAt(index).unselect()
 				}
 
-				Label
+				Rectangle
 				{
-					text: topMenu.model[index].label
-					id: topMenuLabel
-					font.italic: true
-					anchors.top: parent.top
-					anchors.left: parent.left
-					anchors.topMargin: 2
-					anchors.leftMargin: 4
+					height: 30
+					width: parent.width
+					id: labelCont
+					color: "transparent"
+					Label
+					{
+						text: topMenu.model[index].label
+						id: topMenuLabel
+						font.italic: true
+						anchors.verticalCenter: parent.verticalCenter
+						anchors.left: parent.left
+						anchors.leftMargin: 4
+					}
 				}
 
 				ColumnLayout
 				{
-					anchors.top: topMenuLabel.bottom
+					anchors.top: labelCont.bottom
 					anchors.left: parent.left
 					id: col
 					property int topIndex
@@ -169,7 +171,9 @@ Rectangle {
 					{
 						topIndex = index
 					}
-
+					width: parent.width
+					height: 50 * topMenu.model[index].actions.length
+					spacing: 0
 					Repeater
 					{
 						id: menu
@@ -178,18 +182,8 @@ Rectangle {
 						{
 							Layout.preferredHeight: 50
 							Layout.preferredWidth: col.width
-							color: "white"
-							border.color: "red"
-							border.width: 4
+							color: "transparent"
 							id: itemContainer							
-
-							Component.onCompleted:
-							{
-								Layout.preferredHeight = 50
-								height = 50
-								width = col.width
-								Layout.preferredWidth = col.width
-							}
 
 							function select()
 							{
@@ -218,11 +212,6 @@ Rectangle {
 
 							Rectangle
 							{
-								Component.onCompleted:
-								{
-									width =  40
-									height = 40
-								}
 								width: 40
 								height: 40
 								color: "transparent"
@@ -246,9 +235,9 @@ Rectangle {
 										PropertyChanges { target: label; color: "white" }
 										PropertyChanges { target: labelContainer.border; width: 0 }
 										PropertyChanges { target: detail; color: "white" }
-										PropertyChanges { target: itemContainer; color: "#accbf2" }
-										PropertyChanges { target: labelContainer; color: "#accbf2" }
-										PropertyChanges { target: nameContainer; color: "#accbf2" }
+										PropertyChanges { target: itemContainer; color: "#4a90E2" }
+										PropertyChanges { target: labelContainer; color: "#4a90E2" }
+										PropertyChanges { target: nameContainer; color: "#4a90E2" }
 									}
 								]
 
@@ -296,12 +285,10 @@ Rectangle {
 						}
 					}
 
-
 					Rectangle
 					{
 						Layout.preferredWidth: col.width
 						Layout.preferredHeight: 2
-						anchors.bottom: parent.bottom
 						color: "#cccccc"
 					}
 				}

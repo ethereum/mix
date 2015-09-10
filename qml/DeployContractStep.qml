@@ -192,6 +192,7 @@ Rectangle {
 					Layout.fillWidth: true
 					id: trContainer
 					color: "#cccccc"
+					visible: trListModel.count > 0
 					ScrollView
 					{
 						anchors.fill: parent

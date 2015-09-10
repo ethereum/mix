@@ -35,9 +35,33 @@ ColumnLayout
 	{
 		var w;
 		if (_width < btnRowContainer.minimalWidth)
-			w = (_width - 130) / 6
+			w = (_width - 180) / 6
 		else
 			w = 100
+		updatebtnWidth(w)
+		if (_width < 600)
+		{
+			rowBtn.anchors.top = scenarioCont.bottom
+			rowBtn.anchors.topMargin = 5
+			rowBtn.anchors.left = scenarioCont.parent.left
+			rowBtn.anchors.leftMargin = 0
+			btnRowContainer.anchors.horizontalCenter = undefined
+			scenarioCont.anchors.topMargin = -15
+			updatebtnWidth(40)
+		}
+		else
+		{
+			rowBtn.anchors.top = scenarioCont.parent.top
+			rowBtn.anchors.topMargin = 0
+			rowBtn.anchors.left = scenarioCont.right
+			rowBtn.anchors.leftMargin = 25
+			btnRowContainer.anchors.horizontalCenter = btnRowContainer.parent.horizontalCenter
+			scenarioCont.anchors.topMargin = 0
+		}
+	}
+
+	function updatebtnWidth(w)
+	{
 		editScenario.width = w
 		deleteScenario.width = w
 		duplicateScenario.width = w
@@ -49,7 +73,6 @@ ColumnLayout
 
 	RowLayout
 	{
-		Layout.preferredWidth: 560
 		anchors.horizontalCenter: parent.horizontalCenter
 		Layout.preferredHeight: 75
 		spacing: 0
@@ -58,19 +81,17 @@ ColumnLayout
 		id: btnRowContainer
 		property int minimalWidth: 100 * 6 + 180
 
-		Row
+		Item
 		{
 			Layout.preferredWidth: parent.minimalWidth
 			Layout.preferredHeight: 50
-			spacing: 25
-
 			Rectangle
 			{
 				color: "white"
 				width: 180
 				height: 30
 				id: scenarioCont
-
+				anchors.top: parent.top
 				Rectangle
 				{
 					anchors.top: parent.bottom
@@ -79,6 +100,7 @@ ColumnLayout
 					Label
 					{
 						text: qsTr("Scenario")
+						id: scenarioLabel
 						anchors.centerIn: parent
 					}
 				}
@@ -276,9 +298,10 @@ ColumnLayout
 				}
 			}
 
-
 			Rectangle
 			{
+				anchors.left: scenarioCont.right
+				anchors.leftMargin: 25
 				width: 100 * 6
 				height: 30
 				color: "transparent"

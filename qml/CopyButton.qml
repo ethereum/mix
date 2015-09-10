@@ -8,7 +8,7 @@ import Qt.labs.settings 1.0
 Button
 {
 	property var getContent;
-	iconSource: "qrc:/qml/img/clipboard_copy.png"
+	iconSource: "qrc:/qml/img/copyiconactive.png"
 	tooltip: qsTr("Copy to clipboard")
 	onClicked:
 	{

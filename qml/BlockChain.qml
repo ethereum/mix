@@ -134,8 +134,14 @@ ColumnLayout {
 		{
 			var diff = (width - previousWidth) / 3;
 			fromWidth = fromWidth + diff < 250 ? 250 : fromWidth + diff
-			toWidth = toWidth + diff < 240 ? 240 : toWidth + diff
+			toWidth = toWidth + diff
 		}
+
+		if (width < 500)
+			btnsContainer.Layout.preferredWidth = width - 30
+		else
+			btnsContainer.Layout.preferredWidth = 500
+
 		previousWidth = width
 	}
 
@@ -237,7 +243,6 @@ ColumnLayout {
 			blockModel.append(model.blocks[b])
 		previousWidth = width
 		blockChainRepeater.hideCalls()
-		toggleCallsBtn.text = toggleCallsBtn.getText()		
 	}
 
 	property int statusWidth: 30
@@ -285,34 +290,18 @@ ColumnLayout {
 					Layout.preferredWidth: blockChainScrollView.width
 					color: "transparent"
 
-					Button
+					CheckBox
 					{
+						id: toggleCallsBtn
 						anchors.left: parent.left
 						anchors.leftMargin: statusWidth
-						id: toggleCallsBtn
-						text: getText()
-						Layout.preferredHeight: 40
-
-						function getText()
-						{
-							if (blockChainRepeater.callsDisplayed)
-								return qsTr("transactions only")
-							else
-								return qsTr("transactions + calls")
-						}
-
-						onClicked:
-						{
-							toggleCalls()
-						}
-
-						function toggleCalls()
+						text: qsTr("display calls")
+						onCheckedChanged:
 						{
 							if (blockChainRepeater.callsDisplayed)
 								blockChainRepeater.hideCalls()
 							else
 								blockChainRepeater.displayCalls()
-							text = getText()
 						}
 					}
 
@@ -540,7 +529,6 @@ ColumnLayout {
 				else
 					prev.push(blockChainRepeater.callSelected - 1)
 			}
-			console.log(JSON.stringify(prev))
 			return prev
 		}
 
@@ -604,34 +592,41 @@ ColumnLayout {
 
 	Rectangle
 	{
-		Layout.preferredWidth: parent.width
+		Layout.preferredWidth: 500
 		Layout.preferredHeight: 70
+		anchors.horizontalCenter: parent.horizontalCenter
 		color: "transparent"
-		RowLayout
+		id: btnsContainer
+		Row
 		{
-			anchors.horizontalCenter: parent.horizontalCenter
+			width: parent.width
 			anchors.top: parent.top
 			anchors.topMargin: 10
 			spacing: 20
+			id: rowBtns
+			onWidthChanged: {
+				var w = (width - (2 * 20)) / 4
+				rebuild.width = w
+				rebuild.parent.width = w
+				addTransaction.width = w
+				addBlockBtn.width = w
+				addTransaction.parent.width = w * 2
+				newAccount.width = w
+				newAccount.parent.width = w
+			}
 
 			Connections
 			{
 				target: clientModel
 				onSetupFinished:
 				{
-					if (!firstLoad)
-						reloadFrontend.startBlinking()
-					else
-						reloadFrontend.reload()
-					if (rebuild.isBlinking)
-						reloadFrontend.setBlinking(rebuild.index, rebuild.direction, rebuild.color)
 					firstLoad = false
 				}
 			}
 
 			Rectangle {
-				Layout.preferredWidth: 100
-				Layout.preferredHeight: 30
+				width: 100
+				height: 30
 				ScenarioButton {
 					id: rebuild
 					text: qsTr("Rebuild Scenario")
@@ -649,8 +644,6 @@ ColumnLayout {
 					function needRebuild(reason)
 					{
 						rebuild.startBlinking()
-						if (reloadFrontend.isBlinking)
-							rebuild.setBlinking(reloadFrontend.index, reloadFrontend.direction, reloadFrontend.color)
 						blinkReasons.push(reason)
 					}
 
@@ -783,34 +776,10 @@ ColumnLayout {
 				}
 			}
 
-			Rectangle {
-				Layout.preferredWidth: 100
-				Layout.preferredHeight: 30
-				ScenarioButton {
-					id: reloadFrontend
-					text: qsTr("Reload Frontend")
-					width: 100
-					height: 30
-					roundLeft: true
-					roundRight: true
-					onClicked:
-					{
-						reload()
-					}
-					buttonShortcut: ""
-					sourceImg: "qrc:/qml/img/recycleicon@2xGrey.png"
-					function reload()
-					{
-						mainContent.webView.reload()
-						reloadFrontend.stopBlinking()
-					}
-				}
-			}
-
 			Rectangle
 			{
-				Layout.preferredWidth: 200
-				Layout.preferredHeight: 30
+				width: 200
+				height: 30
 				color: "transparent"
 
 				ScenarioButton {
@@ -1004,19 +973,23 @@ ColumnLayout {
 				}
 			}
 
-			ScenarioButton {
-				id: newAccount
-				text: qsTr("New Account...")
-				onClicked: {
-					newAddressWin.accounts = model.accounts
-					newAddressWin.open()
+			Rectangle {
+				width: 100
+				height: 30
+				ScenarioButton {
+					id: newAccount
+					text: qsTr("New Account...")
+					onClicked: {
+						newAddressWin.accounts = model.accounts
+						newAddressWin.open()
+					}
+					width: 100
+					height: 30
+					buttonShortcut: ""
+					sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
+					roundLeft: true
+					roundRight: true
 				}
-				Layout.preferredWidth: 100
-				Layout.preferredHeight: 30
-				buttonShortcut: ""
-				sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
-				roundLeft: true
-				roundRight: true
 			}
 
 			NewAccount
