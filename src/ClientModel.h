@@ -272,6 +272,8 @@ signals:
 	void newState(unsigned _record, QVariantMap _accounts);
 	/// setupFinished (blockChain has been rebuilt).
 	void setupFinished();
+	/// setup scenario started
+	void setupStarted();
 
 private:
 	RecordLogEntry* lastBlock() const;
