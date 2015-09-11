@@ -20,8 +20,11 @@ Item {
 	signal javaScriptMessage(var _level, string _sourceId, var _lineNb, string _content)
 	signal webContentReady
 	signal ready
+	property bool buildingScenario
 
 	function setPreviewUrl(url) {
+		if (buildingScenario)
+			return
 		if (!initialized)
 			pendingPageUrl = url;
 		else {
@@ -258,11 +261,16 @@ Item {
 					property bool firstLoad: true
 					onSetupFinished:
 					{
+						buildingScenario = false
 						if (firstLoad)
 							reloadFrontend.reload()
 						else
 							reloadFrontend.startBlinking()
 						firstLoad = false
+					}
+					onSetupStarted:
+					{
+						buildingScenario = true
 					}
 				}
 
@@ -315,7 +323,9 @@ Item {
 		{
 			Layout.preferredWidth: parent.width
 			Layout.fillHeight: true
+			orientation: codeWebSplitter.orientation === Qt.Horizontal ? Qt.Vertical : Qt.Horizontal
 			WebEngineView {
+
 				Layout.fillHeight: true
 				width: parent.width
 				Layout.preferredWidth: parent.width
@@ -338,8 +348,8 @@ Item {
 			Column {
 				id: expressionPanel
 				width: 350
-				Layout.preferredWidth: 350
-				Layout.fillHeight: true
+				Layout.minimumWidth: 350
+				Layout.minimumHeight: 350
 				spacing: 0
 				Component.onCompleted: {
 					updateView()

@@ -14,7 +14,7 @@ Dialog {
 	modality: Qt.ApplicationModal
 	title: qsTr("New Account");
 
-	width: 690
+	width: 750
 	height: 180
 
 	property var accounts
@@ -45,42 +45,6 @@ Dialog {
 			anchors.margins: 10
 			RowLayout
 			{
-
-				DefaultLabel
-				{
-					text: qsTr("Secret")
-					Layout.preferredWidth: 70
-				}
-
-				TextField
-				{
-					Layout.preferredWidth: 550
-					id: input
-					onTextChanged: {
-						var hexCheck = new RegExp("[0-9a-f]+");
-						addressText.originalText = clientModel.address(input.text)
-						if (input.text.length !== 64 || !hexCheck.test(input.text))
-							okButton.enabled = false
-						else
-							okButton.enabled = true
-					}
-
-					Button
-					{
-						anchors.left: parent.right
-						anchors.leftMargin: 7
-						anchors.verticalCenter: parent.verticalCenter
-						iconSource: "qrc:/qml/img/Write.png"
-						tooltip: qsTr("Generate secret")
-						onClicked: {
-							input.text = clientModel.newSecret();
-						}
-					}
-				}
-			}
-
-			RowLayout
-			{
 				DefaultLabel
 				{
 					text: qsTr("Address")
@@ -92,7 +56,22 @@ Dialog {
 				{
 					id: addressText
 					anchors.verticalCenter: parent.verticalCenter
-					Layout.preferredWidth: 595
+					Layout.preferredWidth: 575
+				}
+
+				Button
+				{
+					property string secret
+					anchors.left: parent.right
+					anchors.leftMargin: 7
+					anchors.verticalCenter: parent.verticalCenter
+					iconSource: "qrc:/qml/img/Write.png"
+					tooltip: qsTr("Generate account")
+					onClicked: {
+						secret = clientModel.newSecret()
+						addressText.originalText = clientModel.address(secret)
+					}
+					id: btnNewAddress
 				}
 			}
 
@@ -128,7 +107,7 @@ Dialog {
 				{
 					id: nickNameInput
 					anchors.verticalCenter: parent.verticalCenter
-					Layout.preferredWidth: 595
+					Layout.fillWidth: true
 				}
 			}
 
@@ -148,25 +127,22 @@ Dialog {
 				Button {
 					id: okButton;
 					text: qsTr("OK");
-					enabled: input.text !== ""
+					enabled: btnNewAddress.secret !== ""
 					onClicked: {
 						if (accounts)
 							for (var k in accounts)
 							{
-								if (accounts[k].secret === input.text)
+								if (accounts[k].secret === btnNewAddress.secret)
 								{
-									input.text = ""
 									newAddressWin.close()
+									return
 								}
 							}
-
-						var secret = input.text
-						secret = secret.toLowerCase()
-						var hexCheck = new RegExp("[0-9a-f]+");
-						var ac = projectModel.stateListModel.newAccount(balance.value.toWei().value(), QEther.Wei, input.text, nickNameInput.text)
+						var ac = projectModel.stateListModel.newAccount(balance.value.toWei().value(), QEther.Wei, btnNewAddress.secret.toLowerCase(), nickNameInput.text)
 						newAddressWin.addAccount(ac)
 						newAddressWin.close()
-						input.text = ""
+						btnNewAddress.secret = ""
+						addressText.originalText = ""
 						nickNameInput.text = ""
 					}
 				}

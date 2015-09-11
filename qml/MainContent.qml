@@ -30,6 +30,7 @@ Rectangle {
 	property alias debuggerPanel: debugPanel
 	property alias codeEditor: codeEditor
 	property bool webViewHorizontal: codeWebSplitter.orientation === Qt.Vertical //vertical splitter positions elements vertically, splits screen horizontally
+	property bool displayCalls
 	property int scenarioMinWidth: 300
 
 	Connections {
@@ -169,7 +170,7 @@ Rectangle {
 					Splitter {
 						id: codeWebSplitter
 						anchors.fill: parent
-						orientation: Qt.Vertical
+						orientation: Qt.Horizontal
 						CodeEditorView {
 							id: codeEditor
 							height: parent.height * 0.6

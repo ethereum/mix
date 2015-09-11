@@ -240,6 +240,7 @@ QString ClientModel::resolveAddress(QString const& _secret)
 
 void ClientModel::setupScenario(QVariantMap _scenario)
 {
+	setupStarted();
 	onStateReset();
 	WriteGuard(x_queueTransactions);
 	m_running = true;

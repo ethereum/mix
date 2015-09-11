@@ -290,25 +290,33 @@ ColumnLayout {
 					Layout.preferredWidth: blockChainScrollView.width
 					color: "transparent"
 
-					CheckBox
+					Connections
 					{
-						id: toggleCallsBtn
-						anchors.left: parent.left
-						anchors.leftMargin: statusWidth
-						text: qsTr("display calls")
-						onCheckedChanged:
+						id: displayCallConnection
+						target: mainContent
+						onDisplayCallsChanged:
 						{
-							if (blockChainRepeater.callsDisplayed)
-								blockChainRepeater.hideCalls()
-							else
+							updateCalls()
+						}
+
+						Component.onCompleted:
+						{
+							blockChainRepeater.callsDisplayed = mainContent.displayCalls
+						}
+
+						function updateCalls()
+						{
+							blockChainRepeater.callsDisplayed = mainContent.displayCalls
+							if (mainContent.displayCalls)
 								blockChainRepeater.displayCalls()
+							else
+								blockChainRepeater.hideCalls()
 						}
 					}
 
 					Block
 					{
 						id: genesis
-						anchors.top: toggleCallsBtn.bottom
 						scenario: blockChainPanel.model
 						scenarioIndex: scenarioIndex
 						Layout.preferredWidth: blockChainScrollView.width
@@ -367,14 +375,12 @@ ColumnLayout {
 							var ref = JSON.parse(k)
 							itemAt(ref[0]).displayNextCalls(ref[1], blockChainPanel.calls[k])
 						}
-						callsDisplayed = true
 					}
 
 					function hideCalls()
 					{
 						for (var k = 0; k < blockChainRepeater.count; k++)
 							blockChainRepeater.itemAt(k).hideNextCalls()
-						callsDisplayed = false
 					}
 
 					Block

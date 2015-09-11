@@ -51,10 +51,9 @@ Rectangle {
 			{				
 				id: scenarioColumn
 				width: parent.width
-				spacing: 10				
 				ScenarioLoader
 				{
-					height: 100
+					Layout.preferredHeight: 75
 					Layout.preferredWidth: parent.width
 					width: parent.width
 					id: loader
