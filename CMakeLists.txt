@@ -24,6 +24,10 @@ include(EthExecutableHelper)
 # Include utils
 include(EthUtils)
 
+include(EthOptions)
+configure_project()
+print_config()
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 aux_source_directory("./src" SRC_LIST)
 file(GLOB HEADERS "src/*.h")
