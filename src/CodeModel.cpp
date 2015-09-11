@@ -154,7 +154,9 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 	m_contract.reset(new QContractDefinition(nullptr, &contractDefinition));
 	QQmlEngine::setObjectOwnership(m_contract.get(), QQmlEngine::CppOwnership);
 	m_contract->moveToThread(QApplication::instance()->thread());
-	m_bytes = _compiler.bytecode(_contractName.toStdString());
+	eth::LinkerObject const& object = _compiler.object(_contractName.toStdString());
+	if (object.linkReferences.empty())
+		m_bytes = object.bytecode; //@todo handle unlinked objects
 
 	dev::solidity::InterfaceHandler interfaceHandler;
 	m_contractInterface = QString::fromStdString(interfaceHandler.abiInterface(contractDefinition));
@@ -526,7 +528,7 @@ dev::bytes const& CodeModel::getStdContractCode(const QString& _contractName, co
 	cs.compile(false);
 	for (std::string const& name: cs.contractNames())
 	{
-		dev::bytes code = cs.bytecode(name);
+		dev::bytes code = cs.object(name).bytecode;
 		m_compiledContracts.insert(std::make_pair(QString::fromStdString(name), std::move(code)));
 	}
 	return m_compiledContracts.at(_contractName);
