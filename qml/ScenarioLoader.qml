@@ -20,11 +20,22 @@ ColumnLayout
 	signal loaded(variant scenario)
 	signal renamed(variant scenario)
 	signal deleted()
+	signal closed()
 	property alias selectedScenarioIndex: scenarioList.currentIndex
+	property bool panelLoaded: false
 	spacing: 0
 	function init()
 	{
+		scenarioList.model = projectModel.stateListModel
 		scenarioList.load()
+		panelLoaded = true
+	}
+
+	function clear()
+	{
+		scenarioList.model = []
+		closed()
+		panelLoaded = false
 	}
 
 	function needSaveOrReload()
@@ -219,6 +230,9 @@ ColumnLayout
 									onDeleted: {
 										comboLabel.updateLabel()
 									}
+									onClosed: {
+										comboLabel.text = ""
+									}
 								}
 							}
 						}
@@ -317,6 +331,7 @@ ColumnLayout
 					text: qsTr("Edit Title")
 					roundRight: false
 					roundLeft: true
+					enabled: panelLoaded
 				}
 
 				Rectangle
@@ -329,6 +344,7 @@ ColumnLayout
 
 				ScenarioButton {
 					id: deleteScenario
+					enabled: panelLoaded
 					width: 100
 					height: parent.height
 					anchors.left: editScenario.right
@@ -364,6 +380,7 @@ ColumnLayout
 
 				ScenarioButton {
 					id: addScenario
+					enabled: panelLoaded
 					width: 100
 					height: parent.height
 					anchors.left: deleteScenario.right
@@ -391,6 +408,7 @@ ColumnLayout
 
 				ScenarioButton {
 					id: restoreScenario
+					enabled: panelLoaded
 					width: 100
 					height: parent.height
 					anchors.left: addScenario.right
@@ -423,6 +441,7 @@ ColumnLayout
 
 				ScenarioButton {
 					id: saveScenario
+					enabled: panelLoaded
 					anchors.left: restoreScenario.right
 					text: qsTr("Save")
 					onClicked: save()
@@ -460,6 +479,7 @@ ColumnLayout
 				{
 					id: duplicateScenario
 					anchors.left: saveScenario.right
+					enabled: panelLoaded
 					text: qsTr("Duplicate")
 					onClicked: {
 						projectModel.stateListModel.duplicateState(scenarioList.currentIndex)

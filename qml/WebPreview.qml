@@ -138,6 +138,8 @@ Item {
 
 		onProjectClosed: {
 			pageListModel.clear();
+			webPreview.setPreviewUrl("")
+			urlInput.text = ""
 		}
 	}
 
@@ -325,7 +327,6 @@ Item {
 			Layout.fillHeight: true
 			orientation: codeWebSplitter.orientation === Qt.Horizontal ? Qt.Vertical : Qt.Horizontal
 			WebEngineView {
-
 				Layout.fillHeight: true
 				width: parent.width
 				Layout.preferredWidth: parent.width
