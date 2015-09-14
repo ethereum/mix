@@ -151,7 +151,14 @@ ColumnLayout {
 		{
 			var addr = model.accounts[k].address.indexOf("0x") === 0 ? model.accounts[k].address : "0x" + model.accounts[k].address
 			if (addr === address)
-				return model.accounts[k].name
+			{
+				var name = model.accounts[k].name
+				if (address.indexOf(name) === -1)
+					return model.accounts[k].name
+				else
+					return address
+			}
+
 		}
 		return address
 	}
