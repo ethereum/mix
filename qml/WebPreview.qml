@@ -234,13 +234,14 @@ Item {
 				}
 
 				Rectangle {
-					width: 30
-					height: 30
+					width: 23
+					height: 23
+					anchors.verticalCenter: parent.verticalCenter
 					ScenarioButton {
 						id: reloadFrontend
 						text: qsTr("Reload frontend")
-						width: 30
-						height: 30
+						width: 23
+						height: 23
 						roundLeft: true
 						roundRight: true
 						onClicked:
@@ -291,8 +292,8 @@ Item {
 
 				Button
 				{
-					height: 30
-					width: 30
+					height: 25
+					width: 25
 					anchors.verticalCenter: parent.verticalCenter
 					action: expressionAction
 					iconSource: "qrc:/qml/img/console.png"

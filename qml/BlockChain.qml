@@ -82,6 +82,7 @@ ColumnLayout {
 		onCompilationComplete: {
 			if (firstLoad)
 			{
+				firstLoad = false
 				if (runOnProjectLoad)
 					blockChain.build()
 			}

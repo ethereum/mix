@@ -301,12 +301,10 @@ Rectangle {
 				anchors.top: parent.top
 				radius: 10
 				id: roundRect
-				height: 400
+				height: parent.height
 				width: parent.width
 			}
 		}
-
-
 
 		Rectangle
 		{
@@ -403,10 +401,6 @@ Rectangle {
 					PropertyChanges { target: logsShadow; height: 0; visible: false }
 				}
 			]
-			transitions: Transition {
-					 NumberAnimation { properties: "height"; easing.type: Easing.InOutQuad; duration: 200 }
-					 NumberAnimation { target: logsContainer;  properties: "visible"; easing.type: Easing.InOutQuad; duration: 200 }
-			}
 		}
 	}
 
