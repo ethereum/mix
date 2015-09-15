@@ -14,6 +14,13 @@ Rectangle {
 	color: "#ededed"
 	property alias bc: blockChain
 
+	function clear()
+	{
+		loader.clear()
+		watchers.clear()
+		blockChain.clear()
+	}
+
 	Connections
 	{
 		target:  projectModel
@@ -62,10 +69,7 @@ Rectangle {
 				Connections
 				{
 					target: blockChain
-					onChainChanged:
-					{
-						loader.needSaveOrReload()
-					}
+					onChainChanged: loader.needSaveOrReload()
 				}
 
 				Rectangle

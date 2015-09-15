@@ -138,6 +138,8 @@ Item {
 
 		onProjectClosed: {
 			pageListModel.clear();
+			webPreview.setPreviewUrl("")
+			urlInput.text = ""
 		}
 	}
 
@@ -232,13 +234,14 @@ Item {
 				}
 
 				Rectangle {
-					width: 30
-					height: 30
+					width: 23
+					height: 23
+					anchors.verticalCenter: parent.verticalCenter
 					ScenarioButton {
 						id: reloadFrontend
 						text: qsTr("Reload frontend")
-						width: 30
-						height: 30
+						width: 23
+						height: 23
 						roundLeft: true
 						roundRight: true
 						onClicked:
@@ -289,8 +292,8 @@ Item {
 
 				Button
 				{
-					height: 30
-					width: 30
+					height: 25
+					width: 25
 					anchors.verticalCenter: parent.verticalCenter
 					action: expressionAction
 					iconSource: "qrc:/qml/img/console.png"
@@ -325,7 +328,6 @@ Item {
 			Layout.fillHeight: true
 			orientation: codeWebSplitter.orientation === Qt.Horizontal ? Qt.Vertical : Qt.Horizontal
 			WebEngineView {
-
 				Layout.fillHeight: true
 				width: parent.width
 				Layout.preferredWidth: parent.width

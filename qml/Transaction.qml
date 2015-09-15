@@ -125,7 +125,8 @@ RowLayout
 			}
 			onDoubleClicked:
 			{
-				root.editTx(index)
+				if (!isCall)
+					root.editTx(index)
 			}
 		}
 

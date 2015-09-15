@@ -11,8 +11,12 @@ Rectangle {
 	objectName: "statusPane"
 	property variant webPreview
 	property alias currentStatus: logPane.currentStatus
+	property bool projectLoaded: false
+
 	function updateStatus(message)
 	{
+		if (!projectLoaded)
+			return
 		if (!message)
 		{
 			status.state = "";
@@ -32,6 +36,8 @@ Rectangle {
 
 	function infoMessage(text, type)
 	{
+		if (!projectLoaded)
+			return
 		status.state = "";
 		status.text = text
 		logPane.push("info", type, text);
@@ -40,6 +46,8 @@ Rectangle {
 
 	function warningMessage(text, type)
 	{
+		if (!projectLoaded)
+			return
 		status.state = "warning";
 		status.text = text
 		logPane.push("warning", type, text);
@@ -48,6 +56,8 @@ Rectangle {
 
 	function errorMessage(text, type)
 	{
+		if (!projectLoaded)
+			return
 		status.state = "error";
 		status.text = text;
 		logPane.push("error", type, text);
@@ -124,6 +134,19 @@ Rectangle {
 			updateStatus(_error);
 		}
 	}
+
+	Connections
+	{
+		target: projectModel
+		onProjectClosed:
+		{
+			projectLoaded = false
+			statusHeader.clear()
+			logPane.clear()
+		}
+		onProjectLoaded: projectLoaded = true
+	}
+
 
 	color: "transparent"
 	anchors.fill: parent
@@ -278,12 +301,10 @@ Rectangle {
 				anchors.top: parent.top
 				radius: 10
 				id: roundRect
-				height: 400
+				height: parent.height
 				width: parent.width
 			}
 		}
-
-
 
 		Rectangle
 		{
@@ -380,10 +401,6 @@ Rectangle {
 					PropertyChanges { target: logsShadow; height: 0; visible: false }
 				}
 			]
-			transitions: Transition {
-					 NumberAnimation { properties: "height"; easing.type: Easing.InOutQuad; duration: 200 }
-					 NumberAnimation { target: logsContainer;  properties: "visible"; easing.type: Easing.InOutQuad; duration: 200 }
-			}
 		}
 	}
 

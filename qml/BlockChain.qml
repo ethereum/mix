@@ -17,7 +17,7 @@ ColumnLayout {
 	property alias blockChainRepeater: blockChainRepeater
 	property var calls: ({})
 	property variant model
-	property int scenarioIndex
+	property int scenarioIndex: -1
 	property var states: ({})
 	spacing: 0
 	property int previousWidth
@@ -82,6 +82,7 @@ ColumnLayout {
 		onCompilationComplete: {
 			if (firstLoad)
 			{
+				firstLoad = false
 				if (runOnProjectLoad)
 					blockChain.build()
 			}
@@ -151,7 +152,14 @@ ColumnLayout {
 		{
 			var addr = model.accounts[k].address.indexOf("0x") === 0 ? model.accounts[k].address : "0x" + model.accounts[k].address
 			if (addr === address)
-				return model.accounts[k].name
+			{
+				var name = model.accounts[k].name
+				if (address.indexOf(name) === -1)
+					return model.accounts[k].name
+				else
+					return address
+			}
+
 		}
 		return address
 	}
@@ -232,17 +240,25 @@ ColumnLayout {
 	{
 		if (!scenario)
 			return;
-		if (model && firstLoad)
+		if (model && firstLoad && scenarioIndex !== -1)
 			rebuild.startBlinking()
+		clear()
 		model = scenario
 		scenarioIndex = index
 		genesis.scenarioIndex = index
-		states = []
-		blockModel.clear()
 		for (var b in model.blocks)
 			blockModel.append(model.blocks[b])
 		previousWidth = width
 		blockChainRepeater.hideCalls()
+	}
+
+	function clear()
+	{
+		states = []
+		blockModel.clear()
+		scenarioIndex = -1
+		genesis.scenarioIndex = -1
+		rebuild.stopBlinking()
 	}
 
 	property int statusWidth: 30
@@ -640,6 +656,7 @@ ColumnLayout {
 					height: 30
 					roundLeft: true
 					roundRight: true
+					enabled: scenarioIndex !== -1
 					property variant contractsHex: ({})
 					property variant txSha3: ({})
 					property variant accountsSha3
@@ -649,8 +666,11 @@ ColumnLayout {
 
 					function needRebuild(reason)
 					{
-						rebuild.startBlinking()
-						blinkReasons.push(reason)
+						if (scenarioIndex !== -1)
+						{
+							rebuild.startBlinking()
+							blinkReasons.push(reason)
+						}
 					}
 
 					function containsRebuildCause(reason)
@@ -791,6 +811,7 @@ ColumnLayout {
 				ScenarioButton {
 					id: addTransaction
 					text: qsTr("Add Tx...")
+					enabled: scenarioIndex !== -1
 					onClicked:
 					{
 						if (model && model.blocks)
@@ -838,6 +859,7 @@ ColumnLayout {
 					id: addBlockBtn
 					text: qsTr("Add Block")
 					anchors.left: addTransaction.right
+					enabled: scenarioIndex !== -1
 					roundLeft: false
 					roundRight: true
 					onClicked:
@@ -984,6 +1006,7 @@ ColumnLayout {
 				height: 30
 				ScenarioButton {
 					id: newAccount
+					enabled: scenarioIndex !== -1
 					text: qsTr("New Account...")
 					onClicked: {
 						newAddressWin.accounts = model.accounts

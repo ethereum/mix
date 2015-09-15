@@ -297,20 +297,27 @@ Dialog {
 										}
 
 										DefaultTextField {
+											property bool first: true
 											anchors.top: parent.top
 											Layout.preferredWidth: 100
 											onTextChanged: {
-												if (styleData.row > -1 && stateAccounts[styleData.row]) {
+												if (styleData.row > -1 && stateAccounts[styleData.row])
+												{
 													stateAccounts[styleData.row].name = text
 													var index = comboMiner.currentIndex
 													comboMiner.model = stateAccounts
 													comboMiner.currentIndex = index
 												}
-												cursorPosition = 0
+												if (first)
+												{
+													addressField.cursorPosition = 0
+													first = false
+												}
 											}
 											text: {
 												return styleData.value
 											}
+											id: addressField
 
 											DisableInput
 											{

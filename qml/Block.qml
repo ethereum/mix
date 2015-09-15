@@ -139,14 +139,11 @@ ColumnLayout
 				anchors.rightMargin: 14
 				visible: number === -2
 				height: 25
-				MouseArea
+				enabled: scenarioIndex !== -1
+				onClicked:
 				{
-					anchors.fill: parent
-					onClicked:
-					{
-						// load edit block panel
-						projectModel.stateListModel.editState(scenarioIndex)
-					}
+					// load edit block panel
+					projectModel.stateListModel.editState(scenarioIndex)
 				}
 			}
 		}

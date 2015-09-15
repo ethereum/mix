@@ -189,6 +189,17 @@ Rectangle {
 					}
 				}
 
+				Connections
+				{
+					target: projectModel
+					onProjectClosed:
+					{
+						if (debugPanel.visible)
+							debugPanel.close()
+						scenarioExe.clear()
+					}
+				}
+
 				ScenarioExecution
 				{
 					id: scenarioExe;
@@ -207,6 +218,13 @@ Rectangle {
 					Keys.onEscapePressed: visible = false
 					Layout.minimumWidth: scenarioMinWidth
 					anchors.right: parent.right
+					function close()
+					{
+						debugPanel.visible = false
+						scenarioExe.visible = true
+						scenarioExe.width = debugPanel.width
+						scenarioExe.forceActiveFocus()
+					}
 				}
 
 				Connections {
@@ -223,10 +241,7 @@ Rectangle {
 				Connections {
 					target: debugPanel
 					onPanelClosed:  {
-						debugPanel.visible = false
-						scenarioExe.visible = true
-						scenarioExe.width = debugPanel.width
-						scenarioExe.forceActiveFocus()
+						debugPanel.close()
 					}
 				}
 			}
