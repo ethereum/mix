@@ -23,6 +23,7 @@ ColumnLayout
 	signal closed()
 	property alias selectedScenarioIndex: scenarioList.currentIndex
 	property bool panelLoaded: false
+    property int rowbtnWidth: 100
 	spacing: 0
 	function init()
 	{
@@ -50,17 +51,29 @@ ColumnLayout
 		else
 			w = 100
 		updatebtnWidth(w)
-		console.log(_width)
-		if (_width < 800)
+		//console.log(_width)
+        if (_width < 824)
+            btnRowContainer.anchors.horizontalCenter = undefined
+        else
+            btnRowContainer.anchors.horizontalCenter = btnRowContainer.parent.horizontalCenter
+            
+        console.log(_width - scenarioCont.width)
+        if (_width < 877)
+            rowBtn.width = _width - scenarioCont.width - 100
+        else
+            rowBtn.width = 600
+            
+        updatebtnWidth(rowBtn.width / 6 < 40 ? 40 : rowBtn.width / 6)
+        scenarioLabel.visible = rowBtn.width / 6 > 80
+		/*if (_width < 1000)
 		{
 			rowBtn.anchors.top = scenarioCont.bottom
-			rowBtn.anchors.topMargin = 5
+			rowBtn.anchors.topMargin = 2
 			rowBtn.anchors.left = scenarioCont.parent.left
 			rowBtn.anchors.leftMargin = 0
 			btnRowContainer.anchors.horizontalCenter = undefined
-			scenarioCont.anchors.topMargin = -15
 			updatebtnWidth(40)
-		}
+        }
 		else
 		{
 			rowBtn.anchors.top = scenarioCont.parent.top
@@ -68,8 +81,7 @@ ColumnLayout
 			rowBtn.anchors.left = scenarioCont.right
 			rowBtn.anchors.leftMargin = 25
 			btnRowContainer.anchors.horizontalCenter = btnRowContainer.parent.horizontalCenter
-			scenarioCont.anchors.topMargin = 0
-		}
+        }*/
 	}
 
 	function updatebtnWidth(w)
@@ -86,17 +98,17 @@ ColumnLayout
 	RowLayout
 	{
 		anchors.horizontalCenter: parent.horizontalCenter
-		Layout.preferredHeight: 75
+		//Layout.preferredHeight: 75
 		spacing: 0
 		anchors.top: parent.top
-		anchors.topMargin: 10
+		anchors.topMargin: 5
 		id: btnRowContainer
 		property int minimalWidth: 100 * 6 + 180
 
 		Item
 		{
 			Layout.preferredWidth: parent.minimalWidth
-			Layout.preferredHeight: 50
+			Layout.preferredHeight: 40
 			Rectangle
 			{
 				color: "white"
@@ -107,7 +119,7 @@ ColumnLayout
 				Rectangle
 				{
 					anchors.top: parent.bottom
-					anchors.topMargin: 15
+					anchors.topMargin: 8
 					width: parent.width
 					Label
 					{

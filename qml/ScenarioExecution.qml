@@ -54,13 +54,15 @@ Rectangle {
 			Layout.preferredWidth: parent.width
 			anchors.left: parent.left
 			anchors.leftMargin: 15
+            spacing: 0
 			ColumnLayout
 			{				
 				id: scenarioColumn
 				width: parent.width
+            
 				ScenarioLoader
 				{
-					Layout.preferredHeight: 75
+					Layout.preferredHeight: 50
 					Layout.preferredWidth: parent.width
 					width: parent.width
 					id: loader
@@ -137,7 +139,7 @@ Rectangle {
 				id: watchers
 				bc: blockChain
 				Layout.fillWidth: true
-				Layout.preferredHeight: 800
+				Layout.preferredHeight: 520
 			}
 
 			Rectangle

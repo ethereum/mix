@@ -77,11 +77,11 @@ Rectangle
 	Rectangle {
 		color: selectedTxColor
 		anchors.fill: parent
-		anchors.margins: 10
+        anchors.margins: 10
 		radius: 4
 		Column {
 			anchors.fill: parent
-			spacing: 15
+			spacing: 5
 			Rectangle
 			{
 				height: 20 * 3
@@ -93,7 +93,7 @@ Rectangle
 				{
 					height: parent.height
 					anchors.top: parent.top
-					anchors.topMargin: 5
+					anchors.topMargin: 2
 					Row
 					{
 						Layout.preferredWidth: parent.width
@@ -183,7 +183,7 @@ Rectangle
 
 			KeyValuePanel
 			{
-				height: 150
+				height: 100
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
 				id: inputParams
@@ -194,7 +194,7 @@ Rectangle
 
 			KeyValuePanel
 			{
-				height: 150
+				height: 100
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
 				id: returnParams
@@ -205,7 +205,7 @@ Rectangle
 
 			KeyValuePanel
 			{
-				height: 150
+				height: 100
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
 				id: accounts
@@ -229,7 +229,7 @@ Rectangle
 
 			KeyValuePanel
 			{
-				height: 150
+				height: 100
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
 				id: events
