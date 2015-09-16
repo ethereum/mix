@@ -258,11 +258,6 @@ ColumnLayout {
 	property int horizontalMargin: 10
 	property int cellSpacing: 10
 
-	//RowLayout
-	//{
-//		Layout.preferredHeight: 2
-//	}
-
 	Rectangle
 	{
 		MouseArea

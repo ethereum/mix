@@ -51,7 +51,6 @@ ColumnLayout
 		else
 			w = 100
 		updatebtnWidth(w)
-		//console.log(_width)
         if (_width < 824)
             btnRowContainer.anchors.horizontalCenter = undefined
         else
@@ -65,23 +64,6 @@ ColumnLayout
             
         updatebtnWidth(rowBtn.width / 6 < 40 ? 40 : rowBtn.width / 6)
         scenarioLabel.visible = rowBtn.width / 6 > 80
-		/*if (_width < 1000)
-		{
-			rowBtn.anchors.top = scenarioCont.bottom
-			rowBtn.anchors.topMargin = 2
-			rowBtn.anchors.left = scenarioCont.parent.left
-			rowBtn.anchors.leftMargin = 0
-			btnRowContainer.anchors.horizontalCenter = undefined
-			updatebtnWidth(40)
-        }
-		else
-		{
-			rowBtn.anchors.top = scenarioCont.parent.top
-			rowBtn.anchors.topMargin = 0
-			rowBtn.anchors.left = scenarioCont.right
-			rowBtn.anchors.leftMargin = 25
-			btnRowContainer.anchors.horizontalCenter = btnRowContainer.parent.horizontalCenter
-        }*/
 	}
 
 	function updatebtnWidth(w)
@@ -98,7 +80,6 @@ ColumnLayout
 	RowLayout
 	{
 		anchors.horizontalCenter: parent.horizontalCenter
-		//Layout.preferredHeight: 75
 		spacing: 0
 		anchors.top: parent.top
 		anchors.topMargin: 5
