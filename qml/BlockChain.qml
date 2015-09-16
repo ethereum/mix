@@ -126,18 +126,8 @@ ColumnLayout {
 	onWidthChanged:
 	{
 		var minWidth = scenarioMinWidth - 20 // margin
-		if (width <= minWidth || previousWidth <= minWidth)
-		{
-			fromWidth = 250
-			toWidth = 240
-		}
-		else
-		{
-			var diff = (width - previousWidth) / 3;
-			fromWidth = fromWidth + diff < 250 ? 250 : fromWidth + diff
-			toWidth = toWidth + diff
-		}
-
+		fromWidth = width / 2
+		toWidth = width / 2
 		if (width < 500)
 			btnsContainer.Layout.preferredWidth = width - 30
 		else

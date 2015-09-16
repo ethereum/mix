@@ -56,7 +56,7 @@ Dialog {
 				{
 					id: addressText
 					anchors.verticalCenter: parent.verticalCenter
-					Layout.preferredWidth: 575
+					Layout.preferredWidth: 565
 				}
 
 				Button

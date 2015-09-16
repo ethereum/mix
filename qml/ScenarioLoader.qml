@@ -50,7 +50,8 @@ ColumnLayout
 		else
 			w = 100
 		updatebtnWidth(w)
-		if (_width < 600)
+		console.log(_width)
+		if (_width < 800)
 		{
 			rowBtn.anchors.top = scenarioCont.bottom
 			rowBtn.anchors.topMargin = 5
