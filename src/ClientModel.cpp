@@ -603,7 +603,7 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 			if (instruction.type() == eth::Push)
 			{
 				//register new local variable initialization
-				auto localIter = contract->locals().find(LocationPair(instruction.getLocation().start, instruction.getLocation().end));
+				auto localIter = contract->locals().find(LocationPair(instruction.location().start, instruction.location().end));
 				if (localIter != contract->locals().end())
 				{					
 					if (localDecl.find(localIter.value().name) == localDecl.end())
@@ -618,7 +618,7 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 			{
 				//track calls into functions
 				AssemblyItem const& prevInstruction = codeItems[s.codeIndex][prevInstructionIndex];
-				QString functionName = m_codeModel->resolveFunctionName(instruction.getLocation());
+				QString functionName = m_codeModel->resolveFunctionName(instruction.location());
 				if (!functionName.isEmpty() && ((prevInstruction.getJumpType() == AssemblyItem::JumpType::IntoFunction) || solCallStack.empty()))
 					solCallStack.push_front(QVariant::fromValue(functionName));
 				else if (prevInstruction.getJumpType() == AssemblyItem::JumpType::OutOfFunction && !solCallStack.empty())
@@ -688,14 +688,14 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 			prevInstructionIndex = instructionIndex;
 
 			// filter out locations that match whole function or contract
-			SourceLocation location = instruction.getLocation();
+			SourceLocation instructionLocation = instruction.location();
 			QString source;
-			if (location.sourceName)
-				source = QString::fromUtf8(location.sourceName->c_str());
-			if (m_codeModel->isContractOrFunctionLocation(location))
-				location = dev::SourceLocation(-1, -1, location.sourceName);
+			if (instructionLocation.sourceName)
+				source = QString::fromUtf8(instructionLocation.sourceName->c_str());
+			if (m_codeModel->isContractOrFunctionLocation(instructionLocation))
+				instructionLocation = dev::SourceLocation(-1, -1, instructionLocation.sourceName);
 
-			solState = new QSolState(debugData, move(storage), move(solCallStack), move(locals), location.start, location.end, source);
+			solState = new QSolState(debugData, move(storage), move(solCallStack), move(locals), instructionLocation.start, instructionLocation.end, source);
 		}
 		states.append(QVariant::fromValue(new QMachineState(debugData, instructionIndex, s, codes[s.codeIndex], data[s.dataIndex], solState)));
 	}

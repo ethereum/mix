@@ -58,7 +58,7 @@ namespace
 
 		virtual bool visit(ImportDirective const& _node)
 		{
-			m_formats->push_back(CodeHighlighter::FormatRange(CodeHighlighterSettings::Import, _node.getLocation()));
+			m_formats->push_back(CodeHighlighter::FormatRange(CodeHighlighterSettings::Import, _node.location()));
 			return true;
 		}
 	};
@@ -73,18 +73,18 @@ void CodeHighlighter::processSource(std::string const& _source)
 	processComments(_source);
 	solidity::CharStream stream(_source);
 	solidity::Scanner scanner(stream);
-	solidity::Token::Value token = scanner.getCurrentToken();
+	solidity::Token::Value token = scanner.currentToken();
 	while (token != Token::EOS)
 	{
 		if ((token >= Token::Break && token < Token::TypesEnd) ||
 				token == Token::In || token == Token::Delete || token == Token::NullLiteral || token == Token::TrueLiteral || token == Token::FalseLiteral)
-			m_formats.push_back(FormatRange(CodeHighlighterSettings::Keyword, scanner.getCurrentLocation()));
+			m_formats.push_back(FormatRange(CodeHighlighterSettings::Keyword, scanner.currentLocation()));
 		else if (token == Token::StringLiteral)
-			m_formats.push_back(FormatRange(CodeHighlighterSettings::StringLiteral, scanner.getCurrentLocation()));
+			m_formats.push_back(FormatRange(CodeHighlighterSettings::StringLiteral, scanner.currentLocation()));
 		else if (token == Token::CommentLiteral)
-			m_formats.push_back(FormatRange(CodeHighlighterSettings::Comment, scanner.getCurrentLocation()));
+			m_formats.push_back(FormatRange(CodeHighlighterSettings::Comment, scanner.currentLocation()));
 		else if (token == Token::Number)
-			m_formats.push_back(FormatRange(CodeHighlighterSettings::NumLiteral, scanner.getCurrentLocation()));
+			m_formats.push_back(FormatRange(CodeHighlighterSettings::NumLiteral, scanner.currentLocation()));
 
 		token = scanner.next();
 	}

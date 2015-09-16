@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.0.0)
 
 # A place where should we look for *.cmake files
-set(ETH_CMAKE_DIR   "${CMAKE_CURRENT_LIST_DIR}/../cpp-ethereum-cmake"   CACHE PATH "The the path to the cmake directory")
+set(ETH_CMAKE_DIR   "${CMAKE_CURRENT_LIST_DIR}/../webthree-helpers/cmake"   CACHE PATH "The the path to the cmake directory")
 list(APPEND CMAKE_MODULE_PATH ${ETH_CMAKE_DIR})
 
 # Set cmake_policies
@@ -23,6 +23,10 @@ include(EthExecutableHelper)
 
 # Include utils
 include(EthUtils)
+
+include(EthOptions)
+configure_project()
+print_config()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 aux_source_directory("./src" SRC_LIST)
@@ -52,20 +56,13 @@ eth_add_executable(${EXECUTABLE}
 eth_use(${EXECUTABLE} REQUIRED Qt::Core Qt::Widgets Qt::WebEngine Eth::ethereum Web3::web3jsonrpc)
 eth_use(${EXECUTABLE} OPTIONAL Solidity)
 
-eth_package(${EXECUTABLE}
-	NAME "Mix"
-	DESCRIPTION "Mix IDE"
-	WIN_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/mix.ico"
-	OSX_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/mix.icns"
-)
-
 # eth_install_executable is defined in cmake/EthExecutableHelper.cmake
 eth_install_executable(${EXECUTABLE}
 	QMLDIR ${CMAKE_CURRENT_SOURCE_DIR}/qml
 )
 
 #generate web3.qrc
-set(ETH_WEB3JS_SOURCES ${ETH_DIR}/libjsqrc/setup.js ${ETH_DIR}/libjsqrc/admin.js ${ETH_DIR}/libjsqrc/ethereumjs/dist/web3.js)
+set(ETH_WEB3JS_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../webthree-helpers/js/setup.js ${CMAKE_CURRENT_SOURCE_DIR}/../webthree-helpers/js/admin.js ${CMAKE_CURRENT_SOURCE_DIR}/../web3.js/dist/web3.js)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/web3.qrc
 	DEPENDS ${ETH_WEB3JS_SOURCES}
 	COMMAND ${CMAKE_COMMAND} -DETH_RES_FILES="${ETH_WEB3JS_SOURCES}" -DETH_QRC_DEST="${CMAKE_CURRENT_BINARY_DIR}/web3.qrc" -P "${ETH_SCRIPTS_DIR}/genqrc.cmake"
