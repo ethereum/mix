@@ -25,9 +25,7 @@
 #include <QUrl>
 #include <QIcon>
 #include <QFont>
-#ifdef ETH_HAVE_WEBENGINE
 #include <QtWebEngine/QtWebEngine>
-#endif
 #include "CodeModel.h"
 #include "ClientModel.h"
 #include "FileIo.h"
@@ -38,17 +36,11 @@
 #include "HttpServer.h"
 #include "InverseMouseArea.h"
 
-extern int qInitResources_js();
 using namespace dev::mix;
-
-
-
 
 ApplicationService::ApplicationService()
 {
-#ifdef ETH_HAVE_WEBENGINE
 	QtWebEngine::initialize();
-#endif
 	QFont f;
 	m_systemPointSize = f.pointSize();
 }
@@ -71,9 +63,6 @@ void MixApplication::initialize()
 #if (defined(_WIN32) || defined(_WIN64))
 	if (!getenv("OPENSSL_CONF"))
 		putenv((char*)"OPENSSL_CONF=c:\\");
-#endif
-#ifdef ETH_HAVE_WEBENGINE
-	qInitResources_js();
 #endif
 
 	setOrganizationName(tr("Ethereum"));

@@ -10,15 +10,35 @@ import "."
 
 
 Rectangle {
+	id: root
 	color: "#ededed"
 	property alias bc: blockChain
+
+	function clear()
+	{
+		loader.clear()
+		watchers.clear()
+		blockChain.clear()
+	}
 
 	Connections
 	{
 		target:  projectModel
 		onProjectLoaded: {
+			if (projectModel.stateListModel.defaultStateIndex)
+				loader.selectedScenarioIndex = projectModel.stateListModel.defaultStateIndex
 			loader.init()
 		}
+	}
+
+	onActiveFocusChanged:
+	{
+		blockChain.forceActiveFocus()
+	}
+
+	onWidthChanged:
+	{
+		loader.updateWidth(width)
 	}
 
 	ScrollView
@@ -38,23 +58,18 @@ Rectangle {
 			{				
 				id: scenarioColumn
 				width: parent.width
-				spacing: 10				
 				ScenarioLoader
 				{
-					anchors.horizontalCenter: parent.horizontalCenter
-					height: 100
-					Layout.preferredWidth: 400
-					width: 400
+					Layout.preferredHeight: 75
+					Layout.preferredWidth: parent.width
+					width: parent.width
 					id: loader
 				}
 
 				Connections
 				{
 					target: blockChain
-					onChainChanged:
-					{
-						loader.needSaveOrReload()
-					}
+					onChainChanged: loader.needSaveOrReload()
 				}
 
 				Rectangle
@@ -71,13 +86,14 @@ Rectangle {
 					{
 						watchers.clear()
 						blockChain.load(scenario, loader.selectedScenarioIndex)
+						blockChain.forceActiveFocus()
 					}
 				}
 
 				BlockChain
 				{
 					id: blockChain
-					width: parent.width
+					Layout.preferredWidth: parent.width
 				}
 
 				Connections
@@ -89,14 +105,21 @@ Rectangle {
 					{
 						currentSelectedBlock = blockIndex
 						currentSelectedTx = txIndex
-						updateWatchers(blockIndex, txIndex)
+						updateWatchers(blockIndex, txIndex, callIndex)
 					}
 
-					function updateWatchers(blockIndex, txIndex)
+					function updateWatchers(blockIndex, txIndex, callIndex)
 					{
-						var tx = blockChain.model.blocks[blockIndex].transactions[txIndex]
+						var tx;
+						if (callIndex === -1)
+							tx = blockChain.model.blocks[blockIndex].transactions[txIndex]
+						else
+						{
+							var calls = blockChain.calls[JSON.stringify([blockIndex, txIndex])]
+							tx = calls[callIndex]
+						}
 						var state = blockChain.getState(tx.recordIndex)
-						watchers.updateWidthTx(tx, state, blockIndex, txIndex)
+						watchers.updateWidthTx(tx, state, blockIndex, txIndex, callIndex)
 					}
 
 					onRebuilding: {
@@ -114,7 +137,7 @@ Rectangle {
 				id: watchers
 				bc: blockChain
 				Layout.fillWidth: true
-				Layout.preferredHeight: 740
+				Layout.preferredHeight: 800
 			}
 
 			Rectangle

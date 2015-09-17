@@ -51,6 +51,17 @@ ColumnLayout
 		return accountRef.get(trCombobox.currentIndex);
 	}
 
+	function getAddress()
+	{
+		var value = ctrModel.get(trCombobox.currentIndex).value
+		if (value.indexOf("0x") === 0)
+			return value
+		else if (value.indexOf("<") === 0)
+			return clientModel.contractAddresses[value]
+		else
+			return value
+	}
+
 	function load()
 	{
 		accountRef.clear();
@@ -153,7 +164,7 @@ ColumnLayout
 			property bool selected: false
 			id: trCombobox
 			model: ctrModel
-			width: 265
+			width: 350
 			textRole: "itemid"
 			function update()
 			{
@@ -169,16 +180,14 @@ ColumnLayout
 					trCombobox.selected = true;
 				}
 				else if (textinput.text.indexOf("<") === 0)
-				{
 					textinput.text = "";
-				}
 				indexChanged();
 			}
 
 			onCurrentIndexChanged: {
 				if (!isArray())
 					update()
-			}
+			}			
 		}
 
 		Button

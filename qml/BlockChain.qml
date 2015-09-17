@@ -15,17 +15,37 @@ ColumnLayout {
 	id: blockChainPanel
 	property alias trDialog: transactionDialog
 	property alias blockChainRepeater: blockChainRepeater
+	property var calls: ({})
 	property variant model
-	property int scenarioIndex
+	property int scenarioIndex: -1
 	property var states: ({})
 	spacing: 0
 	property int previousWidth
 	property variant debugTrRequested: []
 	signal chainChanged(var blockIndex, var txIndex, var item)
 	signal chainReloaded
-	signal txSelected(var blockIndex, var txIndex)
+	signal txSelected(var blockIndex, var txIndex, var callIndex)
 	signal rebuilding
 	signal accountAdded(string address, string amount)
+	signal changeSelection(var current, var next, var direction)
+	property bool firstLoad: true
+
+	Keys.onUpPressed:
+	{
+		var prev = blockModel.getPrevItem(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
+		blockChainRepeater.select(prev[0], prev[1], prev.length > 2 ? prev[2] : -1)
+	}
+
+	Keys.onDownPressed:
+	{
+		var next = blockModel.getNextItem(blockChainRepeater.blockSelected, blockChainRepeater.txSelected)
+		blockChainRepeater.select(next[0], next[1], next.length > 2 ? next[2] : -1)
+	}
+
+	function build()
+	{
+		rebuild.build()
+	}
 
 	Connections
 	{
@@ -50,46 +70,57 @@ ColumnLayout {
 	{
 		target: codeModel
 		onContractRenamed: {
+			if (firstLoad)
+				return
 			rebuild.needRebuild("ContractRenamed")
 		}
 		onNewContractCompiled: {
+			if (firstLoad)
+				return
 			rebuild.needRebuild("NewContractCompiled")
 		}
 		onCompilationComplete: {
-			for (var c in rebuild.contractsHex)
+			if (firstLoad)
 			{
-				if (codeModel.contracts[c] === undefined || codeModel.contracts[c].codeHex !== rebuild.contractsHex[c])
-				{
-					if (!rebuild.containsRebuildCause("CodeChanged"))
-					{
-						rebuild.needRebuild("CodeChanged")
-					}
-					return
-				}
+				firstLoad = false
+				if (runOnProjectLoad)
+					blockChain.build()
 			}
-			rebuild.notNeedRebuild("CodeChanged")
+			else
+			{
+				for (var c in rebuild.contractsHex)
+				{
+					if (codeModel.contracts[c] === undefined || codeModel.contracts[c].codeHex !== rebuild.contractsHex[c])
+					{
+						if (!rebuild.containsRebuildCause("CodeChanged"))
+							rebuild.needRebuild("CodeChanged")
+						return
+					}
+				}
+				rebuild.notNeedRebuild("CodeChanged")
+			}
 		}
 	}
 
 
 	onChainChanged: {
-			if (rebuild.txSha3[blockIndex][txIndex] !== codeModel.sha3(JSON.stringify(model.blocks[blockIndex].transactions[txIndex])))
+		if (rebuild.txSha3[blockIndex][txIndex] !== codeModel.sha3(JSON.stringify(model.blocks[blockIndex].transactions[txIndex])))
+		{
+			rebuild.txChanged.push(rebuild.txSha3[blockIndex][txIndex])
+			rebuild.needRebuild("txChanged")
+		}
+		else {
+			for (var k in rebuild.txChanged)
 			{
-				rebuild.txChanged.push(rebuild.txSha3[blockIndex][txIndex])
-				rebuild.needRebuild("txChanged")
-			}
-			else {
-				for (var k in rebuild.txChanged)
+				if (rebuild.txChanged[k] === rebuild.txSha3[blockIndex][txIndex])
 				{
-					if (rebuild.txChanged[k] === rebuild.txSha3[blockIndex][txIndex])
-					{
-						rebuild.txChanged.splice(k, 1)
-						break
-					}
+					rebuild.txChanged.splice(k, 1)
+					break
 				}
-				if (rebuild.txChanged.length === 0)
-					rebuild.notNeedRebuild("txChanged")
 			}
+			if (rebuild.txChanged.length === 0)
+				rebuild.notNeedRebuild("txChanged")
+		}
 	}
 
 	onWidthChanged:
@@ -104,9 +135,100 @@ ColumnLayout {
 		{
 			var diff = (width - previousWidth) / 3;
 			fromWidth = fromWidth + diff < 250 ? 250 : fromWidth + diff
-			toWidth = toWidth + diff < 240 ? 240 : toWidth + diff
+			toWidth = toWidth + diff
 		}
+
+		if (width < 500)
+			btnsContainer.Layout.preferredWidth = width - 30
+		else
+			btnsContainer.Layout.preferredWidth = 500
+
 		previousWidth = width
+	}
+
+	function getAccountNickname(address)
+	{
+		for (var k = 0; k < model.accounts.length; ++k)
+		{
+			var addr = model.accounts[k].address.indexOf("0x") === 0 ? model.accounts[k].address : "0x" + model.accounts[k].address
+			if (addr === address)
+			{
+				var name = model.accounts[k].name
+				if (address.indexOf(name) === -1)
+					return model.accounts[k].name
+				else
+					return address
+			}
+
+		}
+		return address
+	}
+
+	function addContractAddress(token, label, truncate)
+	{
+		var addr = getContractAddress(token)
+		if (addr === token)
+			return label
+		else
+		{
+			addr = truncate ? addr.substring(0, 10) + "..." : addr
+			return addr + " (" + label.replace(token, TransactionHelper.contractFromToken(label)) + ")"
+		}
+	}
+
+	function getContractAddress(token)
+	{
+		for (var k in clientModel.contractAddresses)
+		{
+			if (k === token)
+				return clientModel.contractAddresses[k]
+		}
+		return token
+	}
+
+	function addAccountNickname(address, truncate)
+	{
+		var name = getAccountNickname(address)
+		if (address !== name)
+		{
+			var addr = truncate ? address.substring(0, 10) + "..." : address
+			return addr + " (" + name + ")"
+		}
+		else
+			return address
+	}
+
+	function addContractName(address, truncate)
+	{
+		for (var k in clientModel.contractAddresses)
+		{
+			var addr = clientModel.contractAddresses[k].indexOf("0x") === 0 ? clientModel.contractAddresses[k] : "0x" + clientModel.contractAddresses[k]
+			if (address === addr)
+			{
+				var name = TransactionHelper.contractFromToken(k)
+				if (name !== k)
+				{
+					addr = truncate ? addr.substring(0, 10) + "..." : addr
+					return addr + " (" + name  + ")"
+				}
+			}
+		}
+		return address
+	}
+
+	function formatRecipientLabel(_tx)
+	{
+		if (!_tx.isFunctionCall)
+		{
+			if (_tx.contractId.indexOf("0x") === 0)
+				return addAccountNickname(_tx.contractId, true)
+			else
+				return addContractAddress(_tx.contractId, _tx.contractId, true)
+		}
+		else if (_tx.isContractCreation)
+			return _tx.label
+		else
+			return addContractAddress(_tx.contractId, _tx.label, true)
 	}
 
 	function getState(record)
@@ -118,16 +240,25 @@ ColumnLayout {
 	{
 		if (!scenario)
 			return;
-		if (model)
+		if (model && firstLoad && scenarioIndex !== -1)
 			rebuild.startBlinking()
+		clear()
 		model = scenario
 		scenarioIndex = index
 		genesis.scenarioIndex = index
-		states = []
-		blockModel.clear()
 		for (var b in model.blocks)
 			blockModel.append(model.blocks[b])
 		previousWidth = width
+		blockChainRepeater.hideCalls()
+	}
+
+	function clear()
+	{
+		states = []
+		blockModel.clear()
+		scenarioIndex = -1
+		genesis.scenarioIndex = -1
+		rebuild.stopBlinking()
 	}
 
 	property int statusWidth: 30
@@ -144,6 +275,14 @@ ColumnLayout {
 
 	Rectangle
 	{
+		MouseArea
+		{
+			anchors.fill: parent
+			onClicked:
+			{
+				blockChainPanel.forceActiveFocus()
+			}
+		}
 		Layout.preferredHeight: 500
 		Layout.preferredWidth: parent.width
 		border.color: "#cccccc"
@@ -160,33 +299,104 @@ ColumnLayout {
 				width: parent.width
 				spacing: 20
 
-				Block
+
+				Rectangle
 				{
-					id: genesis
-					scenario: blockChainPanel.model
-					scenarioIndex: scenarioIndex
+					Layout.preferredHeight: 80
 					Layout.preferredWidth: blockChainScrollView.width
-					Layout.preferredHeight: 60
-					blockIndex: -1
-					transactions: []
-					status: ""
-					number: -2
-					trHeight: 60
+					color: "transparent"
+
+					Connections
+					{
+						id: displayCallConnection
+						target: mainContent
+						onDisplayCallsChanged:
+						{
+							updateCalls()
+						}
+
+						Component.onCompleted:
+						{
+							blockChainRepeater.callsDisplayed = mainContent.displayCalls
+						}
+
+						function updateCalls()
+						{
+							blockChainRepeater.callsDisplayed = mainContent.displayCalls
+							if (mainContent.displayCalls)
+								blockChainRepeater.displayCalls()
+							else
+								blockChainRepeater.hideCalls()
+						}
+					}
+
+					Block
+					{
+						id: genesis
+						scenario: blockChainPanel.model
+						scenarioIndex: scenarioIndex
+						Layout.preferredWidth: blockChainScrollView.width
+						Layout.preferredHeight: 60
+						width: blockChainScrollView.width
+						height: 60
+						blockIndex: -1
+						transactions: []
+						status: ""
+						number: -2
+						trHeight: 60
+					}
+				}
+
+				Connections
+				{
+					target: projectModel.stateDialog
+					onAccepted:
+					{
+						blockChainPanel.forceActiveFocus()
+					}
+					onClosed:
+					{
+						blockChainPanel.forceActiveFocus()
+					}
 				}
 
 				Repeater // List of blocks
 				{
 					id: blockChainRepeater
 					model: blockModel
+					property bool callsDisplayed
+					property int blockSelected
+					property int txSelected
+					property int callSelected: 0
 
 					function editTx(blockIndex, txIndex)
 					{
 						itemAt(blockIndex).editTx(txIndex)
 					}
 
-					function select(blockIndex, txIndex)
+					function select(blockIndex, txIndex, callIndex)
 					{
-						itemAt(blockIndex).select(txIndex)
+						blockSelected = blockIndex
+						txSelected = txIndex
+						callSelected = callIndex
+						if (itemAt(blockIndex))
+							itemAt(blockIndex).select(txIndex, callIndex)
+						blockChainPanel.forceActiveFocus()
+					}
+
+					function displayCalls()
+					{
+						for (var k in blockChainPanel.calls)
+						{
+							var ref = JSON.parse(k)
+							itemAt(ref[0]).displayNextCalls(ref[1], blockChainPanel.calls[k])
+						}
+					}
+
+					function hideCalls()
+					{
+						for (var k = 0; k < blockChainRepeater.count; k++)
+							blockChainRepeater.itemAt(k).hideNextCalls()
 					}
 
 					Block
@@ -196,9 +406,22 @@ ColumnLayout {
 							target: block
 							onTxSelected:
 							{
-								blockChainPanel.txSelected(index, txIndex)
+								blockChainRepeater.blockSelected = blockIndex
+								blockChainRepeater.txSelected = txIndex
+								blockChainRepeater.callSelected = callIndex
+								blockChainPanel.txSelected(index, txIndex, callIndex)
 							}
 						}
+
+						Connections
+						{
+							target: blockChainRepeater
+							onCallsDisplayedChanged:
+							{
+								block.Layout.preferredHeight = block.calculateHeight()
+							}
+						}
+
 						id: block
 						scenario: blockChainPanel.model
 						Layout.preferredWidth: blockChainScrollView.width
@@ -286,30 +509,154 @@ ColumnLayout {
 		{
 			blockModel.get(blockIndex).transactions.set(trIndex, { propertyName: value })
 		}
+
+		function getNextItem(blockIndex, txIndex)
+		{
+			var next = [blockIndex, txIndex]
+			if (!blockChainRepeater.callsDisplayed)
+			{
+				next = getNextTx(blockIndex, txIndex)
+				next.push(-1)
+			}
+			else
+			{
+				if (isLastCall())
+				{
+					next = getNextTx(blockIndex, txIndex)
+					next.push(-1)
+				}
+				else
+					next.push(blockChainRepeater.callSelected + 1)
+			}
+			return next
+		}
+
+		function getPrevItem(blockIndex, txIndex)
+		{
+			var prev = [blockIndex, txIndex]
+			if (!blockChainRepeater.callsDisplayed)
+			{
+				prev = getPrevTx(blockIndex, txIndex)
+				prev.push(-1)
+			}
+			else
+			{
+				if (blockChainRepeater.callSelected === -1)
+				{
+					prev = getPrevTx(blockIndex, txIndex)
+					var current = blockChainPanel.calls[JSON.stringify(prev)]
+					if (current)
+						prev.push(current.length - 1)
+				}
+				else
+					prev.push(blockChainRepeater.callSelected - 1)
+			}
+			return prev
+		}
+
+		function getNextTx(blockIndex, txIndex)
+		{
+			var next = []
+			var nextTx = txIndex
+			var nextBlock = blockIndex
+			var txCount = blockModel.get(blockIndex).transactions.count;
+			if (txCount - 1 > txIndex)
+				nextTx = txIndex + 1
+			else if (blockModel.count - 1 > blockIndex)
+			{
+				nextTx = 0;
+				nextBlock = blockIndex + 1
+			}
+			else
+				nextTx = 0
+			next.push(nextBlock)
+			next.push(nextTx)
+			return next
+		}
+
+		function getPrevTx(blockIndex, txIndex)
+		{
+			var prev = []
+			var prevTx = txIndex
+			var prevBlock = blockIndex
+			if (txIndex === 0 && blockIndex !== 0)
+			{
+				prevBlock = blockIndex - 1
+				prevTx = blockModel.get(prevBlock).transactions.count - 1
+			}
+			else if (txIndex > 0)
+				prevTx = txIndex - 1
+			prev.push(prevBlock)
+			prev.push(prevTx)
+			return prev;
+		}
+
+		function isFirstCall()
+		{
+			var call = blockChainRepeater.callSelected
+			return (call === 0)
+		}
+
+		function isLastCall()
+		{
+			var i = [blockChainRepeater.blockSelected, blockChainRepeater.txSelected]
+			var current = blockChainPanel.calls[JSON.stringify(i)]
+			if (current)
+			{
+				var callnb = current.length
+				var call = blockChainRepeater.callSelected
+				return call === callnb - 1
+			}
+			else
+				return true
+		}
 	}
 
 	Rectangle
 	{
-		Layout.preferredWidth: parent.width
+		Layout.preferredWidth: 500
 		Layout.preferredHeight: 70
+		anchors.horizontalCenter: parent.horizontalCenter
 		color: "transparent"
-		RowLayout
+		id: btnsContainer
+		Row
 		{
-			anchors.horizontalCenter: parent.horizontalCenter
+			width: parent.width
 			anchors.top: parent.top
 			anchors.topMargin: 10
 			spacing: 20
+			id: rowBtns
+			onWidthChanged: {
+				var w = (width - (2 * 20)) / 4
+				rebuild.width = w
+				rebuild.parent.width = w
+				addTransaction.width = w
+				addBlockBtn.width = w
+				addTransaction.parent.width = w * 2
+				newAccount.width = w
+				newAccount.parent.width = w
+			}
+
+			Connections
+			{
+				target: clientModel
+				onSetupFinished:
+				{
+					firstLoad = false
+				}
+			}
 
 			Rectangle {
-				Layout.preferredWidth: 100
-				Layout.preferredHeight: 30				
+				width: 100
+				height: 30
 				ScenarioButton {
 					id: rebuild
-					text: qsTr("Rebuild")
+					text: qsTr("Rebuild Scenario")
 					width: 100
 					height: 30
 					roundLeft: true
 					roundRight: true
+					enabled: scenarioIndex !== -1
 					property variant contractsHex: ({})
 					property variant txSha3: ({})
 					property variant accountsSha3
@@ -319,8 +666,11 @@ ColumnLayout {
 
 					function needRebuild(reason)
 					{
-						rebuild.startBlinking()
-						blinkReasons.push(reason)
+						if (scenarioIndex !== -1)
+						{
+							rebuild.startBlinking()
+							blinkReasons.push(reason)
+						}
 					}
 
 					function containsRebuildCause(reason)
@@ -348,12 +698,13 @@ ColumnLayout {
 							rebuild.stopBlinking()
 					}
 
-					onClicked:
+					function build()
 					{
 						if (ensureNotFuturetime.running)
-							return;
-						rebuilding()
+							return
+						blockChainPanel.calls = {}
 						stopBlinking()
+						rebuilding()
 						states = []
 						var retBlocks = [];
 						var bAdded = 0;
@@ -399,12 +750,19 @@ ColumnLayout {
 							blockModel.append(model.blocks[j])
 
 						ensureNotFuturetime.start()
+
 						takeCodeSnapshot()
 						takeTxSnaphot()
 						takeAccountsSnapshot()
 						takeContractsSnapShot()
 						blinkReasons = []
-						clientModel.setupScenario(model);						
+						clientModel.setupScenario(model);
+						blockChainPanel.forceActiveFocus()
+					}
+
+					onClicked:
+					{
+						build()
 					}
 
 					function takeContractsSnapShot()
@@ -444,16 +802,16 @@ ColumnLayout {
 				}
 			}
 
-
 			Rectangle
 			{
-				Layout.preferredWidth: 200
-				Layout.preferredHeight: 30
+				width: 200
+				height: 30
 				color: "transparent"
 
 				ScenarioButton {
 					id: addTransaction
-					text: qsTr("Add Tx")
+					text: qsTr("Add Tx...")
+					enabled: scenarioIndex !== -1
 					onClicked:
 					{
 						if (model && model.blocks)
@@ -467,8 +825,8 @@ ColumnLayout {
 							}
 
 							var item = TransactionHelper.defaultTransaction()
+							transactionDialog.execute = !rebuild.isBlinking
 							transactionDialog.stateAccounts = model.accounts
-							transactionDialog.execute = true
 							transactionDialog.editMode = false
 							transactionDialog.open(model.blocks[model.blocks.length - 1].transactions.length, model.blocks.length - 1, item)
 						}
@@ -499,8 +857,9 @@ ColumnLayout {
 
 				ScenarioButton {
 					id: addBlockBtn
-					text: qsTr("Add Block...")
+					text: qsTr("Add Block")
 					anchors.left: addTransaction.right
+					enabled: scenarioIndex !== -1
 					roundLeft: false
 					roundRight: true
 					onClicked:
@@ -541,6 +900,7 @@ ColumnLayout {
 
 			Connections
 			{
+				id: clientListenner
 				target: clientModel
 				onNewBlock:
 				{
@@ -560,35 +920,64 @@ ColumnLayout {
 				}
 				onNewRecord:
 				{
-					var blockIndex =  parseInt(_r.transactionIndex.split(":")[0]) - 1
-					var trIndex = parseInt(_r.transactionIndex.split(":")[1])
-					if (blockIndex <= model.blocks.length - 1)
+					if (_r.transactionIndex !== "Call")
 					{
-						var item = model.blocks[blockIndex]
-						if (trIndex <= item.transactions.length - 1)
+						var blockIndex =  parseInt(_r.transactionIndex.split(":")[0]) - 1
+						var trIndex = parseInt(_r.transactionIndex.split(":")[1])
+						if (blockIndex <= model.blocks.length - 1)
 						{
-							var tr = item.transactions[trIndex]
-							tr.returned = _r.returned
-							tr.recordIndex = _r.recordIndex
-							tr.logs = _r.logs
-							tr.sender = _r.sender
-							tr.returnParameters = _r.returnParameters
-							var trModel = blockModel.getTransaction(blockIndex, trIndex)
-							trModel.returned = _r.returned
-							trModel.recordIndex = _r.recordIndex
-							trModel.logs = _r.logs
-							trModel.sender = _r.sender
-							trModel.returnParameters = _r.returnParameters
-							blockModel.setTransaction(blockIndex, trIndex, trModel)
-							blockChainRepeater.select(blockIndex, trIndex)
-							return;
+							var item = model.blocks[blockIndex]
+							if (trIndex <= item.transactions.length - 1)
+							{
+								var tr = item.transactions[trIndex]
+								tr.returned = _r.returned
+								tr.recordIndex = _r.recordIndex
+								tr.logs = _r.logs
+								tr.isCall = false
+								tr.sender = _r.sender
+								tr.returnParameters = _r.returnParameters
+								var trModel = blockModel.getTransaction(blockIndex, trIndex)
+								trModel.returned = _r.returned
+								trModel.recordIndex = _r.recordIndex
+								trModel.logs = _r.logs
+								trModel.sender = _r.sender
+								trModel.returnParameters = _r.returnParameters
+								blockModel.setTransaction(blockIndex, trIndex, trModel)
+								blockChainRepeater.select(blockIndex, trIndex, -1)
+								return;
+							}
+						}
+						// tr is not in the list.
+						var itemTr = fillTx(_r, false)
+						model.blocks[model.blocks.length - 1].transactions.push(itemTr)
+						blockModel.appendTransaction(itemTr)
+						blockChainRepeater.select(blockIndex, trIndex, -1)
+					}
+					else
+					{
+						var blockIndex =  parseInt(clientModel.lastTransaction.transactionIndex.split(":")[0]) - 1
+						var trIndex = parseInt(clientModel.lastTransaction.transactionIndex.split(":")[1])
+						var i = [blockIndex, trIndex]
+						if (!blockChainPanel.calls[JSON.stringify(i)])
+							blockChainPanel.calls[JSON.stringify(i)] = []
+						var itemTr = fillTx(_r, true)
+						blockChainPanel.calls[JSON.stringify(i)].push(itemTr)
+						if (blockChainRepeater.callsDisplayed)
+						{
+							blockChainRepeater.hideCalls()
+							blockChainRepeater.displayCalls()
 						}
 					}
+				}
+
+				function fillTx(_r, _isCall)
+				{
 					// tr is not in the list.
 					var itemTr = TransactionHelper.defaultTransaction()
-					itemTr.saveStatus = false
+					itemTr.saveStatus = _r.source === 0 ? false : true //? 0 coming from Web3, 1 coming from MixGui
 					itemTr.functionId = _r.function
 					itemTr.contractId = _r.contract
+					itemTr.isCall = _isCall
 					itemTr.gasAuto = true
 					itemTr.parameters = _r.parameters
 					itemTr.isContractCreation = itemTr.functionId === itemTr.contractId
@@ -600,9 +989,7 @@ ColumnLayout {
 					itemTr.recordIndex = _r.recordIndex
 					itemTr.logs = _r.logs
 					itemTr.returnParameters = _r.returnParameters
-					model.blocks[model.blocks.length - 1].transactions.push(itemTr)
-					blockModel.appendTransaction(itemTr)
-					blockChainRepeater.select(blockIndex, trIndex)
+					return itemTr
 				}
 
 				onNewState: {
@@ -614,23 +1001,35 @@ ColumnLayout {
 				}
 			}
 
-			ScenarioButton {
-				id: newAccount
-				text: qsTr("New Account...")
-				onClicked: {
-					var ac = projectModel.stateListModel.newAccount("O", QEther.Wei)
+			Rectangle {
+				width: 100
+				height: 30
+				ScenarioButton {
+					id: newAccount
+					enabled: scenarioIndex !== -1
+					text: qsTr("New Account...")
+					onClicked: {
+						newAddressWin.accounts = model.accounts
+						newAddressWin.open()
+					}
+					width: 100
+					height: 30
+					buttonShortcut: ""
+					sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
+					roundLeft: true
+					roundRight: true
+				}
+			}
+
+			NewAccount
+			{
+				id: newAddressWin
+				onAccepted:
+				{
 					model.accounts.push(ac)
 					clientModel.addAccount(ac.secret);
-					for (var k in Object.keys(blockChainPanel.states))
-						blockChainPanel.states[k].accounts["0x" + ac.address] = "0 wei" // add the account in all the previous state (balance at O)
-					accountAdded("0x" + ac.address, "0")
+					projectModel.saveProject()
 				}
-				Layout.preferredWidth: 100
-				Layout.preferredHeight: 30
-				buttonShortcut: ""
-				sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
-				roundLeft: true
-				roundRight: true
 			}
 		}
 	}
@@ -657,8 +1056,14 @@ ColumnLayout {
 				blockModel.setTransaction(blockIndex, transactionIndex, item)
 				chainChanged(blockIndex, transactionIndex, item)
 			}
+			blockChainPanel.forceActiveFocus()
 		}
+
+		onClosed:
+		{
+			blockChainPanel.forceActiveFocus()
+		}
+
 	}
 }
-
 

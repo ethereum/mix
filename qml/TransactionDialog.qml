@@ -32,11 +32,14 @@ Dialog {
 	property bool useTransactionDefaultValue: false
 	property alias stateAccounts: senderComboBox.model
 	property bool saveStatus
-	signal accepted;
+	signal accepted
+	signal closed
+
 	property int rowWidth: 500
 	StateDialogStyle {
 		id: transactionDialogStyle
 	}
+
 
 	function open(index, blockIdx, item) {
 		transactionIndex = index
@@ -48,6 +51,7 @@ Dialog {
 		gasAutoCheck.checked = item.gasAuto ? true : false;
 		gasPriceField.value = item.gasPrice;
 		valueField.value = item.value;
+		valueField.formatInput()
 		var contractId = item.contractId;
 		var functionId = item.functionId;
 
@@ -167,6 +171,7 @@ Dialog {
 	function close()
 	{
 		visible = false;
+		closed()
 	}
 
 	function getItem()
@@ -203,7 +208,8 @@ Dialog {
 			if (recipientsAccount.current().type === "address")
 			{
 				item.functionId = "";
-				item.isFunctionCall = false;
+				item.isFunctionCall = false
+				item.label = item.contractId
 			}
 		}
 		else
@@ -300,6 +306,7 @@ Dialog {
 
 				RowLayout
 				{
+					Layout.preferredHeight: 80
 					Rectangle
 					{
 						Layout.preferredWidth: 150
@@ -309,14 +316,14 @@ Dialog {
 							text: qsTr("Sender Account")
 						}
 					}
-
 					ComboBox {
+
 						function select(secret)
 						{
 							for (var i in model)
 								if (model[i].secret === secret)
 								{
-									currentIndex = i;
+									currentIndex = i;									
 									break;
 								}
 						}
@@ -325,6 +332,38 @@ Dialog {
 						currentIndex: 0
 						textRole: "name"
 						editable: false
+
+						onCurrentIndexChanged:
+						{
+							update()
+						}
+
+						onModelChanged:
+						{
+							update()
+						}
+
+						Component.onCompleted: {
+							update()
+						}
+
+						function update()
+						{
+							for (var i in model)
+								if (model[i].name === currentText)
+								{
+									addressCopyInput.originalText = model[i].address
+									break;
+								}
+						}
+
+						DisableInput
+						{
+							width: 350
+							anchors.top: parent.bottom
+							anchors.topMargin: 5
+							id: addressCopyInput
+						}
 					}
 				}
 
@@ -403,7 +442,7 @@ Dialog {
 				}
 
 				RowLayout
-				{
+				{					
 					Rectangle
 					{
 						Layout.preferredWidth: 150
@@ -417,12 +456,24 @@ Dialog {
 
 					QAddressView
 					{
+						Layout.preferredWidth: 350
+						width: 350
 						id: recipientsAccount
 						displayInput: false
 						onIndexChanged:
 						{
 							if (rbbuttonList.current.objectName === "trTypeExecute")
 								loadFunctions(TransactionHelper.contractFromToken(currentValue()))
+							var addr = getAddress()
+							addrRecipient.originalText = addr.indexOf("0x") === 0 ? addr.replace("0x", "") : addr
+						}
+
+						DisableInput
+						{
+							Layout.preferredWidth: 350
+							anchors.top: parent.bottom
+							anchors.topMargin: 1
+							id: addrRecipient
 						}
 					}
 

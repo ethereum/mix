@@ -30,19 +30,8 @@ Rectangle {
 	property alias debuggerPanel: debugPanel
 	property alias codeEditor: codeEditor
 	property bool webViewHorizontal: codeWebSplitter.orientation === Qt.Vertical //vertical splitter positions elements vertically, splits screen horizontally
-	property bool firstCompile: true
-	property int scenarioMinWidth: 620
-
-	Connections {
-		target: codeModel
-		onCompilationComplete: {
-			if (firstCompile) {
-				firstCompile = false;
-				if (runOnProjectLoad)
-					startQuickDebugging();
-			}
-		}
-	}
+	property bool displayCalls
+	property int scenarioMinWidth: 300
 
 	Connections {
 		target: debugPanel
@@ -178,11 +167,10 @@ Rectangle {
 					id: contentView
 					Layout.fillHeight: true
 					Layout.fillWidth: true
-
 					Splitter {
 						id: codeWebSplitter
 						anchors.fill: parent
-						orientation: Qt.Vertical
+						orientation: Qt.Horizontal
 						CodeEditorView {
 							id: codeEditor
 							height: parent.height * 0.6
@@ -198,6 +186,17 @@ Rectangle {
 							Layout.minimumHeight: 200
 							Layout.minimumWidth: 200
 						}
+					}
+				}
+
+				Connections
+				{
+					target: projectModel
+					onProjectClosed:
+					{
+						if (debugPanel.visible)
+							debugPanel.close()
+						scenarioExe.clear()
 					}
 				}
 
@@ -219,6 +218,13 @@ Rectangle {
 					Keys.onEscapePressed: visible = false
 					Layout.minimumWidth: scenarioMinWidth
 					anchors.right: parent.right
+					function close()
+					{
+						debugPanel.visible = false
+						scenarioExe.visible = true
+						scenarioExe.width = debugPanel.width
+						scenarioExe.forceActiveFocus()
+					}
 				}
 
 				Connections {
@@ -235,9 +241,7 @@ Rectangle {
 				Connections {
 					target: debugPanel
 					onPanelClosed:  {
-						debugPanel.visible = false
-						scenarioExe.visible = true
-						scenarioExe.width = debugPanel.width
+						debugPanel.close()
 					}
 				}
 			}

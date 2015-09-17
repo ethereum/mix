@@ -11,15 +11,20 @@ import "js/TransactionHelper.js" as TransactionHelper
 import "js/QEtherHelper.js" as QEtherHelper
 import "."
 
-Rectangle {
-	color: selectedBlockColor
+Rectangle
+{
+	border.color: "#cccccc"
+	border.width: 2
+	color: "white"
+
 	property variant tx
 	property variant currentState
 	property variant bc
 	property var blockIndex
 	property var txIndex
+	property var callIndex
 
-	property string selectedBlockColor: "#accbf2"
+	property string selectedTxColor: "#accbf2"
 	property string selectedBlockForeground: "#445e7f"
 
 	function clear()
@@ -38,21 +43,23 @@ Rectangle {
 		accounts.add(address, amount)
 	}
 
-	function updateWidthTx(_tx, _state, _blockIndex, _txIndex)
-	{
-		from.text = clientModel.resolveAddress(_tx.sender)
-		to.text = _tx.label
+	function updateWidthTx(_tx, _state, _blockIndex, _txIndex, _callIndex)
+	{		
+		var addr = clientModel.resolveAddress(_tx.sender)
+		from.text =  blockChain.addAccountNickname(addr, true)
+		to.text = blockChain.formatRecipientLabel(_tx)
 		value.text = _tx.value.format()
 		tx = _tx
 		blockIndex  = _blockIndex
 		txIndex = _txIndex
+		callIndex = _callIndex
 		currentState = _state
 		inputParams.init()
 		if (_tx.isContractCreation)
 		{
 			returnParams.role = "creationAddr"
 			returnParams._data = {
-				creationAddr : {					
+				creationAddr : {
 				}
 			}
 			returnParams._data.creationAddr[qsTr("contract address")] = _tx.returned
@@ -67,137 +74,180 @@ Rectangle {
 		events.init()
 	}
 
-	Column {
+	Rectangle {
+		color: selectedTxColor
 		anchors.fill: parent
-		spacing: 15
-		Rectangle
-		{
-			height: 15
-			width: parent.width - 30
-			color: "transparent"
-			Row
+		anchors.margins: 10
+		radius: 4
+		Column {
+			anchors.fill: parent
+			spacing: 15
+			Rectangle
 			{
-				id: rowHeader
+				height: 20 * 3
+				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
-				anchors.top: rowHeader.parent.top
-				anchors.topMargin: 6
-				spacing: 5
-				Label {
-					id: fromLabel
-					text: qsTr("from")
-					visible: false
-					color: selectedBlockForeground					
-				}
-				Label {
-					id: from
-					color: selectedBlockForeground
-					elide: Text.ElideRight
-					maximumLineCount: 1
-					clip: true
-					width: 200
-				}
-				Label {
-					id: toLabel
-					text: qsTr("to")
-					visible: false
-					color: selectedBlockForeground
-				}
-				Label {
-					id: to
-					color: selectedBlockForeground
-					elide: Text.ElideRight
-					maximumLineCount: 1
-					clip: true
-					width: 100
-				}
-				Label {
-					id: value
-					color: selectedBlockForeground
-					font.italic: true
-					clip: true
-				}
-			}
+				color: "transparent"
 
-			Image {
-				anchors.right: rowHeader.parent.right
-				anchors.top: rowHeader.parent.top
-				anchors.topMargin: 5
-				source: "qrc:/qml/img/edit_combox.png"
-				height: 15
-				fillMode: Image.PreserveAspectFit
-				visible: from.text !== ""
-				MouseArea
+				ColumnLayout
 				{
-					anchors.fill: parent
-					onClicked:
+					height: parent.height
+					anchors.top: parent.top
+					anchors.topMargin: 5
+					Row
 					{
-						bc.blockChainRepeater.editTx(blockIndex, txIndex)
+						Layout.preferredWidth: parent.width
+						spacing: 5
+						Label {
+							id: fromLabel
+							text: qsTr("From:")
+							visible: from.text != ""
+							color: selectedBlockForeground
+							font.italic: true
+						}
+						Label {
+							id: from
+							color: selectedBlockForeground
+							maximumLineCount: 1
+							clip: true
+							width: 350
+						}
+					}
+
+					Row
+					{
+						Layout.preferredWidth: parent.width
+						spacing: 5
+						Label {
+							id: toLabel
+							text: qsTr("To:")
+							visible: to.text != ""
+							color: selectedBlockForeground
+							font.italic: true
+						}
+						Label {
+							id: to
+							color: selectedBlockForeground
+							maximumLineCount: 1
+							clip: true
+							width: 350
+						}
+					}
+
+					Row
+					{
+						Layout.preferredWidth: parent.width
+						spacing: 5
+						Label {
+							id: valueLabel
+							text: qsTr("Value:")
+							visible: value.text != ""
+							color: selectedBlockForeground
+							font.italic: true
+						}
+						Label {
+							id: value
+							color: selectedBlockForeground
+							font.italic: true
+							clip: true
+							width: 350
+						}
+					}
+				}
+
+				Button {
+					anchors.right: parent.right
+					anchors.top: parent.top
+					anchors.topMargin: 20
+					iconSource: "qrc:/qml/img/edit_combox.png"
+					height: 25
+					visible: from.text !== ""
+					MouseArea
+					{
+						anchors.fill: parent
+						onClicked:
+						{
+							bc.blockChainRepeater.editTx(blockIndex, txIndex)
+						}
 					}
 				}
 			}
-		}
 
-		Rectangle {
-			height: 1
-			width: parent.width - 30
-			anchors.horizontalCenter: parent.horizontalCenter
-			border.color: "#cccccc"
-			border.width: 1
-		}
+			Rectangle {
+				height: 1
+				width: parent.width - 30
+				anchors.horizontalCenter: parent.horizontalCenter
+				border.color: "#cccccc"
+				border.width: 1
+			}
 
-		KeyValuePanel
-		{
-			height: 150
-			width: parent.width - 30
-			anchors.horizontalCenter: parent.horizontalCenter
-			id: inputParams
-			title: qsTr("INPUT PARAMETERS")
-			role: "parameters"
-			_data: tx
-		}
-
-		KeyValuePanel
-		{
-			height: 150
-			width: parent.width - 30
-			anchors.horizontalCenter: parent.horizontalCenter
-			id: returnParams
-			title: qsTr("RETURN PARAMETERS")
-			role: "returnParameters"
-			_data: tx
-		}
-
-		KeyValuePanel
-		{
-			height: 150
-			width: parent.width - 30
-			anchors.horizontalCenter: parent.horizontalCenter
-			id: accounts
-			title: qsTr("ACCOUNTS")
-			role: "accounts"
-			_data: currentState
-		}
-
-		KeyValuePanel
-		{
-			height: 150
-			width: parent.width - 30
-			anchors.horizontalCenter: parent.horizontalCenter
-			id: events
-			title: qsTr("EVENTS")
-			function computeData()
+			KeyValuePanel
 			{
-				model.clear()
-				var ret = []
-				for (var k in tx.logs)
+				height: 150
+				width: parent.width - 30
+				anchors.horizontalCenter: parent.horizontalCenter
+				id: inputParams
+				title: qsTr("INPUT PARAMETERS")
+				role: "parameters"
+				_data: tx
+			}
+
+			KeyValuePanel
+			{
+				height: 150
+				width: parent.width - 30
+				anchors.horizontalCenter: parent.horizontalCenter
+				id: returnParams
+				title: qsTr("RETURN PARAMETERS")
+				role: "returnParameters"
+				_data: tx
+			}
+
+			KeyValuePanel
+			{
+				height: 150
+				width: parent.width - 30
+				anchors.horizontalCenter: parent.horizontalCenter
+				id: accounts
+				title: qsTr("ACCOUNTS")
+				role: "accounts"
+				_data: currentState
+				function computeData()
 				{
-					var param = ""
-					for (var p in tx.logs[k].param)
+					model.clear()
+					var ret = []
+					if (currentState)
+						for (var k in currentState.accounts)
+						{
+							var label = blockChain.addAccountNickname(k, false)
+							if (label === k)
+								label = blockChain.addContractName(k) //try to resolve the contract name
+							model.append({ "key": label, "value": currentState.accounts[k] })
+						}
+				}
+			}
+
+			KeyValuePanel
+			{
+				height: 150
+				width: parent.width - 30
+				anchors.horizontalCenter: parent.horizontalCenter
+				id: events
+				title: qsTr("EVENTS")
+				function computeData()
+				{
+					model.clear()
+					var ret = []
+					for (var k in tx.logs)
 					{
-						param += " " + tx.logs[k].param[p].value + " "
+						var param = ""
+						for (var p in tx.logs[k].param)
+						{
+							param += " " + tx.logs[k].param[p].value + " "
+						}
+						param = "(" + param + ")"
+						model.append({ "key": tx.logs[k].name, "value": param })
 					}
-					param = "(" + param + ")"
-					model.append({ "key": tx.logs[k].name, "value": param })
 				}
 			}
 		}

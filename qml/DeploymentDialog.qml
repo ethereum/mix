@@ -14,8 +14,8 @@ import "."
 Dialog {
 	id: modalDeploymentDialog
 	modality: Qt.ApplicationModal
-	width: 1000
-	height: 450
+	width: 1050
+	height: 550
 	visible: false
 
 	property alias deployStep: deployStep
@@ -60,6 +60,7 @@ Dialog {
 				id: explanation
 				Layout.preferredWidth: parent.width - 50
 				Layout.preferredHeight: 50
+				height: 50
 				color: "transparent"
 				Label
 				{
@@ -72,14 +73,9 @@ Dialog {
 					anchors.left: info.right
 					anchors.leftMargin: 7
 					id: linkText
-					text: '<html><style type="text/css"></style><a href="https://github.com/ethereum/wiki/wiki/Mix:-The-DApp-IDE#deployment-to-network">guide to uploading</a></html>'
-					onLinkActivated: Qt.openUrlExternally("https://github.com/ethereum/wiki/wiki/Mix:-The-DApp-IDE#deployment-to-network")
+					text: '<a href="https://github.com/ethereum/wiki/wiki/Mix:-The-DApp-IDE#deployment-to-network">guide to uploading</a>'
+					onLinkActivated: Qt.openUrlExternally(link)
 					anchors.verticalCenter: parent.verticalCenter
-					MouseArea
-					{
-						anchors.fill: parent
-						cursorShape: Qt.PointingHandCursor
-					}
 				}
 			}
 
@@ -111,9 +107,19 @@ Dialog {
 							selected = deployStep
 							break;
 						}
+						case "option":
+						{
+							selected = optionStep
+							break;
+						}
 						case "package":
 						{
 							selected = packageStep
+							break;
+						}
+						case "upload":
+						{
+							selected = uploadStep
 							break;
 						}
 						case "register":
@@ -137,9 +143,24 @@ Dialog {
 						worker: worker
 					}
 
+					DeploymentOptions
+					{
+						id: optionStep
+						visible: false
+						worker: worker
+						deployStep: deployStep
+					}
+
 					PackagingStep
 					{
 						id: packageStep
+						visible: false
+						worker: worker
+					}
+
+					UploadPackage
+					{
+						id: uploadStep
 						visible: false
 						worker: worker
 					}
@@ -158,6 +179,33 @@ Dialog {
 				Layout.fillWidth: true
 				Layout.preferredHeight: 30
 				color: "transparent"
+
+				Button
+				{
+					id: resetBtn
+					anchors.left: parent.left
+					anchors.leftMargin: 205
+					text: qsTr("Reset")
+					onClicked:
+					{
+						resetDialog.open()
+					}
+				}
+
+				MessageDialog
+				{
+					id: resetDialog
+					text: qsTr("This action removes all the properties related to this deployment (including contract addresses and packaged ressources).")
+					onYes: {
+						worker.forceStopPooling()
+						if (projectModel.deploymentDir && projectModel.deploymentDir !== "")
+							fileIo.deleteDir(projectModel.deploymentDir)
+						projectModel.cleanDeploymentStatus()
+						deploymentDialog.steps.reset()
+					}
+					standardButtons: StandardButton.Yes | StandardButton.No
+				}
+
 				Button
 				{
 					text: qsTr("Cancel")

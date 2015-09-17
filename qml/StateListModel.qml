@@ -93,6 +93,7 @@ Item {
 		for (var key in t.parameters)
 			r.parameters[key] = t.parameters[key];
 
+		r.isCall = false
 		return r;
 	}
 
@@ -111,7 +112,7 @@ Item {
 		return {
 			title: s.title,
 			blocks: s.blocks.map(toPlainBlockItem),
-			transactions: s.transactions.map(toPlainTransactionItem),
+			transactions: s.transactions.filter(function(t) { return t.saveStatus; }).map(toPlainTransactionItem),
 			accounts: s.accounts.map(toPlainAccountItem),
 			contracts: s.contracts.map(toPlainAccountItem),
 			miner: s.miner
@@ -133,7 +134,7 @@ Item {
 		var r = {
 			hash: b.hash,
 			number: b.number,
-			transactions: b.transactions.map(toPlainTransactionItem),
+			transactions: b.transactions.filter(function(t) { return t.saveStatus; }).map(toPlainTransactionItem),
 			status: b.status
 		}
 		return r;
@@ -230,11 +231,7 @@ Item {
 			stateListModel.contractsValidated(item.contracts)
 			stateListModel.get(stateDialog.stateIndex).miner = item.miner
 			stateList[stateDialog.stateIndex].miner = item.miner
-			if (item.defaultState)
-			{
-				stateListModel.defaultStateIndex = stateDialog.stateIndex
-				stateListModel.defaultStateChanged()
-			}
+			projectModel.saveProject()
 		}
 	}
 
@@ -249,26 +246,51 @@ Item {
 		signal stateRun(int index)
 		signal stateDeleted(int index)
 
+		function setDefaultState(index)
+		{
+			defaultStateIndex = index
+			stateListModel.defaultStateChanged()
+		}
+
 		function defaultTransactionItem()
 		{
 			return TransactionHelper.defaultTransaction();
 		}
 
-		function newAccount(_balance, _unit, _secret)
+		function newAccount(_balance, _unit, _secret, _nickName)
 		{
 			if (!_secret)
 				_secret = clientModel.newSecret();
 			var address = clientModel.address(_secret);
-			var name = qsTr("Account") + "-" + address.substring(0, 4);
+			var name
+			if (_nickName && _nickName !== "")
+				name = _nickName
+			else
+				name = address
 			var amount = QEtherHelper.createEther(_balance, _unit)			
 			return { name: name, secret: _secret, balance: amount, address: address };
+		}
+
+		function titleExists(stateList, title)
+		{
+			for (var k in stateList)
+			{
+				if (stateList[k].title === title)
+					return true;
+			}
+			return false;
 		}
 
 		function duplicateState(index)
 		{
 			var state = stateList[index]
 			var item = fromPlainStateItem(toPlainStateItem(state))
-			item.title = qsTr("Copy of") + " " + state.title
+
+			var copyIndex = 1;
+			while (titleExists(stateList, state.title + "_" + copyIndex))
+				copyIndex++;
+			item.title = state.title + "_" + copyIndex;
+
 			appendState(item)
 			save()
 		}
@@ -358,7 +380,7 @@ Item {
 
 		function addState() {
 			var item = createDefaultState();
-			stateDialog.open(stateListModel.count, item, false);
+			stateDialog.open(stateListModel.count, item);
 		}
 
 		function appendState(item)
@@ -368,7 +390,7 @@ Item {
 		}
 
 		function editState(index) {
-			stateDialog.open(index, stateList[index], defaultStateIndex === index);
+			stateDialog.open(index, stateList[index]);
 		}
 
 		function getState(index) {

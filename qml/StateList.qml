@@ -58,7 +58,7 @@ Dialog {
 					verticalAlignment: Text.AlignBottom
 				}
 				ToolButton {
-					text: qsTr("Edit Genesis");
+					text: qsTr("Edit Genesis...");
 					Layout.fillHeight: true
 					onClicked: list.model.editState(styleData.row);
 				}

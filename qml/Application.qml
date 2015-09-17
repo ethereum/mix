@@ -115,6 +115,8 @@ ApplicationWindow {
 		Menu {
 			title: qsTr("Scenario")
 			MenuItem { action: editStatesAction }
+			MenuItem { action: setAsDefaultAction }
+			MenuItem { action: displayCallsAction }
 		}
 		Menu {
 			title: qsTr("Debug")
@@ -180,15 +182,38 @@ ApplicationWindow {
 		enabled: codeModel.hasContract && !clientModel.running && !clientModel.mining
 	}
 
+	Action {
+		id: displayCallsAction
+		text: qsTr("Display Calls")
+		checkable: true
+		checked: mainContent.displayCalls
+		onTriggered: mainContent.displayCalls = !mainContent.displayCalls
+		Component.onCompleted:
+		{
+			mainContent.displayCalls = checked
+		}
+	}
+
 	StateList {
 		id: stateList
 	}
 
 	Action {
 		id: editStatesAction
-		text: qsTr("Edit Scenarii")
+		text: qsTr("Edit Scenarios")
 		shortcut: "Ctrl+Alt+E"
 		onTriggered: stateList.open();
+	}
+
+	Action {
+		id: setAsDefaultAction
+		text: qsTr("Set current scenario as default")
+		shortcut: "Ctrl+Alt+D"
+		onTriggered:
+		{
+			projectModel.stateListModel.setDefaultState(mainContent.rightPane.bc.scenarioIndex)
+			projectModel.saveProjectFile()
+		}
 	}
 
 	Connections {
@@ -250,7 +275,7 @@ ApplicationWindow {
 
 	Action {
 		id: toggleRunOnLoadAction
-		text: qsTr("Load State on Startup")
+		text: qsTr("Load Scenario on Startup")
 		shortcut: ""
 		checkable: true
 		checked: mainContent.runOnProjectLoad
@@ -434,5 +459,6 @@ ApplicationWindow {
 		property alias gasEstimation: gasEstimationAction.checked
 		property alias optimizeCode: optimizeCodeAction.checked
 		property string nodeAddress: "http://localhost:8545"
+		property alias displayCalls: displayCallsAction.checked
 	}
 }

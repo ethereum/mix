@@ -22,6 +22,7 @@
 #include <QDebug>
 #include <QVariantList>
 #include <libsolidity/AST.h>
+#include <libsolidity/Types.h>
 #include "QBasicNodeDefinition.h"
 #include "SolidityType.h"
 
@@ -87,15 +88,17 @@ class QVariableDeclaration: public QBasicNodeDefinition
 public:
 	QVariableDeclaration() {}
 	QVariableDeclaration(QObject* _parent, solidity::ASTPointer<solidity::VariableDeclaration> const _v);
-	QVariableDeclaration(QObject* _parent, std::string const& _name,  SolidityType const& _type, bool _isIndexed = false);
-	QVariableDeclaration(QObject* _parent, std::string const& _name,  solidity::Type const* _type, bool _isIndexed = false);
+	QVariableDeclaration(QObject* _parent, std::string const& _name, SolidityType const& _type, bool _isIndexed = false);
+	QVariableDeclaration(QObject* _parent, std::string const& _name, solidity::Type const* _type, bool _isIndexed = false);
 	QSolidityType* type() const { return m_type; }
 	void setType(QSolidityType* _type) { m_type = _type; }
 	bool isIndexed() { return m_isIndexed; }
+	solidity::DataLocation dataLocation() { return m_dataLocation; }
 
 private:
 	QSolidityType* m_type;
 	bool m_isIndexed;
+	solidity::DataLocation m_dataLocation;
 };
 
 

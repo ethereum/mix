@@ -6,6 +6,8 @@ import QtQuick.Controls.Styles 1.1
 import QtWebEngine 1.0
 import QtWebEngine.experimental 1.0
 import HttpServer 1.0
+import "js/TransactionHelper.js" as TransactionHelper
+import "js/QEtherHelper.js" as QEtherHelper
 import "."
 
 Item {
@@ -18,8 +20,11 @@ Item {
 	signal javaScriptMessage(var _level, string _sourceId, var _lineNb, string _content)
 	signal webContentReady
 	signal ready
+	property bool buildingScenario
 
 	function setPreviewUrl(url) {
+		if (buildingScenario)
+			return
 		if (!initialized)
 			pendingPageUrl = url;
 		else {
@@ -39,16 +44,17 @@ Item {
 
 	function updateContract() {
 		var contracts = {};
-		for (var c in codeModel.contracts) {
-			var contract = codeModel.contracts[c];
-			var address = clientModel.contractAddresses[contract.contract.name];
-			if (address) {
-				contracts[c] = {
-					name: contract.contract.name,
-					address: address,
-					interface: JSON.parse(contract.contractInterface),
-				};
-			}
+
+		for (var c in clientModel.contractAddresses)
+		{
+			var address = clientModel.contractAddresses[c];
+			var name = TransactionHelper.contractFromToken(c)
+			var contract = codeModel.contracts[name];
+			contracts[c] = {
+				name: contract.contract.name,
+				address: address,
+				interface: JSON.parse(contract.contractInterface),
+			};
 		}
 		webView.runJavaScript("updateContracts(" + JSON.stringify(contracts) + ")");
 	}
@@ -85,19 +91,8 @@ Item {
 			//We need to load the container using file scheme so that web security would allow loading local files in iframe
 			var containerPage = fileIo.readFile("qrc:///qml/html/WebContainer.html");
 			webView.loadHtml(containerPage, httpServer.url + "/WebContainer.html")
-
 		}
-	}
-
-	Connections {
-		target: codeModel
-		onContractInterfaceChanged: reload();
-	}
-
-	Connections {
-		target: clientModel
-		onRunComplete: reload();
-	}
+	}	
 
 	Connections {
 		target: projectModel
@@ -143,6 +138,8 @@ Item {
 
 		onProjectClosed: {
 			pageListModel.clear();
+			webPreview.setPreviewUrl("")
+			urlInput.text = ""
 		}
 	}
 
@@ -189,7 +186,7 @@ Item {
 				if (accept && accept.indexOf("text/html") >= 0 && !_request.headers["http_x_requested_with"])
 				{
 					//navigate to page request, inject deployment script
-					content = "<script>web3=parent.web3;BigNumber=parent.BigNumber;contracts=parent.contracts;</script>\n" + content;
+					content = "<script>web3=parent.web3;BigNumber=parent.BigNumber;contracts=parent.contracts;ctrAddresses=parent.ctrAddresses;</script>\n" + content;
 					_request.setResponseContentType("text/html");
 				}
 				_request.setResponse(content);
@@ -210,13 +207,12 @@ Item {
 				anchors.top: parent.top
 				anchors.fill: parent
 				anchors.leftMargin: 3
-				spacing: 3
+				spacing: 10
 
-				DefaultTextField
+				TextField
 				{
 					id: urlInput
 					anchors.verticalCenter: parent.verticalCenter
-					height: 21
 					width: 300
 					Keys.onEnterPressed:
 					{
@@ -237,21 +233,48 @@ Item {
 					}
 				}
 
-				Button {
-					iconSource: "qrc:/qml/img/available_updates.png"
-					action: buttonReloadAction
+				Rectangle {
+					width: 23
+					height: 23
 					anchors.verticalCenter: parent.verticalCenter
-					width: 21
-					height: 21
-					focus: true
+					ScenarioButton {
+						id: reloadFrontend
+						text: qsTr("Reload frontend")
+						width: 23
+						height: 23
+						roundLeft: true
+						roundRight: true
+						onClicked:
+						{
+							reload()
+						}
+						buttonShortcut: ""
+						sourceImg: "qrc:/qml/img/recycleicon@2x.png"
+						function reload()
+						{
+							mainContent.webView.reload()
+							reloadFrontend.stopBlinking()
+						}
+					}
 				}
 
-				Rectangle
+				Connections
 				{
-					width: 1
-					height: parent.height - 10
-					color: webPreviewStyle.general.separatorColor
-					anchors.verticalCenter: parent.verticalCenter
+					target: clientModel
+					property bool firstLoad: true
+					onSetupFinished:
+					{
+						buildingScenario = false
+						if (firstLoad)
+							reloadFrontend.reload()
+						else
+							reloadFrontend.startBlinking()
+						firstLoad = false
+					}
+					onSetupStarted:
+					{
+						buildingScenario = true
+					}
 				}
 
 				CheckBox {
@@ -267,21 +290,14 @@ Item {
 					focus: true
 				}
 
-				Rectangle
-				{
-					width: 1
-					height: parent.height - 10
-					color: webPreviewStyle.general.separatorColor
-					anchors.verticalCenter: parent.verticalCenter
-				}
-
 				Button
 				{
-					height: 22
-					width: 22
+					height: 25
+					width: 25
 					anchors.verticalCenter: parent.verticalCenter
 					action: expressionAction
 					iconSource: "qrc:/qml/img/console.png"
+					tooltip: qsTr("JS console")
 				}
 
 				Action {
@@ -290,13 +306,10 @@ Item {
 					onTriggered:
 					{
 						expressionPanel.visible = !expressionPanel.visible;
+						expressionPanel.updateView()
 						if (expressionPanel.visible)
-						{
-							webView.width = webView.parent.width - 350
 							expressionInput.forceActiveFocus();
-						}
-						else
-							webView.width = webView.parent.width
+
 					}
 				}
 			}
@@ -313,6 +326,7 @@ Item {
 		{
 			Layout.preferredWidth: parent.width
 			Layout.fillHeight: true
+			orientation: codeWebSplitter.orientation === Qt.Horizontal ? Qt.Vertical : Qt.Horizontal
 			WebEngineView {
 				Layout.fillHeight: true
 				width: parent.width
@@ -336,10 +350,13 @@ Item {
 			Column {
 				id: expressionPanel
 				width: 350
-				Layout.preferredWidth: 350
-				Layout.fillHeight: true
+				Layout.minimumWidth: 350
+				Layout.minimumHeight: 350
 				spacing: 0
-				visible: false
+				Component.onCompleted: {
+					updateView()
+				}
+
 				function addExpression()
 				{
 					if (expressionInput.text === "")
@@ -350,6 +367,14 @@ Item {
 						resultTextArea.text = "> " + result + "\n\n" + resultTextArea.text;
 						expressionInput.text = "";
 					});
+				}
+
+				function updateView()
+				{
+					if (expressionPanel.visible)
+						webView.width = webView.parent.width - 350
+					else
+						webView.width = webView.parent.width
 				}
 
 				Row
@@ -427,8 +452,8 @@ Item {
 						onFocusChanged:
 						{
 							if (!focus && text == "")
-								text = qsTr("Expression");
-							if (focus && text === qsTr("Expression"))
+								text = qsTr("Enter Expression");
+							if (focus && text === qsTr("Enter Expression"))
 								text = "";
 						}
 

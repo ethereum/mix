@@ -38,6 +38,7 @@ Item {
 				fillMode: Image.PreserveAspectFit
 				width: 32
 				height: 32
+				visible: false
 			}
 
 			Text
@@ -124,11 +125,19 @@ Item {
 									for (var si = 0; si < projectModel.listModel.count; si++) {
 										var document = projectModel.listModel.get(si);
 										if (document.isContract) {
-											var compiledDoc = codeModel.contractByDocumentId(document.documentId);
 											if (_documentId === document.documentId && _newName !== document.name) {
-												document.name = _newName;
-												projectModel.listModel.set(si, document);
-												sectionModel.set(ci, document);
+												var newPath = document.path.replace(document.fileName, _newName + ".sol")
+												fileIo.moveFile(document.path, newPath)
+												fileIo.stopWatching(document.path);
+												fileIo.deleteFile(document.path);
+												document.name = _newName
+												document.path = newPath
+												document.fileName = _newName + ".sol"
+												projectModel.listModel.set(si, document)
+												sectionModel.set(ci, document)
+												projectModel.saveProjectFile();
+												projectModel.documentUpdated(document.documentId);
+												fileIo.watchFileChanged(newPath)
 											}
 											ci++;
 										}

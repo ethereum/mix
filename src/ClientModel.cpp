@@ -29,7 +29,10 @@
 #include <QStandardPaths>
 #include <jsonrpccpp/server.h>
 #include <libethcore/CommonJS.h>
+#include <libethcore/KeyManager.h>
+#include <libsolidity/Types.h>
 #include <libethereum/Transaction.h>
+#include <libwebthree/WebThree.h>
 #include <libdevcore/FixedHash.h>
 #include "DebuggingStateWrapper.h"
 #include "Exceptions.h"
@@ -44,6 +47,7 @@
 
 using namespace dev;
 using namespace dev::eth;
+using namespace dev::solidity;
 using namespace std;
 
 namespace dev
@@ -99,7 +103,9 @@ void ClientModel::init(QString _dbpath)
 
 	m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, std::vector<KeyPair>());
 	m_web3Server.reset(new Web3Server(*m_rpcConnector.get(), m_ethAccounts, std::vector<KeyPair>(), m_client.get()));
-	connect(m_web3Server.get(), &Web3Server::newTransaction, this, &ClientModel::onNewTransaction, Qt::DirectConnection);
+	connect(m_web3Server.get(), &Web3Server::newTransaction, this, [=]() {
+		onNewTransaction(RecordLogEntry::TxSource::Web3);
+	}, Qt::DirectConnection);
 }
 
 QString ClientModel::apiCall(QString const& _message)
@@ -127,6 +133,7 @@ void ClientModel::mine()
 	{
 		try
 		{
+			std::this_thread::sleep_for(std::chrono::seconds(1)); //ensure not future time
 			m_client->mine();
 			newBlock();
 			m_mining = false;
@@ -201,7 +208,10 @@ QVariantMap ClientModel::contractAddresses() const
 {
 	QVariantMap res;
 	for (auto const& c: m_contractAddresses)
-		res.insert(c.first.first, QString::fromStdString(toJS(c.second)));
+	{
+		res.insert(serializeToken(c.first), QString::fromStdString(toJS(c.second))); //key will be like <Contract - 0>
+		res.insert(c.first.first, QString::fromStdString(toJS(c.second))); //we keep name like Contract (compatibility with old projects)
+	}
 	return res;
 }
 
@@ -230,6 +240,7 @@ QString ClientModel::resolveAddress(QString const& _secret)
 
 void ClientModel::setupScenario(QVariantMap _scenario)
 {
+	setupStarted();
 	onStateReset();
 	WriteGuard(x_queueTransactions);
 	m_running = true;
@@ -257,6 +268,7 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 
 		m_accounts[address] = Account(qvariant_cast<QEther*>(account.value("balance"))->toU256Wei(), Account::NormalCreation);
 	}
+
 	m_ethAccounts->setAccounts(m_accountsSecret);
 
 	for (auto const& c: stateContracts)
@@ -282,6 +294,7 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 	m_client->resetState(m_accounts, Secret(_scenario.value("miner").toMap().value("secret").toString().toStdString()));
 	if (m_queueTransactions.count() > 0 && trToExecute)
 	{
+		m_executionCtx = ExecutionCtx::Rebuild;
 		setupExecutionChain();
 		processNextTransactions();
 	}
@@ -302,6 +315,9 @@ void ClientModel::stopExecution()
 	disconnect(this, &ClientModel::runStateChanged, this, &ClientModel::finalizeBlock);
 	disconnect(this, &ClientModel::runFailed, this, &ClientModel::stopExecution);
 	m_running = false;
+	if (m_executionCtx == ExecutionCtx::Rebuild)
+		setupFinished();
+	m_executionCtx = ExecutionCtx::Idle;
 }
 
 void ClientModel::finalizeBlock()
@@ -376,7 +392,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 				if (!transaction.isFunctionCall)
 				{
 					callAddress(Address(address.toStdString()), bytes(), transaction);
-					onNewTransaction();
+					onNewTransaction(RecordLogEntry::TxSource::MixGui);
 					continue;
 				}
 				ContractCallDataEncoder encoder;
@@ -458,7 +474,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 						callAddress(contractAddressIter->second, encoder.encodedData(), transaction);
 				}
 				m_gasCosts.append(m_client->lastExecution().gasUsed);
-				onNewTransaction();
+				onNewTransaction(RecordLogEntry::TxSource::MixGui);
 				TransactionException exception = m_client->lastExecution().excepted;
 				if (exception != TransactionException::None)
 					break;
@@ -488,6 +504,7 @@ void ClientModel::executeTr(QVariantMap _tr)
 	if (!m_running)
 	{
 		m_running = true;
+		m_executionCtx = ExecutionCtx::ExecuteTx;
 		setupExecutionChain();
 		processNextTransactions();
 	}
@@ -522,6 +539,11 @@ std::pair<QString, int> ClientModel::retrieveToken(QString const& _value)
 	ret.first = _value;
 	ret.second = m_contractAddresses.size();
 	return ret;
+}
+
+QString ClientModel::serializeToken(std::pair<QString, int> const& _value) const
+{
+	return "<" + _value.first + " - " + QString::number(_value.second) + ">";
 }
 
 void ClientModel::showDebugger()
@@ -569,8 +591,9 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 	QVariantList solCallStack;
 	map<int, QVariableDeclaration*> solLocals; //<stack pos, decl>
 	map<QString, QVariableDeclaration*> storageDeclarations; //<name, decl>
-
+	map<QString, SolidityDeclaration> localDecl; //<name, solDecl>
 	unsigned prevInstructionIndex = 0;
+
 	for (MachineState const& s: _t.machineStates)
 	{
 		int instructionIndex = codeMaps[s.codeIndex][static_cast<unsigned>(s.curPC)];
@@ -580,25 +603,32 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 			CompiledContract const* contract = contracts[s.codeIndex];
 			AssemblyItem const& instruction = codeItems[s.codeIndex][instructionIndex];
 
-			if (instruction.type() == eth::Push && !instruction.data())
+			if (instruction.type() == eth::Push)
 			{
 				//register new local variable initialization
-				auto localIter = contract->locals().find(LocationPair(instruction.getLocation().start, instruction.getLocation().end));
+				auto localIter = contract->locals().find(LocationPair(instruction.location().start, instruction.location().end));
 				if (localIter != contract->locals().end())
-					solLocals[s.stack.size()] = new QVariableDeclaration(debugData, localIter.value().name.toStdString(), localIter.value().type);
+				{					
+					if (localDecl.find(localIter.value().name) == localDecl.end())
+					{
+						localDecl[localIter.value().name] = localIter.value();
+						solLocals[s.stack.size()] = new QVariableDeclaration(debugData, localIter.value().name.toStdString(), localIter.value().type);
+					}
+				}
 			}
 
 			if (instruction.type() == eth::Tag)
 			{
 				//track calls into functions
 				AssemblyItem const& prevInstruction = codeItems[s.codeIndex][prevInstructionIndex];
-				QString functionName = m_codeModel->resolveFunctionName(instruction.getLocation());
+				QString functionName = m_codeModel->resolveFunctionName(instruction.location());
 				if (!functionName.isEmpty() && ((prevInstruction.getJumpType() == AssemblyItem::JumpType::IntoFunction) || solCallStack.empty()))
 					solCallStack.push_front(QVariant::fromValue(functionName));
 				else if (prevInstruction.getJumpType() == AssemblyItem::JumpType::OutOfFunction && !solCallStack.empty())
 				{
 					solCallStack.pop_front();
 					solLocals.clear();
+					localDecl.clear();
 				}
 			}
 
@@ -612,10 +642,21 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 					if (l.second->type()->name().startsWith("mapping"))
 						break; //mapping type not yet managed
 					localDeclarations.push_back(QVariant::fromValue(l.second));
-					localValues[l.second->name()] = formatValue(l.second->type()->type(), s.stack[l.first]);
+					DataLocation loc = l.second->dataLocation();
+					if (loc == DataLocation::Memory)
+					{
+						u256 pos = s.stack[l.first];
+						int offset = static_cast<int>(pos);
+						localValues[l.second->name()] = formatValue(l.second->type()->type(), s.memory, offset);
+					}
+					else if (loc == DataLocation::Storage)
+						localValues[l.second->name()] = formatStorageValue(l.second->type()->type(), s.storage, localDecl[l.second->name()].offset, localDecl[l.second->name()].slot);
+					else
+						localValues[l.second->name()] = formatValue(l.second->type()->type(), s.stack[l.first]);
 				}
 			locals["variables"] = localDeclarations;
 			locals["values"] = localValues;
+
 
 			QVariantMap storage;
 			QVariantList storageDeclarationList;
@@ -650,16 +691,15 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 			prevInstructionIndex = instructionIndex;
 
 			// filter out locations that match whole function or contract
-			SourceLocation location = instruction.getLocation();
+			SourceLocation instructionLocation = instruction.location();
 			QString source;
-			if (location.sourceName)
-				source = QString::fromUtf8(location.sourceName->c_str());
-			if (m_codeModel->isContractOrFunctionLocation(location))
-				location = dev::SourceLocation(-1, -1, location.sourceName);
+			if (instructionLocation.sourceName)
+				source = QString::fromUtf8(instructionLocation.sourceName->c_str());
+			if (m_codeModel->isContractOrFunctionLocation(instructionLocation))
+				instructionLocation = dev::SourceLocation(-1, -1, instructionLocation.sourceName);
 
-			solState = new QSolState(debugData, move(storage), move(solCallStack), move(locals), location.start, location.end, source);
+			solState = new QSolState(debugData, move(storage), move(solCallStack), move(locals), instructionLocation.start, instructionLocation.end, source);
 		}
-
 		states.append(QVariant::fromValue(new QMachineState(debugData, instructionIndex, s, codes[s.codeIndex], data[s.dataIndex], solState)));
 	}
 
@@ -669,51 +709,44 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 
 QVariant ClientModel::formatValue(SolidityType const& _type, u256 const& _value)
 {
-	ContractCallDataEncoder decoder;
 	bytes val = toBigEndian(_value);
-	QVariant res = decoder.decode(_type, val);
+	int pos = 0;
+	return formatValue(_type, val, pos);
+}
+
+QVariant ClientModel::formatValue(SolidityType const& _type, bytes const& _value, int& _offset)
+{
+	ContractCallDataEncoder decoder;
+	int pos = static_cast<int>(_offset);
+	QVariant res;
+	if (_type.array)
+	{
+		bytesConstRef value(_value.data() + pos, 32);
+		bytes rawParam(32);
+		value.populate(&rawParam);
+		int offset = static_cast<int>(decoder.decodeInt(rawParam));
+		res = decoder.decodeRawArray(_type, _value, offset);
+		_offset += 32;
+	}
+	else if (_type.members.size() > 0)
+	{
+		QVariantList list;
+		for (auto const& m: _type.members)
+			list.append(formatValue(m.type, _value, _offset));
+		return list;
+	}
+	else
+	{
+		res = decoder.decodeType(_type, _value, pos);
+		_offset += 32;
+	}
 	return res;
 }
 
-QVariant ClientModel::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot)
+QVariant ClientModel::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned const& _offset, u256 const& _slot)
 {
-	u256 slot = _slot;
-	QVariantList values;
 	ContractCallDataEncoder decoder;
-	u256 count = 1;
-	if (_type.dynamicSize)
-	{
-		count = _storage.at(slot);
-		slot = fromBigEndian<u256>(sha3(toBigEndian(slot)).asBytes());
-	}
-	else if (_type.array)
-		count = _type.count;
-
-	unsigned offset = _offset;
-	while (count--)
-	{
-
-		auto slotIter = _storage.find(slot);
-		u256 slotValue = slotIter != _storage.end() ? slotIter->second : u256();
-		bytes slotBytes = toBigEndian(slotValue);
-		auto start = slotBytes.end() - _type.size - offset;
-		bytes val(32 - _type.size); //prepend with zeroes
-		if (_type.type == SolidityType::SignedInteger && (*start & 0x80)) //extend sign
-			std::fill(val.begin(), val.end(), 0xff);
-		val.insert(val.end(), start, start + _type.size);
-		values.append(decoder.decode(_type, val));
-		offset += _type.size;
-		if ((offset + _type.size) > 32)
-		{
-			slot++;
-			offset = 0;
-		}
-	}
-
-	if (!_type.array)
-		return values[0];
-
-	return QVariant::fromValue(values);
+	return decoder.formatStorageValue(_type, _storage, _offset, _slot);
 }
 
 void ClientModel::emptyRecord()
@@ -759,9 +792,14 @@ RecordLogEntry* ClientModel::lastBlock() const
 	strGas << blockInfo.gasUsed();
 	stringstream strNumber;
 	strNumber << blockInfo.number();
-	RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList());
+	RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList(), RecordLogEntry::TxSource::MixGui);
 	QQmlEngine::setObjectOwnership(record, QQmlEngine::JavaScriptOwnership);
 	return record;
+}
+
+RecordLogEntry* ClientModel::lastTransaction() const
+{
+	return m_lastTransaction;
 }
 
 void ClientModel::onStateReset()
@@ -774,7 +812,7 @@ void ClientModel::onStateReset()
 	emit stateCleared();
 }
 
-void ClientModel::onNewTransaction()
+void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 {
 	ExecutionResult const& tr = m_client->lastExecution();
 
@@ -816,6 +854,7 @@ void ClientModel::onNewTransaction()
 	unsigned block = m_client->number() + 1;
 	unsigned recordIndex = tr.executonIndex;
 	QString transactionIndex = tr.isCall() ? QObject::tr("Call") : QString("%1:%2").arg(block).arg(tr.transactionIndex);
+
 	QString address = QString::fromStdString(toJS(tr.address));
 	QString value = QString::fromStdString(toString(tr.value));
 	QString contract = address;
@@ -947,26 +986,29 @@ void ClientModel::onNewTransaction()
 			break;
 		}
 	}
-	QString label;
-	if (function != QObject::tr("<none>"))
-		label = contract + "." + function + "()";
-	else
-		label = contract;
+
 
 	if (!creation)
 		for (auto const& ctr: m_contractAddresses)
 		{
 			if (ctr.second == tr.address)
 			{
-				contract = "<" + ctr.first.first + " - " + QString::number(ctr.first.second) + ">";
+				contract = serializeToken(ctr.first);
 				break;
 			}
 		}
 
+	QString label;
+	if (function != QObject::tr("<none>"))
+		label = contract + "." + function + "()";
+	else
+		label = address;
+
 	RecordLogEntry* log = new RecordLogEntry(recordIndex, transactionIndex, contract, function, value, address, returned, tr.isCall(), RecordLogEntry::RecordType::Transaction,
-											 gasUsed, sender, label, inputParameters, returnParameters, logs);
+											 gasUsed, sender, label, inputParameters, returnParameters, logs, _source);
+	if (transactionIndex != QObject::tr("Call"))
+		m_lastTransaction = log;
 	QQmlEngine::setObjectOwnership(log, QQmlEngine::JavaScriptOwnership);
-	emit newRecord(log);
 
 	// retrieving all accounts balance
 	QVariantMap state;
@@ -983,6 +1025,7 @@ void ClientModel::onNewTransaction()
 	}
 	state.insert("accounts", accountBalances);
 	emit newState(recordIndex, state);
+	emit newRecord(log);
 }
 
 }

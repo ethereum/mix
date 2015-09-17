@@ -1,8 +1,7 @@
 <!doctype html>
 <html>
 <head>
-<script src="qrc:///js/bignumber.min.js"></script>
-<script src="qrc:///js/webthree.js"></script>
+<script src="qrc:///web3.js"></script>
 <script src="qrc:///qml/js/Printer.js"></script>
 <script src="qrc:///qml/js/ansi2html.js"></script>
 <script>
@@ -21,7 +20,8 @@ updateContracts = function(contracts) {
 	if (window.web3) {
 		window.web3.reset();
 		window.contracts = {};
-		window.BigNumber = require('bignumber.js');
+		window.ctrAddresses = {};
+		window.BigNumber = require('bignumber.js');		
 		for (var c in contracts) {
 			var contract = window.web3.eth.contract(contracts[c].interface).at(contracts[c].address);
 			window.contracts[c] = {
@@ -29,6 +29,10 @@ updateContracts = function(contracts) {
 				interface: contracts[c].interface,
 				contract: contract
 			};
+			if (!window.ctrAddresses[contracts[c].name])
+				window.ctrAddresses[contracts[c].name] = []
+			if (contracts[c].name !== c)
+				window.ctrAddresses[contracts[c].name].push(contracts[c].address)
 		}
 	}
 };

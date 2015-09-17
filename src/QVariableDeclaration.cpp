@@ -33,7 +33,7 @@ namespace mix
 
 QVariableDeclaration::QVariableDeclaration(QObject* _parent, ASTPointer<VariableDeclaration> const _v):
 	QBasicNodeDefinition(_parent, _v.get()),
-	m_type(new QSolidityType(this, CodeModel::nodeType(_v->getType().get()))), m_isIndexed(_v->isIndexed())
+	m_type(new QSolidityType(this, CodeModel::nodeType(_v->type().get()))), m_isIndexed(_v->isIndexed())
 {
 }
 
@@ -41,12 +41,16 @@ QVariableDeclaration::QVariableDeclaration(QObject* _parent, std::string const& 
 	QBasicNodeDefinition(_parent, _name),
 	m_type(new QSolidityType(_parent, _type)), m_isIndexed(_isIndexed)
 {
+	m_dataLocation = _type.dataLocation;
 }
 
 QVariableDeclaration::QVariableDeclaration(QObject* _parent, std::string const& _name,  solidity::Type const* _type, bool _isIndexed):
 	QBasicNodeDefinition(_parent, _name),
 	m_type(new QSolidityType(this, CodeModel::nodeType(_type))), m_isIndexed(_isIndexed)
 {
+	auto ref = dynamic_cast<ReferenceType const*>(_type);
+	if (ref)
+		m_dataLocation = ref->location();
 }
 
 QSolidityType::QSolidityType(QObject* _parent, SolidityType const& _type):
@@ -69,4 +73,3 @@ QVariantList QSolidityType::members() const
 
 }
 }
-

@@ -86,17 +86,18 @@ Rectangle {
 	ColumnLayout
 	{
 		anchors.top: parent.top
-		width: parent.width
 		anchors.topMargin: 10
 		id: col
 		spacing: 20
 		anchors.left: parent.left
 		anchors.leftMargin: 10
+		width: parent.width
 		Label
 		{
 			anchors.top: parent.top
-			Layout.fillWidth: true
-			text: qsTr("Register your Dapp on the Name registrar Contract")
+			Layout.preferredWidth: 300
+			text: qsTr("Register the internet and Ethereum URL of your dapp on the main name registrar to make it easily accesible to users")
+			font.bold: true
 		}
 
 		RowLayout
@@ -123,6 +124,19 @@ Rectangle {
 			}
 		}
 
+		Connections
+		{
+			target: worker
+			onNodeUnreachable:
+			{
+				registerDappBtn.enabled = false
+			}
+			onNodeReachable:
+			{
+				registerDappBtn.enabled = true
+			}
+		}
+
 		RowLayout
 		{
 			Layout.fillWidth: true
@@ -135,6 +149,18 @@ Rectangle {
 					text: qsTr("Http URL")
 					anchors.left: parent.left
 					anchors.verticalCenter: parent.verticalCenter
+					id: httpurlLabel
+				}
+
+				Label
+				{
+					text: qsTr("(pastebin url or similar)")
+					anchors.verticalCenter: parent.verticalCenter
+					font.pointSize: 8
+					anchors.top: httpurlLabel.bottom
+					anchors.topMargin: 2
+					anchors.left: httpurlLabel.left
+					anchors.leftMargin: 15
 				}
 			}
 
@@ -150,49 +176,7 @@ Rectangle {
 				anchors.verticalCenter: parent.verticalCenter
 				font.italic: true
 			}
-		}
-
-		RowLayout
-		{
-			Layout.fillWidth: true
-			Layout.preferredHeight: 20
-			Rectangle
-			{
-				Layout.preferredWidth: col.width / 5
-				Label
-				{
-					text: qsTr("Registration Cost")
-					anchors.left: parent.left
-					anchors.verticalCenter: parent.verticalCenter
-					id: ctrRegisterLabel
-					function calculateRegisterGas()
-					{
-						if (!modalDeploymentDialog.visible)
-							return;
-						appUrlFormatted.text = NetworkDeploymentCode.formatAppUrl(applicationUrlEthCtrl.text).join('/');
-						NetworkDeploymentCode.checkPathCreationCost(applicationUrlEthCtrl.text, function(pathCreationCost)
-						{
-							var ether = QEtherHelper.createBigInt(pathCreationCost);
-							if (deploymentDialog.deployStep.gasPrice.value)
-							{
-								var gasTotal = ether.multiply(deploymentDialog.deployStep.gasPrice.value.toWei());
-								gasToUseDeployInput.value = QEtherHelper.createEther(gasTotal.value(), QEther.Wei, parent);
-								gasToUseDeployInput.update();
-							}
-						});
-					}
-				}
-			}
-
-			Ether
-			{
-				id: gasToUseDeployInput
-				displayUnitSelection: false
-				displayFormattedValue: true
-				edit: false
-				Layout.preferredWidth: 235
-			}
-		}
+		}		
 
 		RowLayout
 		{
@@ -256,6 +240,87 @@ Rectangle {
 				anchors.topMargin: 10
 				font.italic: true
 				font.pointSize: appStyle.absoluteSize(-1)
+			}
+		}
+
+		RowLayout
+		{
+			Layout.fillWidth: true
+			Rectangle
+			{
+				Layout.preferredWidth: col.width / 5
+				Label
+				{
+					text: qsTr("Gas price")
+					anchors.left: parent.left
+					anchors.verticalCenter: parent.verticalCenter
+				}
+			}
+
+			Item
+			{
+				Layout.preferredWidth: 450
+				Layout.preferredHeight: 60
+				GasPrice
+				{
+					id: gasPriceConf
+					onGasPriceChanged: ctrRegisterLabel.calculateRegisterGas()
+					defaultGasPrice: true
+					width: parent.width
+				}
+			}
+
+			Connections
+			{
+				target: worker
+				id: gasPriceLoad
+				onGasPriceLoaded:
+				{
+					gasPriceConf.init(worker.gasPriceInt.value())
+					ctrRegisterLabel.calculateRegisterGas()
+				}
+			}
+		}
+
+		RowLayout
+		{
+			Layout.fillWidth: true
+			Layout.preferredHeight: 20
+			Rectangle
+			{
+				Layout.preferredWidth: col.width / 5
+				Label
+				{
+					text: qsTr("Registration Cost")
+					anchors.left: parent.left
+					anchors.verticalCenter: parent.verticalCenter
+					id: ctrRegisterLabel
+					function calculateRegisterGas()
+					{
+						if (!modalDeploymentDialog.visible)
+							return;
+						appUrlFormatted.text = NetworkDeploymentCode.formatAppUrl(applicationUrlEthCtrl.text).join('/');
+						NetworkDeploymentCode.checkPathCreationCost(applicationUrlEthCtrl.text, function(pathCreationCost)
+						{
+							var ether = QEtherHelper.createBigInt(pathCreationCost);
+							if (gasPriceConf.gasPrice)
+							{
+								var gasTotal = ether.multiply(gasPriceConf.gasPrice.toWei());
+								gasToUseDeployInput.value = QEtherHelper.createEther(gasTotal.value(), QEther.Wei, parent);
+								gasToUseDeployInput.update();
+							}
+						});
+					}
+				}
+			}
+
+			Ether
+			{
+				id: gasToUseDeployInput
+				displayUnitSelection: false
+				displayFormattedValue: true
+				edit: false
+				Layout.preferredWidth: 235
 			}
 		}
 	}
@@ -335,17 +400,18 @@ Rectangle {
 			anchors.right: parent.right
 			anchors.rightMargin: 10
 			text: qsTr("Register Dapp")
+			id: registerDappBtn
 			width: 30
 			onClicked:
 			{
 				verificationEthUrl.text = ""
 				verificationUrl.text = ""
 				projectModel.cleanRegisteringStatus()
-				var gasPrice = deploymentDialog.deployStep.gasPrice.toHexWei()
-				parent.registerHash(gasPrice, function(){
-					parent.registerUrl(gasPrice, function(){})
+				parent.registerHash(gasPriceConf.gasPrice, function(){
+					parent.registerUrl(gasPriceConf.gasPrice, function(){})
 				})
 			}
+			enabled: applicationUrlEthCtrl.text != "" && applicationUrlHttpCtrl.text != "" && registrarAddr.text != "" && registrarAddr.text.length === 40
 		}
 	}
 }

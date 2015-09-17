@@ -143,12 +143,49 @@ Rectangle
 					property bool isSelected
 					property bool renameMode
 
+					Row
+					{
+						z: 6
+						anchors.right: parent.right
+						anchors.rightMargin: 8
+						anchors.verticalCenter: parent.verticalCenter
+						spacing: 3
+
+						Button
+						{
+							iconSource: "qrc:/qml/img/edit_rename.png"
+							tooltip: qsTr("Rename")
+							visible: !isContract
+							width: 15
+							height: 15
+							onClicked:
+							{
+								rootItem.renameMode = true;
+							}
+							anchors.verticalCenter: parent.verticalCenter
+						}
+
+						Button
+						{
+							iconSource: "qrc:/qml/img/Trash.png"
+							tooltip: qsTr("Delete")
+							width: 15
+							height: 15
+							onClicked:
+							{
+								deleteConfirmation.open();
+							}
+							anchors.verticalCenter: parent.verticalCenter
+						}
+					}
+
 					Row {
 						spacing: 3
 						anchors.verticalCenter: parent.verticalCenter
 						anchors.fill: parent
 						anchors.left: parent.left
 						anchors.leftMargin: projectFilesStyle.general.leftMargin + 2
+						id: rowFileName
 						Text {
 							id: nameText
 							height: parent.height
@@ -188,7 +225,7 @@ Rectangle
 							text: "*"
 							width: 10
 							height: parent.height
-						}
+						}						
 					}
 
 					TextInput {
@@ -242,14 +279,7 @@ Rectangle
 						anchors.fill: parent
 						acceptedButtons: Qt.LeftButton | Qt.RightButton
 						onClicked:{
-							if (mouse.button === Qt.RightButton)
-							{
-								if (isContract)
-									contextMenuContract.popup();
-								else
-									contextMenu.popup();
-							}
-							else if (mouse.button === Qt.LeftButton)
+							if (mouse.button === Qt.LeftButton)
 							{
 								rootItem.isSelected = true;
 								projectModel.openDocument(documentId);

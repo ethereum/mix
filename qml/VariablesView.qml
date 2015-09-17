@@ -15,6 +15,7 @@ DebugInfoList
 		id: structComp
 		ScrollView
 		{
+			id: scrollVar
 			property alias members: typeLoader.members;
 			property alias value: typeLoader.value;
 			anchors.fill: parent

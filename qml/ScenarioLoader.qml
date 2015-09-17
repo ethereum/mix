@@ -20,37 +20,101 @@ ColumnLayout
 	signal loaded(variant scenario)
 	signal renamed(variant scenario)
 	signal deleted()
+	signal closed()
 	property alias selectedScenarioIndex: scenarioList.currentIndex
+	property bool panelLoaded: false
 	spacing: 0
 	function init()
 	{
+		scenarioList.model = projectModel.stateListModel
 		scenarioList.load()
+		panelLoaded = true
+	}
+
+	function clear()
+	{
+		scenarioList.model = []
+		closed()
+		panelLoaded = false
 	}
 
 	function needSaveOrReload()
 	{
 	}
 
+	function updateWidth(_width)
+	{
+		var w;
+		if (_width < btnRowContainer.minimalWidth)
+			w = (_width - 180) / 6
+		else
+			w = 100
+		updatebtnWidth(w)
+		if (_width < 600)
+		{
+			rowBtn.anchors.top = scenarioCont.bottom
+			rowBtn.anchors.topMargin = 5
+			rowBtn.anchors.left = scenarioCont.parent.left
+			rowBtn.anchors.leftMargin = 0
+			btnRowContainer.anchors.horizontalCenter = undefined
+			scenarioCont.anchors.topMargin = -15
+			updatebtnWidth(40)
+		}
+		else
+		{
+			rowBtn.anchors.top = scenarioCont.parent.top
+			rowBtn.anchors.topMargin = 0
+			rowBtn.anchors.left = scenarioCont.right
+			rowBtn.anchors.leftMargin = 25
+			btnRowContainer.anchors.horizontalCenter = btnRowContainer.parent.horizontalCenter
+			scenarioCont.anchors.topMargin = 0
+		}
+	}
+
+	function updatebtnWidth(w)
+	{
+		editScenario.width = w
+		deleteScenario.width = w
+		duplicateScenario.width = w
+		addScenario.width = w
+		restoreScenario.width = w
+		saveScenario.width = w
+		rowBtn.width = 6 * w
+	}
+
 	RowLayout
 	{
-		Layout.preferredWidth: 560
 		anchors.horizontalCenter: parent.horizontalCenter
 		Layout.preferredHeight: 75
 		spacing: 0
 		anchors.top: parent.top
 		anchors.topMargin: 10
+		id: btnRowContainer
+		property int minimalWidth: 100 * 6 + 180
 
-		Row
+		Item
 		{
-			Layout.preferredWidth: 100 * 5 + 30
+			Layout.preferredWidth: parent.minimalWidth
 			Layout.preferredHeight: 50
-			spacing: 25
-
 			Rectangle
 			{
 				color: "white"
-				width: 251 + 30
+				width: 180
 				height: 30
+				id: scenarioCont
+				anchors.top: parent.top
+				Rectangle
+				{
+					anchors.top: parent.bottom
+					anchors.topMargin: 15
+					width: parent.width
+					Label
+					{
+						text: qsTr("Scenario")
+						id: scenarioLabel
+						anchors.centerIn: parent
+					}
+				}
 
 				Rectangle
 				{
@@ -58,66 +122,8 @@ ColumnLayout
 					width: 10
 					height: parent.height
 					anchors.left: parent.left
-					anchors.leftMargin: -5
+					anchors.leftMargin: -4
 					radius: 15
-				}
-
-				Image {
-					source: "qrc:/qml/img/edittransaction.png"
-					height: parent.height - 10
-					fillMode: Image.PreserveAspectFit
-					anchors.left: parent.left
-					anchors.top: parent.top
-					anchors.topMargin: 4
-					id: editImg
-					MouseArea
-					{
-						anchors.fill: parent
-						onClicked:
-						{
-							scenarioNameEdit.toggleEdit()
-						}
-					}
-				}
-
-				Image {
-					source: "qrc:/qml/img/delete_sign.png"
-					height: parent.height - 16
-					fillMode: Image.PreserveAspectFit
-					id: deleteImg
-					anchors.left: editImg.right
-					anchors.top: parent.top
-					anchors.topMargin: 8
-					visible: projectModel.stateListModel.count > 1
-					MouseArea
-					{
-						anchors.fill: parent
-						onClicked:
-						{
-							if (projectModel.stateListModel.count > 1)
-							{
-								projectModel.stateListModel.deleteState(scenarioList.currentIndex)
-								scenarioList.init()
-							}
-						}
-					}
-				}
-
-				Label
-				{
-
-					MouseArea
-					{
-						anchors.fill: parent
-						onClicked:
-						{
-							if (projectModel.stateListModel.count > 1)
-							{
-								projectModel.stateListModel.deleteState(scenarioList.currentIndex)
-								scenarioList.init()
-							}
-						}
-					}
 				}
 
 				Connections
@@ -131,13 +137,12 @@ ColumnLayout
 				ComboBox
 				{
 					id: scenarioList
-					anchors.left: deleteImg.right
-					anchors.leftMargin: 2
+					anchors.left: parent.left
 					model: projectModel.stateListModel
 					anchors.top: parent.top
 					textRole: "title"
 					height: parent.height
-					width: 150
+					width: 182
 					signal updateView()
 
 					onCurrentIndexChanged:
@@ -169,12 +174,35 @@ ColumnLayout
 							anchors.fill: parent
 							color: "white"
 							Label {
+								Image {
+									id: up
+									anchors.top: parent.top
+									anchors.right: parent.right
+									anchors.topMargin: -4
+									source: "qrc:/qml/img/up.png"
+									width: 15
+									height: 15
+								}
+
+								Image {
+									id: down
+									anchors.bottom: parent.bottom
+									anchors.bottomMargin: -5
+									anchors.right: parent.right
+									source: "qrc:/qml/img/down.png"
+									width: 15
+									height: 15
+								}
 								id: comboLabel
 								maximumLineCount: 1
 								elide: Text.ElideRight
 								width: parent.width
 								anchors.verticalCenter: parent.verticalCenter
 								anchors.left: parent.left
+								anchors.leftMargin: -6
+								anchors.top: parent.top
+								anchors.topMargin: 3
+
 								Component.onCompleted:
 								{
 									comboLabel.updateLabel()
@@ -202,6 +230,9 @@ ColumnLayout
 									onDeleted: {
 										comboLabel.updateLabel()
 									}
+									onClosed: {
+										comboLabel.text = ""
+									}
 								}
 							}
 						}
@@ -211,12 +242,13 @@ ColumnLayout
 				TextField
 				{
 					id: scenarioNameEdit
-					anchors.left: deleteImg.right
-					anchors.leftMargin: 2
+					anchors.left: scenarioCont.left
+					anchors.top: parent.top
+					anchors.leftMargin: -4
 					height: parent.height
 					z: 5
 					visible: false
-					width: 150
+					width: 190
 					Keys.onEnterPressed:
 					{
 						toggleEdit()
@@ -244,23 +276,19 @@ ColumnLayout
 					function save()
 					{
 						outsideClick.active = false
+
+						for (var k = 0; k < projectModel.stateListModel.count; ++k)
+						{
+								if (projectModel.stateListModel.get(k).title === scenarioNameEdit.text)
+									return //title already exists
+						}
+
 						projectModel.stateListModel.getState(scenarioList.currentIndex).title = scenarioNameEdit.text
 						projectModel.saveProjectFile()
 						saved(state)
 						scenarioList.model.get(scenarioList.currentIndex).title = scenarioNameEdit.text
 						scenarioList.currentIndex = scenarioList.currentIndex
 						renamed(projectModel.stateListModel.getState(scenarioList.currentIndex))
-					}
-
-					style: TextFieldStyle {
-						background: Rectangle {
-									radius: 2
-									implicitWidth: 100
-									implicitHeight: 30
-									color: "white"
-									border.color: "#cccccc"
-									border.width: 1
-								}
 					}
 
 					InverseMouseArea {
@@ -275,7 +303,76 @@ ColumnLayout
 
 				Rectangle
 				{
-					width: 1					
+					width: 10
+					height: parent.height
+					anchors.right: parent.right
+					anchors.rightMargin: -4
+					color: "white"
+					radius: 15
+				}
+			}
+
+			Rectangle
+			{
+				anchors.left: scenarioCont.right
+				anchors.leftMargin: 25
+				width: 100 * 6
+				height: 30
+				color: "transparent"
+				id: rowBtn
+				ScenarioButton {
+					id: editScenario
+					width: 100
+					height: parent.height
+					sourceImg: "qrc:/qml/img/edittransaction.png"
+					onClicked: {
+						scenarioNameEdit.toggleEdit()
+					}
+					text: qsTr("Edit Title")
+					roundRight: false
+					roundLeft: true
+					enabled: panelLoaded
+				}
+
+				Rectangle
+				{
+					width: 1
+					height: parent.height
+					anchors.right: deleteScenario.left
+					color: "#ededed"
+				}
+
+				ScenarioButton {
+					id: deleteScenario
+					enabled: panelLoaded
+					width: 100
+					height: parent.height
+					anchors.left: editScenario.right
+					sourceImg: "qrc:/qml/img/warningicon.png"
+					onClicked: {
+						if (projectModel.stateListModel.count > 1)
+							deleteWarning.open()
+					}
+					text: qsTr("Delete")
+					roundRight: false
+					roundLeft: false
+				}
+
+				MessageDialog
+				{
+					id: deleteWarning
+					text: qsTr("Are you sure to delete this scenario ?")
+					onYes:
+					{
+						projectModel.stateListModel.deleteState(scenarioList.currentIndex)
+						scenarioList.init()
+					}
+					standardButtons: StandardButton.Yes | StandardButton.No
+				}
+
+				Rectangle
+				{
+					width: 1
 					height: parent.height
 					anchors.right: addScenario.left
 					color: "#ededed"
@@ -283,10 +380,10 @@ ColumnLayout
 
 				ScenarioButton {
 					id: addScenario
-					anchors.left: scenarioList.right
+					enabled: panelLoaded
 					width: 100
 					height: parent.height
-					buttonShortcut: ""
+					anchors.left: deleteScenario.right
 					sourceImg: "qrc:/qml/img/restoreicon@2x.png"
 					onClicked: {
 						var item = projectModel.stateListModel.createDefaultState();
@@ -294,31 +391,33 @@ ColumnLayout
 						projectModel.stateListModel.appendState(item)
 						projectModel.stateListModel.save()
 						scenarioList.currentIndex = projectModel.stateListModel.count - 1
-						clientModel.setupScenario(item);
+						scenarioNameEdit.toggleEdit()
 					}
-					text: qsTr("New...")
-					roundRight: true
+					text: qsTr("New")
+					roundRight: false
 					roundLeft: false
 				}
-			}
 
-
-			Rectangle
-			{
-				width: 100 * 3
-				height: 30
-				color: "transparent"
+				Rectangle
+				{
+					width: 1
+					height: parent.height
+					anchors.right: restoreScenario.left
+					color: "#ededed"
+				}
 
 				ScenarioButton {
 					id: restoreScenario
+					enabled: panelLoaded
 					width: 100
 					height: parent.height
+					anchors.left: addScenario.right
 					buttonShortcut: ""
 					sourceImg: "qrc:/qml/img/restoreicon@2x.png"
 					onClicked: {
 						restore()
 					}
-					text: qsTr("Restore")
+					text: qsTr("Reset")
 					function restore()
 					{
 						var state = projectModel.stateListModel.reloadStateFromProject(scenarioList.currentIndex)
@@ -329,7 +428,7 @@ ColumnLayout
 						}
 					}
 					roundRight: false
-					roundLeft: true
+					roundLeft: false
 				}
 
 				Rectangle
@@ -342,18 +441,30 @@ ColumnLayout
 
 				ScenarioButton {
 					id: saveScenario
+					enabled: panelLoaded
 					anchors.left: restoreScenario.right
 					text: qsTr("Save")
-					onClicked: {
-						projectModel.saveProjectFile()
-						saved(state)
-					}
+					onClicked: save()
 					width: 100
 					height: parent.height
 					buttonShortcut: ""
 					sourceImg: "qrc:/qml/img/saveicon@2x.png"
 					roundRight: false
 					roundLeft: false
+
+					function save()
+					{
+						projectModel.saveProjectFile()
+						saved(state)
+					}
+				}
+
+				Connections
+				{
+					target: clientModel
+					onSetupFinished: {
+						saveScenario.save()
+					}
 				}
 
 				Rectangle
@@ -368,10 +479,13 @@ ColumnLayout
 				{
 					id: duplicateScenario
 					anchors.left: saveScenario.right
+					enabled: panelLoaded
 					text: qsTr("Duplicate")
 					onClicked: {
 						projectModel.stateListModel.duplicateState(scenarioList.currentIndex)
 						duplicated(state)
+						scenarioList.currentIndex = projectModel.stateListModel.count - 1
+						scenarioNameEdit.toggleEdit()
 					}
 					width: 100
 					height: parent.height

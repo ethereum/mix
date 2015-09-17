@@ -15,22 +15,22 @@ Dialog {
 
 	width: 630
 	height: 660
-	title: qsTr("Edit Genesis Parameters")
+	title: qsTr("Edit Starting Parameters")
 	visible: false
 
-	property alias isDefault: defaultCheckBox.checked
 	property alias minerComboBox: comboMiner
 	property int stateIndex
 	property var stateTransactions: []
 	property var stateAccounts: []
 	property var stateContracts: []
 	signal accepted
+	signal closed
 
 	StateDialogStyle {
 		id: stateDialogStyle
 	}
 
-	function open(index, item, setDefault) {
+	function open(index, item) {
 		stateIndex = index
 		accountsModel.clear()
 		stateAccounts = []
@@ -41,7 +41,7 @@ Dialog {
 			if (item.miner && item.accounts[k].name === item.miner.name)
 				miner = k
 		}
-
+		contractsModel.clear()
 		stateContracts = []
 		if (item.contracts) {
 			for (k = 0; k < item.contracts.length; k++) {
@@ -51,12 +51,10 @@ Dialog {
 		}
 
 		visible = true
-		isDefault = setDefault
-		console.log(isDefault)
-		defaultCheckBox.checked = isDefault
 		comboMiner.model = stateAccounts
 		comboMiner.currentIndex = miner
 		forceActiveFocus()
+
 	}
 
 	function acceptAndClose() {
@@ -66,6 +64,7 @@ Dialog {
 
 	function close() {
 		visible = false
+		closed()
 	}
 
 	function getItem() {
@@ -79,7 +78,6 @@ Dialog {
 				break
 			}
 		}
-		item.defaultState = defaultCheckBox.checked
 		return item
 	}
 
@@ -163,7 +161,7 @@ Dialog {
 							TableViewColumn {
 								role: "name"
 								title: qsTr("Name")
-								width: 230
+								width: 260
 								delegate: Item {
 									RowLayout {
 										height: 25
@@ -172,6 +170,7 @@ Dialog {
 										Button {
 											iconSource: "qrc:/qml/img/delete_sign.png"
 											action: deleteContractAction
+											anchors.verticalCenter: parent.verticalCenter
 										}
 
 										Action {
@@ -184,6 +183,7 @@ Dialog {
 										}
 
 										DefaultTextField {
+											Layout.fillWidth: true
 											anchors.verticalCenter: parent.verticalCenter
 											onTextChanged: {
 												if (styleData.row > -1)
@@ -198,9 +198,11 @@ Dialog {
 							TableViewColumn {
 								role: "balance"
 								title: qsTr("Balance")
-								width: 200
+								width: 230
 								delegate: Item {
 									Ether {
+										width: parent.width
+										anchors.verticalCenter: parent.verticalCenter
 										edit: true
 										displayFormattedValue: false
 										value: styleData.value
@@ -228,6 +230,29 @@ Dialog {
 								Layout.preferredWidth: 85
 								text: qsTr("Accounts")
 							}
+
+							Button
+							{
+								id: addAccount
+								anchors.top: accountsLabel.bottom
+								anchors.topMargin: 2
+								iconSource: "qrc:/qml/img/Write.png"
+								tooltip: qsTr("Add new account")
+								onClicked:
+								{
+									newAddressWin.accounts = stateAccounts
+									newAddressWin.open()
+								}
+							}
+
+							CopyButton
+							{
+								anchors.top: addAccount.bottom
+								anchors.topMargin: 2
+								getContent: function() {
+									return JSON.stringify(stateAccounts, null, "\t");
+								}
+							}
 						}
 
 						MessageDialog {
@@ -245,14 +270,16 @@ Dialog {
 							TableViewColumn {
 								role: "name"
 								title: qsTr("Name")
-								width: 230
+								width: 400
 								delegate: Item {
 									RowLayout {
-										height: 25
+										height: 60
 										width: parent.width
+
 										Button {
-											iconSource: "qrc:/qml/img/delete_sign.png"
+											iconSource: "qrc:/qml/img/Trash.png"
 											action: deleteAccountAction
+											anchors.verticalCenter: parent.verticalCenter
 										}
 
 										Action {
@@ -264,40 +291,77 @@ Dialog {
 											}
 										}
 
+										Component.onCompleted:
+										{
+											addressCopy.originalText = stateAccounts[styleData.row].address
+										}
+
 										DefaultTextField {
-											anchors.verticalCenter: parent.verticalCenter
+											property bool first: true
+											anchors.top: parent.top
+											Layout.preferredWidth: 100
 											onTextChanged: {
-												if (styleData.row > -1) {
+												if (styleData.row > -1 && stateAccounts[styleData.row])
+												{
 													stateAccounts[styleData.row].name = text
 													var index = comboMiner.currentIndex
 													comboMiner.model = stateAccounts
 													comboMiner.currentIndex = index
 												}
+												if (first)
+												{
+													addressField.cursorPosition = 0
+													first = false
+												}
 											}
 											text: {
 												return styleData.value
+											}
+											id: addressField
+
+											DisableInput
+											{
+												anchors.top: parent.bottom
+												anchors.topMargin: 5
+												id: addressCopy
+												width: 400
+											}
+										}
+
+										Ether {
+											anchors.top: parent.top
+											Layout.preferredWidth: 400
+											edit: true
+											displayFormattedValue: false
+											value: {
+												if (stateAccounts[styleData.row])
+													return stateAccounts[styleData.row].balance
+											}
+											displayUnitSelection: true
+											Component.onCompleted: {
+												formatInput()
 											}
 										}
 									}
 								}
 							}
 
-							TableViewColumn {
-								role: "balance"
-								title: qsTr("Balance")
-								width: 200
-								delegate: Item {
-									Ether {
-										edit: true
-										displayFormattedValue: false
-										value: styleData.value
-									}
-								}
-							}
 							rowDelegate: Rectangle {
 								color: styleData.alternate ? "transparent" : "#f0f0f0"
-								height: 30
+								height: 60
 							}
+						}
+					}
+
+					NewAccount
+					{
+						id: newAddressWin
+						onAccepted:
+						{
+							accountsModel.append(ac)
+							stateAccounts.push(ac)
+							clientModel.addAccount(ac.secret);
+							projectModel.saveProject()
 						}
 					}
 
@@ -321,23 +385,6 @@ Dialog {
 					CommonSeparator {
 						Layout.fillWidth: true
 					}
-
-					RowLayout {
-						Layout.fillWidth: true
-						DefaultLabel {
-							Layout.preferredWidth: 85
-							text: qsTr("Default")
-						}
-						CheckBox {
-							id: defaultCheckBox
-							Layout.fillWidth: true
-						}
-					}
-
-					CommonSeparator {
-						Layout.fillWidth: true
-					}
-
 				}
 
 				RowLayout {
