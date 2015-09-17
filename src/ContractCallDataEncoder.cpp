@@ -347,7 +347,7 @@ QVariant ContractCallDataEncoder::decode(SolidityType const& _type, bytes const&
 
 QVariant ContractCallDataEncoder::decodeRawArray(SolidityType const& _type, bytes const& _value, int& pos)
 {
-	if (_value.size() < (size_t)pos)
+	if (_value.size() <= (size_t)pos)
 		return QVariant();
 	int count = _type.count;
 	if (_type.dynamicSize)
