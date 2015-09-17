@@ -255,9 +255,9 @@ Dialog {
 			else
 			{
 				paramsModel = []
-				paramScroll.updateView()
 				labelRecipient.text = qsTr("Recipient Account")
 				functionRect.hide()
+				paramScroll.updateView()
 			}
 		}
 		else
@@ -442,7 +442,7 @@ Dialog {
 				}
 
 				RowLayout
-				{					
+				{
 					Rectangle
 					{
 						Layout.preferredWidth: 150
@@ -463,7 +463,11 @@ Dialog {
 						onIndexChanged:
 						{
 							if (rbbuttonList.current.objectName === "trTypeExecute")
+							{
 								loadFunctions(TransactionHelper.contractFromToken(currentValue()))
+								loadParameters();
+								paramScroll.updateView()
+							}
 							var addr = getAddress()
 							addrRecipient.originalText = addr.indexOf("0x") === 0 ? addr.replace("0x", "") : addr
 						}

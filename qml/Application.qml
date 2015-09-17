@@ -44,7 +44,7 @@ ApplicationWindow {
 		codeModel: codeModel
 		Component.onCompleted:
 		{
-			init("/tmp")
+			init("/mixdebug")
 		}
 	}
 

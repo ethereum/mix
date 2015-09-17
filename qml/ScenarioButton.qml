@@ -148,7 +148,7 @@ Rectangle {
 	{
 		id: labelCont
 		anchors.top: contentRectangle.bottom
-		anchors.topMargin: 15
+		anchors.topMargin: 10
 		width: parent.width
 		Label
 		{

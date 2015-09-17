@@ -16,14 +16,7 @@ ColumnLayout
 	signal indexChanged()
 	spacing: 0
 	id: editRoot
-	height:
-	{
-		if (isArray() && !readOnly)
-			return 60
-		else
-			return 30
-	}
-
+	height: getHeight()
 	width: 320
 
 	SourceSansProBold
@@ -49,6 +42,14 @@ ColumnLayout
 	function current()
 	{
 		return accountRef.get(trCombobox.currentIndex);
+	}
+
+	function getHeight()
+	{
+		if (isArray() && !readOnly)
+			return 60
+		else
+			return 30
 	}
 
 	function getAddress()
@@ -95,6 +96,8 @@ ColumnLayout
 				accountRef.append({ "itemid": accounts[k].name, "value": "0x" + accounts[k].address, "type": "address" });
 			}
 		}
+
+		editRoot.height = editRoot.getHeight()
 	}
 
 	function init()

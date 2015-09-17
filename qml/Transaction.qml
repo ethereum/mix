@@ -140,6 +140,7 @@ RowLayout
 				Layout.preferredWidth: fromWidth
 				anchors.left: parent.left
 				anchors.leftMargin: horizontalMargin
+				anchors.verticalCenter: parent.verticalCenter
 				Text
 				{
 					id: hash
@@ -157,20 +158,22 @@ RowLayout
 						else
 							return ""
 					}
+				}
 
-					Image {
-						anchors.right: parent.right
-						source: "qrc:/qml/img/right.png"
-						fillMode: Image.PreserveAspectFit
-						anchors.verticalCenter: parent.verticalCenter
-						width: 20
-					}
+				Image {
+					anchors.left: hash.right
+					anchors.leftMargin: 1
+					source: "qrc:/qml/img/right.png"
+					fillMode: Image.PreserveAspectFit
+					anchors.verticalCenter: parent.verticalCenter
+					width: 20
 				}
 			}
 
 			Rectangle
 			{
 				Layout.preferredWidth: toWidth
+				anchors.verticalCenter: parent.verticalCenter
 				Text
 				{
 					id: func
@@ -187,7 +190,7 @@ RowLayout
 					font.bold: true
 					clip: true
 					maximumLineCount: 1
-					width: parent.width
+					width: parent.width - 50
 				}
 
 				Label

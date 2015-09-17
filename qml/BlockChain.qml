@@ -126,18 +126,8 @@ ColumnLayout {
 	onWidthChanged:
 	{
 		var minWidth = scenarioMinWidth - 20 // margin
-		if (width <= minWidth || previousWidth <= minWidth)
-		{
-			fromWidth = 250
-			toWidth = 240
-		}
-		else
-		{
-			var diff = (width - previousWidth) / 3;
-			fromWidth = fromWidth + diff < 250 ? 250 : fromWidth + diff
-			toWidth = toWidth + diff
-		}
-
+		fromWidth = width / 2
+		toWidth = width / 2
 		if (width < 500)
 			btnsContainer.Layout.preferredWidth = width - 30
 		else
@@ -268,11 +258,6 @@ ColumnLayout {
 	property int horizontalMargin: 10
 	property int cellSpacing: 10
 
-	RowLayout
-	{
-		Layout.preferredHeight: 10
-	}
-
 	Rectangle
 	{
 		MouseArea
@@ -283,7 +268,7 @@ ColumnLayout {
 				blockChainPanel.forceActiveFocus()
 			}
 		}
-		Layout.preferredHeight: 500
+		Layout.preferredHeight: 300
 		Layout.preferredWidth: parent.width
 		border.color: "#cccccc"
 		border.width: 2
@@ -292,17 +277,18 @@ ColumnLayout {
 		{
 			id: blockChainScrollView
 			anchors.fill: parent
-			anchors.topMargin: 8
-			ColumnLayout
+			anchors.topMargin: 4
+            anchors.bottomMargin: 4
+            ColumnLayout
 			{
 				id: blockChainLayout
 				width: parent.width
-				spacing: 20
+				spacing: 10
 
 
 				Rectangle
 				{
-					Layout.preferredHeight: 80
+					Layout.preferredHeight: 60
 					Layout.preferredWidth: blockChainScrollView.width
 					color: "transparent"
 
@@ -615,7 +601,7 @@ ColumnLayout {
 	Rectangle
 	{
 		Layout.preferredWidth: 500
-		Layout.preferredHeight: 70
+		Layout.preferredHeight: 60
 		anchors.horizontalCenter: parent.horizontalCenter
 		color: "transparent"
 		id: btnsContainer
@@ -1004,6 +990,8 @@ ColumnLayout {
 			Rectangle {
 				width: 100
 				height: 30
+                border.width: 1
+                border.color: "red"
 				ScenarioButton {
 					id: newAccount
 					enabled: scenarioIndex !== -1
