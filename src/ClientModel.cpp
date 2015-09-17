@@ -411,7 +411,10 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 							break;
 						}
 				if (!f)
+				{
 					emit runFailed("Function '" + transaction.functionId + tr("' not found. Please check transactions or the contract code."));
+					break;
+				}
 				if (!transaction.functionId.isEmpty())
 					encoder.encode(f);
 				for (QVariableDeclaration const* p: f->parametersList())
