@@ -77,7 +77,7 @@ Rectangle
 	Rectangle {
 		color: selectedTxColor
 		anchors.fill: parent
-        anchors.margins: 10
+		anchors.margins: 10
 		radius: 4
 		Column {
 			anchors.fill: parent

@@ -23,7 +23,6 @@ ColumnLayout
 	signal closed()
 	property alias selectedScenarioIndex: scenarioList.currentIndex
 	property bool panelLoaded: false
-    property int rowbtnWidth: 100
 	spacing: 0
 	function init()
 	{

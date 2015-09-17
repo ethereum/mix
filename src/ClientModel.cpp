@@ -91,6 +91,9 @@ ClientModel::ClientModel():
 ClientModel::~ClientModel()
 {
 	m_runFuture.waitForFinished();
+	QString tempDir = (m_dbpath != QString() ? QStandardPaths::writableLocation(QStandardPaths::TempLocation) + m_dbpath : QStandardPaths::writableLocation(QStandardPaths::TempLocation));
+	QDir dir(tempDir);
+	dir.removeRecursively();
 }
 
 void ClientModel::init(QString _dbpath)
@@ -99,7 +102,7 @@ void ClientModel::init(QString _dbpath)
 	if (m_dbpath.isEmpty())
 		m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()));
 	else
-		m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString() + "/" + m_dbpath.toStdString()));
+		m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString() + m_dbpath.toStdString()));
 
 	m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, std::vector<KeyPair>());
 	m_web3Server.reset(new Web3Server(*m_rpcConnector.get(), m_ethAccounts, std::vector<KeyPair>(), m_client.get()));
