@@ -203,7 +203,7 @@ Rectangle {
 				ScenarioExecution
 				{
 					id: scenarioExe;
-					visible: false;
+					visible: true;
 					Layout.fillHeight: true
 					Keys.onEscapePressed: visible = false
 					Layout.minimumWidth: scenarioMinWidth

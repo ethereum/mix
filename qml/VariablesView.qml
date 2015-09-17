@@ -13,6 +13,7 @@ DebugInfoList
 	Component
 	{
 		id: structComp
+
 		ScrollView
 		{
 			id: scrollVar
@@ -36,6 +37,8 @@ DebugInfoList
 		storage.item.members = [];
 		storage.item.value = values; //TODO: use a signal for this?
 		storage.item.members = members;
+		if (storage.collapsed && Object.keys(values).length > 0)
+			storage.show()
 	}
 }
 

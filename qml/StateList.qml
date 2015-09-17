@@ -18,6 +18,7 @@ Dialog {
 		{
 			anchors.fill: parent
 			anchors.margins: 10
+
 			TableView {
 				id: list
 				Layout.fillHeight: true
