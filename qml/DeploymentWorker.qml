@@ -203,7 +203,7 @@ Item
 		codeModel: codeModelGasEstimation
 		Component.onCompleted:
 		{
-			init("/tmp/bcgas/")
+			init("/mixbcgas")
 		}
 	}
 

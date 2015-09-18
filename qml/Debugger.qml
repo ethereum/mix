@@ -37,6 +37,18 @@ Rectangle {
 	{
 		Debugger.updateMode();
 		machineStates.updateHeight();
+
+		if (assemblyMode)
+		{
+			callStack.updateView()
+			storage.updateView()
+			memoryDump.updateView()
+			callDataDump.updateView()
+		}
+		else
+		{
+			solCallStack.updateView()
+		}
 	}
 
 	function setTr(tr)
@@ -66,6 +78,13 @@ Rectangle {
 			Debugger.init(data);
 			debugScrollArea.visible = true;
 			machineStates.visible = true;
+			solCallStack.collapse()
+			solLocals.collapse()
+			solStorage.collapse()
+			callStack.collapse()
+			storage.collapse()
+			memoryDump.collapse()
+			callDataDump.collapse()
 		}
 		if (giveFocus)
 			forceActiveFocus();
