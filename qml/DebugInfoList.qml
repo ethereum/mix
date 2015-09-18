@@ -14,8 +14,14 @@ ColumnLayout {
 	property Component itemDelegate
 	property Component componentDelegate
 	property alias item: loader.item
+	property variant tableView
 	signal rowActivated(int index)
 	spacing: 0
+
+	function updateView()
+	{
+		tableView.updateView()
+	}
 
 	function collapse()
 	{
@@ -65,17 +71,9 @@ ColumnLayout {
 				if (collapsible)
 				{
 					if (collapsed)
-					{
 						storageContainer.expand();
-						if (storedHeight <= 25)
-							storedHeight = 200;
-						storageContainer.parent.parent.height = storedHeight;
-					}
 					else
-					{
-						storedHeight = root.childrenRect.height;
 						storageContainer.collapse();
-					}
 				}
 			}
 		}
@@ -89,6 +87,7 @@ ColumnLayout {
 		Layout.fillHeight: true
 
 		function collapse() {
+			storedHeight = root.childrenRect.height;
 			storageImgArrow.source = "qrc:/qml/img/closedtriangleindicator.png";
 			if (storageContainer.parent.parent.height > 25)
 				storageContainer.parent.parent.height = 25;
@@ -98,6 +97,9 @@ ColumnLayout {
 		function expand() {
 			storageImgArrow.source = "qrc:/qml/img/opentriangleindicator.png";
 			collapsed = false;
+			if (storedHeight <= 25)
+				storedHeight = 200;
+			storageContainer.parent.parent.height = storedHeight;
 		}
 
 		Loader
@@ -110,14 +112,11 @@ ColumnLayout {
 			width: parent.width - 3
 			height: parent.height - 6
 			onHeightChanged:  {
-				if (height <= 0 && collapsible) {
+				if (height <= 0 && collapsible)
 					storageContainer.collapse();
-				}
-				else if (height > 0 && collapsed) {
+				else if (height > 0 && collapsed)
 					storageContainer.expand();
-				}
 			}
-
 			sourceComponent: componentDelegate ? componentDelegate : table
 		}
 		Component
@@ -141,10 +140,23 @@ ColumnLayout {
 						clipboard.text = str;
 					}
 				}
+				id: view
 
 				TableViewColumn {
 					role: "modelData"
 					width: parent.width
+				}
+
+				onModelChanged: updateView()
+				onRowCountChanged: updateView()
+				function updateView()
+				{
+					if (collapsed && rowCount > 0)
+						storageContainer.expand()
+				}
+
+				Component.onCompleted: {
+					tableView = view
 				}
 			}
 		}
