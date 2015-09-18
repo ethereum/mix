@@ -46,9 +46,7 @@ Rectangle {
 			callDataDump.updateView()
 		}
 		else
-		{
 			solCallStack.updateView()
-		}
 	}
 
 	function setTr(tr)

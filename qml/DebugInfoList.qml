@@ -148,7 +148,7 @@ ColumnLayout {
 				}
 
 				onModelChanged: updateView()
-
+				onRowCountChanged: updateView()
 				function updateView()
 				{
 					console.log(title + " " + rowCount)
