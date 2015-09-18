@@ -151,7 +151,6 @@ ColumnLayout {
 				onRowCountChanged: updateView()
 				function updateView()
 				{
-					console.log(title + " " + rowCount)
 					if (collapsed && rowCount > 0)
 						storageContainer.expand()
 				}
