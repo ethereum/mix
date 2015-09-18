@@ -92,6 +92,7 @@ Rectangle
 				ColumnLayout
 				{
 					height: parent.height
+					width: parent.width
 					anchors.top: parent.top
 					anchors.topMargin: 2
 					Row
@@ -110,7 +111,8 @@ Rectangle
 							color: selectedBlockForeground
 							maximumLineCount: 1
 							clip: true
-							width: 350
+							width: parent.width - 50
+							elide: Text.ElideRight
 						}
 					}
 
@@ -130,7 +132,8 @@ Rectangle
 							color: selectedBlockForeground
 							maximumLineCount: 1
 							clip: true
-							width: 350
+							width: parent.width - 50
+							elide: Text.ElideRight
 						}
 					}
 

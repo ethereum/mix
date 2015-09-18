@@ -268,24 +268,24 @@ ColumnLayout {
 				blockChainPanel.forceActiveFocus()
 			}
 		}
+		anchors.top: parent.top
 		Layout.preferredHeight: 300
 		Layout.preferredWidth: parent.width
 		border.color: "#cccccc"
 		border.width: 2
 		color: "white"
+		id: bcContainer
 		ScrollView
 		{
 			id: blockChainScrollView
 			anchors.fill: parent
 			anchors.topMargin: 4
-            anchors.bottomMargin: 4
-            ColumnLayout
+			anchors.bottomMargin: 4
+			ColumnLayout
 			{
 				id: blockChainLayout
 				width: parent.width
 				spacing: 10
-
-
 				Rectangle
 				{
 					Layout.preferredHeight: 60
@@ -447,6 +447,41 @@ ColumnLayout {
 								return 0
 						}
 					}
+				}
+			}
+		}
+
+		Rectangle
+		{
+			id: slider
+			height: 5
+			width: parent.width
+			anchors.top: parent.bottom
+			color: "#cccccc"
+			MouseArea
+			{
+				anchors.fill: parent
+				drag.target: slider
+				drag.axis: Drag.YAxis
+				acceptedButtons: Qt.LeftButton
+				cursorShape: Qt.SplitVCursor
+				property int pos
+				onMouseYChanged:
+				{
+					if (pressed)
+					{
+						var newHeight = bcContainer.height + mouseY - pos
+						if (newHeight > 300)
+						{
+							bcContainer.Layout.preferredHeight = newHeight
+							blockChainPanel.Layout.preferredHeight = blockChainPanel.height + mouseY - pos
+						}
+					}
+				}
+
+				onPressed:
+				{
+					pos = mouseY
 				}
 			}
 		}
