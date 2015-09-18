@@ -51,7 +51,7 @@
   var qtVersion = navigator.userAgent.match(/QtWebEngine\/(\d*\.\d*.\d*)/);
   qtVersion = qtVersion.length > 0 ? qtVersion[1] : '';
   // Some browsers use the wrong event properties to signal cmd/ctrl on OS X
-  var flipCtrlCmd = mac && (qtVersion.indexOf('5.4') != -1) && (qtwebkit || presto && (presto_version == null || presto_version < 12.11));
+  var flipCtrlCmd = mac && (qtVersion.indexOf('5.4') === 0) && (qtwebkit || presto && (presto_version == null || presto_version < 12.11));
   var captureRightClick = gecko || (ie && ie_version >= 9);
 
   // Optimize some code when these features are not used.
