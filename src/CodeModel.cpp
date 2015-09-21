@@ -81,7 +81,7 @@ private:
 	virtual bool visit(VariableDeclaration const& _node) override
 	{
 		SolidityDeclaration decl;
-		decl.type = CodeModel::nodeType(_node.type().get());
+		decl.type = CodeModel::nodeType(_node.type(nullptr).get());
 		decl.name = QString::fromStdString(_node.name());
 		decl.slot = 0;
 		decl.offset = 0;
@@ -133,7 +133,7 @@ QHash<unsigned, SolidityDeclarations> collectStorage(dev::solidity::ContractDefi
 		dev::solidity::VariableDeclaration const* declaration = std::get<0>(v);
 		dev::u256 slot = std::get<1>(v);
 		unsigned offset = std::get<2>(v);
-		result[static_cast<unsigned>(slot)].push_back(SolidityDeclaration { QString::fromStdString(declaration->name()), CodeModel::nodeType(declaration->type().get()), slot, offset });
+		result[static_cast<unsigned>(slot)].push_back(SolidityDeclaration { QString::fromStdString(declaration->name()), CodeModel::nodeType(declaration->type(nullptr).get()), slot, offset });
 	}
 	return result;
 }
@@ -311,12 +311,38 @@ void CodeModel::runCompilationJob(int _jobId)
 				sourceNames.push_back(c.first.toStdString());
 			}
 		}
-		cs.compile(m_optimizeCode);
-		gasEstimation(cs);
-		collectContracts(cs, sourceNames);
+		if (!cs.compile(m_optimizeCode))
+		{
+			for (auto const& exception: cs.errors())
+			{
+				// This code is duplicated below for a transition period until we switch away from
+				// exceptions for error reporting.
+				std::stringstream error;
+				solidity::SourceReferenceFormatter::printExceptionInformation(error, *exception, "Error", cs);
+				QString message = QString::fromStdString(error.str());
+				QVariantMap firstLocation;
+				QVariantList secondLocations;
+				if (SourceLocation const* first = boost::get_error_info<solidity::errinfo_sourceLocation>(*exception))
+					firstLocation = resolveCompilationErrorLocation(cs, *first);
+				if (SecondarySourceLocation const* second = boost::get_error_info<solidity::errinfo_secondarySourceLocation>(*exception))
+				{
+					for (auto const& c: second->infos)
+						secondLocations.push_back(resolveCompilationErrorLocation(cs, c.second));
+				}
+				compilationError(message, firstLocation, secondLocations);
+				break; // @TODO provide a way to display multiple errors.
+			}
+		}
+		else
+		{
+			gasEstimation(cs);
+			collectContracts(cs, sourceNames);
+		}
 	}
 	catch (dev::Exception const& _exception)
 	{
+		// This code is duplicated above for a transition period until we switch away from
+		// exceptions for error reporting.
 		std::stringstream error;
 		solidity::SourceReferenceFormatter::printExceptionInformation(error, _exception, "Error", cs);
 		QString message = QString::fromStdString(error.str());
@@ -371,7 +397,7 @@ void CodeModel::gasEstimation(solidity::CompilerStack const& _cs)
 		if (!m_gasCostsMaps->contains(sourceName))
 			m_gasCostsMaps->insert(sourceName, QVariantList());
 
-		if (!contractDefinition.isFullyImplemented())
+		if (!contractDefinition.annotation().isFullyImplemented)
 			continue;
 		dev::solidity::SourceUnit const& sourceUnit = _cs.ast(*contractDefinition.location().sourceName);
 		AssemblyItems const* items = _cs.runtimeAssemblyItems(n);
@@ -470,7 +496,7 @@ void CodeModel::collectContracts(dev::solidity::CompilerStack const& _cs, std::v
 			continue;
 		QString name = QString::fromStdString(n);
 		ContractDefinition const& contractDefinition = _cs.contractDefinition(n);
-		if (!contractDefinition.isFullyImplemented())
+		if (!contractDefinition.annotation().isFullyImplemented)
 			continue;
 		QString sourceName = QString::fromStdString(*contractDefinition.location().sourceName);
 		auto sourceIter = m_pendingContracts.find(sourceName);
