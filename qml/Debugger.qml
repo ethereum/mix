@@ -188,6 +188,19 @@ Rectangle {
 			}
 		}
 
+		RowLayout
+		{
+			Layout.preferredWidth: parent.width
+			visible: mainContent.rightPane.bc.buildUseOptimizedCode
+			Label
+			{
+				anchors.horizontalCenter: parent.horizontalCenter
+				text: qsTr("The last rebuild uses Solidity optimized code. Please do not use optimize code when debugging a transaction.")
+				color: "orange"
+			}
+		}
+
+
 		ScrollView
 		{
 			property int sideMargin: 10

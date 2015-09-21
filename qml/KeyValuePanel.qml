@@ -17,6 +17,10 @@ ColumnLayout {
 	property variant _data
 	property string role
 	property alias model: modelKeyValue
+	property int minHeight: 100
+	property int maxHeight: 250
+	signal expanded
+	signal minimized
 
 	function add(key, value)
 	{
@@ -54,6 +58,19 @@ ColumnLayout {
 			anchors.left: parent.left
 			anchors.verticalCenter: parent.verticalCenter
 			color: "white"
+			MouseArea
+			{
+				anchors.fill: parent
+				onClicked:
+				{
+					root.height = root.height === minHeight ? maxHeight : minHeight
+					if (root.height === minHeight)
+						minimized()
+					else
+						expanded()
+				}
+				cursorShape: Qt.PointingHandCursor
+			}
 		}
 	}
 

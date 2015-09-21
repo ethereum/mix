@@ -29,6 +29,7 @@ ColumnLayout {
 	signal accountAdded(string address, string amount)
 	signal changeSelection(var current, var next, var direction)
 	property bool firstLoad: true
+	property bool buildUseOptimizedCode: false
 
 	Keys.onUpPressed:
 	{
@@ -74,14 +75,9 @@ ColumnLayout {
 				return
 			rebuild.needRebuild("ContractRenamed")
 		}
-		onNewContractCompiled: {
-			if (firstLoad)
-				return
-			rebuild.needRebuild("NewContractCompiled")
-		}
 		onCompilationComplete: {
 			if (firstLoad)
-			{
+			{				
 				firstLoad = false
 				if (runOnProjectLoad)
 					blockChain.build()
@@ -101,7 +97,6 @@ ColumnLayout {
 			}
 		}
 	}
-
 
 	onChainChanged: {
 		if (rebuild.txSha3[blockIndex][txIndex] !== codeModel.sha3(JSON.stringify(model.blocks[blockIndex].transactions[txIndex])))
@@ -230,9 +225,11 @@ ColumnLayout {
 	{
 		if (!scenario)
 			return;
-		if (model && firstLoad && scenarioIndex !== -1)
-			rebuild.startBlinking()
+
 		clear()
+		if (!firstLoad)
+			rebuild.startBlinking()
+		clientModel.onStateReset()
 		model = scenario
 		scenarioIndex = index
 		genesis.scenarioIndex = index
@@ -281,6 +278,7 @@ ColumnLayout {
 			anchors.fill: parent
 			anchors.topMargin: 4
 			anchors.bottomMargin: 4
+
 			ColumnLayout
 			{
 				id: blockChainLayout
@@ -471,7 +469,7 @@ ColumnLayout {
 					if (pressed)
 					{
 						var newHeight = bcContainer.height + mouseY - pos
-						if (newHeight > 300)
+						if (newHeight > 300 && newHeight < 800)
 						{
 							bcContainer.Layout.preferredHeight = newHeight
 							blockChainPanel.Layout.preferredHeight = blockChainPanel.height + mouseY - pos
@@ -777,6 +775,7 @@ ColumnLayout {
 						takeAccountsSnapshot()
 						takeContractsSnapShot()
 						blinkReasons = []
+						buildUseOptimizedCode = codeModel.optimizeCode
 						clientModel.setupScenario(model);
 						blockChainPanel.forceActiveFocus()
 					}

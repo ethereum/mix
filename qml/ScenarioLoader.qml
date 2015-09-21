@@ -55,8 +55,7 @@ ColumnLayout
         else
             btnRowContainer.anchors.horizontalCenter = btnRowContainer.parent.horizontalCenter
             
-        console.log(_width - scenarioCont.width)
-        if (_width < 877)
+		if (_width < 877)
             rowBtn.width = _width - scenarioCont.width - 100
         else
             rowBtn.width = 600
