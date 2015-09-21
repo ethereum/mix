@@ -16,7 +16,7 @@ Rectangle
 	border.color: "#cccccc"
 	border.width: 2
 	color: "white"
-
+	id: root
 	property variant tx
 	property variant currentState
 	property variant bc
@@ -186,29 +186,49 @@ Rectangle
 
 			KeyValuePanel
 			{
-				height: 100
+				height: minHeight
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
 				id: inputParams
 				title: qsTr("INPUT PARAMETERS")
 				role: "parameters"
 				_data: tx
+				onMinimized:
+				{
+					root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
+					root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
+				}
+				onExpanded:
+				{
+					root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
+					root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
+				}
 			}
 
 			KeyValuePanel
 			{
-				height: 100
+				height: minHeight
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
 				id: returnParams
 				title: qsTr("RETURN PARAMETERS")
 				role: "returnParameters"
 				_data: tx
+				onMinimized:
+				{
+					root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
+					root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
+				}
+				onExpanded:
+				{
+					root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
+					root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
+				}
 			}
 
 			KeyValuePanel
 			{
-				height: 100
+				height: minHeight
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
 				id: accounts
@@ -228,11 +248,21 @@ Rectangle
 							model.append({ "key": label, "value": currentState.accounts[k] })
 						}
 				}
+				onMinimized:
+				{
+					root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
+					root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
+				}
+				onExpanded:
+				{
+					root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
+					root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
+				}
 			}
 
 			KeyValuePanel
 			{
-				height: 100
+				height: minHeight
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
 				id: events
@@ -251,6 +281,16 @@ Rectangle
 						param = "(" + param + ")"
 						model.append({ "key": tx.logs[k].name, "value": param })
 					}
+				}
+				onMinimized:
+				{
+					root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
+					root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
+				}
+				onExpanded:
+				{
+					root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
+					root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
 				}
 			}
 		}

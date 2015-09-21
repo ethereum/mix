@@ -471,7 +471,7 @@ ColumnLayout {
 					if (pressed)
 					{
 						var newHeight = bcContainer.height + mouseY - pos
-						if (newHeight > 300)
+						if (newHeight > 300 && newHeight < 800)
 						{
 							bcContainer.Layout.preferredHeight = newHeight
 							blockChainPanel.Layout.preferredHeight = blockChainPanel.height + mouseY - pos
