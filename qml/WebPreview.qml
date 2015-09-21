@@ -409,6 +409,7 @@ Item {
 						property bool active: false
 						property var history: []
 						property int index: -1
+						text: qsTr("Enter Expression")
 
 						function displayCache(incr)
 						{

@@ -69,7 +69,7 @@ ColumnLayout {
 					else
 						expanded()
 				}
-				cursorShape: Qt.OpenHandCursor
+				cursorShape: Qt.PointingHandCursor
 			}
 		}
 	}

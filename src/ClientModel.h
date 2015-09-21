@@ -232,6 +232,8 @@ public slots:
 	Q_INVOKABLE QString address(QString const& _secret);
 	/// Encode a string to ABI parameter. Returns a hex string
 	Q_INVOKABLE QString encodeAbiString(QString _string);
+	/// Clear state
+	Q_INVOKABLE void onStateReset();
 
 private slots:
 	/// Update UI with machine states result. Display a modal dialog.
@@ -284,7 +286,6 @@ private:
 	Address deployContract(bytes const& _code, TransactionSettings const& _tr = TransactionSettings());
 	void callAddress(Address const& _contract, bytes const& _data, TransactionSettings const& _tr);
 	void onNewTransaction(RecordLogEntry::TxSource _source);
-	void onStateReset();
 	void showDebuggerForTransaction(ExecutionResult const& _t);
 	QVariant formatValue(SolidityType const& _type, dev::u256 const& _value);
 	QVariant formatValue(SolidityType const& _type, dev::bytes const& _value, int& _offset);

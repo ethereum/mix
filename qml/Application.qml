@@ -451,7 +451,8 @@ ApplicationWindow {
 		text: qsTr("Enable optimized compilation")
 		shortcut: "Ctrl+Shift+O"
 		checkable: true
-		onTriggered: codeModel.setOptimizeCode(checked);
+		onTriggered: codeModel.setOptimizeCode(checked)
+		Component.onCompleted: codeModel.setOptimizeCode(checked)
 	}
 
 	Settings {
