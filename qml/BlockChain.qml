@@ -257,392 +257,17 @@ ColumnLayout {
 
 	Rectangle
 	{
-		MouseArea
-		{
-			anchors.fill: parent
-			onClicked:
-			{
-				blockChainPanel.forceActiveFocus()
-			}
-		}
-		anchors.top: parent.top
-		Layout.preferredHeight: 300
-		Layout.preferredWidth: parent.width
-		border.color: "#cccccc"
-		border.width: 2
-		color: "white"
-		id: bcContainer
-		ScrollView
-		{
-			id: blockChainScrollView
-			anchors.fill: parent
-			anchors.topMargin: 4
-			anchors.bottomMargin: 4
-
-			ColumnLayout
-			{
-				id: blockChainLayout
-				width: parent.width
-				spacing: 10
-				Rectangle
-				{
-					Layout.preferredHeight: 60
-					Layout.preferredWidth: blockChainScrollView.width
-					color: "transparent"
-
-					Connections
-					{
-						id: displayCallConnection
-						target: mainContent
-						onDisplayCallsChanged:
-						{
-							updateCalls()
-						}
-
-						Component.onCompleted:
-						{
-							blockChainRepeater.callsDisplayed = mainContent.displayCalls
-						}
-
-						function updateCalls()
-						{
-							blockChainRepeater.callsDisplayed = mainContent.displayCalls
-							if (mainContent.displayCalls)
-								blockChainRepeater.displayCalls()
-							else
-								blockChainRepeater.hideCalls()
-						}
-					}
-
-					Block
-					{
-						id: genesis
-						scenario: blockChainPanel.model
-						scenarioIndex: scenarioIndex
-						Layout.preferredWidth: blockChainScrollView.width
-						Layout.preferredHeight: 60
-						width: blockChainScrollView.width
-						height: 60
-						blockIndex: -1
-						transactions: []
-						status: ""
-						number: -2
-						trHeight: 60
-					}
-				}
-
-				Connections
-				{
-					target: projectModel.stateDialog
-					onAccepted:
-					{
-						blockChainPanel.forceActiveFocus()
-					}
-					onClosed:
-					{
-						blockChainPanel.forceActiveFocus()
-					}
-				}
-
-				Repeater // List of blocks
-				{
-					id: blockChainRepeater
-					model: blockModel
-					property bool callsDisplayed
-					property int blockSelected
-					property int txSelected
-					property int callSelected: 0
-
-					function editTx(blockIndex, txIndex)
-					{
-						itemAt(blockIndex).editTx(txIndex)
-					}
-
-					function select(blockIndex, txIndex, callIndex)
-					{
-						blockSelected = blockIndex
-						txSelected = txIndex
-						callSelected = callIndex
-						if (itemAt(blockIndex))
-							itemAt(blockIndex).select(txIndex, callIndex)
-						blockChainPanel.forceActiveFocus()
-					}
-
-					function displayCalls()
-					{
-						for (var k in blockChainPanel.calls)
-						{
-							var ref = JSON.parse(k)
-							itemAt(ref[0]).displayNextCalls(ref[1], blockChainPanel.calls[k])
-						}
-					}
-
-					function hideCalls()
-					{
-						for (var k = 0; k < blockChainRepeater.count; k++)
-							blockChainRepeater.itemAt(k).hideNextCalls()
-					}
-
-					Block
-					{
-						Connections
-						{
-							target: block
-							onTxSelected:
-							{
-								blockChainRepeater.blockSelected = blockIndex
-								blockChainRepeater.txSelected = txIndex
-								blockChainRepeater.callSelected = callIndex
-								blockChainPanel.txSelected(index, txIndex, callIndex)
-							}
-						}
-
-						Connections
-						{
-							target: blockChainRepeater
-							onCallsDisplayedChanged:
-							{
-								block.Layout.preferredHeight = block.calculateHeight()
-							}
-						}
-
-						id: block
-						scenario: blockChainPanel.model
-						Layout.preferredWidth: blockChainScrollView.width
-						Layout.preferredHeight:
-						{
-							return calculateHeight()
-						}
-						blockIndex: index
-						transactions:
-						{
-							if (index >= 0)
-								return blockModel.get(index).transactions
-							else
-								return []
-						}
-						transactionModel:
-						{
-							if (index >= 0)
-								return scenario.blocks[index].transactions
-							else
-								return []
-						}
-
-						status:
-						{
-							if (index >= 0)
-								return blockModel.get(index).status
-							else
-								return ""
-						}
-
-						number:
-						{
-							if (index >= 0)
-								return blockModel.get(index).number
-							else
-								return 0
-						}
-					}
-				}
-			}
-		}
-
-		Rectangle
-		{
-			id: slider
-			height: 5
-			width: parent.width
-			anchors.top: parent.bottom
-			color: "#cccccc"
-			MouseArea
-			{
-				anchors.fill: parent
-				drag.target: slider
-				drag.axis: Drag.YAxis
-				acceptedButtons: Qt.LeftButton
-				cursorShape: Qt.SplitVCursor
-				property int pos
-				onMouseYChanged:
-				{
-					if (pressed)
-					{
-						var newHeight = bcContainer.height + mouseY - pos
-						if (newHeight > 300 && newHeight < 800)
-						{
-							bcContainer.Layout.preferredHeight = newHeight
-							blockChainPanel.Layout.preferredHeight = blockChainPanel.height + mouseY - pos
-						}
-					}
-				}
-
-				onPressed:
-				{
-					pos = mouseY
-				}
-			}
-		}
-	}
-
-	ListModel
-	{
-		id: blockModel
-
-		function appendBlock(block)
-		{
-			blockModel.append(block);
-		}
-
-		function appendTransaction(tr)
-		{
-			blockModel.get(blockModel.count - 1).transactions.append(tr)
-		}
-
-		function removeTransaction(blockIndex, trIndex)
-		{
-			blockModel.get(blockIndex).transactions.remove(trIndex)
-		}
-
-		function removeLastBlock()
-		{
-			blockModel.remove(blockModel.count - 1)
-		}
-
-		function removeBlock(index)
-		{
-			blockModel.remove(index)
-		}
-
-		function getTransaction(block, tr)
-		{
-			return blockModel.get(block).transactions.get(tr)
-		}
-
-		function setTransaction(blockIndex, trIndex, tr)
-		{
-			blockModel.get(blockIndex).transactions.set(trIndex, tr)
-		}
-
-		function setTransactionProperty(blockIndex, trIndex, propertyName, value)
-		{
-			blockModel.get(blockIndex).transactions.set(trIndex, { propertyName: value })
-		}
-
-		function getNextItem(blockIndex, txIndex)
-		{
-			var next = [blockIndex, txIndex]
-			if (!blockChainRepeater.callsDisplayed)
-			{
-				next = getNextTx(blockIndex, txIndex)
-				next.push(-1)
-			}
-			else
-			{
-				if (isLastCall())
-				{
-					next = getNextTx(blockIndex, txIndex)
-					next.push(-1)
-				}
-				else
-					next.push(blockChainRepeater.callSelected + 1)
-			}
-			return next
-		}
-
-		function getPrevItem(blockIndex, txIndex)
-		{
-			var prev = [blockIndex, txIndex]
-			if (!blockChainRepeater.callsDisplayed)
-			{
-				prev = getPrevTx(blockIndex, txIndex)
-				prev.push(-1)
-			}
-			else
-			{
-				if (blockChainRepeater.callSelected === -1)
-				{
-					prev = getPrevTx(blockIndex, txIndex)
-					var current = blockChainPanel.calls[JSON.stringify(prev)]
-					if (current)
-						prev.push(current.length - 1)
-				}
-				else
-					prev.push(blockChainRepeater.callSelected - 1)
-			}
-			return prev
-		}
-
-		function getNextTx(blockIndex, txIndex)
-		{
-			var next = []
-			var nextTx = txIndex
-			var nextBlock = blockIndex
-			var txCount = blockModel.get(blockIndex).transactions.count;
-			if (txCount - 1 > txIndex)
-				nextTx = txIndex + 1
-			else if (blockModel.count - 1 > blockIndex)
-			{
-				nextTx = 0;
-				nextBlock = blockIndex + 1
-			}
-			else
-				nextTx = 0
-			next.push(nextBlock)
-			next.push(nextTx)
-			return next
-		}
-
-		function getPrevTx(blockIndex, txIndex)
-		{
-			var prev = []
-			var prevTx = txIndex
-			var prevBlock = blockIndex
-			if (txIndex === 0 && blockIndex !== 0)
-			{
-				prevBlock = blockIndex - 1
-				prevTx = blockModel.get(prevBlock).transactions.count - 1
-			}
-			else if (txIndex > 0)
-				prevTx = txIndex - 1
-			prev.push(prevBlock)
-			prev.push(prevTx)
-			return prev;
-		}
-
-		function isFirstCall()
-		{
-			var call = blockChainRepeater.callSelected
-			return (call === 0)
-		}
-
-		function isLastCall()
-		{
-			var i = [blockChainRepeater.blockSelected, blockChainRepeater.txSelected]
-			var current = blockChainPanel.calls[JSON.stringify(i)]
-			if (current)
-			{
-				var callnb = current.length
-				var call = blockChainRepeater.callSelected
-				return call === callnb - 1
-			}
-			else
-				return true
-		}
-	}
-
-	Rectangle
-	{
 		Layout.preferredWidth: 500
-		Layout.preferredHeight: 60
+		Layout.preferredHeight: 50
 		anchors.horizontalCenter: parent.horizontalCenter
 		color: "transparent"
 		id: btnsContainer
+		anchors.top: parent.top
 		Row
 		{
 			width: parent.width
 			anchors.top: parent.top
-			anchors.topMargin: 10
+			//anchors.topMargin: 10
 			spacing: 20
 			id: rowBtns
 			onWidthChanged: {
@@ -1026,8 +651,8 @@ ColumnLayout {
 			Rectangle {
 				width: 100
 				height: 30
-                border.width: 1
-                border.color: "red"
+				border.width: 1
+				border.color: "red"
 				ScenarioButton {
 					id: newAccount
 					enabled: scenarioIndex !== -1
@@ -1055,6 +680,381 @@ ColumnLayout {
 					projectModel.saveProject()
 				}
 			}
+		}
+	}
+
+	Rectangle
+	{
+		MouseArea
+		{
+			anchors.fill: parent
+			onClicked:
+			{
+				blockChainPanel.forceActiveFocus()
+			}
+		}
+		Layout.preferredHeight: 300
+		Layout.preferredWidth: parent.width
+		border.color: "#cccccc"
+		border.width: 2
+		color: "white"
+		id: bcContainer
+		ScrollView
+		{
+			id: blockChainScrollView
+			anchors.fill: parent
+			anchors.topMargin: 4
+			anchors.bottomMargin: 4
+
+			ColumnLayout
+			{
+				id: blockChainLayout
+				width: parent.width
+				spacing: 10
+				Rectangle
+				{
+					Layout.preferredHeight: 60
+					Layout.preferredWidth: blockChainScrollView.width
+					color: "transparent"
+
+					Connections
+					{
+						id: displayCallConnection
+						target: mainContent
+						onDisplayCallsChanged:
+						{
+							updateCalls()
+						}
+
+						Component.onCompleted:
+						{
+							blockChainRepeater.callsDisplayed = mainContent.displayCalls
+						}
+
+						function updateCalls()
+						{
+							blockChainRepeater.callsDisplayed = mainContent.displayCalls
+							if (mainContent.displayCalls)
+								blockChainRepeater.displayCalls()
+							else
+								blockChainRepeater.hideCalls()
+						}
+					}
+
+					Block
+					{
+						id: genesis
+						scenario: blockChainPanel.model
+						scenarioIndex: scenarioIndex
+						Layout.preferredWidth: blockChainScrollView.width
+						Layout.preferredHeight: 60
+						width: blockChainScrollView.width
+						height: 60
+						blockIndex: -1
+						transactions: []
+						status: ""
+						number: -2
+						trHeight: 60
+					}
+				}
+
+				Connections
+				{
+					target: projectModel.stateDialog
+					onAccepted:
+					{
+						blockChainPanel.forceActiveFocus()
+					}
+					onClosed:
+					{
+						blockChainPanel.forceActiveFocus()
+					}
+				}
+
+				Repeater // List of blocks
+				{
+					id: blockChainRepeater
+					model: blockModel
+					property bool callsDisplayed
+					property int blockSelected
+					property int txSelected
+					property int callSelected: 0
+
+					function editTx(blockIndex, txIndex)
+					{
+						itemAt(blockIndex).editTx(txIndex)
+					}
+
+					function select(blockIndex, txIndex, callIndex)
+					{
+						blockSelected = blockIndex
+						txSelected = txIndex
+						callSelected = callIndex
+						if (itemAt(blockIndex))
+							itemAt(blockIndex).select(txIndex, callIndex)
+						blockChainPanel.forceActiveFocus()
+					}
+
+					function displayCalls()
+					{
+						for (var k in blockChainPanel.calls)
+						{
+							var ref = JSON.parse(k)
+							itemAt(ref[0]).displayNextCalls(ref[1], blockChainPanel.calls[k])
+						}
+					}
+
+					function hideCalls()
+					{
+						for (var k = 0; k < blockChainRepeater.count; k++)
+							blockChainRepeater.itemAt(k).hideNextCalls()
+					}
+
+					Block
+					{
+						Connections
+						{
+							target: block
+							onTxSelected:
+							{
+								blockChainRepeater.blockSelected = blockIndex
+								blockChainRepeater.txSelected = txIndex
+								blockChainRepeater.callSelected = callIndex
+								blockChainPanel.txSelected(index, txIndex, callIndex)
+							}
+						}
+
+						Connections
+						{
+							target: blockChainRepeater
+							onCallsDisplayedChanged:
+							{
+								block.Layout.preferredHeight = block.calculateHeight()
+							}
+						}
+
+						id: block
+						scenario: blockChainPanel.model
+						Layout.preferredWidth: blockChainScrollView.width
+						Layout.preferredHeight:
+						{
+							return calculateHeight()
+						}
+						blockIndex: index
+						transactions:
+						{
+							if (index >= 0)
+								return blockModel.get(index).transactions
+							else
+								return []
+						}
+						transactionModel:
+						{
+							if (index >= 0)
+								return scenario.blocks[index].transactions
+							else
+								return []
+						}
+
+						status:
+						{
+							if (index >= 0)
+								return blockModel.get(index).status
+							else
+								return ""
+						}
+
+						number:
+						{
+							if (index >= 0)
+								return blockModel.get(index).number
+							else
+								return 0
+						}
+					}
+				}
+			}
+		}
+
+		Rectangle
+		{
+			id: slider
+			height: 5
+			width: parent.width
+			anchors.top: parent.bottom
+			color: "#cccccc"
+			MouseArea
+			{
+				anchors.fill: parent
+				drag.target: slider
+				drag.axis: Drag.YAxis
+				acceptedButtons: Qt.LeftButton
+				cursorShape: Qt.SplitVCursor
+				property int pos
+				onMouseYChanged:
+				{
+					if (pressed)
+					{
+						var newHeight = bcContainer.height + mouseY - pos
+						if (newHeight > 300 && newHeight < 800)
+						{
+							bcContainer.Layout.preferredHeight = newHeight
+							blockChainPanel.Layout.preferredHeight = blockChainPanel.height + mouseY - pos
+						}
+					}
+				}
+
+				onPressed:
+				{
+					pos = mouseY
+				}
+			}
+		}
+	}
+
+	ListModel
+	{
+		id: blockModel
+
+		function appendBlock(block)
+		{
+			blockModel.append(block);
+		}
+
+		function appendTransaction(tr)
+		{
+			blockModel.get(blockModel.count - 1).transactions.append(tr)
+		}
+
+		function removeTransaction(blockIndex, trIndex)
+		{
+			blockModel.get(blockIndex).transactions.remove(trIndex)
+		}
+
+		function removeLastBlock()
+		{
+			blockModel.remove(blockModel.count - 1)
+		}
+
+		function removeBlock(index)
+		{
+			blockModel.remove(index)
+		}
+
+		function getTransaction(block, tr)
+		{
+			return blockModel.get(block).transactions.get(tr)
+		}
+
+		function setTransaction(blockIndex, trIndex, tr)
+		{
+			blockModel.get(blockIndex).transactions.set(trIndex, tr)
+		}
+
+		function setTransactionProperty(blockIndex, trIndex, propertyName, value)
+		{
+			blockModel.get(blockIndex).transactions.set(trIndex, { propertyName: value })
+		}
+
+		function getNextItem(blockIndex, txIndex)
+		{
+			var next = [blockIndex, txIndex]
+			if (!blockChainRepeater.callsDisplayed)
+			{
+				next = getNextTx(blockIndex, txIndex)
+				next.push(-1)
+			}
+			else
+			{
+				if (isLastCall())
+				{
+					next = getNextTx(blockIndex, txIndex)
+					next.push(-1)
+				}
+				else
+					next.push(blockChainRepeater.callSelected + 1)
+			}
+			return next
+		}
+
+		function getPrevItem(blockIndex, txIndex)
+		{
+			var prev = [blockIndex, txIndex]
+			if (!blockChainRepeater.callsDisplayed)
+			{
+				prev = getPrevTx(blockIndex, txIndex)
+				prev.push(-1)
+			}
+			else
+			{
+				if (blockChainRepeater.callSelected === -1)
+				{
+					prev = getPrevTx(blockIndex, txIndex)
+					var current = blockChainPanel.calls[JSON.stringify(prev)]
+					if (current)
+						prev.push(current.length - 1)
+				}
+				else
+					prev.push(blockChainRepeater.callSelected - 1)
+			}
+			return prev
+		}
+
+		function getNextTx(blockIndex, txIndex)
+		{
+			var next = []
+			var nextTx = txIndex
+			var nextBlock = blockIndex
+			var txCount = blockModel.get(blockIndex).transactions.count;
+			if (txCount - 1 > txIndex)
+				nextTx = txIndex + 1
+			else if (blockModel.count - 1 > blockIndex)
+			{
+				nextTx = 0;
+				nextBlock = blockIndex + 1
+			}
+			else
+				nextTx = 0
+			next.push(nextBlock)
+			next.push(nextTx)
+			return next
+		}
+
+		function getPrevTx(blockIndex, txIndex)
+		{
+			var prev = []
+			var prevTx = txIndex
+			var prevBlock = blockIndex
+			if (txIndex === 0 && blockIndex !== 0)
+			{
+				prevBlock = blockIndex - 1
+				prevTx = blockModel.get(prevBlock).transactions.count - 1
+			}
+			else if (txIndex > 0)
+				prevTx = txIndex - 1
+			prev.push(prevBlock)
+			prev.push(prevTx)
+			return prev;
+		}
+
+		function isFirstCall()
+		{
+			var call = blockChainRepeater.callSelected
+			return (call === 0)
+		}
+
+		function isLastCall()
+		{
+			var i = [blockChainRepeater.blockSelected, blockChainRepeater.txSelected]
+			var current = blockChainPanel.calls[JSON.stringify(i)]
+			if (current)
+			{
+				var callnb = current.length
+				var call = blockChainRepeater.callSelected
+				return call === callnb - 1
+			}
+			else
+				return true
 		}
 	}
 

@@ -80,7 +80,7 @@ ColumnLayout
 		anchors.horizontalCenter: parent.horizontalCenter
 		spacing: 0
 		anchors.top: parent.top
-		anchors.topMargin: 5
+		anchors.topMargin: 7
 		id: btnRowContainer
 		property int minimalWidth: 100 * 6 + 180
 
