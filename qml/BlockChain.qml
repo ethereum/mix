@@ -662,6 +662,8 @@ ColumnLayout {
 				onSetupFinished:
 				{
 					firstLoad = false
+					if (model.blocks[model.blocks.length - 1].transactions.length > 0)
+						clientModel.mine()
 				}
 			}
 
@@ -719,7 +721,7 @@ ColumnLayout {
 
 					function build()
 					{
-						if (ensureNotFuturetime.running)
+						if (ensureNotFuturetime.running || !model)
 							return
 						blockChainPanel.calls = {}
 						stopBlinking()

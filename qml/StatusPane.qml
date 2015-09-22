@@ -152,6 +152,14 @@ Rectangle {
 	anchors.fill: parent
 
 	Rectangle {
+		Image {
+			anchors.left: parent.left
+			anchors.leftMargin: 5
+			source: "qrc:/qml/img/down.png"
+			fillMode: Image.PreserveAspectFit
+			width: 20
+			anchors.verticalCenter: parent.verticalCenter
+		}
 		id: statusContainer
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.verticalCenter: parent.verticalCenter
@@ -215,7 +223,7 @@ Rectangle {
 			id: toolTip
 			action: toolTipInfo
 			text: ""
-			z: 3;
+			z: 3
 			style:
 				ButtonStyle {
 				background:Rectangle {
@@ -234,6 +242,7 @@ Rectangle {
 					else
 						logsContainer.toggle();
 				}
+				cursorShape: Qt.PointingHandCursor
 			}
 		}
 
