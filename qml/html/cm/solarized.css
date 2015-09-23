@@ -169,6 +169,7 @@ view-port
 /* Code execution */
 .CodeMirror-exechighlight {
   border-bottom: double 1px #94A2A2;
+  background: #734a13
 }
 
 

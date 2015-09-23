@@ -44,7 +44,7 @@ span.CodeMirror-selectedtext { color: #ffffff !important; }
 
 /* Code execution */
 .CodeMirror-exechighlight {
-	border-bottom: double 1px #94A2A2;
+	background: #754d19
 }
 
 
