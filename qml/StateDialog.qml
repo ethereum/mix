@@ -229,30 +229,7 @@ Dialog {
 								id: accountsLabel
 								Layout.preferredWidth: 85
 								text: qsTr("Accounts")
-							}
-
-							Button
-							{
-								id: addAccount
-								anchors.top: accountsLabel.bottom
-								anchors.topMargin: 2
-								iconSource: "qrc:/qml/img/Write.png"
-								tooltip: qsTr("Add new account")
-								onClicked:
-								{
-									newAddressWin.accounts = stateAccounts
-									newAddressWin.open()
-								}
-							}
-
-							CopyButton
-							{
-								anchors.top: addAccount.bottom
-								anchors.topMargin: 2
-								getContent: function() {
-									return JSON.stringify(stateAccounts, null, "\t");
-								}
-							}
+							}							
 						}
 
 						MessageDialog {
@@ -260,9 +237,34 @@ Dialog {
 							text: qsTr("This account is in use. You cannot remove it. The first account is used to deploy config contract and cannot be removed.")
 							icon: StandardIcon.Warning
 							standardButtons: StandardButton.Ok
-						}
+						}						
 
 						TableView {
+
+							Button
+							{
+								id: addAccount
+								iconSource: "qrc:/qml/img/Write.png"
+								tooltip: qsTr("Add new account")
+								onClicked:
+								{
+									newAddressWin.accounts = stateAccounts
+									newAddressWin.open()
+								}
+								anchors.top: accountsView.top
+								anchors.right: accountsView.left
+							}
+
+							CopyButton
+							{
+								id: cpBtn
+								getContent: function() {
+									return JSON.stringify(stateAccounts, null, "\t");
+								}
+								anchors.top: addAccount.bottom
+								anchors.right: addAccount.right
+							}
+
 							id: accountsView
 							Layout.fillWidth: true
 							model: accountsModel
@@ -285,10 +287,19 @@ Dialog {
 										Action {
 											id: deleteAccountAction
 											tooltip: qsTr("Delete Account")
-											onTriggered: {
+											onTriggered: deleteAccountMsg.open()
+										}
+
+										MessageDialog
+										{
+											id: deleteAccountMsg
+											text: qsTr("Are you sure to delete this account?")
+											onYes:
+											{
 												stateAccounts.splice(styleData.row, 1)
 												accountsView.model.remove(styleData.row)
 											}
+											standardButtons: StandardButton.Yes | StandardButton.No
 										}
 
 										Component.onCompleted:

@@ -54,7 +54,7 @@ Rectangle {
 			Layout.preferredWidth: parent.width
 			anchors.left: parent.left
 			anchors.leftMargin: 15
-            spacing: 0
+			spacing: 20
 			ColumnLayout
 			{				
 				id: scenarioColumn
@@ -77,7 +77,7 @@ Rectangle {
 				Rectangle
 				{
 					Layout.preferredWidth: parent.width
-					height: 1
+					height: 4
 					color: "#cccccc"
 				}
 

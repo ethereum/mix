@@ -184,7 +184,7 @@ Rectangle {
 							Layout.fillWidth: codeWebSplitter.orientation === Qt.Vertical
 							Layout.fillHeight: codeWebSplitter.orientation === Qt.Horizontal
 							Layout.minimumHeight: 200
-							Layout.minimumWidth: 200
+							Layout.minimumWidth: 400
 						}
 					}
 				}
@@ -206,6 +206,7 @@ Rectangle {
 					visible: true;
 					Layout.fillHeight: true
 					Keys.onEscapePressed: visible = false
+					width: scenarioMinWidth + 500
 					Layout.minimumWidth: scenarioMinWidth
 					anchors.right: parent.right
 				}
@@ -216,6 +217,7 @@ Rectangle {
 					visible: false
 					Layout.fillHeight: true
 					Keys.onEscapePressed: visible = false
+					width: scenarioMinWidth + 500
 					Layout.minimumWidth: scenarioMinWidth
 					anchors.right: parent.right
 					function close()

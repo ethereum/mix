@@ -18,6 +18,11 @@ Dialog {
 		{
 			anchors.fill: parent
 			anchors.margins: 10
+			Label
+			{
+				text: qsTr("Scenarios Management:")
+				anchors.horizontalCenter: parent.horizontalCenter
+			}
 
 			TableView {
 				id: list
@@ -55,7 +60,6 @@ Dialog {
 					Layout.fillWidth: true
 					Layout.fillHeight: true
 					text: styleData.value
-					font.pointSize: StateStyle.general.basicFontSize
 					verticalAlignment: Text.AlignBottom
 				}
 				ToolButton {
@@ -67,7 +71,14 @@ Dialog {
 					visible: list.model.defaultStateIndex !== styleData.row
 					text: qsTr("Delete");
 					Layout.fillHeight: true
-					onClicked: list.model.deleteState(styleData.row);
+					onClicked: deleteScenario.open()
+				}
+				MessageDialog
+				{
+					id: deleteScenario
+					onYes: list.model.deleteState(styleData.row);
+					standardButtons: StandardButton.Yes | StandardButton.No
+					text: qsTr("Are you sure to delete this scenario?")
 				}
 			}
 		}

@@ -257,6 +257,434 @@ ColumnLayout {
 
 	Rectangle
 	{
+		Layout.preferredWidth: 500
+		Layout.preferredHeight: 50
+		anchors.horizontalCenter: parent.horizontalCenter
+		color: "transparent"
+		id: btnsContainer
+		anchors.top: parent.top
+		Row
+		{
+			width: parent.width
+			anchors.top: parent.top
+			//anchors.topMargin: 10
+			spacing: 20
+			id: rowBtns
+			onWidthChanged: {
+				var w = (width - (2 * 20)) / 4
+				rebuild.width = w
+				rebuild.parent.width = w
+				addTransaction.width = w
+				addBlockBtn.width = w
+				addTransaction.parent.width = w * 2
+				newAccount.width = w
+				newAccount.parent.width = w
+			}
+
+			Connections
+			{
+				target: clientModel
+				onSetupFinished:
+				{
+					firstLoad = false
+					if (model.blocks[model.blocks.length - 1].transactions.length > 0)
+						clientModel.mine()
+				}
+			}
+
+			Rectangle {
+				width: 100
+				height: 30
+				ScenarioButton {
+					id: rebuild
+					text: qsTr("Rebuild Scenario")
+					width: 100
+					height: 30
+					roundLeft: true
+					roundRight: true
+					enabled: scenarioIndex !== -1
+					property variant contractsHex: ({})
+					property variant txSha3: ({})
+					property variant accountsSha3
+					property variant contractsSha3
+					property variant txChanged: []
+					property var blinkReasons: []
+
+					function needRebuild(reason)
+					{
+						if (scenarioIndex !== -1)
+						{
+							rebuild.startBlinking()
+							blinkReasons.push(reason)
+						}
+					}
+
+					function containsRebuildCause(reason)
+					{
+						for (var c in blinkReasons)
+						{
+							if (blinkReasons[c] === reason)
+								return true
+						}
+						return false
+					}
+
+
+					function notNeedRebuild(reason)
+					{
+						for (var c in blinkReasons)
+						{
+							if (blinkReasons[c] === reason)
+							{
+								blinkReasons.splice(c, 1)
+								break
+							}
+						}
+						if (blinkReasons.length === 0)
+							rebuild.stopBlinking()
+					}
+
+					function build()
+					{
+						if (ensureNotFuturetime.running || !model)
+							return
+						blockChainPanel.calls = {}
+						stopBlinking()
+						rebuilding()
+						states = []
+						var retBlocks = [];
+						var bAdded = 0;
+						for (var j = 0; j < model.blocks.length; j++)
+						{
+							var b = model.blocks[j];
+							var block = {
+								hash: b.hash,
+								number: b.number,
+								transactions: [],
+								status: b.status
+							}
+							for (var k = 0; k < model.blocks[j].transactions.length; k++)
+							{
+								if (blockModel.get(j).transactions.get(k).saveStatus)
+								{
+									var tr = model.blocks[j].transactions[k]
+									tr.saveStatus = true
+									block.transactions.push(tr);
+								}
+
+							}
+							if (block.transactions.length > 0)
+							{
+								bAdded++
+								block.number = bAdded
+								block.status = "mined"
+								retBlocks.push(block)
+							}
+						}
+						if (retBlocks.length === 0)
+							retBlocks.push(projectModel.stateListModel.createEmptyBlock())
+						else
+						{
+							var last = retBlocks[retBlocks.length - 1]
+							last.number = -1
+							last.status = "pending"
+						}
+
+						model.blocks = retBlocks
+						blockModel.clear()
+						for (var j = 0; j < model.blocks.length; j++)
+							blockModel.append(model.blocks[j])
+
+						ensureNotFuturetime.start()
+
+						takeCodeSnapshot()
+						takeTxSnaphot()
+						takeAccountsSnapshot()
+						takeContractsSnapShot()
+						blinkReasons = []
+						buildUseOptimizedCode = codeModel.optimizeCode
+						clientModel.setupScenario(model);
+						blockChainPanel.forceActiveFocus()
+					}
+
+					onClicked:
+					{
+						build()
+					}
+
+					function takeContractsSnapShot()
+					{
+						contractsSha3 = codeModel.sha3(JSON.stringify(model.contracts))
+					}
+
+					function takeAccountsSnapshot()
+					{
+						accountsSha3 = codeModel.sha3(JSON.stringify(model.accounts))
+					}
+
+					function takeCodeSnapshot()
+					{
+						contractsHex = {}
+						for (var c in codeModel.contracts)
+							contractsHex[c] = codeModel.contracts[c].codeHex
+					}
+
+					function takeTxSnaphot()
+					{
+						txSha3 = {}
+						txChanged = []
+						for (var j = 0; j < model.blocks.length; j++)
+						{
+							for (var k = 0; k < model.blocks[j].transactions.length; k++)
+							{
+								if (txSha3[j] === undefined)
+									txSha3[j] = {}
+								txSha3[j][k] = codeModel.sha3(JSON.stringify(model.blocks[j].transactions[k]))
+							}
+						}
+					}
+
+					buttonShortcut: ""
+					sourceImg: "qrc:/qml/img/recycleicon@2x.png"
+				}
+			}
+
+			Rectangle
+			{
+				width: 200
+				height: 30
+				color: "transparent"
+
+				ScenarioButton {
+					id: addTransaction
+					text: qsTr("Add Tx...")
+					enabled: scenarioIndex !== -1
+					onClicked:
+					{
+						if (model && model.blocks)
+						{
+							var lastBlock = model.blocks[model.blocks.length - 1];
+							if (lastBlock.status === "mined")
+							{
+								var newblock = projectModel.stateListModel.createEmptyBlock()
+								blockModel.appendBlock(newblock)
+								model.blocks.push(newblock);
+							}
+
+							var item = TransactionHelper.defaultTransaction()
+							transactionDialog.execute = !rebuild.isBlinking
+							transactionDialog.stateAccounts = model.accounts
+							transactionDialog.editMode = false
+							transactionDialog.open(model.blocks[model.blocks.length - 1].transactions.length, model.blocks.length - 1, item)
+						}
+					}
+					width: 100
+					height: 30
+					buttonShortcut: ""
+					sourceImg: "qrc:/qml/img/sendtransactionicon@2x.png"
+					roundLeft: true
+					roundRight: false
+				}
+
+				Timer
+				{
+					id: ensureNotFuturetime
+					interval: 1000
+					repeat: false
+					running: false
+				}
+
+				Rectangle
+				{
+					width: 1
+					height: parent.height
+					anchors.right: addBlockBtn.left
+					color: "#ededed"
+				}
+
+				ScenarioButton {
+					id: addBlockBtn
+					text: qsTr("Add Block")
+					anchors.left: addTransaction.right
+					enabled: scenarioIndex !== -1
+					roundLeft: false
+					roundRight: true
+					onClicked:
+					{
+						if (ensureNotFuturetime.running)
+							return
+						if (clientModel.mining || clientModel.running)
+							return
+						if (model.blocks.length > 0)
+						{
+							var lastBlock = model.blocks[model.blocks.length - 1]
+							if (lastBlock.status === "pending")
+							{
+								ensureNotFuturetime.start()
+								clientModel.mine()
+							}
+							else
+								addNewBlock()
+						}
+						else
+							addNewBlock()
+					}
+
+					function addNewBlock()
+					{
+						var block = projectModel.stateListModel.createEmptyBlock()
+						model.blocks.push(block)
+						blockModel.appendBlock(block)
+					}
+					width: 100
+					height: 30
+
+					buttonShortcut: ""
+					sourceImg: "qrc:/qml/img/newblock@2x.png"
+				}
+			}
+
+
+			Connections
+			{
+				id: clientListenner
+				target: clientModel
+				onNewBlock:
+				{
+					if (!clientModel.running)
+					{
+						var lastBlock = model.blocks[model.blocks.length - 1]
+						lastBlock.status = "mined"
+						lastBlock.number = model.blocks.length
+						var lastB = blockModel.get(model.blocks.length - 1)
+						lastB.status = "mined"
+						lastB.number = model.blocks.length
+						addBlockBtn.addNewBlock()
+					}
+				}
+				onStateCleared:
+				{
+				}
+				onNewRecord:
+				{
+					if (_r.transactionIndex !== "Call")
+					{
+						var blockIndex =  parseInt(_r.transactionIndex.split(":")[0]) - 1
+						var trIndex = parseInt(_r.transactionIndex.split(":")[1])
+						if (blockIndex <= model.blocks.length - 1)
+						{
+							var item = model.blocks[blockIndex]
+							if (trIndex <= item.transactions.length - 1)
+							{
+								var tr = item.transactions[trIndex]
+								tr.returned = _r.returned
+								tr.recordIndex = _r.recordIndex
+								tr.logs = _r.logs
+								tr.isCall = false
+								tr.sender = _r.sender
+								tr.returnParameters = _r.returnParameters
+								var trModel = blockModel.getTransaction(blockIndex, trIndex)
+								trModel.returned = _r.returned
+								trModel.recordIndex = _r.recordIndex
+								trModel.logs = _r.logs
+								trModel.sender = _r.sender
+								trModel.returnParameters = _r.returnParameters
+								blockModel.setTransaction(blockIndex, trIndex, trModel)
+								blockChainRepeater.select(blockIndex, trIndex, -1)
+								return;
+							}
+						}
+						// tr is not in the list.
+						var itemTr = fillTx(_r, false)
+						model.blocks[model.blocks.length - 1].transactions.push(itemTr)
+						blockModel.appendTransaction(itemTr)
+						blockChainRepeater.select(blockIndex, trIndex, -1)
+					}
+					else
+					{
+						var blockIndex =  parseInt(clientModel.lastTransaction.transactionIndex.split(":")[0]) - 1
+						var trIndex = parseInt(clientModel.lastTransaction.transactionIndex.split(":")[1])
+						var i = [blockIndex, trIndex]
+						if (!blockChainPanel.calls[JSON.stringify(i)])
+							blockChainPanel.calls[JSON.stringify(i)] = []
+						var itemTr = fillTx(_r, true)
+						blockChainPanel.calls[JSON.stringify(i)].push(itemTr)
+						if (blockChainRepeater.callsDisplayed)
+						{
+							blockChainRepeater.hideCalls()
+							blockChainRepeater.displayCalls()
+						}
+					}
+				}
+
+				function fillTx(_r, _isCall)
+				{
+					// tr is not in the list.
+					var itemTr = TransactionHelper.defaultTransaction()
+					itemTr.saveStatus = _r.source === 0 ? false : true //? 0 coming from Web3, 1 coming from MixGui
+					itemTr.functionId = _r.function
+					itemTr.contractId = _r.contract
+					itemTr.isCall = _isCall
+					itemTr.gasAuto = true
+					itemTr.parameters = _r.parameters
+					itemTr.isContractCreation = itemTr.functionId === itemTr.contractId
+					itemTr.label = _r.label
+					itemTr.isFunctionCall = itemTr.functionId !== "" && itemTr.functionId !== "<none>"
+					itemTr.returned = _r.returned
+					itemTr.value = QEtherHelper.createEther(_r.value, QEther.Wei)
+					itemTr.sender = _r.sender
+					itemTr.recordIndex = _r.recordIndex
+					itemTr.logs = _r.logs
+					itemTr.returnParameters = _r.returnParameters
+					return itemTr
+				}
+
+				onNewState: {
+					states[_record] = _accounts
+				}
+
+				onMiningComplete:
+				{
+				}
+			}
+
+			Rectangle {
+				width: 100
+				height: 30
+				border.width: 1
+				border.color: "red"
+				ScenarioButton {
+					id: newAccount
+					enabled: scenarioIndex !== -1
+					text: qsTr("New Account...")
+					onClicked: {
+						newAddressWin.accounts = model.accounts
+						newAddressWin.open()
+					}
+					width: 100
+					height: 30
+					buttonShortcut: ""
+					sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
+					roundLeft: true
+					roundRight: true
+				}
+			}
+
+			NewAccount
+			{
+				id: newAddressWin
+				onAccepted:
+				{
+					model.accounts.push(ac)
+					clientModel.addAccount(ac.secret);
+					projectModel.saveProject()
+				}
+			}
+		}
+	}
+
+	Rectangle
+	{
 		MouseArea
 		{
 			anchors.fill: parent
@@ -265,7 +693,6 @@ ColumnLayout {
 				blockChainPanel.forceActiveFocus()
 			}
 		}
-		anchors.top: parent.top
 		Layout.preferredHeight: 300
 		Layout.preferredWidth: parent.width
 		border.color: "#cccccc"
@@ -628,431 +1055,6 @@ ColumnLayout {
 			}
 			else
 				return true
-		}
-	}
-
-	Rectangle
-	{
-		Layout.preferredWidth: 500
-		Layout.preferredHeight: 60
-		anchors.horizontalCenter: parent.horizontalCenter
-		color: "transparent"
-		id: btnsContainer
-		Row
-		{
-			width: parent.width
-			anchors.top: parent.top
-			anchors.topMargin: 10
-			spacing: 20
-			id: rowBtns
-			onWidthChanged: {
-				var w = (width - (2 * 20)) / 4
-				rebuild.width = w
-				rebuild.parent.width = w
-				addTransaction.width = w
-				addBlockBtn.width = w
-				addTransaction.parent.width = w * 2
-				newAccount.width = w
-				newAccount.parent.width = w
-			}
-
-			Connections
-			{
-				target: clientModel
-				onSetupFinished:
-				{
-					firstLoad = false
-				}
-			}
-
-			Rectangle {
-				width: 100
-				height: 30
-				ScenarioButton {
-					id: rebuild
-					text: qsTr("Rebuild Scenario")
-					width: 100
-					height: 30
-					roundLeft: true
-					roundRight: true
-					enabled: scenarioIndex !== -1
-					property variant contractsHex: ({})
-					property variant txSha3: ({})
-					property variant accountsSha3
-					property variant contractsSha3
-					property variant txChanged: []
-					property var blinkReasons: []
-
-					function needRebuild(reason)
-					{
-						if (scenarioIndex !== -1)
-						{
-							rebuild.startBlinking()
-							blinkReasons.push(reason)
-						}
-					}
-
-					function containsRebuildCause(reason)
-					{
-						for (var c in blinkReasons)
-						{
-							if (blinkReasons[c] === reason)
-								return true
-						}
-						return false
-					}
-
-
-					function notNeedRebuild(reason)
-					{
-						for (var c in blinkReasons)
-						{
-							if (blinkReasons[c] === reason)
-							{
-								blinkReasons.splice(c, 1)
-								break
-							}
-						}
-						if (blinkReasons.length === 0)
-							rebuild.stopBlinking()
-					}
-
-					function build()
-					{
-						if (ensureNotFuturetime.running)
-							return
-						blockChainPanel.calls = {}
-						stopBlinking()
-						rebuilding()
-						states = []
-						var retBlocks = [];
-						var bAdded = 0;
-						for (var j = 0; j < model.blocks.length; j++)
-						{
-							var b = model.blocks[j];
-							var block = {
-								hash: b.hash,
-								number: b.number,
-								transactions: [],
-								status: b.status
-							}
-							for (var k = 0; k < model.blocks[j].transactions.length; k++)
-							{
-								if (blockModel.get(j).transactions.get(k).saveStatus)
-								{
-									var tr = model.blocks[j].transactions[k]
-									tr.saveStatus = true
-									block.transactions.push(tr);
-								}
-
-							}
-							if (block.transactions.length > 0)
-							{
-								bAdded++
-								block.number = bAdded
-								block.status = "mined"
-								retBlocks.push(block)
-							}
-						}
-						if (retBlocks.length === 0)
-							retBlocks.push(projectModel.stateListModel.createEmptyBlock())
-						else
-						{
-							var last = retBlocks[retBlocks.length - 1]
-							last.number = -1
-							last.status = "pending"
-						}
-
-						model.blocks = retBlocks
-						blockModel.clear()
-						for (var j = 0; j < model.blocks.length; j++)
-							blockModel.append(model.blocks[j])
-
-						ensureNotFuturetime.start()
-
-						takeCodeSnapshot()
-						takeTxSnaphot()
-						takeAccountsSnapshot()
-						takeContractsSnapShot()
-						blinkReasons = []
-						buildUseOptimizedCode = codeModel.optimizeCode
-						clientModel.setupScenario(model);
-						blockChainPanel.forceActiveFocus()
-					}
-
-					onClicked:
-					{
-						build()
-					}
-
-					function takeContractsSnapShot()
-					{
-						contractsSha3 = codeModel.sha3(JSON.stringify(model.contracts))
-					}
-
-					function takeAccountsSnapshot()
-					{
-						accountsSha3 = codeModel.sha3(JSON.stringify(model.accounts))
-					}
-
-					function takeCodeSnapshot()
-					{
-						contractsHex = {}
-						for (var c in codeModel.contracts)
-							contractsHex[c] = codeModel.contracts[c].codeHex
-					}
-
-					function takeTxSnaphot()
-					{
-						txSha3 = {}
-						txChanged = []
-						for (var j = 0; j < model.blocks.length; j++)
-						{
-							for (var k = 0; k < model.blocks[j].transactions.length; k++)
-							{
-								if (txSha3[j] === undefined)
-									txSha3[j] = {}
-								txSha3[j][k] = codeModel.sha3(JSON.stringify(model.blocks[j].transactions[k]))
-							}
-						}
-					}
-
-					buttonShortcut: ""
-					sourceImg: "qrc:/qml/img/recycleicon@2x.png"
-				}
-			}
-
-			Rectangle
-			{
-				width: 200
-				height: 30
-				color: "transparent"
-
-				ScenarioButton {
-					id: addTransaction
-					text: qsTr("Add Tx...")
-					enabled: scenarioIndex !== -1
-					onClicked:
-					{
-						if (model && model.blocks)
-						{
-							var lastBlock = model.blocks[model.blocks.length - 1];
-							if (lastBlock.status === "mined")
-							{
-								var newblock = projectModel.stateListModel.createEmptyBlock()
-								blockModel.appendBlock(newblock)
-								model.blocks.push(newblock);
-							}
-
-							var item = TransactionHelper.defaultTransaction()
-							transactionDialog.execute = !rebuild.isBlinking
-							transactionDialog.stateAccounts = model.accounts
-							transactionDialog.editMode = false
-							transactionDialog.open(model.blocks[model.blocks.length - 1].transactions.length, model.blocks.length - 1, item)
-						}
-					}
-					width: 100
-					height: 30
-					buttonShortcut: ""
-					sourceImg: "qrc:/qml/img/sendtransactionicon@2x.png"
-					roundLeft: true
-					roundRight: false
-				}
-
-				Timer
-				{
-					id: ensureNotFuturetime
-					interval: 1000
-					repeat: false
-					running: false
-				}
-
-				Rectangle
-				{
-					width: 1
-					height: parent.height
-					anchors.right: addBlockBtn.left
-					color: "#ededed"
-				}
-
-				ScenarioButton {
-					id: addBlockBtn
-					text: qsTr("Add Block")
-					anchors.left: addTransaction.right
-					enabled: scenarioIndex !== -1
-					roundLeft: false
-					roundRight: true
-					onClicked:
-					{
-						if (ensureNotFuturetime.running)
-							return
-						if (clientModel.mining || clientModel.running)
-							return
-						if (model.blocks.length > 0)
-						{
-							var lastBlock = model.blocks[model.blocks.length - 1]
-							if (lastBlock.status === "pending")
-							{
-								ensureNotFuturetime.start()
-								clientModel.mine()
-							}
-							else
-								addNewBlock()
-						}
-						else
-							addNewBlock()
-					}
-
-					function addNewBlock()
-					{
-						var block = projectModel.stateListModel.createEmptyBlock()
-						model.blocks.push(block)
-						blockModel.appendBlock(block)
-					}
-					width: 100
-					height: 30
-
-					buttonShortcut: ""
-					sourceImg: "qrc:/qml/img/newblock@2x.png"
-				}
-			}
-
-
-			Connections
-			{
-				id: clientListenner
-				target: clientModel
-				onNewBlock:
-				{
-					if (!clientModel.running)
-					{
-						var lastBlock = model.blocks[model.blocks.length - 1]
-						lastBlock.status = "mined"
-						lastBlock.number = model.blocks.length
-						var lastB = blockModel.get(model.blocks.length - 1)
-						lastB.status = "mined"
-						lastB.number = model.blocks.length
-						addBlockBtn.addNewBlock()
-					}
-				}
-				onStateCleared:
-				{
-				}
-				onNewRecord:
-				{
-					if (_r.transactionIndex !== "Call")
-					{
-						var blockIndex =  parseInt(_r.transactionIndex.split(":")[0]) - 1
-						var trIndex = parseInt(_r.transactionIndex.split(":")[1])
-						if (blockIndex <= model.blocks.length - 1)
-						{
-							var item = model.blocks[blockIndex]
-							if (trIndex <= item.transactions.length - 1)
-							{
-								var tr = item.transactions[trIndex]
-								tr.returned = _r.returned
-								tr.recordIndex = _r.recordIndex
-								tr.logs = _r.logs
-								tr.isCall = false
-								tr.sender = _r.sender
-								tr.returnParameters = _r.returnParameters
-								var trModel = blockModel.getTransaction(blockIndex, trIndex)
-								trModel.returned = _r.returned
-								trModel.recordIndex = _r.recordIndex
-								trModel.logs = _r.logs
-								trModel.sender = _r.sender
-								trModel.returnParameters = _r.returnParameters
-								blockModel.setTransaction(blockIndex, trIndex, trModel)
-								blockChainRepeater.select(blockIndex, trIndex, -1)
-								return;
-							}
-						}
-						// tr is not in the list.
-						var itemTr = fillTx(_r, false)
-						model.blocks[model.blocks.length - 1].transactions.push(itemTr)
-						blockModel.appendTransaction(itemTr)
-						blockChainRepeater.select(blockIndex, trIndex, -1)
-					}
-					else
-					{
-						var blockIndex =  parseInt(clientModel.lastTransaction.transactionIndex.split(":")[0]) - 1
-						var trIndex = parseInt(clientModel.lastTransaction.transactionIndex.split(":")[1])
-						var i = [blockIndex, trIndex]
-						if (!blockChainPanel.calls[JSON.stringify(i)])
-							blockChainPanel.calls[JSON.stringify(i)] = []
-						var itemTr = fillTx(_r, true)
-						blockChainPanel.calls[JSON.stringify(i)].push(itemTr)
-						if (blockChainRepeater.callsDisplayed)
-						{
-							blockChainRepeater.hideCalls()
-							blockChainRepeater.displayCalls()
-						}
-					}
-				}
-
-				function fillTx(_r, _isCall)
-				{
-					// tr is not in the list.
-					var itemTr = TransactionHelper.defaultTransaction()
-					itemTr.saveStatus = _r.source === 0 ? false : true //? 0 coming from Web3, 1 coming from MixGui
-					itemTr.functionId = _r.function
-					itemTr.contractId = _r.contract
-					itemTr.isCall = _isCall
-					itemTr.gasAuto = true
-					itemTr.parameters = _r.parameters
-					itemTr.isContractCreation = itemTr.functionId === itemTr.contractId
-					itemTr.label = _r.label
-					itemTr.isFunctionCall = itemTr.functionId !== "" && itemTr.functionId !== "<none>"
-					itemTr.returned = _r.returned
-					itemTr.value = QEtherHelper.createEther(_r.value, QEther.Wei)
-					itemTr.sender = _r.sender
-					itemTr.recordIndex = _r.recordIndex
-					itemTr.logs = _r.logs
-					itemTr.returnParameters = _r.returnParameters
-					return itemTr
-				}
-
-				onNewState: {
-					states[_record] = _accounts
-				}
-
-				onMiningComplete:
-				{
-				}
-			}
-
-			Rectangle {
-				width: 100
-				height: 30
-                border.width: 1
-                border.color: "red"
-				ScenarioButton {
-					id: newAccount
-					enabled: scenarioIndex !== -1
-					text: qsTr("New Account...")
-					onClicked: {
-						newAddressWin.accounts = model.accounts
-						newAddressWin.open()
-					}
-					width: 100
-					height: 30
-					buttonShortcut: ""
-					sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
-					roundLeft: true
-					roundRight: true
-				}
-			}
-
-			NewAccount
-			{
-				id: newAddressWin
-				onAccepted:
-				{
-					model.accounts.push(ac)
-					clientModel.addAccount(ac.secret);
-					projectModel.saveProject()
-				}
-			}
 		}
 	}
 

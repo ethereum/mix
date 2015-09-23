@@ -14,6 +14,9 @@ Item {
 	property var stateList: []
 	property alias stateDialog: stateDialog
 	property string defaultAccount: "cb73d9408c4720e230387d956eb0f829d8a4dd2c1055f96257167e14e7169074" //support for old project
+	property string user2Secret: "db95780d2f30ca8211eec37cc110cc58a2d4f9308dea00ede6717a585efa2eb7"
+	property string user3Secret: "090f51d202f847d2468fc87fb06f92c469b8a1927b4aecea796b6831f1331382"
+	property string user4Secret: "e9bf58b523b4c94255cad51b3f7efdc85a0c970bf42f1d191c126bb6f49bfb9d"
 
 	function fromPlainStateItem(s) {
 		if (!s.accounts)
@@ -311,12 +314,15 @@ Item {
 				transactions: [],
 				accounts: [],
 				contracts: [],
-				blocks: [{ status: "pending", number: -1, hash: "", transactions: []}]
+				blocks: [{ status: "pending", number: 1, hash: "", transactions: []}]
 			};
 
-			var account = newAccount("1000000", QEther.Ether, defaultAccount)
+			var account = newAccount("1000000", QEther.Ether, defaultAccount, "user1")
 			item.accounts.push(account);
 			item.miner = account;
+			item.accounts.push(newAccount("1000000", QEther.Ether, user2Secret, "user2"));
+			item.accounts.push(newAccount("1000000", QEther.Ether, user3Secret, "user3"));
+			item.accounts.push(newAccount("1000000", QEther.Ether, user4Secret, "user4"));
 
 			//add constructors, //TODO: order by dependencies
 			for(var c in codeModel.contracts) {

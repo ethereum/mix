@@ -392,6 +392,8 @@ QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, 
 					items.append(decoder.decodeType(m.type, b, pos));
 			}
 		}
+		else
+			items.append(decoder.decodeType(_type, b, pos));
 		return items;
 	}
 	else
