@@ -106,7 +106,6 @@ Column
 							item.subType = dec[0];
 							item.load();
 						}
-						item.init();
 					}
 					else if (ptype.category === QSolidityType.Struct && !item.members)
 					{
@@ -119,14 +118,13 @@ Column
 						item.value = val
 						item.members = members[index].type.members
 					}
+					else if (ptype.category === QSolidityType.Bool)
+						item.subType = modelData.type.name
 					else
 						item.value = getValue();
 
-					if (ptype.category === QSolidityType.Bool)
-					{
-						item.subType = modelData.type.name
-						item.init();
-					}
+					if (item.init)
+						item.init()
 
 					item.onValueChanged.connect(function() {
 						syncValue(vals, pname)
@@ -144,7 +142,6 @@ Column
 					vals[pname] = item.value;
 					valueChanged();
 				}
-
 
 				function getValue()
 				{

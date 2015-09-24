@@ -8,6 +8,11 @@ Item
 	height: 20
 	width: 150
 
+	function init()
+	{
+		textinput.cursorPosition = 0
+	}
+
 	SourceSansProBold
 	{
 		id: boldFont

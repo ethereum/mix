@@ -723,14 +723,7 @@ QVariant ClientModel::formatValue(SolidityType const& _type, bytes const& _value
 	int pos = static_cast<int>(_offset);
 	QVariant res;
 	if (_type.array)
-	{
-		bytesConstRef value(_value.data() + pos, 32);
-		bytes rawParam(32);
-		value.populate(&rawParam);
-		int offset = static_cast<int>(decoder.decodeInt(rawParam));
-		res = decoder.decodeRawArray(_type, _value, offset);
-		_offset += 32;
-	}
+		res = decoder.decodeRawArray(_type, _value, _offset);
 	else if (_type.members.size() > 0)
 	{
 		QVariantList list;

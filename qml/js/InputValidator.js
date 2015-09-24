@@ -186,7 +186,7 @@ function validateAddress(_type, _value)
 function validateBytes(_type, _value)
 {
 	var ret = { valid: true, message: "" }
-	if (_type !== "bytes" && _value.length > parseInt(_type.replace("bytes", "")) )
+	if (_type !== "bytes" && _value.indexOf("0x") !== 0 && _value.length > parseInt(_type.replace("bytes", "")) )
 	{
 		ret.valid = false;
 		ret.message = _type + " should not contains more than " + _type.replace("bytes", "") + " characters";

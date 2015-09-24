@@ -144,21 +144,28 @@ unsigned ContractCallDataEncoder::encodeSingleItem(QString const& _data, Solidit
 	if (src.startsWith("0x"))
 	{
 		result = fromHex(src.toStdString().substr(2));
-		if (_type.type != SolidityType::Type::Bytes)
+		if (_type.type == SolidityType::Type::Bytes || _type.type == SolidityType::Type::String)
+			result = paddedRight(result, alignSize);
+		else
 			result = padded(result, alignSize);
 	}
 	else
 	{
-		try
-		{
-			bigint i(src.toStdString());
-			result = bytes(alignSize);
-			toBigEndian((u256)i, result);
-		}
-		catch (std::exception const&)
-		{
-			// manage input as a string.
+		if (_type.type == SolidityType::Type::Bytes || _type.type == SolidityType::Type::String)
 			result = encodeStringParam(src, alignSize);
+		else
+		{
+			try
+			{
+				bigint i(src.toStdString());
+				result = bytes(alignSize);
+				toBigEndian((u256)i, result);
+			}
+			catch (std::exception const&)
+			{
+				// manage input as a string.
+				result = encodeStringParam(src, alignSize);
+			}
 		}
 	}
 
