@@ -49,6 +49,19 @@ RowLayout
 			visible: !isCall
 		}
 
+		Image {
+			anchors.top: parent.top
+			anchors.left: parent.left
+			anchors.leftMargin: 3
+			anchors.topMargin: 5
+			source: "qrc:/qml/img/javascript_logo.png"
+			height: 25
+			width: 25
+			fillMode: Image.PreserveAspectFit
+			visible: isCall
+		}
+
+
 		Component.onCompleted:
 		{
 			if (tx && tx.saveStatus)
@@ -71,9 +84,8 @@ RowLayout
 			anchors.fill: parent
 			onClicked:
 			{
-				parent.saveStatus = !parent.saveStatus
-				if (isCall)
-					parent.saveStatus = false
+				if (!isCall)
+					parent.saveStatus = !parent.saveStatus
 			}
 		}
 	}
@@ -191,19 +203,6 @@ RowLayout
 					clip: true
 					maximumLineCount: 1
 					width: parent.width - 50
-				}
-
-				Label
-				{
-					visible: isCall
-					anchors.verticalCenter: parent.verticalCenter
-					text: qsTr("(JavaScript call)")
-					font.italic: true
-					font.pointSize: dbgStyle.absoluteSize(-2)
-					color: labelColor
-					clip: true
-					anchors.left: func.right
-					anchors.leftMargin: 10
 				}
 			}
 

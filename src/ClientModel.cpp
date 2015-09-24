@@ -555,6 +555,50 @@ void ClientModel::showDebugger()
 	showDebuggerForTransaction(last);
 }
 
+QVariantMap ClientModel::contractStorage(unsigned _index, QString const& _contractAddress)
+{
+	ExecutionResult e = m_client->execution(_index);
+	MachineState state = e.machineStates.back();
+	auto nameIter = m_contractNames.find(Address(_contractAddress.toStdString()));
+	CompiledContract const* compilerRes = m_codeModel->tryGetContract(nameIter->second);
+	return contractStorageByMachineState(state, compilerRes);
+}
+
+QVariantMap ClientModel::contractStorageByMachineState(MachineState const& _state, CompiledContract const* _contract)
+{
+	QVariantMap storage;
+	QVariantList storageDeclarationList;
+	QVariantMap storageValues;
+	map<QString, QVariableDeclaration*> storageDeclarations; //<name, decl>
+	for (auto st: _state.storage)
+		if (st.first < numeric_limits<unsigned>::max())
+		{
+			auto storageIter = _contract->storage().find(static_cast<unsigned>(st.first));
+			if (storageIter != _contract->storage().end())
+			{
+				QVariableDeclaration* storageDec = nullptr;
+				for (SolidityDeclaration const& codeDec : storageIter.value())
+				{
+					if (codeDec.type.name.startsWith("mapping"))
+						continue; //mapping type not yet managed
+					auto decIter = storageDeclarations.find(codeDec.name);
+					if (decIter != storageDeclarations.end())
+						storageDec = decIter->second;
+					else
+					{
+						storageDec = new QVariableDeclaration(this, codeDec.name.toStdString(), codeDec.type);
+						storageDeclarations[storageDec->name()] = storageDec;
+					}
+					storageDeclarationList.push_back(QVariant::fromValue(storageDec));
+					storageValues[storageDec->name()] = formatStorageValue(storageDec->type()->type(), _state.storage, codeDec.offset, codeDec.slot);
+				}
+			}
+		}
+	storage["variables"] = storageDeclarationList;
+	storage["values"] = storageValues;
+	return storage;
+}
+
 void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 {
 	//we need to wrap states in a QObject before sending to QML.
@@ -592,8 +636,7 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 
 	QVariantList states;
 	QVariantList solCallStack;
-	map<int, QVariableDeclaration*> solLocals; //<stack pos, decl>
-	map<QString, QVariableDeclaration*> storageDeclarations; //<name, decl>
+	map<int, QVariableDeclaration*> solLocals; //<stack pos, decl>	
 	map<QString, SolidityDeclaration> localDecl; //<name, solDecl>
 	unsigned prevInstructionIndex = 0;
 
@@ -660,37 +703,7 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
 			locals["variables"] = localDeclarations;
 			locals["values"] = localValues;
 
-
-			QVariantMap storage;
-			QVariantList storageDeclarationList;
-			QVariantMap storageValues;
-			for (auto st: s.storage)
-				if (st.first < numeric_limits<unsigned>::max())
-				{
-					auto storageIter = contract->storage().find(static_cast<unsigned>(st.first));
-					if (storageIter != contract->storage().end())
-					{
-						QVariableDeclaration* storageDec = nullptr;
-						for (SolidityDeclaration const& codeDec : storageIter.value())
-						{
-							if (codeDec.type.name.startsWith("mapping"))
-								continue; //mapping type not yet managed
-							auto decIter = storageDeclarations.find(codeDec.name);
-							if (decIter != storageDeclarations.end())
-								storageDec = decIter->second;
-							else
-							{
-								storageDec = new QVariableDeclaration(debugData, codeDec.name.toStdString(), codeDec.type);
-								storageDeclarations[storageDec->name()] = storageDec;
-							}
-							storageDeclarationList.push_back(QVariant::fromValue(storageDec));
-							storageValues[storageDec->name()] = formatStorageValue(storageDec->type()->type(), s.storage, codeDec.offset, codeDec.slot);
-						}
-					}
-				}
-			storage["variables"] = storageDeclarationList;
-			storage["values"] = storageValues;
-
+			QVariantMap storage = contractStorageByMachineState(s, contract);
 			prevInstructionIndex = instructionIndex;
 
 			// filter out locations that match whole function or contract

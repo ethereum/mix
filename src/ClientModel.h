@@ -49,6 +49,7 @@ class QDebugData;
 class MixClient;
 class QVariableDefinition;
 class CodeModel;
+class CompiledContract;
 struct SolidityType;
 
 /// Backend transaction config class
@@ -234,6 +235,10 @@ public slots:
 	Q_INVOKABLE QString encodeAbiString(QString _string);
 	/// Clear state
 	Q_INVOKABLE void onStateReset();
+	/// Get the storage of the execution for the machine state
+	Q_INVOKABLE QVariantMap contractStorageByMachineState(MachineState const&, dev::mix::CompiledContract const* _index);
+	/// Get the storage of the execution for the given index. will return the storage at the end of the execution
+	Q_INVOKABLE QVariantMap contractStorage(unsigned _index, QString const& _contractAddress);
 
 private slots:
 	/// Update UI with machine states result. Display a modal dialog.

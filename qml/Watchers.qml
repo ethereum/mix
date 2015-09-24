@@ -20,6 +20,7 @@ Rectangle
 	property variant tx
 	property variant currentState
 	property variant bc
+	property variant storage
 	property var blockIndex
 	property var txIndex
 	property var callIndex
@@ -36,6 +37,7 @@ Rectangle
 		returnParams.clear()
 		accounts.clear()
 		events.clear()
+		ctrStorage.clear()
 	}
 
 	function addAccount(address, amount)
@@ -54,6 +56,7 @@ Rectangle
 		txIndex = _txIndex
 		callIndex = _callIndex
 		currentState = _state
+		storage = clientModel.contractStorage(_tx.recordIndex, _tx.isContractCreation ? _tx.returned : blockChain.getContractAddress(_tx.contractId))
 		inputParams.init()
 		if (_tx.isContractCreation)
 		{
@@ -72,6 +75,7 @@ Rectangle
 		returnParams.init()
 		accounts.init()
 		events.init()
+		ctrStorage.init()
 	}
 
 	Rectangle {
@@ -231,6 +235,33 @@ Rectangle
 				height: minHeight
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
+				id: ctrStorage
+				title: qsTr("CONTRACT STORAGE")
+				visible:  tx ? tx.isFunctionCall : true
+				function computeData()
+				{
+					model.clear()
+					console.log(JSON.stringify(storage.values))
+					for (var k in storage.values)
+						model.append({ "key": k, "value": JSON.stringify(storage.values[k]) })
+				}
+				onMinimized:
+				{
+					root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
+					root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
+				}
+				onExpanded:
+				{
+					root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
+					root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
+				}
+			}
+
+			KeyValuePanel
+			{
+				height: minHeight
+				width: parent.width - 30
+				anchors.horizontalCenter: parent.horizontalCenter
 				id: accounts
 				title: qsTr("ACCOUNTS")
 				role: "accounts"
@@ -267,6 +298,7 @@ Rectangle
 				anchors.horizontalCenter: parent.horizontalCenter
 				id: events
 				title: qsTr("EVENTS")
+				visible:  tx ? tx.isFunctionCall : true
 				function computeData()
 				{
 					model.clear()
@@ -292,7 +324,7 @@ Rectangle
 					root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
 					root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
 				}
-			}
+			}			
 		}
 	}
 }
