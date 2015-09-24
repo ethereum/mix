@@ -360,8 +360,23 @@ QVariant ContractCallDataEncoder::decodeRawArray(SolidityType const& _type, byte
 	}
 
 	QJsonArray array;
-	for (int k = 0; k < count; ++k)
-		array.append(decodeArrayContent(_type, _value, pos));
+	if (_type.type == QSolidityType::Type::Bytes || _type.type == QSolidityType::Type::String)
+	{
+		bytesConstRef value(_value.data() + (static_cast<int>(pos)), count);
+		bytes rawParam(count);
+		value.populate(&rawParam);
+		if (_type.type == QSolidityType::Type::Bytes)
+			array.append(toString(decodeBytes(rawParam)));
+		else
+			array.append(toChar(decodeBytes(rawParam)));
+		pos = pos + qCeil(double(count) / 32) * 32;
+	}
+	else
+	{
+		for (int k = 0; k < count; ++k)
+			array.append(decodeArrayContent(_type, _value, pos));
+	}
+
 	QJsonDocument jsonDoc = QJsonDocument::fromVariant(array.toVariantList());
 	return jsonDoc.toJson(QJsonDocument::Compact);
 }
@@ -393,7 +408,10 @@ QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, 
 			}
 		}
 		else
-			items.append(decoder.decodeType(_type, b, pos));
+		{
+			bytes rawValue = toBigEndian(_storage.at(_slot));
+			items.append(decoder.decodeType(_type, rawValue, (int&)_offset));
+		}
 		return items;
 	}
 	else
