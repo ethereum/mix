@@ -110,5 +110,6 @@
         <file>qml/img/down.png</file>
         <file>qml/img/recycleicon@2xGrey.png</file>
         <file>qml/img/right.png</file>
+        <file>qml/img/javascript_logo.png</file>
     </qresource>
 </RCC>

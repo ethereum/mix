@@ -6,6 +6,12 @@ Item
 	property alias readOnly: textinput.readOnly
 	id: editRoot
 	width: 350
+
+	function init()
+	{
+		textinput.cursorPosition = 0
+	}
+
 	DebuggerPaneStyle {
 		id: dbgStyle
 	}

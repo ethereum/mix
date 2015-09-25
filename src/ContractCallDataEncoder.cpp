@@ -144,21 +144,28 @@ unsigned ContractCallDataEncoder::encodeSingleItem(QString const& _data, Solidit
 	if (src.startsWith("0x"))
 	{
 		result = fromHex(src.toStdString().substr(2));
-		if (_type.type != SolidityType::Type::Bytes)
+		if (_type.type == SolidityType::Type::Bytes || _type.type == SolidityType::Type::String)
+			result = paddedRight(result, alignSize);
+		else
 			result = padded(result, alignSize);
 	}
 	else
 	{
-		try
-		{
-			bigint i(src.toStdString());
-			result = bytes(alignSize);
-			toBigEndian((u256)i, result);
-		}
-		catch (std::exception const&)
-		{
-			// manage input as a string.
+		if (_type.type == SolidityType::Type::Bytes || _type.type == SolidityType::Type::String)
 			result = encodeStringParam(src, alignSize);
+		else
+		{
+			try
+			{
+				bigint i(src.toStdString());
+				result = bytes(alignSize);
+				toBigEndian((u256)i, result);
+			}
+			catch (std::exception const&)
+			{
+				// manage input as a string.
+				result = encodeStringParam(src, alignSize);
+			}
 		}
 	}
 
@@ -376,9 +383,7 @@ QVariant ContractCallDataEncoder::decodeRawArray(SolidityType const& _type, byte
 		for (int k = 0; k < count; ++k)
 			array.append(decodeArrayContent(_type, _value, pos));
 	}
-
-	QJsonDocument jsonDoc = QJsonDocument::fromVariant(array.toVariantList());
-	return jsonDoc.toJson(QJsonDocument::Compact);
+	return array.toVariantList();
 }
 
 QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot)
@@ -410,7 +415,7 @@ QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, 
 		else
 		{
 			bytes rawValue = toBigEndian(_storage.at(_slot));
-			items.append(decoder.decodeType(_type, rawValue, (int&)_offset));
+			return decoder.decodeType(_type, rawValue, (int&)_offset);
 		}
 		return items;
 	}
