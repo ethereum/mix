@@ -153,11 +153,11 @@ Rectangle
 
 						Button
 						{
-							iconSource: "qrc:/qml/img/edit_rename.png"
+							iconSource: "qrc:/qml/img/edit_combox.png"
 							tooltip: qsTr("Rename")
 							visible: !isContract
-							width: 15
-							height: 15
+							width: 20
+							height: 20
 							onClicked:
 							{
 								rootItem.renameMode = true;
@@ -169,8 +169,8 @@ Rectangle
 						{
 							iconSource: "qrc:/qml/img/Trash.png"
 							tooltip: qsTr("Delete")
-							width: 15
-							height: 15
+							width: 20
+							height: 20
 							onClicked:
 							{
 								deleteConfirmation.open();

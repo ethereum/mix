@@ -237,11 +237,9 @@ Rectangle
 				anchors.horizontalCenter: parent.horizontalCenter
 				id: ctrStorage
 				title: qsTr("CONTRACT STORAGE")
-				visible:  tx ? tx.isFunctionCall : true
 				function computeData()
 				{
 					model.clear()
-					console.log(JSON.stringify(storage.values))
 					for (var k in storage.values)
 						model.append({ "key": k, "value": JSON.stringify(storage.values[k]) })
 				}
@@ -298,7 +296,6 @@ Rectangle
 				anchors.horizontalCenter: parent.horizontalCenter
 				id: events
 				title: qsTr("EVENTS")
-				visible:  tx ? tx.isFunctionCall : true
 				function computeData()
 				{
 					model.clear()

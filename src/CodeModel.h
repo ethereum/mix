@@ -231,8 +231,6 @@ public:
 	/// Find a contract by document id
 	/// @returns CompiledContract object or null if not found
 	Q_INVOKABLE CompiledContract* contractByDocumentId(QString const& _documentId) const;
-	/// Reset code model
-	Q_INVOKABLE void reset() { reset(QVariantMap()); }
 	/// Delete a contract source
 	Q_INVOKABLE void unregisterContractSrc(QString const& _documentId);
 	/// Convert solidity type info to mix type
@@ -278,7 +276,7 @@ public slots:
 	/// Update code model on source code change
 	void registerCodeChange(QString const& _documentId, QString const& _code);
 	/// Reset code model for a new project
-	void reset(QVariantMap const& _documents);
+	void reset();
 
 private:
 	void runCompilationJob(int _jobId);

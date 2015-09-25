@@ -331,7 +331,6 @@ Rectangle {
 								width: 45
 								buttonShortcut: "Ctrl+F5"
 								buttonTooltip: qsTr("Run Forward")
-								visible: false
 								buttonRight: true
 							}
 

@@ -210,20 +210,14 @@ void CodeModel::stop()
 	m_backgroundThread.wait();
 }
 
-void CodeModel::reset(QVariantMap const& _documents)
+void CodeModel::reset()
 {
 	///@todo: cancel bg job
 	Guard l(x_contractMap);
 	releaseContracts();
 	Guard pl(x_pendingContracts);
 	m_pendingContracts.clear();
-
-	for (QVariantMap::const_iterator d =  _documents.cbegin(); d != _documents.cend(); ++d)
-		m_pendingContracts[d.key()] = d.value().toString();
-	// launch the background thread
-	m_compiling = true;
 	emit stateChanged();
-	emit scheduleCompilationJob(++m_backgroundJobId);
 }
 
 void CodeModel::unregisterContractSrc(QString const& _documentId)

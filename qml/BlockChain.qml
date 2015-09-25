@@ -75,9 +75,12 @@ ColumnLayout {
 				return
 			rebuild.needRebuild("ContractRenamed")
 		}
+
 		onCompilationComplete: {
-			if (firstLoad)
-			{				
+			if (!runOnProjectLoad)
+				firstLoad = false
+			if (firstLoad && codeModel.hasContract)
+			{
 				firstLoad = false
 				if (runOnProjectLoad)
 					blockChain.build()
@@ -267,7 +270,6 @@ ColumnLayout {
 		{
 			width: parent.width
 			anchors.top: parent.top
-			//anchors.topMargin: 10
 			spacing: 20
 			id: rowBtns
 			onWidthChanged: {
