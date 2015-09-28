@@ -37,14 +37,27 @@ ColumnLayout
 	{
 		if (transactions)
 		{
-			var h = trHeight
-			h += trHeight * transactions.count
+			var h = 2 * trHeight
+			for (var k = 0; k < transactionRepeater.count; k++)
+			{
+				if (transactionRepeater.itemAt(k))
+					h += transactionRepeater.itemAt(k).detailHeight()
+			}
 			if (blockChainRepeater.callsDisplayed)
 				for (var k = 0; k < transactions.count; k++)
 				{
 					var calls = blockChainPanel.calls[JSON.stringify([blockIndex, k])]
 					if (calls)
-						h += trHeight * calls.length
+					{
+						for (var k = 0; k < transactionRepeater.count; k++)
+						{
+							if (transactionRepeater.itemAt(k))
+							{
+								h += trHeight
+								h += transactionRepeater.itemAt(k).callsDetailHeight()
+							}
+						}
+					}
 				}
 			return h;
 		}
@@ -79,10 +92,15 @@ ColumnLayout
 			transactionRepeater.itemAt(k).hideCalls()
 	}
 
-	onOpenedTrChanged:
+	function setHeight()
 	{
 		Layout.preferredHeight = calculateHeight()
 		height = calculateHeight()
+	}
+
+	onOpenedTrChanged:
+	{
+		setHeight()
 	}
 
 	DebuggerPaneStyle {
@@ -171,6 +189,11 @@ ColumnLayout
 				callsRepeater.itemAt(index).highlight()
 			}
 
+			function detailHeight()
+			{
+				return tx.detailHeight()
+			}
+
 			Transaction
 			{
 				id: tx
@@ -188,6 +211,11 @@ ColumnLayout
 				{
 					highlight()
 				}
+
+				onDetailVisibleChanged:
+				{
+					root.setHeight()
+				}
 			}
 
 			function displayCalls(calls)
@@ -203,6 +231,19 @@ ColumnLayout
 				callsModel.clear()
 			}
 
+			function callsDetailHeight()
+			{
+				var h = 0
+				for (var k = 0; k < callsRepeater.count; k++)
+				{
+					if (callsRepeater.itemAt(k))
+					{
+						h += callsRepeater.itemAt(k).detailHeight()
+					}
+				}
+				return h
+			}
+
 			ListModel
 			{
 				id: callsModel
@@ -212,12 +253,18 @@ ColumnLayout
 			{
 				id: callsRepeater
 				model: callsModel
+
 				Transaction
 				{
 					tx: callsModel.get(index)
 					txIndex: columnTx.txIndex
 					callIndex: index
 					isCall: true
+
+					onDetailVisibleChanged:
+					{
+						root.setHeight()
+					}
 				}
 			}
 		}

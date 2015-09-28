@@ -28,6 +28,7 @@ ColumnLayout {
 	signal rebuilding
 	signal accountAdded(string address, string amount)
 	signal changeSelection(var current, var next, var direction)
+	signal txExecuted(var _blockIndex, var _txIndex, var _callIndex)
 	property bool firstLoad: true
 	property bool buildUseOptimizedCode: false
 
@@ -593,6 +594,7 @@ ColumnLayout {
 								trModel.returnParameters = _r.returnParameters
 								blockModel.setTransaction(blockIndex, trIndex, trModel)
 								blockChainRepeater.select(blockIndex, trIndex, -1)
+								txExecuted(blockIndex, trIndex, -1)
 								return;
 							}
 						}
@@ -601,6 +603,7 @@ ColumnLayout {
 						model.blocks[model.blocks.length - 1].transactions.push(itemTr)
 						blockModel.appendTransaction(itemTr)
 						blockChainRepeater.select(blockIndex, trIndex, -1)
+						txExecuted(blockIndex, trIndex, -1)
 					}
 					else
 					{
@@ -616,6 +619,7 @@ ColumnLayout {
 							blockChainRepeater.hideCalls()
 							blockChainRepeater.displayCalls()
 						}
+						txExecuted(blockIndex, trIndex, blockChainPanel.calls[JSON.stringify(i)].length - 1)
 					}
 				}
 

@@ -18,6 +18,8 @@ RowLayout
 	property variant tx
 	property int txIndex
 	property int callIndex
+	property alias detailVisible: txDetail.visible
+	property int detailRowHeight: 25
 
 	function highlight()
 	{
@@ -28,6 +30,31 @@ RowLayout
 	{
 		rowContentTr.deselect()
 	}
+
+	function detailHeight()
+	{
+		var detailH = 0
+		if (tx)
+		{
+			if (txDetail.visible)
+				detailH = txDetail.height
+			else
+				detailH = 0
+		}
+		Layout.preferredHeight = trHeight + detailH
+		return detailH
+	}
+
+	Connections
+	{
+		target: blockChainPanel
+		onTxExecuted:
+		{
+			if (_blockIndex == blockIndex && _txIndex == txIndex && _callIndex == callIndex)
+				txDetail.updateView()
+		}
+	}
+
 
 	Rectangle
 	{
@@ -144,6 +171,7 @@ RowLayout
 
 		RowLayout
 		{
+			id: rowTransactionItem
 			Layout.fillWidth: true
 			Layout.preferredHeight: trHeight - 10
 			anchors.verticalCenter: parent.verticalCenter
@@ -219,6 +247,257 @@ RowLayout
 					return value
 			}
 		}
+
+		Rectangle
+		{
+			id: txDetail
+			anchors.top: rowTransactionItem.bottom
+			anchors.topMargin: 18
+			anchors.left: rowTransactionItem.left
+			width: blockWidth
+			height: 90
+			visible: false
+			color: txColor
+
+			function updateView()
+			{
+				if (tx && tx.parameters)
+				{
+					var keys = Object.keys(tx.parameters)
+					for (var k in keys)
+					{
+						labelInput.visible = true
+						inputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": tx.parameters[keys[k]] })
+						txDetail.height += detailRowHeight
+					}
+				}
+
+				if (tx && tx.returnParameters)
+				{
+					var keys = Object.keys(tx.returnParameters)
+					for (var k in keys)
+					{
+						labelOutput.visible = true
+						outputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": tx.returnParameters[keys[k]] })
+						txDetail.height += detailRowHeight
+					}
+				}
+
+				if (tx && tx.logs)
+				{
+					for (var k = 0; k < tx.logs.count; k++)
+					{
+						labelEvent.visible = true
+						var param = ""
+						for (var p = 0; p < tx.logs.get(k).param.count; p++)
+							param += " " + tx.logs.get(k).param.get(p).value + " "
+						param = "(" + param + ")"
+						eventList.append({ "key": tx.logs.get(k).name, "value": param })
+						txDetail.height += detailRowHeight
+					}
+					txDetail.height += labelEvent.parent.height
+				}
+			}
+
+			Column
+			{
+				anchors.fill: parent
+				anchors.margins: 10
+				Row
+				{
+					Label
+					{
+						text: qsTr("From: ")
+					}
+					Label
+					{
+						text: tx ? tx.sender : ""
+						width: rowTransactionItem.width - 30
+						elide: Text.ElideRight
+					}
+				}
+
+				Row
+				{
+					Label
+					{
+						text: qsTr("To: ")
+					}
+					Label
+					{
+						text: tx ? tx.contractId : ""
+						width: rowTransactionItem.width - 30
+						elide: Text.ElideRight
+					}
+				}
+
+				Row
+				{
+					Label
+					{
+						text: qsTr("Value: ")
+					}
+					Label
+					{
+						text:  tx ? tx.value.format() : ""
+						width: rowTransactionItem.width - 30
+						elide: Text.ElideRight
+					}
+				}
+				Row
+				{
+					Column
+					{
+						Label
+						{
+							id: labelInput
+							text: qsTr("Input:")
+							visible: false
+						}
+
+						ListModel
+						{
+							id: inputList
+						}
+
+						Repeater
+						{
+							model: inputList
+							Component.onCompleted:
+							{
+
+							}
+
+							Row
+							{
+								Label
+								{
+									text: key + " "
+								}
+								Label
+								{
+									text: value
+									width: rowTransactionItem.width - 30
+									elide: Text.ElideRight
+								}
+							}
+						}
+					}
+				}
+
+				Row
+				{
+					Column
+					{
+						Label
+						{
+							id: labelOutput
+							text: qsTr("Output:")
+							visible: false
+						}
+
+						ListModel
+						{
+							id: outputList
+						}
+
+						Repeater
+						{
+							model: outputList
+							Component.onCompleted:
+							{
+
+							}
+
+							Row
+							{
+								Label
+								{
+									text: key
+								}
+								Label
+								{
+									text: value
+									width: rowTransactionItem.width - 30
+									elide: Text.ElideRight
+								}
+							}
+						}
+					}
+				}
+
+				Row
+				{
+					Column
+					{
+						Label
+						{
+							id: labelEvent
+							text: qsTr("Events:")
+							visible: false
+						}
+
+						ListModel
+						{
+							id: eventList
+						}
+
+						Repeater
+						{
+							model: eventList
+							Component.onCompleted:
+							{
+
+							}
+
+							Row
+							{
+								Label
+								{
+									text: index >= 0 ? eventList.get(index).key : ""
+								}
+
+								Label
+								{
+									text: index >= 0 ? eventList.get(index).value : ""
+									width: rowTransactionItem.width - 30
+									elide: Text.ElideRight
+								}
+							}
+						}
+					}
+				}
+
+				Row
+				{
+					Button
+					{
+						id: editTx
+						visible: !isCall
+						onClicked:
+						{
+							if (!isCall)
+								root.editTx(index)
+						}
+						text: qsTr("Edit Transaction...")
+					}
+
+					Button
+					{
+						id: debugTx
+						onClicked:
+						{
+							if (tx.recordIndex !== undefined)
+							{
+								debugTrRequested = [ blockIndex, txIndex, callIndex ]
+								clientModel.debugRecord(tx.recordIndex);
+							}
+						}
+						text: isCall ? qsTr("Debug Call...") : qsTr("Debug Transaction...")
+					}
+				}
+			}
+		}
 	}
 
 	Rectangle
@@ -243,11 +522,7 @@ RowLayout
 			anchors.fill: parent
 			onClicked:
 			{
-				if (tx.recordIndex !== undefined)
-				{
-					debugTrRequested = [ blockIndex, txIndex ]
-					clientModel.debugRecord(tx.recordIndex);
-				}
+				txDetail.visible = !txDetail.visible
 			}
 		}
 	}
