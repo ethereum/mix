@@ -48,7 +48,7 @@ Rectangle
 	function updateWidthTx(_tx, _state, _blockIndex, _txIndex, _callIndex)
 	{		
 		var addr = clientModel.resolveAddress(_tx.sender)
-		from.text =  blockChain.addAccountNickname(addr, true)
+		from.text = blockChain.addAccountNickname(addr, true)
 		to.text = blockChain.formatRecipientLabel(_tx)
 		value.text = _tx.value.format()
 		tx = _tx
@@ -161,23 +161,6 @@ Rectangle
 						}
 					}
 				}
-
-				Button {
-					anchors.right: parent.right
-					anchors.top: parent.top
-					anchors.topMargin: 20
-					iconSource: "qrc:/qml/img/edit_combox.png"
-					height: 25
-					visible: from.text !== ""
-					MouseArea
-					{
-						anchors.fill: parent
-						onClicked:
-						{
-							bc.blockChainRepeater.editTx(blockIndex, txIndex)
-						}
-					}
-				}
 			}
 
 			Rectangle {
@@ -190,6 +173,7 @@ Rectangle
 
 			KeyValuePanel
 			{
+				visible: false
 				height: minHeight
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
@@ -211,6 +195,7 @@ Rectangle
 
 			KeyValuePanel
 			{
+				visible: false
 				height: minHeight
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
@@ -291,6 +276,7 @@ Rectangle
 
 			KeyValuePanel
 			{
+				visible: false
 				height: minHeight
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter

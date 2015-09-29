@@ -51,7 +51,7 @@ Rectangle {
 
 	function setTr(tr)
 	{
-		trName.text = tr.label
+
 	}
 
 	function displayCompilationErrorIfAny()
@@ -74,6 +74,7 @@ Rectangle {
 		else if (codeModel.hasContract)
 		{
 			Debugger.init(data);
+			trName.text = data.label
 			debugScrollArea.visible = true;
 			machineStates.visible = true;
 			solCallStack.collapse()

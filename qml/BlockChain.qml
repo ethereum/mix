@@ -21,7 +21,6 @@ ColumnLayout {
 	property var states: ({})
 	spacing: 0
 	property int previousWidth
-	property variant debugTrRequested: []
 	signal chainChanged(var blockIndex, var txIndex, var item)
 	signal chainReloaded
 	signal txSelected(var blockIndex, var txIndex, var callIndex)

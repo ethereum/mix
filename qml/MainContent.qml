@@ -31,7 +31,7 @@ Rectangle {
 	property alias codeEditor: codeEditor
 	property bool webViewHorizontal: codeWebSplitter.orientation === Qt.Vertical //vertical splitter positions elements vertically, splits screen horizontally
 	property bool displayCalls
-	property int scenarioMinWidth: 300
+	property int scenarioMinWidth: 400
 
 	Connections {
 		target: debugPanel
@@ -235,8 +235,6 @@ Rectangle {
 						scenarioExe.visible = false
 						debugPanel.visible = true
 						debugPanel.width = scenarioExe.width
-						if (scenarioExe.bc.debugTrRequested)
-							debugPanel.setTr(scenarioExe.bc.model.blocks[scenarioExe.bc.debugTrRequested[0]].transactions[scenarioExe.bc.debugTrRequested[1]])
 					}
 				}
 

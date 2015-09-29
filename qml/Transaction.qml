@@ -20,6 +20,7 @@ RowLayout
 	property int callIndex
 	property alias detailVisible: txDetail.visible
 	property int detailRowHeight: 25
+	property string trDetailColor: "#adadad"
 
 	function highlight()
 	{
@@ -255,36 +256,42 @@ RowLayout
 			anchors.topMargin: 18
 			anchors.left: rowTransactionItem.left
 			width: blockWidth
-			height: 90
+			height: 0
 			visible: false
 			color: txColor
 
 			function updateView()
 			{
+				height = 3 * labelFrom.height + 15
+				height += editTx.height
+				var spacing = labelFrom.height
 				if (tx && tx.parameters)
 				{
 					var keys = Object.keys(tx.parameters)
+					txDetail.height += keys.length > 0 ? spacing : 0
 					for (var k in keys)
 					{
 						labelInput.visible = true
 						inputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": tx.parameters[keys[k]] })
-						txDetail.height += detailRowHeight
+						txDetail.height += spacing
 					}
 				}
 
 				if (tx && tx.returnParameters)
 				{
 					var keys = Object.keys(tx.returnParameters)
+					txDetail.height += keys.length > 0 ? spacing : 0
 					for (var k in keys)
 					{
 						labelOutput.visible = true
 						outputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": tx.returnParameters[keys[k]] })
-						txDetail.height += detailRowHeight
+						txDetail.height += spacing
 					}
 				}
 
 				if (tx && tx.logs)
 				{
+					txDetail.height += tx.logs.count > 0 ? spacing : 0
 					for (var k = 0; k < tx.logs.count; k++)
 					{
 						labelEvent.visible = true
@@ -293,9 +300,8 @@ RowLayout
 							param += " " + tx.logs.get(k).param.get(p).value + " "
 						param = "(" + param + ")"
 						eventList.append({ "key": tx.logs.get(k).name, "value": param })
-						txDetail.height += detailRowHeight
+						txDetail.height += spacing
 					}
-					txDetail.height += labelEvent.parent.height
 				}
 			}
 
@@ -307,13 +313,20 @@ RowLayout
 				{
 					Label
 					{
+						id: labelFrom
 						text: qsTr("From: ")
+						color: trDetailColor
 					}
 					Label
 					{
-						text: tx ? tx.sender : ""
-						width: rowTransactionItem.width - 30
+						text: {
+							var addr = clientModel.resolveAddress(tx.sender)
+							return blockChain.addAccountNickname(addr, true)
+						}
+						width: rowTransactionItem.width - 75
 						elide: Text.ElideRight
+						color: trDetailColor
+						font.bold: true
 					}
 				}
 
@@ -322,12 +335,15 @@ RowLayout
 					Label
 					{
 						text: qsTr("To: ")
+						color: trDetailColor
 					}
 					Label
 					{
-						text: tx ? tx.contractId : ""
-						width: rowTransactionItem.width - 30
+						text: blockChain.formatRecipientLabel(tx)
+						width: rowTransactionItem.width - 75
 						elide: Text.ElideRight
+						color: trDetailColor
+						font.bold: true
 					}
 				}
 
@@ -336,12 +352,15 @@ RowLayout
 					Label
 					{
 						text: qsTr("Value: ")
+						color: trDetailColor
 					}
 					Label
 					{
 						text:  tx ? tx.value.format() : ""
 						width: rowTransactionItem.width - 30
 						elide: Text.ElideRight
+						color: trDetailColor
+						font.bold: true
 					}
 				}
 				Row
@@ -353,6 +372,7 @@ RowLayout
 							id: labelInput
 							text: qsTr("Input:")
 							visible: false
+							color: trDetailColor
 						}
 
 						ListModel
@@ -372,13 +392,11 @@ RowLayout
 							{
 								Label
 								{
-									text: key + " "
-								}
-								Label
-								{
-									text: value
-									width: rowTransactionItem.width - 30
+									color: trDetailColor
+									text: key + "\t" + value
+									width: rowTransactionItem.width - 40
 									elide: Text.ElideRight
+									font.bold: true
 								}
 							}
 						}
@@ -391,6 +409,7 @@ RowLayout
 					{
 						Label
 						{
+							color: trDetailColor
 							id: labelOutput
 							text: qsTr("Output:")
 							visible: false
@@ -404,22 +423,16 @@ RowLayout
 						Repeater
 						{
 							model: outputList
-							Component.onCompleted:
-							{
-
-							}
 
 							Row
 							{
 								Label
 								{
-									text: key
-								}
-								Label
-								{
-									text: value
+									color: trDetailColor
+									text: key + "\t" + value
 									width: rowTransactionItem.width - 30
 									elide: Text.ElideRight
+									font.bold: true
 								}
 							}
 						}
@@ -432,6 +445,7 @@ RowLayout
 					{
 						Label
 						{
+							color: trDetailColor
 							id: labelEvent
 							text: qsTr("Events:")
 							visible: false
@@ -454,14 +468,18 @@ RowLayout
 							{
 								Label
 								{
+									color: trDetailColor
 									text: index >= 0 ? eventList.get(index).key : ""
+									font.bold: true
 								}
 
 								Label
 								{
+									color: trDetailColor
 									text: index >= 0 ? eventList.get(index).value : ""
 									width: rowTransactionItem.width - 30
 									elide: Text.ElideRight
+									font.bold: true
 								}
 							}
 						}
@@ -470,6 +488,13 @@ RowLayout
 
 				Row
 				{
+					anchors.horizontalCenter: parent.horizontalCenter
+					CopyButton
+					{
+						getContent: function() {
+							return JSON.stringify(tx)
+						}
+					}
 					Button
 					{
 						id: editTx
@@ -479,7 +504,7 @@ RowLayout
 							if (!isCall)
 								root.editTx(index)
 						}
-						text: qsTr("Edit Transaction...")
+						text: qsTr("Edit transaction...")
 					}
 
 					Button
@@ -488,12 +513,9 @@ RowLayout
 						onClicked:
 						{
 							if (tx.recordIndex !== undefined)
-							{
-								debugTrRequested = [ blockIndex, txIndex, callIndex ]
-								clientModel.debugRecord(tx.recordIndex);
-							}
+								clientModel.debugRecord(tx.recordIndex, tx.label);
 						}
-						text: isCall ? qsTr("Debug Call...") : qsTr("Debug Transaction...")
+						text: isCall ? qsTr("Debug call...") : qsTr("Debug transaction...")
 					}
 				}
 			}
