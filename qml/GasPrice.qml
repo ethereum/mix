@@ -55,7 +55,7 @@ ColumnLayout
 			}
 		}
 
-		Label
+		DefaultLabel
 		{
 			text: qsTr("Default:")
 		}
@@ -77,7 +77,7 @@ ColumnLayout
 	RowLayout
 	{
 		Layout.fillWidth: true
-		Label
+		DefaultLabel
 		{
 			text: qsTr("Yours:")
 		}

@@ -22,14 +22,13 @@ DebugInfoList
 				Layout.fillWidth: true
 				Layout.minimumWidth: parent.width / 2
 				Layout.maximumWidth: parent.width / 2
-				Text {
+				DefaultText {
 					anchors.verticalCenter: parent.verticalCenter
 					anchors.left: parent.left
 					font.family: "monospace"
 					anchors.leftMargin: 5
 					color: "#4a4a4a"
 					text: styleData.value.split('\t')[0];
-					font.pointSize: dbgStyle.general.basicFontSize
 					width: parent.width - 5
 					elide: Text.ElideRight
 				}
@@ -40,7 +39,7 @@ DebugInfoList
 				Layout.fillWidth: true
 				Layout.minimumWidth: parent.width / 2
 				Layout.maximumWidth: parent.width / 2
-				Text {
+				DefaultText {
 					maximumLineCount: 1
 					clip: true
 					anchors.leftMargin: 5
@@ -52,7 +51,6 @@ DebugInfoList
 					color: "#4a4a4a"
 					text: styleData.value.split('\t')[1];
 					elide: Text.ElideRight
-					font.pointSize: dbgStyle.general.basicFontSize
 				}
 			}
 		}

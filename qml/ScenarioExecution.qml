@@ -45,7 +45,7 @@ Rectangle {
 	{
 		anchors.fill: parent
 		onWidthChanged: {
-			columnExe.width = width - 40
+			columnExe.width = width - 10
 		}
 
 		ColumnLayout
@@ -53,8 +53,8 @@ Rectangle {
 			id: columnExe
 			Layout.preferredWidth: parent.width
 			anchors.left: parent.left
-			anchors.leftMargin: 15
-			spacing: 20
+			anchors.leftMargin: 5
+			spacing: 10
 			ColumnLayout
 			{				
 				id: scenarioColumn
@@ -62,7 +62,7 @@ Rectangle {
             
 				ScenarioLoader
 				{
-					Layout.preferredHeight: 50
+					Layout.preferredHeight: 40
 					Layout.preferredWidth: parent.width
 					width: parent.width
 					id: loader
@@ -77,7 +77,7 @@ Rectangle {
 				Rectangle
 				{
 					Layout.preferredWidth: parent.width
-					height: 4
+					height: 1
 					color: "#cccccc"
 				}
 
@@ -139,7 +139,7 @@ Rectangle {
 				id: watchers
 				bc: blockChain
 				Layout.fillWidth: true
-				Layout.preferredHeight: 630
+				Layout.preferredHeight: 315
 			}
 
 			Rectangle

@@ -29,14 +29,13 @@ DebugInfoList
 				Layout.fillWidth: true
 				Layout.minimumWidth: 30
 				Layout.maximumWidth: 30
-				Text {
+				DefaultText {
 					anchors.verticalCenter: parent.verticalCenter
 					anchors.left: parent.left
 					font.family: "monospace"
 					anchors.leftMargin: 5
 					color: "#4a4a4a"
 					text: styleData.row;
-					font.pointSize: dbgStyle.general.basicFontSize
 					width: parent.width - 5
 					elide: Text.ElideRight
 				}
@@ -47,7 +46,7 @@ DebugInfoList
 				Layout.fillWidth: true
 				Layout.minimumWidth: parent.width - 30
 				Layout.maximumWidth: parent.width - 30
-				Text {
+				DefaultText {
 					anchors.leftMargin: 5
 					width: parent.width - 5
 					wrapMode: Text.NoWrap
@@ -57,7 +56,6 @@ DebugInfoList
 					color: "#4a4a4a"
 					text: styleData.value;
 					elide: Text.ElideRight
-					font.pointSize: dbgStyle.general.basicFontSize
 				}
 			}
 		}

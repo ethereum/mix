@@ -18,7 +18,7 @@ Dialog {
 		{
 			anchors.fill: parent
 			anchors.margins: 10
-			Label
+			DefaultLabel
 			{
 				text: qsTr("Scenarios Management:")
 				anchors.horizontalCenter: parent.horizontalCenter
@@ -56,7 +56,7 @@ Dialog {
 		Item {
 			RowLayout {
 				anchors.fill: parent
-				Text {
+				DefaultText {
 					Layout.fillWidth: true
 					Layout.fillHeight: true
 					text: styleData.value

@@ -20,7 +20,7 @@ Rectangle {
 			Layout.preferredWidth: 35
 			Layout.maximumWidth: 35
 			Layout.minimumHeight: parent.height
-			Text {
+			DefaultText {
 				anchors.verticalCenter: parent.verticalCenter
 				anchors.left: parent.left
 				anchors.leftMargin: 3
@@ -28,7 +28,6 @@ Rectangle {
 				font.bold: true
 				color: "#4a4a4a"
 				text: modelData[0]
-				font.pointSize: dbgStyle.general.dataDumpFontSize;
 			}
 		}
 
@@ -47,7 +46,6 @@ Rectangle {
 				anchors.leftMargin: 4
 				color: "#4a4a4a"
 				text: modelData[1]
-				font.pointSize: dbgStyle.general.dataDumpFontSize
 			}
 		}
 	}

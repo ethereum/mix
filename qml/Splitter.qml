@@ -4,8 +4,8 @@ import QtQuick.Controls 1.3
 SplitView
 {
 	handleDelegate: Rectangle {
-		width: 4
-		height: 4
+		width: 2
+		height: 2
 		color: "#cccccc"
 	}
 }

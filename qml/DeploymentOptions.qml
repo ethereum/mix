@@ -90,14 +90,14 @@ Rectangle
 		anchors.margins: 10
 		spacing: 10
 
-		Label
+		DefaultLabel
 		{
 			id: deploylabel
 			text: qsTr("Select deployment options")
 			font.bold: true
 		}
 
-		Label
+		DefaultLabel
 		{
 			id: nodeError
 			visible: false
@@ -142,7 +142,7 @@ Rectangle
 			{
 				width: deploymentOption.width / 5
 				anchors.verticalCenter: parent.verticalCenter
-				Label
+				DefaultLabel
 				{
 					text: qsTr("Deployment account")
 					anchors.left: parent.left
@@ -163,7 +163,7 @@ Rectangle
 				}
 			}
 
-			Label
+			DefaultLabel
 			{
 				id: accountBalance
 				width: 70
@@ -178,7 +178,7 @@ Rectangle
 			{
 				width: deploymentOption.width / 5
 				anchors.verticalCenter: parent.verticalCenter
-				Label
+				DefaultLabel
 				{
 					text: qsTr("Gas price")
 					anchors.left: parent.left
@@ -233,7 +233,7 @@ Rectangle
 			{
 				width: deploymentOption.width / 5
 				anchors.verticalCenter: parent.verticalCenter
-				Label
+				DefaultLabel
 				{
 					text: qsTr("Deployment cost")
 					anchors.left: parent.left
@@ -260,7 +260,7 @@ Rectangle
 			{
 				width: deploymentOption.width / 5
 				anchors.verticalCenter: parent.verticalCenter
-				Label
+				DefaultLabel
 				{
 					id: labelAddresses
 					text: qsTr("Deployed Contracts")
@@ -323,21 +323,19 @@ Rectangle
 								Item
 								{
 									height: 40
-									Label
+									DefaultLabel
 									{
 										id: name
 										text: addresses.get(index).name
-										font.pointSize: 10
 									}
 
-									Label
+									DefaultLabel
 									{
 										anchors.top: name.bottom
 										anchors.left: name.left
 										anchors.leftMargin: 30
 										id: address
 										text: addresses.get(index).address
-										font.pointSize: 9
 									}
 								}
 							}
@@ -362,7 +360,7 @@ Rectangle
 				Layout.preferredWidth: deploymentOption.width / 5
 				anchors.verticalCenter: parent.verticalCenter
 				id: verLabel
-				Label
+				DefaultLabel
 				{
 					text: qsTr("Verifications")
 					anchors.left: parent.left
@@ -379,13 +377,14 @@ Rectangle
 				{
 					id: verificationTextArea
 					visible: false
-					font.pointSize: 10
+					//font.pointSize: 10
+					font.pixelSize: 12
 					backgroundVisible: false
 					anchors.fill: parent
 				}
 			}
 
-			Label
+			DefaultLabel
 			{
 				id: verificationLabel
 				visible: true

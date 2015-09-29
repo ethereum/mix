@@ -14,7 +14,7 @@ import "."
 Rectangle
 {
 	border.color: "#cccccc"
-	border.width: 2
+	border.width: 1
 	color: "white"
 	id: root
 	property variant tx
@@ -48,7 +48,7 @@ Rectangle
 	function updateWidthTx(_tx, _state, _blockIndex, _txIndex, _callIndex)
 	{		
 		var addr = clientModel.resolveAddress(_tx.sender)
-		from.text =  blockChain.addAccountNickname(addr, true)
+		from.text = blockChain.addAccountNickname(addr, true)
 		to.text = blockChain.formatRecipientLabel(_tx)
 		value.text = _tx.value.format()
 		tx = _tx
@@ -85,7 +85,7 @@ Rectangle
 		radius: 4
 		Column {
 			anchors.fill: parent
-			spacing: 5
+			spacing: 2
 			Rectangle
 			{
 				height: 20 * 3
@@ -99,18 +99,19 @@ Rectangle
 					width: parent.width
 					anchors.top: parent.top
 					anchors.topMargin: 2
+					spacing: 0
 					Row
 					{
 						Layout.preferredWidth: parent.width
 						spacing: 5
-						Label {
+						DefaultLabel {
 							id: fromLabel
 							text: qsTr("From:")
 							visible: from.text != ""
 							color: selectedBlockForeground
 							font.italic: true
 						}
-						Label {
+						DefaultLabel {
 							id: from
 							color: selectedBlockForeground
 							maximumLineCount: 1
@@ -124,14 +125,14 @@ Rectangle
 					{
 						Layout.preferredWidth: parent.width
 						spacing: 5
-						Label {
+						DefaultLabel {
 							id: toLabel
 							text: qsTr("To:")
 							visible: to.text != ""
 							color: selectedBlockForeground
 							font.italic: true
 						}
-						Label {
+						DefaultLabel {
 							id: to
 							color: selectedBlockForeground
 							maximumLineCount: 1
@@ -145,36 +146,19 @@ Rectangle
 					{
 						Layout.preferredWidth: parent.width
 						spacing: 5
-						Label {
+						DefaultLabel {
 							id: valueLabel
 							text: qsTr("Value:")
 							visible: value.text != ""
 							color: selectedBlockForeground
 							font.italic: true
 						}
-						Label {
+						DefaultLabel {
 							id: value
 							color: selectedBlockForeground
 							font.italic: true
 							clip: true
 							width: 350
-						}
-					}
-				}
-
-				Button {
-					anchors.right: parent.right
-					anchors.top: parent.top
-					anchors.topMargin: 20
-					iconSource: "qrc:/qml/img/edit_combox.png"
-					height: 25
-					visible: from.text !== ""
-					MouseArea
-					{
-						anchors.fill: parent
-						onClicked:
-						{
-							bc.blockChainRepeater.editTx(blockIndex, txIndex)
 						}
 					}
 				}
@@ -190,6 +174,7 @@ Rectangle
 
 			KeyValuePanel
 			{
+				visible: false
 				height: minHeight
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
@@ -211,6 +196,7 @@ Rectangle
 
 			KeyValuePanel
 			{
+				visible: false
 				height: minHeight
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
@@ -237,11 +223,9 @@ Rectangle
 				anchors.horizontalCenter: parent.horizontalCenter
 				id: ctrStorage
 				title: qsTr("CONTRACT STORAGE")
-				visible:  tx ? tx.isFunctionCall : true
 				function computeData()
 				{
 					model.clear()
-					console.log(JSON.stringify(storage.values))
 					for (var k in storage.values)
 						model.append({ "key": k, "value": JSON.stringify(storage.values[k]) })
 				}
@@ -293,12 +277,12 @@ Rectangle
 
 			KeyValuePanel
 			{
+				visible: false
 				height: minHeight
 				width: parent.width - 30
 				anchors.horizontalCenter: parent.horizontalCenter
 				id: events
 				title: qsTr("EVENTS")
-				visible:  tx ? tx.isFunctionCall : true
 				function computeData()
 				{
 					model.clear()

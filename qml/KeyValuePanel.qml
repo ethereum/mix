@@ -21,6 +21,7 @@ ColumnLayout {
 	property int maxHeight: 250
 	signal expanded
 	signal minimized
+	spacing: 0
 
 	function add(key, value)
 	{
@@ -52,12 +53,13 @@ ColumnLayout {
 	{
 		Layout.preferredHeight: 20
 		Layout.fillWidth: true
-		Label
+		DefaultLabel
 		{
 			id: titleLabel
 			anchors.left: parent.left
 			anchors.verticalCenter: parent.verticalCenter
 			color: "white"
+			font.pixelSize: 10
 			MouseArea
 			{
 				anchors.fill: parent
@@ -107,11 +109,11 @@ ColumnLayout {
 						model: modelKeyValue
 						Row
 						{
-							Layout.preferredHeight: 30
+							Layout.preferredHeight: 20
 							spacing: 5
 							anchors.left: colValue.left
 							anchors.leftMargin: 5
-							Label
+							DefaultLabel
 							{
 								maximumLineCount: 1
 								text: {
@@ -122,12 +124,12 @@ ColumnLayout {
 								}
 							}
 
-							Label
+							DefaultLabel
 							{
 								text: "="
 							}
 
-							Label
+							DefaultLabel
 							{
 								maximumLineCount: 1
 								text: {

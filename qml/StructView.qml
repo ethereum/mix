@@ -51,13 +51,13 @@ Column
 				{
 					anchors.right: parent.right
 					anchors.verticalCenter: parent.verticalCenter
-					Label
+					DefaultLabel
 					{
 						id: nameLabel
 						text: modelData.name
 					}
 
-					Label
+					DefaultLabel
 					{
 						id: typeLabel
 						text: " (" + modelData.type.name + ")"

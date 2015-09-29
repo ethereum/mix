@@ -309,8 +309,8 @@ Dialog {
 					Layout.preferredHeight: 80
 					Rectangle
 					{
-						Layout.preferredWidth: 150
-						Label {
+						Layout.preferredWidth: 100
+						DefaultLabel {
 							anchors.right: parent.right
 							anchors.verticalCenter: parent.verticalCenter
 							text: qsTr("Sender Account")
@@ -371,10 +371,10 @@ Dialog {
 				{
 					Rectangle
 					{
-						Layout.preferredWidth: 150
+						Layout.preferredWidth: 100
 						Layout.preferredHeight: 80
 						color: "transparent"
-						Label
+						DefaultLabel
 						{
 							anchors.verticalCenter: parent.verticalCenter
 							anchors.top: parent.top
@@ -445,8 +445,8 @@ Dialog {
 				{
 					Rectangle
 					{
-						Layout.preferredWidth: 150
-						Label {
+						Layout.preferredWidth: 100
+						DefaultLabel {
 							id: labelRecipient
 							anchors.verticalCenter: parent.verticalCenter
 							anchors.right: parent.right
@@ -503,7 +503,7 @@ Dialog {
 				{
 					Rectangle
 					{
-						Layout.preferredWidth: 150
+						Layout.preferredWidth: 100
 						id: functionRect
 
 						function hide()
@@ -520,7 +520,7 @@ Dialog {
 							functionComboBox.visible = true
 						}
 
-						Label {
+						DefaultLabel {
 							anchors.verticalCenter: parent.verticalCenter
 							anchors.right: parent.right
 							text: qsTr("Function")
@@ -562,8 +562,8 @@ Dialog {
 				{
 					Rectangle
 					{
-						Layout.preferredWidth: 150
-						Label {
+						Layout.preferredWidth: 100
+						DefaultLabel {
 							id: amountLabel
 							anchors.verticalCenter: parent.verticalCenter
 							anchors.right: parent.right
@@ -603,7 +603,7 @@ Dialog {
 					{
 
 						anchors.horizontalCenter: parent.horizontalCenter
-						Label {
+						DefaultLabel {
 							text: qsTr("Transaction fees")
 							anchors.horizontalCenter: parent.horizontalCenter
 						}
@@ -616,8 +616,8 @@ Dialog {
 					Layout.preferredHeight: 45
 					Rectangle
 					{
-						Layout.preferredWidth: 150
-						Label {
+						Layout.preferredWidth: 100
+						DefaultLabel {
 							anchors.verticalCenter: parent.verticalCenter
 							anchors.right: parent.right
 							text: qsTr("Gas")
@@ -636,7 +636,7 @@ Dialog {
 							enabled: !gasAutoCheck.checked
 							id: gasValueEdit;
 
-							Label
+							DefaultLabel
 							{
 								id: estimatedGas
 								anchors.top: parent.bottom
@@ -701,14 +701,14 @@ Dialog {
 					Layout.preferredHeight: 45
 					Rectangle
 					{
-						Layout.preferredWidth: 150
-						Label {
+						Layout.preferredWidth: 100
+						DefaultLabel {
 							id: gasPriceLabel
 							anchors.verticalCenter: parent.verticalCenter
 							anchors.right: parent.right
 							text: qsTr("Gas Price")
 
-							Label {
+							DefaultLabel {
 								id: gasPriceMarket
 								anchors.top: gasPriceLabel.bottom
 								anchors.topMargin: 10

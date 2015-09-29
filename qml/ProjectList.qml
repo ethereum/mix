@@ -41,7 +41,7 @@ Item {
 				visible: false
 			}
 
-			Text
+			DefaultText
 			{
 				id: projectTitle
 				color: projectFilesStyle.title.color
@@ -51,17 +51,15 @@ Item {
 				anchors.left: parent.left
 				anchors.leftMargin: projectFilesStyle.general.leftMargin
 				font.family: srcSansProLight.name
-				font.pointSize: projectFilesStyle.title.fontSize
 				font.weight: Font.Light
 			}
 
-			Text
+			DefaultText
 			{
 				text: "-"
 				anchors.right: parent.right
 				anchors.rightMargin: 15
 				font.family: srcSansProLight.name
-				font.pointSize: projectFilesStyle.title.fontSize
 				anchors.verticalCenter: parent.verticalCenter
 				font.weight: Font.Light
 			}

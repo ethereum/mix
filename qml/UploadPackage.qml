@@ -24,14 +24,14 @@ Rectangle
 		anchors.margins: 10
 		anchors.fill: parent
 
-		Label
+		DefaultLabel
 		{
 			height: 40
 			text: qsTr("Upload and share resources")
 			font.bold: true
 		}
 
-		Label
+		DefaultLabel
 		{
 			width: 400
 			height: 40

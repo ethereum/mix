@@ -123,13 +123,15 @@ class QDebugData: public QObject
 {
 	Q_OBJECT
 	Q_PROPERTY(QVariantList states MEMBER m_states CONSTANT)
+	Q_PROPERTY(QString label MEMBER m_label CONSTANT)
 
 public:
-	QDebugData() { }
+	QDebugData(QString _label = ""): m_label(_label) { }
 	void setStates(QVariantList&& _states) { m_states = std::move(_states); }
 
 private:
 	QVariantList m_states;
+	QString m_label;
 };
 
 /**

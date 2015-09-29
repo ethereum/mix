@@ -17,7 +17,7 @@ ColumnLayout
 	property int number
 	property int blockWidth: Layout.preferredWidth - statusWidth - horizontalMargin
 	property int horizontalMargin: 10
-	property int trHeight: 35
+	property int trHeight: 25
 	spacing: 1
 	property int openedTr: 0
 	property int blockIndex
@@ -37,14 +37,27 @@ ColumnLayout
 	{
 		if (transactions)
 		{
-			var h = trHeight
-			h += trHeight * transactions.count
+			var h = 2 * trHeight
+			for (var k = 0; k < transactionRepeater.count; k++)
+			{
+				if (transactionRepeater.itemAt(k))
+					h += transactionRepeater.itemAt(k).detailHeight()
+			}
 			if (blockChainRepeater.callsDisplayed)
 				for (var k = 0; k < transactions.count; k++)
 				{
 					var calls = blockChainPanel.calls[JSON.stringify([blockIndex, k])]
 					if (calls)
-						h += trHeight * calls.length
+					{
+						for (var k = 0; k < transactionRepeater.count; k++)
+						{
+							if (transactionRepeater.itemAt(k))
+							{
+								h += trHeight
+								h += transactionRepeater.itemAt(k).callsDetailHeight()
+							}
+						}
+					}
 				}
 			return h;
 		}
@@ -79,10 +92,15 @@ ColumnLayout
 			transactionRepeater.itemAt(k).hideCalls()
 	}
 
-	onOpenedTrChanged:
+	function setHeight()
 	{
 		Layout.preferredHeight = calculateHeight()
 		height = calculateHeight()
+	}
+
+	onOpenedTrChanged:
+	{
+		setHeight()
 	}
 
 	DebuggerPaneStyle {
@@ -115,11 +133,10 @@ ColumnLayout
 			color: status === "mined" ? txColor : halfOpacity
 			anchors.left: parent.left
 			anchors.leftMargin: statusWidth
-			Label {
+			DefaultLabel {
 				anchors.verticalCenter: parent.verticalCenter
 				anchors.left: parent.left
 				anchors.leftMargin: horizontalMargin
-				font.pointSize: dbgStyle.absoluteSize(1)
 				color: "#adadad"
 				text:
 				{
@@ -133,17 +150,28 @@ ColumnLayout
 			}
 
 			Button {
-				iconSource: "qrc:/qml/img/edit_combox.png"
 				anchors.verticalCenter: parent.verticalCenter
 				anchors.right: parent.right
-				anchors.rightMargin: 14
+				anchors.rightMargin: 10
 				visible: number === -2
-				height: 25
+				height: 18
+				width: 18
 				enabled: scenarioIndex !== -1
 				onClicked:
 				{
 					// load edit block panel
 					projectModel.stateListModel.editState(scenarioIndex)
+				}
+
+				Image {
+					anchors {
+						left: parent.left
+						right: parent.right
+						top: parent.top
+						bottom: parent.bottom
+					}
+					source: "qrc:/qml/img/edit_combox.png"
+					fillMode: Image.PreserveAspectFit
 				}
 			}
 		}
@@ -171,6 +199,11 @@ ColumnLayout
 				callsRepeater.itemAt(index).highlight()
 			}
 
+			function detailHeight()
+			{
+				return tx.detailHeight()
+			}
+
 			Transaction
 			{
 				id: tx
@@ -188,6 +221,11 @@ ColumnLayout
 				{
 					highlight()
 				}
+
+				onDetailVisibleChanged:
+				{
+					root.setHeight()
+				}
 			}
 
 			function displayCalls(calls)
@@ -203,6 +241,19 @@ ColumnLayout
 				callsModel.clear()
 			}
 
+			function callsDetailHeight()
+			{
+				var h = 0
+				for (var k = 0; k < callsRepeater.count; k++)
+				{
+					if (callsRepeater.itemAt(k))
+					{
+						h += callsRepeater.itemAt(k).detailHeight()
+					}
+				}
+				return h
+			}
+
 			ListModel
 			{
 				id: callsModel
@@ -212,12 +263,18 @@ ColumnLayout
 			{
 				id: callsRepeater
 				model: callsModel
+
 				Transaction
 				{
 					tx: callsModel.get(index)
 					txIndex: columnTx.txIndex
 					callIndex: index
 					isCall: true
+
+					onDetailVisibleChanged:
+					{
+						root.setHeight()
+					}
 				}
 			}
 		}

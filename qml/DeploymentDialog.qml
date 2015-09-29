@@ -62,14 +62,14 @@ Dialog {
 				Layout.preferredHeight: 50
 				height: 50
 				color: "transparent"
-				Label
+				DefaultLabel
 				{
 					id: info
 					anchors.centerIn: parent
 					text: qsTr("Putting your dapp live is a multi step process. You can read more about it on the")
 				}
 
-				Text {
+				DefaultText {
 					anchors.left: info.right
 					anchors.leftMargin: 7
 					id: linkText

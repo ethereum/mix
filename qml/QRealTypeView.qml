@@ -4,7 +4,7 @@ Component
 {
 	Rectangle {
 		anchors.fill: parent
-		Text{
+		DefaultText{
 			anchors.fill: parent
 			text: qsTr("Real")
 		}

@@ -51,7 +51,7 @@ Rectangle {
 
 	onWidthChanged:
 	{
-		btnLabel.visible = width > 80
+		btnLabel.visible = width > 60
 	}
 
 	Rectangle
@@ -150,11 +150,12 @@ Rectangle {
 		anchors.top: contentRectangle.bottom
 		anchors.topMargin: 10
 		width: parent.width
-		Label
+		DefaultLabel
 		{
 			text: buttonActionContainer.text
 			anchors.centerIn: parent
 			id: btnLabel
+			font.pixelSize: 11
 		}
 	}
 }

@@ -170,7 +170,7 @@ AbstractDialog {
 				delegate: Item {
 					implicitWidth: pathText.implicitWidth + pathText.anchors.leftMargin + pathText.anchors.rightMargin
 
-					Text {
+					DefaultText {
 						id: fileIcon
 						width: height
 						verticalAlignment: Text.AlignVCenter
@@ -181,7 +181,7 @@ AbstractDialog {
 						height: parent.height - 2
 						unicode: view.model.isFolder(styleData.row) ? "\ue804" : "\ue802"
 					}
-					Text {
+					DefaultText {
 						id: pathText
 						text: styleData.value
 						anchors {
@@ -204,7 +204,7 @@ AbstractDialog {
 				// something like textFormat: function(text) { return view.model.get(styleData.row, "fileIsDir") ? "folder" : text }
 				delegate: Item {
 					implicitWidth: sizeText.implicitWidth + sizeText.anchors.leftMargin + sizeText.anchors.rightMargin
-					Text {
+					DefaultText {
 						id: sizeText
 						text: view.model.get(styleData.row, "fileIsDir") ? "folder" : styleData.value
 						anchors {
@@ -238,7 +238,7 @@ AbstractDialog {
 					//style: IconButtonStyle { }
                     Layout.maximumWidth: height * 1.5
                 }
-                TextField {
+				DefaultTextField {
                     id: currentPathField
                     Layout.fillWidth: true
                     function doAccept() {

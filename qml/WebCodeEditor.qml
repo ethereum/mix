@@ -154,8 +154,6 @@ Item {
 				editorBrowser.runJavaScript("compilationComplete()", function(result) { });
 				parent.displayGasEstimation(gasEstimationAction.checked);
 			}
-
-
 		}
 
 		function compilationError(error, firstLocation, secondLocations)

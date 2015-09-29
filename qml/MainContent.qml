@@ -31,7 +31,7 @@ Rectangle {
 	property alias codeEditor: codeEditor
 	property bool webViewHorizontal: codeWebSplitter.orientation === Qt.Vertical //vertical splitter positions elements vertically, splits screen horizontally
 	property bool displayCalls
-	property int scenarioMinWidth: 300
+	property int scenarioMinWidth: 270
 
 	Connections {
 		target: debugPanel
@@ -110,10 +110,10 @@ Rectangle {
 		spacing: 0
 		Rectangle {
 			width: parent.width
-			height: 50
+			height: 40
 			Layout.row: 0
 			Layout.fillWidth: true
-			Layout.preferredHeight: 50
+			Layout.preferredHeight: 40
 			id: headerView
 			Rectangle
 			{
@@ -155,8 +155,8 @@ Rectangle {
 
 				ProjectList	{
 					id: projectList
-					width: 350
-					Layout.minimumWidth: 250
+					width: 200
+					Layout.minimumWidth: 170
 					Layout.fillHeight: true
 					Connections {
 						target: projectModel.codeEditor
@@ -184,7 +184,7 @@ Rectangle {
 							Layout.fillWidth: codeWebSplitter.orientation === Qt.Vertical
 							Layout.fillHeight: codeWebSplitter.orientation === Qt.Horizontal
 							Layout.minimumHeight: 200
-							Layout.minimumWidth: 400
+							Layout.minimumWidth: 170
 						}
 					}
 				}
@@ -235,8 +235,6 @@ Rectangle {
 						scenarioExe.visible = false
 						debugPanel.visible = true
 						debugPanel.width = scenarioExe.width
-						if (scenarioExe.bc.debugTrRequested)
-							debugPanel.setTr(scenarioExe.bc.model.blocks[scenarioExe.bc.debugTrRequested[0]].transactions[scenarioExe.bc.debugTrRequested[1]])
 					}
 				}
 

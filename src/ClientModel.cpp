@@ -599,10 +599,10 @@ QVariantMap ClientModel::contractStorageByMachineState(MachineState const& _stat
 	return storage;
 }
 
-void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t)
+void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t, QString const& _label)
 {
 	//we need to wrap states in a QObject before sending to QML.
-	QDebugData* debugData = new QDebugData();
+	QDebugData* debugData = new QDebugData(_label);
 	QQmlEngine::setObjectOwnership(debugData, QQmlEngine::JavaScriptOwnership);
 	QList<QCode*> codes;
 	QList<QHash<int, int>> codeMaps;
@@ -763,10 +763,10 @@ void ClientModel::emptyRecord()
 	debugDataReady(new QDebugData());
 }
 
-void ClientModel::debugRecord(unsigned _index)
+void ClientModel::debugRecord(unsigned _index, QString const& _label)
 {
 	ExecutionResult e = m_client->execution(_index);
-	showDebuggerForTransaction(e);
+	showDebuggerForTransaction(e, _label);
 }
 
 Address ClientModel::deployContract(bytes const& _code, TransactionSettings const& _ctrTransaction)
