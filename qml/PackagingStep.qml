@@ -54,7 +54,7 @@ Rectangle {
 		anchors.left: parent.left
 		anchors.leftMargin: 10
 
-		Label
+		DefaultLabel
 		{
 			anchors.top: parent.top
 			Layout.fillWidth: true
@@ -70,7 +70,7 @@ Rectangle {
 			{
 				Layout.preferredWidth: col.width / 5
 				anchors.verticalCenter: parent.verticalCenter
-				Label
+				DefaultLabel
 				{
 					text: qsTr("Save packaged dapp to")
 					anchors.left: parent.left
@@ -119,7 +119,7 @@ Rectangle {
 			{
 				Layout.preferredWidth: col.width / 5
 				anchors.verticalCenter: parent.verticalCenter
-				Label
+				DefaultLabel
 				{
 					text: qsTr("Local package URL")
 					anchors.left: parent.left
@@ -133,7 +133,7 @@ Rectangle {
 				Layout.preferredWidth: 359
 				id: localPackageUrl
 
-				Label
+				DefaultLabel
 				{
 					anchors.left: parent.right
 					anchors.leftMargin: 50

@@ -111,5 +111,9 @@
         <file>qml/img/recycleicon@2xGrey.png</file>
         <file>qml/img/right.png</file>
         <file>qml/img/javascript_logo.png</file>
+        <file>qml/img/contract-icon@2x.png</file>
+        <file>qml/img/expand-icon@2x.png</file>
+        <file>qml/img/newIcon@2x.png</file>
+        <file>qml/img/delete-block-icon@2x.png</file>
     </qresource>
 </RCC>

@@ -64,7 +64,7 @@ Rectangle {
 		anchors.margins: 10
 		id: chooseSceCol
 
-		Label
+		DefaultLabel
 		{
 			anchors.top: parent.top
 			Layout.fillWidth: true
@@ -82,12 +82,12 @@ Rectangle {
 			{
 				Layout.preferredWidth: chooseSceCol.width / 5
 				anchors.verticalCenter: parent.verticalCenter
-				Label
+				DefaultLabel
 				{
 					anchors.left: parent.left
 					anchors.verticalCenter: parent.verticalCenter
 					text: qsTr("Ethereum node URL")
-				}				
+				}
 			}
 
 			Connections
@@ -111,7 +111,7 @@ Rectangle {
 				}
 			}
 
-			TextField
+			DefaultTextField
 			{
 				Layout.preferredWidth: 500
 				text: appSettings.nodeAddress;
@@ -120,7 +120,7 @@ Rectangle {
 					root.init()
 				}
 
-				Label
+				DefaultLabel
 				{
 					id: nodeError
 					anchors.top: parent.bottom
@@ -138,7 +138,7 @@ Rectangle {
 				Layout.preferredWidth: chooseSceCol.width / 5
 				anchors.top: parent.top
 				anchors.topMargin: 12
-				Label
+				DefaultLabel
 				{
 					text: qsTr("Pick scenario to deploy")
 					anchors.left: parent.left
@@ -234,12 +234,11 @@ Rectangle {
 										}
 									}
 
-									Label
+									DefaultLabel
 									{
 										id: trLabel
 										Layout.preferredHeight: 20
 										anchors.left: parent.left
-
 										anchors.leftMargin: 10
 										text:
 										{
@@ -266,7 +265,7 @@ Rectangle {
 										}
 										Layout.fillWidth: true
 										model: paramList
-										Label
+										DefaultLabel
 										{
 											Layout.preferredHeight: 20
 											anchors.left: parent.left
@@ -300,7 +299,7 @@ Rectangle {
 			{
 				Layout.preferredWidth: chooseSceCol.width / 5
 				anchors.verticalCenter: parent.verticalCenter
-				Label
+				DefaultLabel
 				{
 					anchors.left: parent.left
 					anchors.verticalCenter: parent.verticalCenter
@@ -308,7 +307,7 @@ Rectangle {
 				}
 			}
 
-			Label
+			DefaultLabel
 			{
 				Layout.preferredWidth: 500
 				id: gasUsedLabel

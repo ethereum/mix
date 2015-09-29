@@ -88,7 +88,7 @@ RowLayout {
 			id: etherValueEdit;
 		}
 
-		TextField
+		DefaultTextField
 		{
 			anchors.verticalCenter: parent.verticalCenter
 			width: parent.width
@@ -146,7 +146,7 @@ RowLayout {
 		}
 	}
 
-	Label
+	DefaultLabel
 	{
 		Layout.preferredWidth: 100
 		visible: displayFormattedValue

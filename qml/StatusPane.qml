@@ -165,12 +165,11 @@ Rectangle {
 		anchors.verticalCenter: parent.verticalCenter
 		radius: 3
 		width: 600
-		height: 30
+		height: 25
 		color: "#fcfbfc"
-		Text {
+		DefaultText {
 			anchors.verticalCenter: parent.verticalCenter
 			anchors.horizontalCenter: parent.horizontalCenter
-			font.pointSize: appStyle.absoluteSize(-1)
 			font.family: "sans serif"
 			objectName: "status"
 			wrapMode: Text.WrapAnywhere

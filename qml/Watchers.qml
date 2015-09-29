@@ -14,7 +14,7 @@ import "."
 Rectangle
 {
 	border.color: "#cccccc"
-	border.width: 2
+	border.width: 1
 	color: "white"
 	id: root
 	property variant tx
@@ -85,7 +85,7 @@ Rectangle
 		radius: 4
 		Column {
 			anchors.fill: parent
-			spacing: 5
+			spacing: 2
 			Rectangle
 			{
 				height: 20 * 3
@@ -99,18 +99,19 @@ Rectangle
 					width: parent.width
 					anchors.top: parent.top
 					anchors.topMargin: 2
+					spacing: 0
 					Row
 					{
 						Layout.preferredWidth: parent.width
 						spacing: 5
-						Label {
+						DefaultLabel {
 							id: fromLabel
 							text: qsTr("From:")
 							visible: from.text != ""
 							color: selectedBlockForeground
 							font.italic: true
 						}
-						Label {
+						DefaultLabel {
 							id: from
 							color: selectedBlockForeground
 							maximumLineCount: 1
@@ -124,14 +125,14 @@ Rectangle
 					{
 						Layout.preferredWidth: parent.width
 						spacing: 5
-						Label {
+						DefaultLabel {
 							id: toLabel
 							text: qsTr("To:")
 							visible: to.text != ""
 							color: selectedBlockForeground
 							font.italic: true
 						}
-						Label {
+						DefaultLabel {
 							id: to
 							color: selectedBlockForeground
 							maximumLineCount: 1
@@ -145,14 +146,14 @@ Rectangle
 					{
 						Layout.preferredWidth: parent.width
 						spacing: 5
-						Label {
+						DefaultLabel {
 							id: valueLabel
 							text: qsTr("Value:")
 							visible: value.text != ""
 							color: selectedBlockForeground
 							font.italic: true
 						}
-						Label {
+						DefaultLabel {
 							id: value
 							color: selectedBlockForeground
 							font.italic: true

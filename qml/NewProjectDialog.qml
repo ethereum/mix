@@ -46,10 +46,10 @@ Item
 				rowSpacing: 10
 				columnSpacing: 10
 
-				Label {
+				DefaultLabel {
 					text: qsTr("Title")
 				}
-				TextField {
+				DefaultTextField {
 					id: titleField
 					focus: true
 					Layout.fillWidth: true
@@ -59,11 +59,11 @@ Item
 					}
 				}
 
-				Label {
+				DefaultLabel {
 					text: qsTr("Path")
 				}
 				RowLayout {
-					TextField {
+					DefaultTextField {
 						id: pathField
 						Layout.fillWidth: true
 						Keys.onReturnPressed: {

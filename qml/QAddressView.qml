@@ -213,7 +213,7 @@ ColumnLayout
 		width: 350
 		height: 30
 		id: textInputRect
-		TextField {
+		DefaultTextField {
 			id: textinput
 			text: value
 			anchors.fill: parent

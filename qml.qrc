@@ -81,5 +81,6 @@
         <file>qml/UploadPackage.qml</file>
         <file>qml/DisableInput.qml</file>
         <file>qml/NewAccount.qml</file>
+        <file>qml/DefaultText.qml</file>
     </qresource>
 </RCC>

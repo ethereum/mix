@@ -6,7 +6,7 @@ import QtQuick.Controls.Styles 1.1
 
 Item {
 	id: webPreview
-	Text {
+	DefaultText {
 		anchors.fill: parent
 		horizontalAlignment: Text.AlignHCenter
 		verticalAlignment: Text.AlignVCenter

@@ -92,7 +92,7 @@ Rectangle {
 		anchors.left: parent.left
 		anchors.leftMargin: 10
 		width: parent.width
-		Label
+		DefaultLabel
 		{
 			anchors.top: parent.top
 			Layout.preferredWidth: 300
@@ -107,7 +107,7 @@ Rectangle {
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 5
-				Label
+				DefaultLabel
 				{
 					text: qsTr("Root Registrar address")
 					anchors.left: parent.left
@@ -144,7 +144,7 @@ Rectangle {
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 5
-				Label
+				DefaultLabel
 				{
 					text: qsTr("Http URL")
 					anchors.left: parent.left
@@ -152,11 +152,11 @@ Rectangle {
 					id: httpurlLabel
 				}
 
-				Label
+				DefaultLabel
 				{
 					text: qsTr("(pastebin url or similar)")
 					anchors.verticalCenter: parent.verticalCenter
-					font.pointSize: 8
+					font.pixelSize: 12
 					anchors.top: httpurlLabel.bottom
 					anchors.topMargin: 2
 					anchors.left: httpurlLabel.left
@@ -170,7 +170,7 @@ Rectangle {
 				Layout.preferredWidth: 450
 			}
 
-			Label
+			DefaultLabel
 			{
 				id: verificationUrl
 				anchors.verticalCenter: parent.verticalCenter
@@ -185,7 +185,7 @@ Rectangle {
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 5
-				Label
+				DefaultLabel
 				{
 					text: qsTr("Ethereum URL")
 					anchors.left: parent.left
@@ -216,7 +216,7 @@ Rectangle {
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 4
-				Label
+				DefaultLabel
 				{
 					text: qsTr("Formatted Ethereum URL")
 					anchors.left: parent.left
@@ -230,16 +230,16 @@ Rectangle {
 				anchors.verticalCenter: parent.verticalCenter;
 				anchors.topMargin: 10
 				font.italic: true
-				font.pointSize: appStyle.absoluteSize(-1)
+				font.pixelSize: 12
 			}
 
-			Label
+			DefaultLabel
 			{
 				id: verificationEthUrl
 				anchors.verticalCenter: parent.verticalCenter;
 				anchors.topMargin: 10
 				font.italic: true
-				font.pointSize: appStyle.absoluteSize(-1)
+				font.pixelSize: 12
 			}
 		}
 
@@ -249,7 +249,7 @@ Rectangle {
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 5
-				Label
+				DefaultLabel
 				{
 					text: qsTr("Gas price")
 					anchors.left: parent.left
@@ -289,7 +289,7 @@ Rectangle {
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 5
-				Label
+				DefaultLabel
 				{
 					text: qsTr("Registration Cost")
 					anchors.left: parent.left

@@ -153,7 +153,7 @@ Rectangle
 							text: date;
 							font.family: logStyle.generic.layout.logLabelFont
 							width: logStyle.generic.layout.dateWidth
-							font.pointSize: appStyle.absoluteSize(-1)
+							font.pixelSize: 12
 							clip: true
 							elide: Text.ElideRight
 							anchors.left: parent.left
@@ -171,7 +171,7 @@ Rectangle
 							width: logStyle.generic.layout.typeWidth
 							clip: true
 							elide: Text.ElideRight
-							font.pointSize: appStyle.absoluteSize(-1)
+							font.pixelSize: 12
 							anchors.left: dateLabel.right
 							anchors.leftMargin: 2
 							anchors.verticalCenter: parent.verticalCenter
@@ -180,12 +180,11 @@ Rectangle
 							}
 						}
 
-						Text {
+						DefaultText {
 							id: logContent
 							text: content;
 							font.family: logStyle.generic.layout.logLabelFont
 							width: logStyle.generic.layout.contentWidth - 50
-							font.pointSize: appStyle.absoluteSize(-1)
 							anchors.verticalCenter: parent.verticalCenter
 							elide: Text.ElideRight
 							anchors.left: typeLabel.right
@@ -214,7 +213,7 @@ Rectangle
 			DefaultLabel {
 				text: styleData.value;
 				font.family: logStyle.generic.layout.logLabelFont
-				font.pointSize: appStyle.absoluteSize(-1)
+				font.pixelSize: 12
 				color: {
 					if (proxyModel.get(styleData.row).level === "error")
 						return "red";
@@ -255,7 +254,7 @@ Rectangle
 					elide: Text.ElideRight
 					anchors.verticalCenter: parent.verticalCenter
 					color: logStyle.generic.layout.logLabelColor
-					font.pointSize: appStyle.absoluteSize(-3)
+					font.pixelSize: 12
 					font.family: logStyle.generic.layout.logLabelFont
 					text: qsTr("Show:")
 				}
@@ -302,7 +301,7 @@ Rectangle
 								elide: Text.ElideRight
 								anchors.horizontalCenter: parent.horizontalCenter
 								font.family: logStyle.generic.layout.logLabelFont
-								font.pointSize: appStyle.absoluteSize(-3)
+								font.pixelSize: 12
 								color: logStyle.generic.layout.logLabelColor
 								text: qsTr("JS")
 							}
@@ -356,7 +355,7 @@ Rectangle
 								anchors.horizontalCenter: parent.horizontalCenter
 								elide: Text.ElideRight
 								font.family: logStyle.generic.layout.logLabelFont
-								font.pointSize: appStyle.absoluteSize(-3)
+								font.pixelSize: 12
 								color: logStyle.generic.layout.logLabelColor
 								text: qsTr("Run")
 							}
@@ -410,7 +409,7 @@ Rectangle
 								anchors.horizontalCenter: parent.horizontalCenter
 								elide: Text.ElideRight
 								font.family: logStyle.generic.layout.logLabelFont
-								font.pointSize: appStyle.absoluteSize(-3)
+								font.pixelSize: 12
 								color: logStyle.generic.layout.logLabelColor
 								text: qsTr("State")
 							}
@@ -464,7 +463,7 @@ Rectangle
 								anchors.horizontalCenter: parent.horizontalCenter
 								elide: Text.ElideRight
 								font.family: logStyle.generic.layout.logLabelFont
-								font.pointSize: appStyle.absoluteSize(-3)
+								font.pixelSize: 12
 								color: logStyle.generic.layout.logLabelColor
 								text: qsTr("Deploy.")
 							}
@@ -498,6 +497,8 @@ Rectangle
 			anchors.right: parent.right
 			anchors.rightMargin: 10
 			spacing: 10
+			anchors.verticalCenter: parent.verticalCenter
+
 			Rectangle
 			{
 				height: logStyle.generic.layout.headerButtonHeight
@@ -596,8 +597,8 @@ Rectangle
 				radius: 10
 				height: 25
 				color: "white"
-				anchors.verticalCenter: parent.verticalCenter
-
+				anchors.top: parent.top
+				anchors.topMargin: 3
 				Image
 				{
 					id: searchImg
@@ -616,7 +617,7 @@ Rectangle
 					anchors.left: searchImg.right
 					anchors.leftMargin: -7
 					font.family: logStyle.generic.layout.logLabelFont
-					font.pointSize: appStyle.absoluteSize(-3)
+					font.pixelSize: 12
 					font.italic: true
 					text: qsTr(" - Search - ")
 					onFocusChanged:

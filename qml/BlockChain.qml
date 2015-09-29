@@ -126,10 +126,10 @@ ColumnLayout {
 		var minWidth = scenarioMinWidth - 20 // margin
 		fromWidth = width / 2
 		toWidth = width / 2
-		if (width < 500)
+		if (width < 350)
 			btnsContainer.Layout.preferredWidth = width - 30
 		else
-			btnsContainer.Layout.preferredWidth = 500
+			btnsContainer.Layout.preferredWidth = 350
 
 		previousWidth = width
 	}
@@ -206,6 +206,8 @@ ColumnLayout {
 
 	function formatRecipientLabel(_tx)
 	{
+		if (!_tx)
+			return ""
 		if (!_tx.isFunctionCall)
 		{
 			if (_tx.contractId.indexOf("0x") === 0)
@@ -251,7 +253,7 @@ ColumnLayout {
 		rebuild.stopBlinking()
 	}
 
-	property int statusWidth: 30
+	property int statusWidth: 20
 	property int fromWidth: 250
 	property int toWidth: 240
 	property int debugActionWidth: 40
@@ -260,8 +262,8 @@ ColumnLayout {
 
 	Rectangle
 	{
-		Layout.preferredWidth: 500
-		Layout.preferredHeight: 50
+		Layout.preferredWidth: 350
+		Layout.preferredHeight: 40
 		anchors.horizontalCenter: parent.horizontalCenter
 		color: "transparent"
 		id: btnsContainer
@@ -274,13 +276,13 @@ ColumnLayout {
 			id: rowBtns
 			onWidthChanged: {
 				var w = (width - (2 * 20)) / 4
-				rebuild.width = w
-				rebuild.parent.width = w
-				addTransaction.width = w
-				addBlockBtn.width = w
-				addTransaction.parent.width = w * 2
-				newAccount.width = w
-				newAccount.parent.width = w
+				rebuild.width = w > 30 ? w : 30
+				rebuild.parent.width = w > 30 ? w : 30
+				addTransaction.width = w > 30 ? w : 30
+				addBlockBtn.width = w > 30 ? w : 30
+				addTransaction.parent.width = addBlockBtn.width * 2
+				newAccount.width = w > 30 ? w : 30
+				newAccount.parent.width = w > 30 ? w : 30
 			}
 
 			Connections
@@ -295,13 +297,13 @@ ColumnLayout {
 			}
 
 			Rectangle {
-				width: 100
-				height: 30
+				width: 20
+				height: 20
 				ScenarioButton {
 					id: rebuild
 					text: qsTr("Rebuild Scenario")
-					width: 100
-					height: 30
+					width: 20
+					height: 20
 					roundLeft: true
 					roundRight: true
 					enabled: scenarioIndex !== -1
@@ -330,7 +332,6 @@ ColumnLayout {
 						}
 						return false
 					}
-
 
 					function notNeedRebuild(reason)
 					{
@@ -453,8 +454,8 @@ ColumnLayout {
 
 			Rectangle
 			{
-				width: 200
-				height: 30
+				width: 100
+				height: 20
 				color: "transparent"
 
 				ScenarioButton {
@@ -480,8 +481,8 @@ ColumnLayout {
 							transactionDialog.open(model.blocks[model.blocks.length - 1].transactions.length, model.blocks.length - 1, item)
 						}
 					}
-					width: 100
-					height: 30
+					width: 50
+					height: 20
 					buttonShortcut: ""
 					sourceImg: "qrc:/qml/img/sendtransactionicon@2x.png"
 					roundLeft: true
@@ -538,8 +539,8 @@ ColumnLayout {
 						model.blocks.push(block)
 						blockModel.appendBlock(block)
 					}
-					width: 100
-					height: 30
+					width: 50
+					height: 20
 
 					buttonShortcut: ""
 					sourceImg: "qrc:/qml/img/newblock@2x.png"
@@ -654,8 +655,8 @@ ColumnLayout {
 			}
 
 			Rectangle {
-				width: 100
-				height: 30
+				width: 50
+				height: 20
 				border.width: 1
 				border.color: "red"
 				ScenarioButton {
@@ -666,8 +667,8 @@ ColumnLayout {
 						newAddressWin.accounts = model.accounts
 						newAddressWin.open()
 					}
-					width: 100
-					height: 30
+					width: 80
+					height: 20
 					buttonShortcut: ""
 					sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
 					roundLeft: true
@@ -701,7 +702,7 @@ ColumnLayout {
 		Layout.preferredHeight: 300
 		Layout.preferredWidth: parent.width
 		border.color: "#cccccc"
-		border.width: 2
+		border.width: 1
 		color: "white"
 		id: bcContainer
 		ScrollView
@@ -718,7 +719,7 @@ ColumnLayout {
 				spacing: 10
 				Rectangle
 				{
-					Layout.preferredHeight: 60
+					Layout.preferredHeight: 40
 					Layout.preferredWidth: blockChainScrollView.width
 					color: "transparent"
 
@@ -752,14 +753,14 @@ ColumnLayout {
 						scenario: blockChainPanel.model
 						scenarioIndex: scenarioIndex
 						Layout.preferredWidth: blockChainScrollView.width
-						Layout.preferredHeight: 60
+						Layout.preferredHeight: 40
 						width: blockChainScrollView.width
-						height: 60
+						height: 40
 						blockIndex: -1
 						transactions: []
 						status: ""
 						number: -2
-						trHeight: 60
+						trHeight: 40
 					}
 				}
 

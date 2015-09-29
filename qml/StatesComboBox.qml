@@ -87,7 +87,7 @@ Rectangle {
 		width: parent.width
 		height: statesComboBox.height
 		color: statesComboBox.color
-		Text {
+		DefaultText {
 			id: chosenItemText
 			anchors.left: parent.left
 			anchors.leftMargin: 10
@@ -172,7 +172,7 @@ Rectangle {
 						id: itemDelegate
 						width: statesComboBox.width
 						height: statesComboBox.height
-						Text {
+						DefaultText {
 							id: textItemid
 							text: styleData.value
 							color: statesComboBox.colorItem
@@ -230,7 +230,7 @@ Rectangle {
 				anchors.topMargin: 4
 				anchors.left: parent.left
 				anchors.leftMargin: 10
-				Text {
+				DefaultText {
 					id: createStateText
 					width: statesComboBox.width
 					height: statesComboBox.height

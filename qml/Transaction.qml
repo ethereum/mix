@@ -83,8 +83,8 @@ RowLayout
 			anchors.leftMargin: 3
 			anchors.topMargin: 5
 			source: "qrc:/qml/img/javascript_logo.png"
-			height: 25
-			width: 25
+			height: 15
+			width: 15
 			fillMode: Image.PreserveAspectFit
 			visible: isCall
 		}
@@ -182,7 +182,7 @@ RowLayout
 				anchors.left: parent.left
 				anchors.leftMargin: horizontalMargin
 				anchors.verticalCenter: parent.verticalCenter
-				Text
+				DefaultText
 				{
 					id: hash
 					width: parent.width - 30
@@ -191,7 +191,6 @@ RowLayout
 					maximumLineCount: 1
 					clip: true
 					color: labelColor
-					font.pointSize: dbgStyle.absoluteSize(1)
 					font.bold: true
 					text: {
 						if (tx)
@@ -215,7 +214,7 @@ RowLayout
 			{
 				Layout.preferredWidth: toWidth
 				anchors.verticalCenter: parent.verticalCenter
-				Text
+				DefaultText
 				{
 					id: func
 					text: {
@@ -227,7 +226,6 @@ RowLayout
 					elide: Text.ElideRight
 					anchors.verticalCenter: parent.verticalCenter
 					color: labelColor
-					font.pointSize: dbgStyle.absoluteSize(1)
 					font.bold: true
 					clip: true
 					maximumLineCount: 1
@@ -253,7 +251,7 @@ RowLayout
 		{
 			id: txDetail
 			anchors.top: rowTransactionItem.bottom
-			anchors.topMargin: 18
+			anchors.topMargin: 10
 			anchors.left: rowTransactionItem.left
 			width: blockWidth
 			height: 0
@@ -311,17 +309,22 @@ RowLayout
 				anchors.margins: 10
 				Row
 				{
-					Label
+					DefaultLabel
 					{
 						id: labelFrom
 						text: qsTr("From: ")
 						color: trDetailColor
 					}
-					Label
+					DefaultLabel
 					{
 						text: {
-							var addr = clientModel.resolveAddress(tx.sender)
-							return blockChain.addAccountNickname(addr, true)
+							if (!tx)
+								return ""
+							else
+							{
+								var addr = clientModel.resolveAddress(tx.sender)
+								return blockChain.addAccountNickname(addr, true)
+							}
 						}
 						width: rowTransactionItem.width - 75
 						elide: Text.ElideRight
@@ -332,12 +335,12 @@ RowLayout
 
 				Row
 				{
-					Label
+					DefaultLabel
 					{
 						text: qsTr("To: ")
 						color: trDetailColor
 					}
-					Label
+					DefaultLabel
 					{
 						text: blockChain.formatRecipientLabel(tx)
 						width: rowTransactionItem.width - 75
@@ -349,12 +352,12 @@ RowLayout
 
 				Row
 				{
-					Label
+					DefaultLabel
 					{
 						text: qsTr("Value: ")
 						color: trDetailColor
 					}
-					Label
+					DefaultLabel
 					{
 						text:  tx ? tx.value.format() : ""
 						width: rowTransactionItem.width - 30
@@ -367,7 +370,7 @@ RowLayout
 				{
 					Column
 					{
-						Label
+						DefaultLabel
 						{
 							id: labelInput
 							text: qsTr("Input:")
@@ -390,7 +393,7 @@ RowLayout
 
 							Row
 							{
-								Label
+								DefaultLabel
 								{
 									color: trDetailColor
 									text: key + "\t" + value
@@ -407,7 +410,7 @@ RowLayout
 				{
 					Column
 					{
-						Label
+						DefaultLabel
 						{
 							color: trDetailColor
 							id: labelOutput
@@ -426,7 +429,7 @@ RowLayout
 
 							Row
 							{
-								Label
+								DefaultLabel
 								{
 									color: trDetailColor
 									text: key + "\t" + value
@@ -443,7 +446,7 @@ RowLayout
 				{
 					Column
 					{
-						Label
+						DefaultLabel
 						{
 							color: trDetailColor
 							id: labelEvent
@@ -466,14 +469,14 @@ RowLayout
 
 							Row
 							{
-								Label
+								DefaultLabel
 								{
 									color: trDetailColor
 									text: index >= 0 ? eventList.get(index).key : ""
 									font.bold: true
 								}
 
-								Label
+								DefaultLabel
 								{
 									color: trDetailColor
 									text: index >= 0 ? eventList.get(index).value : ""
@@ -489,33 +492,53 @@ RowLayout
 				Row
 				{
 					anchors.horizontalCenter: parent.horizontalCenter
+					spacing: 5
 					CopyButton
 					{
+						anchors.verticalCenter: parent.verticalCenter
 						getContent: function() {
 							return JSON.stringify(tx)
 						}
+						height: 22
+						width: 25
 					}
 					Button
 					{
 						id: editTx
+						anchors.verticalCenter: parent.verticalCenter
 						visible: !isCall
 						onClicked:
 						{
 							if (!isCall)
 								root.editTx(index)
 						}
-						text: qsTr("Edit transaction...")
+						height: 20
+						style: ButtonStyle {
+							label: DefaultText
+							{
+								text: qsTr("Edit transaction...")
+								font.pixelSize: 10
+							}
+						}
 					}
 
 					Button
 					{
 						id: debugTx
+						anchors.verticalCenter: parent.verticalCenter
 						onClicked:
 						{
 							if (tx.recordIndex !== undefined)
 								clientModel.debugRecord(tx.recordIndex, tx.label);
 						}
-						text: isCall ? qsTr("Debug call...") : qsTr("Debug transaction...")
+						height: 20
+						style: ButtonStyle {
+							label: DefaultText
+							{
+								text: isCall ? qsTr("Debug call...") : qsTr("Debug transaction...")
+								font.pixelSize: 10
+							}
+						}
 					}
 				}
 			}
@@ -524,27 +547,27 @@ RowLayout
 
 	Rectangle
 	{
-		width: debugActionWidth
-		height: trHeight - 10
+		width: 15
+		height: 15
 		anchors.right: rowContentTr.right
 		anchors.top: rowContentTr.top
 		anchors.rightMargin: 10
+		anchors.topMargin: 5
 		color: "transparent"
-
 		Image {
 			id: debugImg
-			source: "qrc:/qml/img/rightarrowcircle.png"
-			width: debugActionWidth
+			source: txDetail.visible ? "qrc:/qml/img/contract-icon@2x.png" : "qrc:/qml/img/expand-icon@2x.png"
+			width: parent.width
 			fillMode: Image.PreserveAspectFit
 			anchors.horizontalCenter: parent.horizontalCenter
 			visible: tx !== null && tx !== undefined && tx.recordIndex !== undefined
-		}
-		MouseArea
-		{
-			anchors.fill: parent
-			onClicked:
+			MouseArea
 			{
-				txDetail.visible = !txDetail.visible
+				anchors.fill: parent
+				onClicked:
+				{
+					txDetail.visible = !txDetail.visible
+				}
 			}
 		}
 	}

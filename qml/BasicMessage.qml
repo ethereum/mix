@@ -7,7 +7,7 @@ import QtQuick.Layouts 1.1
 Rectangle {
 	anchors.fill: parent
 	color: "lightgrey"
-	Label
+	DefaultLabel
 	{
 		width: parent.width
 		height: parent.height
@@ -17,6 +17,7 @@ Rectangle {
 		id: messageTxt
 		text: ""
 		wrapMode: "Wrap"
+		font.pixelSize: 12
 	}
 }
 

@@ -209,7 +209,7 @@ Item {
 				anchors.leftMargin: 3
 				spacing: 10
 
-				TextField
+				DefaultTextField
 				{
 					id: urlInput
 					anchors.verticalCenter: parent.verticalCenter
@@ -223,6 +223,7 @@ Item {
 						setPreviewUrl(text);
 					}
 					focus: true
+					font.pixelSize: 12
 				}
 
 				Action {
@@ -285,6 +286,7 @@ Item {
 					style: CheckBoxStyle {
 						label: DefaultLabel {
 							text: qsTr("Auto reload on save")
+							font.pixelSize: 12
 						}
 					}
 					focus: true
@@ -404,7 +406,7 @@ Item {
 						height: 20
 						font.family: webPreviewStyle.general.fontName
 						font.italic: true
-						font.pointSize: appStyle.absoluteSize(-3)
+						font.pixelSize: 12
 						anchors.verticalCenter: parent.verticalCenter
 						property bool active: false
 						property var history: []
@@ -475,7 +477,7 @@ Item {
 					wrapMode: Text.Wrap
 					textFormat: Text.RichText
 					font.family: webPreviewStyle.general.fontName
-					font.pointSize: appStyle.absoluteSize(-3)
+					font.pixelSize: 12
 					backgroundVisible: true
 					style: TextAreaStyle {
 						backgroundColor: "#f0f0f0"

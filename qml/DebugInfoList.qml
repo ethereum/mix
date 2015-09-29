@@ -56,7 +56,7 @@ ColumnLayout {
 			id: storageImgArrow
 		}
 
-		Text {
+		DefaultText {
 			anchors.left: storageImgArrow.right
 			color: "#8b8b8b"
 			text: title
@@ -81,7 +81,7 @@ ColumnLayout {
 	Rectangle
 	{
 		id: storageContainer
-		border.width: 3
+		border.width: 1
 		border.color: "#deddd9"
 		Layout.fillWidth: true
 		Layout.fillHeight: true

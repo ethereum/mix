@@ -40,7 +40,7 @@ Item {
 			width: parent.width
 			Repeater {
 				model: Math.max(codeEditor.lineCount + 2, (lineColumn.height/lineColumn.rowHeight))
-				delegate: Text {
+				delegate: DefaultText {
 					id: text
 					color: codeEditor.textColor
 					font: codeEditor.font
@@ -71,7 +71,7 @@ Item {
 
 		height: parent.height
 		font.family: "Monospace"
-		font.pointSize: style.general.basicFontSize
+		font.pixelSize: 12
 		width: parent.width
 
 		tabChangesFocus: false

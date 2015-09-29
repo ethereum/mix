@@ -134,13 +134,13 @@ Rectangle {
 		RowLayout
 		{
 			Layout.preferredWidth: parent.width
-			Layout.preferredHeight: 30
+			Layout.preferredHeight: 20
 			Rectangle
 			{
 				Layout.preferredWidth: parent.width
 				Layout.preferredHeight: parent.height
 				color: "transparent"
-				Text {
+				DefaultText {
 					anchors.centerIn: parent
 					text: qsTr("Current Transaction")
 				}
@@ -175,13 +175,13 @@ Rectangle {
 		RowLayout
 		{
 			Layout.preferredWidth: parent.width
-			Layout.preferredHeight: 30
+			Layout.preferredHeight: 20
 			Rectangle
 			{
 				Layout.preferredWidth: parent.width
 				Layout.preferredHeight: parent.height
 				color: "#accbf2"
-				Text {
+				DefaultText {
 					id: trName
 					color: "white"
 					anchors.centerIn: parent
@@ -193,7 +193,7 @@ Rectangle {
 		{
 			Layout.preferredWidth: parent.width
 			visible: mainContent.rightPane.bc.buildUseOptimizedCode
-			Label
+			DefaultLabel
 			{
 				anchors.horizontalCenter: parent.horizontalCenter
 				text: qsTr("The last rebuild uses Solidity optimized code. Please do not use optimize code when debugging a transaction.")
@@ -204,7 +204,7 @@ Rectangle {
 
 		ScrollView
 		{
-			property int sideMargin: 10
+			property int sideMargin: 5
 			id: machineStates
 			Layout.fillWidth: true
 			Layout.fillHeight: true
@@ -222,7 +222,7 @@ Rectangle {
 			ColumnLayout {
 				id: statesLayout
 				anchors.top: parent.top
-				anchors.topMargin: 15
+				anchors.topMargin: 10
 				anchors.left: parent.left;
 				anchors.leftMargin: machineStates.sideMargin
 				width: debugScrollArea.width - machineStates.sideMargin * 2 - 20
@@ -231,7 +231,7 @@ Rectangle {
 				Rectangle {
 					// step button + slider
 					id: buttonRow
-					height: 30
+					height: 23
 					Layout.fillWidth: true
 					color: "transparent"
 
@@ -360,7 +360,7 @@ Rectangle {
 											anchors.centerIn: parent
 											color: control.pressed ? "white" : "lightgray"
 											border.color: "gray"
-											border.width: 2
+											border.width: 1
 											implicitWidth: 10
 											implicitHeight: 10
 											radius: 12
@@ -419,7 +419,7 @@ Rectangle {
 						anchors.left: parent.left
 						width: parent.width * 0.4
 						height: parent.height
-						border.width: 3
+						border.width: 1
 						border.color: "#deddd9"
 						color: "white"
 						TableView {
@@ -466,24 +466,22 @@ Rectangle {
 									spacing: 5
 
 
-									Text {
+									DefaultText {
 										anchors.left: parent.left
 										anchors.leftMargin: 10
 										width: 15
 										color: "#b2b3ae"
 										text: styleData.value.split(' ')[0]
 										font.family: "monospace"
-										font.pointSize: dbgStyle.general.basicFontSize
 										wrapMode: Text.NoWrap
 										id: id
 									}
-									Text {
+									DefaultText {
 										anchors.left: id.right;
 										wrapMode: Text.NoWrap
 										color: styleData.selected ? "white" : "black"
 										font.family: "monospace"
 										text: styleData.value.replace(styleData.value.split(' ')[0], '')
-										font.pointSize: dbgStyle.general.basicFontSize
 									}
 								}
 							}
@@ -549,13 +547,12 @@ Rectangle {
 											Layout.preferredWidth: 30
 											Layout.maximumWidth: 30
 											Layout.minimumHeight: parent.height
-											Text {
+											DefaultText {
 												anchors.centerIn: parent
 												anchors.leftMargin: 5
 												font.family: "monospace"
 												color: "#4a4a4a"
 												text: styleData.row;
-												font.pointSize: dbgStyle.general.basicFontSize
 											}
 										}
 
@@ -566,14 +563,13 @@ Rectangle {
 											Layout.minimumWidth: 15
 											Layout.preferredWidth: 15
 											Layout.minimumHeight: parent.height
-											Text {
+											DefaultText {
 												anchors.left: parent.left
 												anchors.leftMargin: 5
 												font.family: "monospace"
 												anchors.verticalCenter: parent.verticalCenter
 												color: "#4a4a4a"
 												text: styleData.value
-												font.pointSize: dbgStyle.general.basicFontSize
 											}
 										}
 									}

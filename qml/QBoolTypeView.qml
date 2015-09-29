@@ -94,7 +94,7 @@ Item
 			text: qsTr("True")
 		}
 
-		TextField
+		DefaultTextField
 		{
 			id: boolArray
 			onTextChanged:

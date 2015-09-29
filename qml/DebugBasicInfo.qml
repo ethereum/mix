@@ -15,19 +15,17 @@ RowLayout {
 		width: 120
 		height: parent.height
 		color: "#e5e5e5"
-		Text
+		DefaultLabel
 		{
 			id: title
-			font.pixelSize: 12
 			anchors.centerIn: parent
 			color: "#a2a2a2"
 			font.family: "Sans Serif"
 			text: titleStr
 		}
 	}
-	Text
+	DefaultLabel
 	{
-		font.pixelSize: 13
 		id: currentStepValue
 	}
 }

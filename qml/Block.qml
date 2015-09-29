@@ -17,7 +17,7 @@ ColumnLayout
 	property int number
 	property int blockWidth: Layout.preferredWidth - statusWidth - horizontalMargin
 	property int horizontalMargin: 10
-	property int trHeight: 35
+	property int trHeight: 25
 	spacing: 1
 	property int openedTr: 0
 	property int blockIndex
@@ -133,11 +133,10 @@ ColumnLayout
 			color: status === "mined" ? txColor : halfOpacity
 			anchors.left: parent.left
 			anchors.leftMargin: statusWidth
-			Label {
+			DefaultLabel {
 				anchors.verticalCenter: parent.verticalCenter
 				anchors.left: parent.left
 				anchors.leftMargin: horizontalMargin
-				font.pointSize: dbgStyle.absoluteSize(1)
 				color: "#adadad"
 				text:
 				{
@@ -151,17 +150,28 @@ ColumnLayout
 			}
 
 			Button {
-				iconSource: "qrc:/qml/img/edit_combox.png"
 				anchors.verticalCenter: parent.verticalCenter
 				anchors.right: parent.right
-				anchors.rightMargin: 14
+				anchors.rightMargin: 10
 				visible: number === -2
-				height: 25
+				height: 18
+				width: 18
 				enabled: scenarioIndex !== -1
 				onClicked:
 				{
 					// load edit block panel
 					projectModel.stateListModel.editState(scenarioIndex)
+				}
+
+				Image {
+					anchors {
+						left: parent.left
+						right: parent.right
+						top: parent.top
+						bottom: parent.bottom
+					}
+					source: "qrc:/qml/img/edit_combox.png"
+					fillMode: Image.PreserveAspectFit
 				}
 			}
 		}

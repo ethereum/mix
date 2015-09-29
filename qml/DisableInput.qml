@@ -8,7 +8,7 @@ import "js/TransactionHelper.js" as TransactionHelper
 import "js/NetworkDeployment.js" as NetworkDeploymentCode
 import "js/QEtherHelper.js" as QEtherHelper
 
-TextField
+DefaultTextField
 {
 	id: localPackageUrl
 	readOnly: true

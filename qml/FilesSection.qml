@@ -79,12 +79,12 @@ Rectangle
 				sourceSize.width: 12
 				id: imgArrow
 				anchors.right: section.left
-				anchors.rightMargin: 8
+				anchors.rightMargin: 2
 				anchors.top: parent.top
-				anchors.topMargin: 10
+				anchors.topMargin: 8
 			}
 
-			Text
+			DefaultText
 			{
 				id: section
 				text: sectionName
@@ -92,7 +92,6 @@ Rectangle
 				anchors.leftMargin: projectFilesStyle.general.leftMargin
 				color: projectFilesStyle.documentsList.sectionColor
 				font.family: boldFont.name
-				font.pointSize: projectFilesStyle.documentsList.sectionFontSize
 				states: [
 					State {
 						name: "hidden"
@@ -167,7 +166,6 @@ Rectangle
 
 						Button
 						{
-							iconSource: "qrc:/qml/img/Trash.png"
 							tooltip: qsTr("Delete")
 							width: 20
 							height: 20
@@ -176,6 +174,17 @@ Rectangle
 								deleteConfirmation.open();
 							}
 							anchors.verticalCenter: parent.verticalCenter
+
+							Image {
+								anchors {
+									left: parent.left
+									right: parent.right
+									top: parent.top
+									bottom: parent.bottom
+								}
+								source: "qrc:/qml/img/delete-block-icon@2x.png"
+								fillMode: Image.PreserveAspectFit
+							}
 						}
 					}
 
@@ -186,14 +195,13 @@ Rectangle
 						anchors.left: parent.left
 						anchors.leftMargin: projectFilesStyle.general.leftMargin + 2
 						id: rowFileName
-						Text {
+						DefaultText {
 							id: nameText
 							height: parent.height
 							visible: !renameMode
 							color: rootItem.isSelected ? projectFilesStyle.documentsList.selectedColor : projectFilesStyle.documentsList.color
 							text: name;
 							font.family: fileNameFont.name
-							font.pointSize: projectFilesStyle.documentsList.fontSize
 							verticalAlignment:  Text.AlignVCenter
 
 							Connections

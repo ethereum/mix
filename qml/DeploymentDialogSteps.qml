@@ -150,7 +150,7 @@ Rectangle {
 					width: parent.width
 					id: labelCont
 					color: "transparent"
-					Label
+					DefaultLabel
 					{
 						text: topMenu.model[index].label
 						id: topMenuLabel
@@ -216,13 +216,13 @@ Rectangle {
 								height: 40
 								color: "transparent"
 								border.color: "#cccccc"
-								border.width: 2
+								border.width: 1
 								radius: width * 0.5
 								anchors.verticalCenter: parent.verticalCenter
 								anchors.left: parent.left
 								anchors.leftMargin: 10
 								id: labelContainer
-								Label
+								DefaultLabel
 								{
 									color: "#cccccc"
 									id: label
@@ -264,7 +264,7 @@ Rectangle {
 									width = 140
 									height = 40
 								}
-								Label
+								DefaultLabel
 								{
 									id: detail
 									color: "black"
@@ -356,11 +356,10 @@ Rectangle {
 		{
 			Layout.fillHeight: true
 			Layout.fillWidth: true
-			Text
+			DefaultText
 			{
 				anchors.left: parent.left
 				anchors.leftMargin: 2
-				font.pointSize: 9
 				font.italic: true
 				id: log
 			}
@@ -376,13 +375,12 @@ Rectangle {
 				id: style
 			}
 
-			Label
+			DefaultLabel
 			{
 				anchors.horizontalCenter: parent.horizontalCenter
 				anchors.verticalCenter: parent.verticalCenter
 				text: qsTr("Logs")
 				font.italic: true
-				font.pointSize: style.absoluteSize(-1)
 			}
 
 			Button

@@ -23,6 +23,7 @@ ColumnLayout
 	signal closed()
 	property alias selectedScenarioIndex: scenarioList.currentIndex
 	property bool panelLoaded: false
+	property int btnWidth: 50
 	spacing: 0
 	function init()
 	{
@@ -50,18 +51,13 @@ ColumnLayout
 		else
 			w = 100
 		updatebtnWidth(w)
-        if (_width < 824)
+		if (_width < 824)
             btnRowContainer.anchors.horizontalCenter = undefined
         else
             btnRowContainer.anchors.horizontalCenter = btnRowContainer.parent.horizontalCenter
             
-		if (_width < 877)
-            rowBtn.width = _width - scenarioCont.width - 100
-        else
-            rowBtn.width = 600
-            
-        updatebtnWidth(rowBtn.width / 6 < 40 ? 40 : rowBtn.width / 6)
-        scenarioLabel.visible = rowBtn.width / 6 > 80
+		updatebtnWidth(rowBtn.width / 6 < btnWidth ? btnWidth : rowBtn.width / 6)
+		scenarioLabel.visible = rowBtn.width / 6 > btnWidth
 	}
 
 	function updatebtnWidth(w)
@@ -92,7 +88,7 @@ ColumnLayout
 			{
 				color: "white"
 				width: 180
-				height: 30
+				height: 20
 				id: scenarioCont
 				anchors.top: parent.top
 				Rectangle
@@ -100,23 +96,24 @@ ColumnLayout
 					anchors.top: parent.bottom
 					anchors.topMargin: 10
 					width: parent.width
-					Label
+					DefaultLabel
 					{
 						text: qsTr("Scenario")
 						id: scenarioLabel
 						anchors.centerIn: parent
+						font.pixelSize: 12
 					}
 				}
 
-				Rectangle
+				/*Rectangle
 				{
 					id: left
 					width: 10
 					height: parent.height
 					anchors.left: parent.left
-					anchors.leftMargin: -4
+					anchors.leftMargin: -2
 					radius: 15
-				}
+				}*/
 
 				Connections
 				{
@@ -165,25 +162,25 @@ ColumnLayout
 							property alias label: comboLabel
 							anchors.fill: parent
 							color: "white"
-							Label {
+							DefaultLabel {
 								Image {
 									id: up
 									anchors.top: parent.top
 									anchors.right: parent.right
-									anchors.topMargin: -4
+									anchors.topMargin: -2
 									source: "qrc:/qml/img/up.png"
-									width: 15
-									height: 15
+									width: 10
+									height: 10
 								}
 
 								Image {
 									id: down
 									anchors.bottom: parent.bottom
-									anchors.bottomMargin: -5
+									anchors.bottomMargin: -3
 									anchors.right: parent.right
 									source: "qrc:/qml/img/down.png"
-									width: 15
-									height: 15
+									width: 10
+									height: 10
 								}
 								id: comboLabel
 								maximumLineCount: 1
@@ -191,10 +188,9 @@ ColumnLayout
 								width: parent.width
 								anchors.verticalCenter: parent.verticalCenter
 								anchors.left: parent.left
-								anchors.leftMargin: -6
+								anchors.leftMargin: -4
 								anchors.top: parent.top
-								anchors.topMargin: 3
-
+								font.pixelSize: 11
 								Component.onCompleted:
 								{
 									comboLabel.updateLabel()
@@ -231,7 +227,7 @@ ColumnLayout
 					}
 				}
 
-				TextField
+				DefaultTextField
 				{
 					id: scenarioNameEdit
 					anchors.left: scenarioCont.left
@@ -239,6 +235,7 @@ ColumnLayout
 					anchors.leftMargin: -4
 					height: parent.height
 					z: 5
+					font.pixelSize: 11
 					visible: false
 					width: 190
 					Keys.onEnterPressed:
@@ -298,7 +295,7 @@ ColumnLayout
 					width: 10
 					height: parent.height
 					anchors.right: parent.right
-					anchors.rightMargin: -4
+					anchors.rightMargin: -6
 					color: "white"
 					radius: 15
 				}
@@ -307,14 +304,14 @@ ColumnLayout
 			Rectangle
 			{
 				anchors.left: scenarioCont.right
-				anchors.leftMargin: 25
-				width: 100 * 6
-				height: 30
+				anchors.leftMargin: 15
+				width: btnWidth * 6
+				height: 20
 				color: "transparent"
 				id: rowBtn
 				ScenarioButton {
 					id: editScenario
-					width: 100
+					width: btnWidth
 					height: parent.height
 					sourceImg: "qrc:/qml/img/edittransaction.png"
 					onClicked: {
@@ -337,10 +334,10 @@ ColumnLayout
 				ScenarioButton {
 					id: deleteScenario
 					enabled: panelLoaded
-					width: 100
+					width: btnWidth
 					height: parent.height
 					anchors.left: editScenario.right
-					sourceImg: "qrc:/qml/img/warningicon.png"
+					sourceImg: "qrc:/qml/img/delete-block-icon@2x.png"
 					onClicked: {
 						if (projectModel.stateListModel.count > 1)
 							deleteWarning.open()
@@ -373,10 +370,10 @@ ColumnLayout
 				ScenarioButton {
 					id: addScenario
 					enabled: panelLoaded
-					width: 100
+					width: btnWidth
 					height: parent.height
 					anchors.left: deleteScenario.right
-					sourceImg: "qrc:/qml/img/restoreicon@2x.png"
+					sourceImg: "qrc:/qml/img/newIcon@2x.png"
 					onClicked: {
 						var item = projectModel.stateListModel.createDefaultState();
 						item.title = qsTr("New Scenario")
@@ -401,7 +398,7 @@ ColumnLayout
 				ScenarioButton {
 					id: restoreScenario
 					enabled: panelLoaded
-					width: 100
+					width: btnWidth
 					height: parent.height
 					anchors.left: addScenario.right
 					buttonShortcut: ""
@@ -437,7 +434,7 @@ ColumnLayout
 					anchors.left: restoreScenario.right
 					text: qsTr("Save")
 					onClicked: save()
-					width: 100
+					width: btnWidth
 					height: parent.height
 					buttonShortcut: ""
 					sourceImg: "qrc:/qml/img/saveicon@2x.png"
@@ -479,7 +476,7 @@ ColumnLayout
 						scenarioList.currentIndex = projectModel.stateListModel.count - 1
 						scenarioNameEdit.toggleEdit()
 					}
-					width: 100
+					width: btnWidth
 					height: parent.height
 					buttonShortcut: ""
 					sourceImg: "qrc:/qml/img/duplicateicon@2x.png"

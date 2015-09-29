@@ -279,9 +279,19 @@ Dialog {
 										width: parent.width
 
 										Button {
-											iconSource: "qrc:/qml/img/Trash.png"
+											iconSource: "qrc:/qml/img/delete-block-icon@2x.png"
 											action: deleteAccountAction
-											anchors.verticalCenter: parent.verticalCenter
+											anchors.verticalCenter: parent.verticalCenter											
+											Image {
+												anchors {
+													left: parent.left
+													right: parent.right
+													top: parent.top
+													bottom: parent.bottom
+												}
+												source: "qrc:/qml/img/delete-block-icon@2x.png"
+												fillMode: Image.PreserveAspectFit
+											}
 										}
 
 										Action {

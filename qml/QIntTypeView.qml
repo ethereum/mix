@@ -16,7 +16,7 @@ Item
 		id: dbgStyle
 	}
 
-	TextField {
+	DefaultTextField {
 		anchors.verticalCenter: parent.verticalCenter
 		id: textinput
 		selectByMouse: true

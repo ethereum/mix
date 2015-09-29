@@ -103,7 +103,7 @@ Dialog {
 					Layout.preferredWidth: 70
 				}
 
-				TextField
+				DefaultTextField
 				{
 					id: nickNameInput
 					anchors.verticalCenter: parent.verticalCenter
