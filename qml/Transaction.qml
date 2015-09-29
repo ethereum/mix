@@ -200,11 +200,11 @@ RowLayout
 					}
 				}
 
-				Image {
+				DefaultLabel
+				{
 					anchors.left: hash.right
 					anchors.leftMargin: 1
-					source: "qrc:/qml/img/right.png"
-					fillMode: Image.PreserveAspectFit
+					text: "→"
 					anchors.verticalCenter: parent.verticalCenter
 					width: 20
 				}
@@ -229,7 +229,7 @@ RowLayout
 					font.bold: true
 					clip: true
 					maximumLineCount: 1
-					width: parent.width - 50
+					width: parent.width - 58
 				}
 			}
 
@@ -462,11 +462,6 @@ RowLayout
 						Repeater
 						{
 							model: eventList
-							Component.onCompleted:
-							{
-
-							}
-
 							Row
 							{
 								DefaultLabel
@@ -491,7 +486,6 @@ RowLayout
 
 				Row
 				{
-					anchors.horizontalCenter: parent.horizontalCenter
 					spacing: 5
 					CopyButton
 					{

@@ -109,7 +109,7 @@ ColumnLayout {
 						model: modelKeyValue
 						Row
 						{
-							Layout.preferredHeight: 30
+							Layout.preferredHeight: 20
 							spacing: 5
 							anchors.left: colValue.left
 							anchors.leftMargin: 5
