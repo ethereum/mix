@@ -365,6 +365,9 @@ void CodeModel::gasEstimation(solidity::CompilerStack const& _cs)
 		if (!m_gasCostsMaps->contains(sourceName))
 			m_gasCostsMaps->insert(sourceName, QVariantList());
 
+		if (!contractDefinition.annotation().isFullyImplemented)
+			continue;
+
 		dev::solidity::SourceUnit const& sourceUnit = _cs.ast(*contractDefinition.location().sourceName);
 		AssemblyItems const* items = _cs.runtimeAssemblyItems(n);
 		std::map<ASTNode const*, GasMeter::GasConsumption> gasCosts = GasEstimator::breakToStatementLevel(GasEstimator::structuralEstimation(*items, std::vector<ASTNode const*>({&sourceUnit})), {&sourceUnit});
@@ -462,6 +465,8 @@ void CodeModel::collectContracts(dev::solidity::CompilerStack const& _cs, std::v
 			continue;
 		QString name = QString::fromStdString(n);
 		ContractDefinition const& contractDefinition = _cs.contractDefinition(n);
+		if (!contractDefinition.annotation().isFullyImplemented)
+			continue;
 		QString sourceName = QString::fromStdString(*contractDefinition.location().sourceName);
 		auto sourceIter = m_pendingContracts.find(sourceName);
 		QString source = sourceIter != m_pendingContracts.end() ? sourceIter->second : QString();
