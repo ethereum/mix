@@ -386,11 +386,6 @@ RowLayout
 						Repeater
 						{
 							model: inputList
-							Component.onCompleted:
-							{
-
-							}
-
 							Row
 							{
 								DefaultLabel
@@ -506,7 +501,7 @@ RowLayout
 							if (!isCall)
 								root.editTx(index)
 						}
-						height: 20
+						height: 22
 						style: ButtonStyle {
 							label: DefaultText
 							{
@@ -525,7 +520,7 @@ RowLayout
 							if (tx.recordIndex !== undefined)
 								clientModel.debugRecord(tx.recordIndex, tx.label);
 						}
-						height: 20
+						height: 22
 						style: ButtonStyle {
 							label: DefaultText
 							{
