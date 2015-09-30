@@ -54,7 +54,6 @@
         <file>qml/img/play_button.png</file>
         <file>qml/img/pause_button2x.png</file>
         <file>qml/img/pause_button.png</file>
-        <file>res/mix_256x256x32.png</file>
         <file>stdc/config.sol</file>
         <file>stdc/namereg.sol</file>
         <file>stdc/std.sol</file>
@@ -115,5 +114,7 @@
         <file>qml/img/expand-icon@2x.png</file>
         <file>qml/img/newIcon@2x.png</file>
         <file>qml/img/delete-block-icon@2x.png</file>
+        <file>res/Mix-1024.png</file>
+        <file>res/Mix-app.icns</file>
     </qresource>
 </RCC>

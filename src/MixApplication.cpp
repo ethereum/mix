@@ -48,7 +48,11 @@ ApplicationService::ApplicationService()
 MixApplication::MixApplication(int& _argc, char* _argv[]):
 	QApplication(_argc, _argv), m_engine(new QQmlApplicationEngine())
 {
-	setWindowIcon(QIcon(":/res/mix_256x256x32.png"));
+	#if __APPLE__
+		setWindowIcon(QIcon(":/res/Mix-app.icns"));
+	#else
+		setWindowIcon(QIcon(":/res/Mix-1024.png"));
+	#endif
 	m_engine->load(QUrl("qrc:/qml/Application.qml"));
 }
 
