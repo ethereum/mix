@@ -75,7 +75,7 @@ Rectangle {
 		updated()
 	}
 
-	color: selectedTxColor
+	color: "transparent"
 	radius: 4
 	Column {
 		anchors.fill: parent
@@ -93,7 +93,7 @@ Rectangle {
 			KeyValuePanel
 			{
 				height: minHeight
-				width: colWatchers.width - 30
+				width: colWatchers.width
 				anchors.horizontalCenter: colWatchers.horizontalCenter
 				id: ctrStorage
 				function computeData()
@@ -120,7 +120,7 @@ Rectangle {
 		{
 			visible: false
 			height: minHeight
-			width: parent.width - 30
+			width: parent.width
 			anchors.horizontalCenter: parent.horizontalCenter
 			id: inputParams
 			title: qsTr("INPUT PARAMETERS")
@@ -142,7 +142,7 @@ Rectangle {
 		{
 			visible: false
 			height: minHeight
-			width: parent.width - 30
+			width: parent.width
 			anchors.horizontalCenter: parent.horizontalCenter
 			id: returnParams
 			title: qsTr("RETURN PARAMETERS")
@@ -164,7 +164,7 @@ Rectangle {
 		{
 			visible: false
 			height: minHeight
-			width: parent.width - 30
+			width: parent.width
 			anchors.horizontalCenter: parent.horizontalCenter
 			id: ctrStorage
 			title: qsTr("CONTRACT STORAGE")
@@ -190,10 +190,10 @@ Rectangle {
 		KeyValuePanel
 		{
 			height: minHeight
-			width: parent.width - 30
+			width: parent.width
 			anchors.horizontalCenter: parent.horizontalCenter
 			id: accounts
-			title: qsTr("ACCOUNTS")
+			title: qsTr("Accounts")
 			role: "accounts"
 			_data: currentState
 			function computeData()
@@ -225,7 +225,7 @@ Rectangle {
 		{
 			visible: false
 			height: minHeight
-			width: parent.width - 30
+			width: parent.width
 			anchors.horizontalCenter: parent.horizontalCenter
 			id: events
 			title: qsTr("EVENTS")

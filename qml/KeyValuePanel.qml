@@ -58,8 +58,8 @@ ColumnLayout {
 			id: titleLabel
 			anchors.left: parent.left
 			anchors.verticalCenter: parent.verticalCenter
-			color: "white"
-			font.pixelSize: 10
+			color: "#cccccc"
+			font.pixelSize: 12
 			MouseArea
 			{
 				anchors.fill: parent
@@ -90,6 +90,8 @@ ColumnLayout {
 			Layout.fillWidth: true
 			Layout.fillHeight: true
 			color: "white"
+			border.width: 1
+			border.color: "#cccccc"
 			radius: 2
 			ScrollView
 			{
