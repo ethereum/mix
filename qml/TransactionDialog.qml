@@ -301,7 +301,7 @@ Dialog {
 				width: 500
 				anchors.leftMargin:
 				{
-					return (containerRect.width - 530) /2
+					return (containerRect.width - 500) /2
 				}
 
 				RowLayout
@@ -549,6 +549,8 @@ Dialog {
 					accounts: senderComboBox.model
 					context: "parameter"
 					Layout.fillWidth: true
+					anchors.left: parent.left
+					anchors.leftMargin: -50
 					function updateView()
 					{
 						paramScroll.visible = paramsModel.length > 0

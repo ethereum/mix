@@ -88,6 +88,41 @@ Rectangle {
 			id: storages
 		}
 
+		KeyValuePanel
+		{
+			height: minHeight
+			width: parent.width
+			visible: false
+			anchors.horizontalCenter: parent.horizontalCenter
+			id: accounts
+			title: qsTr("Accounts")
+			role: "accounts"
+			_data: currentState
+			function computeData()
+			{
+				model.clear()
+				var ret = []
+				if (currentState)
+					for (var k in currentState.accounts)
+					{
+						var label = blockChain.addAccountNickname(k, false)
+						if (label === k)
+							label = blockChain.addContractName(k) //try to resolve the contract name
+						model.append({ "key": label, "value": currentState.accounts[k] })
+					}
+			}
+			onMinimized:
+			{
+				root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
+				root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
+			}
+			onExpanded:
+			{
+				root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
+				root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
+			}
+		}
+
 		Repeater
 		{
 			id: stoRepeater
@@ -176,41 +211,6 @@ Rectangle {
 				if (storage.values)
 					for (var k in storage.values)
 						model.append({ "key": k, "value": JSON.stringify(storage.values[k]) })
-			}
-			onMinimized:
-			{
-				root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
-				root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
-			}
-			onExpanded:
-			{
-				root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
-				root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
-			}
-		}
-
-		KeyValuePanel
-		{
-			height: minHeight
-			width: parent.width
-			visible: false
-			anchors.horizontalCenter: parent.horizontalCenter
-			id: accounts
-			title: qsTr("Accounts")
-			role: "accounts"
-			_data: currentState
-			function computeData()
-			{
-				model.clear()
-				var ret = []
-				if (currentState)
-					for (var k in currentState.accounts)
-					{
-						var label = blockChain.addAccountNickname(k, false)
-						if (label === k)
-							label = blockChain.addContractName(k) //try to resolve the contract name
-						model.append({ "key": label, "value": currentState.accounts[k] })
-					}
 			}
 			onMinimized:
 			{
