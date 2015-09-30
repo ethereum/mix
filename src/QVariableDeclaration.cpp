@@ -33,7 +33,7 @@ namespace mix
 
 QVariableDeclaration::QVariableDeclaration(QObject* _parent, ASTPointer<VariableDeclaration> const _v):
 	QBasicNodeDefinition(_parent, _v.get()),
-	m_type(new QSolidityType(this, CodeModel::nodeType(_v->type().get()))), m_isIndexed(_v->isIndexed())
+	m_type(new QSolidityType(this, CodeModel::nodeType(_v->type(nullptr).get()))), m_isIndexed(_v->isIndexed())
 {
 }
 
