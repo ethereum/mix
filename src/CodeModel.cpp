@@ -81,7 +81,7 @@ private:
 	virtual bool visit(VariableDeclaration const& _node) override
 	{
 		SolidityDeclaration decl;
-		decl.type = CodeModel::nodeType(_node.type().get());
+		decl.type = CodeModel::nodeType(_node.type(nullptr).get());
 		decl.name = QString::fromStdString(_node.name());
 		decl.slot = 0;
 		decl.offset = 0;
@@ -133,7 +133,7 @@ QHash<unsigned, SolidityDeclarations> collectStorage(dev::solidity::ContractDefi
 		dev::solidity::VariableDeclaration const* declaration = std::get<0>(v);
 		dev::u256 slot = std::get<1>(v);
 		unsigned offset = std::get<2>(v);
-		result[static_cast<unsigned>(slot)].push_back(SolidityDeclaration { QString::fromStdString(declaration->name()), CodeModel::nodeType(declaration->type().get()), slot, offset });
+		result[static_cast<unsigned>(slot)].push_back(SolidityDeclaration { QString::fromStdString(declaration->name()), CodeModel::nodeType(declaration->type(nullptr).get()), slot, offset });
 	}
 	return result;
 }

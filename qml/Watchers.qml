@@ -32,6 +32,7 @@ Rectangle {
 		accounts.clear()
 		events.clear()
 		ctrStorage.clear()
+		accounts.visible = false
 	}
 
 	function addAccount(address, amount)
@@ -41,6 +42,7 @@ Rectangle {
 
 	function updateWidthTx(_tx, _state, _blockIndex, _txIndex, _callIndex)
 	{
+		accounts.visible = true
 		tx = _tx
 		blockIndex  = _blockIndex
 		txIndex = _txIndex
@@ -95,13 +97,13 @@ Rectangle {
 				height: minHeight
 				width: colWatchers.width
 				anchors.horizontalCenter: colWatchers.horizontalCenter
-				id: ctrStorage
+				id: ctrsStorage
 				function computeData()
 				{
 					title = storages.get(index).key
-					ctrStorage.model.clear()
+					ctrsStorage.model.clear()
 					for (var k in storages.get(index).value)
-						ctrStorage.model.append({ "key": k, "value": JSON.stringify(storages.get(index).value[k]) })
+						ctrsStorage.model.append({ "key": k, "value": JSON.stringify(storages.get(index).value[k]) })
 				}
 				onMinimized:
 				{
@@ -191,6 +193,7 @@ Rectangle {
 		{
 			height: minHeight
 			width: parent.width
+			visible: false
 			anchors.horizontalCenter: parent.horizontalCenter
 			id: accounts
 			title: qsTr("Accounts")
