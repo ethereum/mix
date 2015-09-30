@@ -558,10 +558,16 @@ void ClientModel::showDebugger()
 QVariantMap ClientModel::contractStorage(unsigned _index, QString const& _contractAddress)
 {
 	ExecutionResult e = m_client->execution(_index);
-	MachineState state = e.machineStates.back();
-	auto nameIter = m_contractNames.find(Address(_contractAddress.toStdString()));
-	CompiledContract const* compilerRes = m_codeModel->tryGetContract(nameIter->second);
-	return contractStorageByMachineState(state, compilerRes);
+	if (e)
+	{
+		MachineState state = e.machineStates.back();
+		auto nameIter = m_contractNames.find(Address(_contractAddress.toStdString()));
+		CompiledContract const* compilerRes = m_codeModel->tryGetContract(nameIter->second);
+		return contractStorageByMachineState(state, compilerRes);
+	}
+	else
+		return QVariantMap();
+
 }
 
 QVariantMap ClientModel::contractStorageByMachineState(MachineState const& _state, CompiledContract const* _contract)

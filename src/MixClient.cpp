@@ -1,4 +1,4 @@
-/*
+execution(/*
 	This file is part of cpp-ethereum.
 
 	cpp-ethereum is free software: you can redistribute it and/or modify
@@ -283,7 +283,7 @@ ExecutionResult MixClient::lastExecution() const
 ExecutionResult MixClient::execution(unsigned _index) const
 {
 	ReadGuard l(x_executions);
-	return m_executions.at(_index);
+	return m_executions.count() > _index ? m_executions.at(_index) : ExecutionResult();
 }
 
 Block MixClient::asOf(h256 const& _block) const

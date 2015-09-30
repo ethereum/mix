@@ -127,8 +127,9 @@ Rectangle {
 			function computeData()
 			{
 				model.clear()
-				for (var k in storage.values)
-					model.append({ "key": k, "value": JSON.stringify(storage.values[k]) })
+				if (storage.values)
+					for (var k in storage.values)
+						model.append({ "key": k, "value": JSON.stringify(storage.values[k]) })
 			}
 			onMinimized:
 			{
