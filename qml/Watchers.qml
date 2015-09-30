@@ -23,6 +23,7 @@ Rectangle {
 
 	property string selectedTxColor: "#accbf2"
 	property string selectedBlockForeground: "#445e7f"
+	signal updated()
 
 	function clear()
 	{
@@ -45,7 +46,7 @@ Rectangle {
 		txIndex = _txIndex
 		callIndex = _callIndex
 		currentState = _state
-		storage = clientModel.contractStorage(_tx.recordIndex, _tx.isContractCreation ? _tx.returned : blockChain.getContractAddress(_tx.contractId))
+		storage = clientModel.contractStorageByIndex(_tx.recordIndex, _tx.isContractCreation ? _tx.returned : blockChain.getContractAddress(_tx.contractId))
 		inputParams.init()
 		if (_tx.isContractCreation)
 		{
@@ -65,6 +66,13 @@ Rectangle {
 		accounts.init()
 		events.init()
 		ctrStorage.init()
+
+		storages.clear()
+		for (var k in currentState.contractsStorage)
+			storages.append({ "key": k, "value": currentState.contractsStorage[k].values })
+		for (var k = 0; k < storages.count; k++)
+			stoRepeater.itemAt(k).init()
+		updated()
 	}
 
 	color: selectedTxColor
@@ -72,6 +80,41 @@ Rectangle {
 	Column {
 		anchors.fill: parent
 		spacing: 2
+		id: colWatchers
+		ListModel
+		{
+			id: storages
+		}
+
+		Repeater
+		{
+			id: stoRepeater
+			model: storages
+			KeyValuePanel
+			{
+				height: minHeight
+				width: colWatchers.width - 30
+				anchors.horizontalCenter: colWatchers.horizontalCenter
+				id: ctrStorage
+				function computeData()
+				{
+					title = storages.get(index).key
+					ctrStorage.model.clear()
+					for (var k in storages.get(index).value)
+						ctrStorage.model.append({ "key": k, "value": JSON.stringify(storages.get(index).value[k]) })
+				}
+				onMinimized:
+				{
+					root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
+					root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
+				}
+				onExpanded:
+				{
+					root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
+					root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
+				}
+			}
+		}
 
 		KeyValuePanel
 		{
@@ -119,6 +162,7 @@ Rectangle {
 
 		KeyValuePanel
 		{
+			visible: false
 			height: minHeight
 			width: parent.width - 30
 			anchors.horizontalCenter: parent.horizontalCenter

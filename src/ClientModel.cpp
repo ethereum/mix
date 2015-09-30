@@ -530,7 +530,7 @@ QString ClientModel::resolveToken(std::pair<QString, int> const& _value)
 {
 	if (_value.second == -2) //-2: first contains a real address
 		return _value.first;
-	else if (m_contractAddresses.size() > 0)
+	else if (m_contractAddresses.size() > 0 && m_contractAddresses.find(_value) != m_contractAddresses.end())
 		return QString::fromStdString("0x" + dev::toHex(m_contractAddresses[_value].ref()));
 	else
 		return _value.first;
@@ -555,7 +555,7 @@ void ClientModel::showDebugger()
 	showDebuggerForTransaction(last);
 }
 
-QVariantMap ClientModel::contractStorage(unsigned _index, QString const& _contractAddress)
+QVariantMap ClientModel::contractStorageByIndex(unsigned _index, QString const& _contractAddress)
 {
 	ExecutionResult e = m_client->execution(_index);
 	if (!e.machineStates.empty())
@@ -569,13 +569,13 @@ QVariantMap ClientModel::contractStorage(unsigned _index, QString const& _contra
 		return QVariantMap();
 }
 
-QVariantMap ClientModel::contractStorageByMachineState(MachineState const& _state, CompiledContract const* _contract)
+QVariantMap ClientModel::contractStorage(std::unordered_map<u256, u256> _storage, CompiledContract const* _contract)
 {
 	QVariantMap storage;
 	QVariantList storageDeclarationList;
 	QVariantMap storageValues;
 	map<QString, QVariableDeclaration*> storageDeclarations; //<name, decl>
-	for (auto st: _state.storage)
+	for (auto st: _storage)
 		if (st.first < numeric_limits<unsigned>::max())
 		{
 			auto storageIter = _contract->storage().find(static_cast<unsigned>(st.first));
@@ -595,13 +595,18 @@ QVariantMap ClientModel::contractStorageByMachineState(MachineState const& _stat
 						storageDeclarations[storageDec->name()] = storageDec;
 					}
 					storageDeclarationList.push_back(QVariant::fromValue(storageDec));
-					storageValues[storageDec->name()] = formatStorageValue(storageDec->type()->type(), _state.storage, codeDec.offset, codeDec.slot);
+					storageValues[storageDec->name()] = formatStorageValue(storageDec->type()->type(), _storage, codeDec.offset, codeDec.slot);
 				}
 			}
 		}
 	storage["variables"] = storageDeclarationList;
 	storage["values"] = storageValues;
 	return storage;
+}
+
+QVariantMap ClientModel::contractStorageByMachineState(MachineState const& _state, CompiledContract const* _contract)
+{
+	return contractStorage(_state.storage, _contract);
 }
 
 void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t, QString const& _label)
@@ -1026,11 +1031,16 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 
 	// retrieving all accounts balance
 	QVariantMap state;
+	QVariantMap contractsStorage;
 	QVariantMap accountBalances;
 	for (auto const& ctr : m_contractAddresses)
 	{
 		u256 wei = m_client->balanceAt(ctr.second, PendingBlock);
 		accountBalances.insert("0x" + QString::fromStdString(ctr.second.hex()), QEther(wei, QEther::Wei).format());
+		auto contractAddressIter = m_contractNames.find(ctr.second);
+		CompiledContract const& compilerRes = m_codeModel->contract(contractAddressIter->second);
+		QVariantMap sto = contractStorage(m_client->storageAt(ctr.second, PendingBlock), &compilerRes);
+		contractsStorage.insert(contractAddressIter->second + " - " + QString::fromStdString(ctr.second.hex()), sto);
 	}
 	for (auto const& account : m_accounts)
 	{
@@ -1038,6 +1048,7 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 		accountBalances.insert("0x" + QString::fromStdString(account.first.hex()),  QEther(wei, QEther::Wei).format());
 	}
 	state.insert("accounts", accountBalances);
+	state.insert("contractsStorage", contractsStorage);
 	emit newState(recordIndex, state);
 	emit newRecord(log);
 }

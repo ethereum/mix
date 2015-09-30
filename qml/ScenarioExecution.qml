@@ -139,7 +139,12 @@ Rectangle {
 				id: watchers
 				bc: blockChain
 				Layout.fillWidth: true
-				Layout.preferredHeight: 220
+				Layout.preferredHeight: 110 // 110 / panel
+				onUpdated:
+				{
+					var count = Object.keys(currentState.contractsStorage).length
+					Layout.preferredHeight = (count + 1) * 110
+				}
 			}
 
 			Rectangle

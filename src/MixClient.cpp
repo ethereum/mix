@@ -260,6 +260,11 @@ void MixClient::executeTransaction(Transaction const& _t, Block& _block, bool _c
 	m_executions.emplace_back(std::move(d));
 }
 
+std::unordered_map<u256, u256> MixClient::contractStorage(Address _contract)
+{
+	return m_preMine.state().storage(_contract);
+}
+
 void MixClient::mine()
 {
 	WriteGuard l(x_state);
