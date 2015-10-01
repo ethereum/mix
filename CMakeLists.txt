@@ -49,7 +49,7 @@ endif()
 # eth_add_executable is defined in cmake/EthExecutableHelper.cmake
 eth_add_executable(${EXECUTABLE} 
 	ICON mix
-	UI_RESOURCES ${UI_RESOURCES} res/Mix-app.icns
+	UI_RESOURCES ${UI_RESOURCES} mix.icns
 	WIN_RESOURCES mix.rc
 )
 
