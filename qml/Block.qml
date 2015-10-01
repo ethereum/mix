@@ -35,7 +35,7 @@ ColumnLayout
 
 	function calculateHeight()
 	{
-		if (transactions)
+		if (transactions && transactions.count > 0)
 		{
 			var h = 2 * trHeight
 			for (var k = 0; k < transactionRepeater.count; k++)

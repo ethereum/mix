@@ -393,6 +393,7 @@ void CodeModel::gasEstimation(solidity::CompilerStack const& _cs)
 
 		if (!contractDefinition.annotation().isFullyImplemented)
 			continue;
+
 		dev::solidity::SourceUnit const& sourceUnit = _cs.ast(*contractDefinition.location().sourceName);
 		AssemblyItems const* items = _cs.runtimeAssemblyItems(n);
 		std::map<ASTNode const*, GasMeter::GasConsumption> gasCosts = GasEstimator::breakToStatementLevel(GasEstimator::structuralEstimation(*items, std::vector<ASTNode const*>({&sourceUnit})), {&sourceUnit});

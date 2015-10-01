@@ -49,7 +49,8 @@ endif()
 # eth_add_executable is defined in cmake/EthExecutableHelper.cmake
 eth_add_executable(${EXECUTABLE} 
 	ICON mix
-	UI_RESOURCES ${UI_RESOURCES}
+	UI_RESOURCES ${UI_RESOURCES} mix.icns
+	WIN_RESOURCES mix.rc
 )
 
 eth_use(${EXECUTABLE} REQUIRED Qt::Core Qt::Widgets Qt::WebEngine Eth::ethereum Web3::web3jsonrpc)

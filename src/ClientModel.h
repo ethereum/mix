@@ -238,7 +238,9 @@ public slots:
 	/// Get the storage of the execution for the machine state
 	Q_INVOKABLE QVariantMap contractStorageByMachineState(MachineState const&, dev::mix::CompiledContract const* _index);
 	/// Get the storage of the execution for the given index. will return the storage at the end of the execution
-	Q_INVOKABLE QVariantMap contractStorage(unsigned _index, QString const& _contractAddress);
+	Q_INVOKABLE QVariantMap contractStorageByIndex(unsigned _index, QString const& _contractAddress);
+	/// Get the contract storage
+	QVariantMap contractStorage(std::unordered_map<u256, u256> _storage, dev::mix::CompiledContract const* _contract);
 
 private slots:
 	/// Update UI with machine states result. Display a modal dialog.

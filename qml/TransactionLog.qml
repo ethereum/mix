@@ -90,7 +90,7 @@ Item {
 				running: false
 				onTriggered:
 				{
-					clientModel.mine();
+					//clientModel.mine();
 				}
 			}
 
