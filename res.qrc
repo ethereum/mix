@@ -116,5 +116,7 @@
         <file>qml/img/delete-block-icon@2x.png</file>
         <file>res/Mix-1024.png</file>
         <file>res/Mix-app.icns</file>
+        <file>res/Mix-1024.ico</file>
+        <file>mix.rc</file>
     </qresource>
 </RCC>
