@@ -58,7 +58,7 @@ ColumnLayout {
 			id: titleLabel
 			anchors.left: parent.left
 			anchors.verticalCenter: parent.verticalCenter
-			color: "#cccccc"
+			color: "#414141"
 			font.pixelSize: 12
 			MouseArea
 			{
@@ -93,6 +93,7 @@ ColumnLayout {
 			border.width: 1
 			border.color: "#cccccc"
 			radius: 2
+			anchors.left: parent.left
 			ScrollView
 			{
 				id: columnValues

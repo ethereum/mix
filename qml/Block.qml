@@ -137,7 +137,7 @@ ColumnLayout
 				anchors.verticalCenter: parent.verticalCenter
 				anchors.left: parent.left
 				anchors.leftMargin: horizontalMargin
-				color: "#adadad"
+				color: "#808080"
 				text:
 				{
 					if (number === -2)

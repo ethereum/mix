@@ -120,15 +120,26 @@ setClipboardBase64 = function(text) {
 	clipboard = window.atob(text);
 };
 
-var executionMark;
-highlightExecution = function(start, end) {
+var executionMark
+var executionGasUsed
+highlightExecution = function(start, end, gasUsed) {
 	if (executionMark)
 		executionMark.clear();
 	if (debugWarning)
 		debugWarning.clear();
+	if (executionGasUsed)
+		executionGasUsed.remove()
+
 	if (start > 0 && end > start) {
 		executionMark = editor.markText(editor.posFromIndex(start), editor.posFromIndex(end), { className: "CodeMirror-exechighlight" });
-		editor.scrollIntoView(editor.posFromIndex(start));
+		var line = editor.posFromIndex(start)
+		var l = editor.getLine(line.line);
+		editor.scrollIntoView(line);
+		var endChar = { line: line.line, ch: line.ch + l.length };
+		executionGasUsed = document.createElement("div");
+		executionGasUsed.innerHTML = gasUsed + " gas";
+		executionGasUsed.className = "CodeMirror-gasCost";
+		editor.addWidget(endChar, executionGasUsed, false, "over");
 	}
 }
 

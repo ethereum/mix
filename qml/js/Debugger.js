@@ -134,7 +134,10 @@ function display(stateIndex)
 	currentDisplayedState = stateIndex;
 	var docId = debugData.states[stateIndex].code.documentId;
 	if (docId)
-		debugExecuteLocation(docId, debugData.states[stateIndex].solidity);
+	{
+		var gasUsed = retrieveGasSpent(state)
+		debugExecuteLocation(docId, debugData.states[stateIndex].solidity, gasUsed);
+	}
 }
 
 function displayFrame(frameIndex)
@@ -189,12 +192,17 @@ function highlightSelection(index)
 	statesList.selection.select(index);
 }
 
+function retrieveGasSpent(state)
+{
+	return debugData.states[0].gas.subtract(state.gas).value()
+}
+
 function completeCtxInformation(state)
 {
 	currentStep.update(state.step);
 	mem.update(state.newMemSize.value() + " " + qsTr("words"));
 	stepCost.update(state.gasCost.value());
-	gasSpent.update(debugData.states[0].gas.subtract(state.gas).value());
+	gasSpent.update(retrieveGasSpent(state));
 
 	stack.listModel = state.debugStack;
 	storage.listModel = state.debugStorage;
