@@ -70,6 +70,7 @@ Rectangle {
 		ctrStorage.init()
 
 		storages.clear()
+		searchBox.visible = Object.keys(currentState.contractsStorage).length > 0
 		for (var k in currentState.contractsStorage)
 			storages.append({ "key": k, "value": currentState.contractsStorage[k].values })
 		for (var k = 0; k < storages.count; k++)
@@ -81,7 +82,6 @@ Rectangle {
 	radius: 4
 	Column {
 		anchors.fill: parent
-		spacing: 2
 		id: colWatchers
 		ListModel
 		{
@@ -120,6 +120,34 @@ Rectangle {
 			{
 				root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
 				root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
+			}
+		}
+
+		RowLayout
+		{
+			id: searchBox
+			visible: false
+			height: 30
+			Image {
+				anchors.top: parent.top
+				anchors.topMargin: 8
+				sourceSize.width: 20
+				sourceSize.height: 20
+				source: "qrc:/qml/img/searchicon.png"
+				fillMode: Image.PreserveAspectFit
+			}
+			DefaultTextField
+			{
+				anchors.top: parent.top
+				anchors.topMargin: 5
+				Layout.preferredWidth: 350
+				onTextChanged: {
+					for (var k = 0; k < stoRepeater.count; k++)
+					{
+						var label = storages.get(k).key.split(" - ")
+						stoRepeater.itemAt(k).visible = text.trim() === "" || label[0].toLowerCase().indexOf(text.toLowerCase()) !== -1 || label[1].toLowerCase().indexOf(text.toLowerCase()) !== -1
+					}
+				}
 			}
 		}
 

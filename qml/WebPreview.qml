@@ -411,7 +411,8 @@ Item {
 						property bool active: false
 						property var history: []
 						property int index: -1
-						text: qsTr("Enter Expression")
+						property string textLabel: qsTr("Enter JavaScript Expression")
+						text: textLabel
 
 						function displayCache(incr)
 						{
@@ -455,8 +456,8 @@ Item {
 						onFocusChanged:
 						{
 							if (!focus && text == "")
-								text = qsTr("Enter Expression");
-							if (focus && text === qsTr("Enter Expression"))
+								text = textLabel
+							if (focus && text === textLabel)
 								text = "";
 						}
 
@@ -469,6 +470,19 @@ Item {
 				}
 
 				TextArea {
+
+					Image {
+						anchors.top: parent.top
+						anchors.topMargin: 1
+						anchors.rightMargin: 1
+						anchors.right: parent.right
+						source: "qrc:/qml/img/javascript_logo.png"
+						height: 25
+						width: 25
+						fillMode: Image.PreserveAspectFit
+						visible: isCall
+					}
+
 					Layout.fillHeight: true
 					height: parent.height - rowConsole.height
 					readOnly: true

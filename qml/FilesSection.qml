@@ -81,7 +81,7 @@ Rectangle
 				anchors.right: section.left
 				anchors.rightMargin: 2
 				anchors.top: parent.top
-				anchors.topMargin: 8
+				anchors.topMargin: 9
 			}
 
 			DefaultText
