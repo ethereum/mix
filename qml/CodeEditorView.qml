@@ -102,7 +102,7 @@ Item {
 		return null;
 	}
 
-	function highlightExecution(documentId, location)
+	function highlightExecution(documentId, location, gasUsed)
 	{
 		var editor = getEditor(documentId);
 		if (editor)
@@ -110,7 +110,7 @@ Item {
 			if (documentId !== location.sourceName)
 				findAndHightlight(location.start, location.end, location.sourceName)
 			else
-				editor.highlightExecution(location);
+				editor.highlightExecution(location, gasUsed);
 		}
 	}
 

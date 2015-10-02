@@ -48,9 +48,9 @@ Item {
 		}
 	}
 
-	function highlightExecution(location) {
+	function highlightExecution(location, gasUsed) {
 		if (initialized && editorBrowser)
-			editorBrowser.runJavaScript("highlightExecution(" + location.start + "," + location.end + ")");
+			editorBrowser.runJavaScript("highlightExecution(" + location.start + "," + location.end + ", " + gasUsed +")");
 	}
 
 	function showWarning(content) {

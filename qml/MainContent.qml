@@ -36,7 +36,7 @@ Rectangle {
 	Connections {
 		target: debugPanel
 		onDebugExecuteLocation: {
-			codeEditor.highlightExecution(documentId, location);
+			codeEditor.highlightExecution(documentId, location, gasUsed);
 		}
 	}
 

@@ -19,7 +19,7 @@ Rectangle {
 	property alias vmStorage: storage
 	property alias vmMemory: memoryDump
 	property alias vmCallData: callDataDump
-	signal debugExecuteLocation(string documentId, var location)
+	signal debugExecuteLocation(string documentId, var location, var gasUsed)
 	property string compilationErrorMessage
 	property bool assemblyMode: false
 	signal panelClosed
