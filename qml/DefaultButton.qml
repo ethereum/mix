@@ -11,7 +11,7 @@ Button {
 			text: root.text
 			verticalAlignment: Text.AlignVCenter
 			horizontalAlignment: Text.AlignHCenter
-			font.pixelSize: 10
+			font.pixelSize: appSettings.systemPointSize
 		}
 	}
 }

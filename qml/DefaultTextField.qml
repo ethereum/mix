@@ -3,5 +3,6 @@ import QtQuick.Controls 1.1
 
 TextField {
 	id: titleField
-	font.pixelSize: 11
+	font.pixelSize: appSettings.systemPointSize
+
 }

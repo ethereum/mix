@@ -167,6 +167,7 @@ Rectangle
 						DefaultImgButton
 						{
 							tooltip: qsTr("Delete")
+							visible: !isContract
 							width: 20
 							height: 20
 							onClicked:
@@ -226,7 +227,7 @@ Rectangle
 							text: "*"
 							width: 10
 							height: parent.height
-						}						
+						}
 					}
 
 					TextInput {
@@ -291,7 +292,6 @@ Rectangle
 										if (sectionModel.get(k).name === name)
 										{
 											documentSelected(name, groupName);
-											console.log(sectionModel.get(k).startlocation	)
 											mainContent.codeEditor.setCursor(sectionModel.get(k).startlocation, sectionModel.get(k).documentId)
 											return
 										}

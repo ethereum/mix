@@ -42,6 +42,7 @@ ApplicationService::ApplicationService()
 {
 	QtWebEngine::initialize();
 	QFont f;
+
 	m_systemPointSize = f.pointSize();
 }
 

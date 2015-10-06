@@ -138,6 +138,9 @@ ApplicationWindow {
 			MenuItem { action: showHideRightPanelAction }
 			MenuItem { action: toggleWebPreviewAction }
 			MenuItem { action: toggleWebPreviewOrientationAction }
+			MenuItem { action: increaseAppFontSize }
+			MenuItem { action: decreaseAppFontSize }
+			MenuItem { action: setEnvFontSize }
 		}
 	}
 
@@ -162,6 +165,37 @@ ApplicationWindow {
 		property alias mainHeight: mainApplication.height
 		property alias mainX: mainApplication.x
 		property alias mainY: mainApplication.y
+	}
+
+	Action {
+		id: increaseAppFontSize
+		text: qsTr("Increase Application Fontsize")
+		shortcut: "Ctrl+Shift+I"
+		onTriggered:
+		{
+			appSettings.systemPointSize = appSettings.systemPointSize + 1
+		}
+	}
+
+	Action {
+		id: decreaseAppFontSize
+		text: qsTr("Decrease Application Fontsize")
+		shortcut: "Ctrl+Shift+D"
+		onTriggered:
+		{
+			if (appSettings.systemPointSize > 2)
+				appSettings.systemPointSize = appSettings.systemPointSize - 1
+		}
+	}
+
+	Action {
+		id: setEnvFontSize
+		text: qsTr("Set to the Env Fontsize")
+		shortcut: ""
+		onTriggered:
+		{
+			appSettings.systemPointSize = appService.systemPointSize
+		}
 	}
 
 	Action {
@@ -461,5 +495,6 @@ ApplicationWindow {
 		property alias optimizeCode: optimizeCodeAction.checked
 		property string nodeAddress: "http://localhost:8545"
 		property alias displayCalls: displayCallsAction.checked
+		property int systemPointSize: 11
 	}
 }

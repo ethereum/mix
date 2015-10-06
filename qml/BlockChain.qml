@@ -294,7 +294,6 @@ ColumnLayout {
 				addTransaction.parent.width = addBlockBtn.width * 2
 				newAccount.width = w > 30 ? w : 30
 				newAccount.parent.width = w > 30 ? w : 30
-				console.log("add tr " + w)
 			}
 
 			Connections
