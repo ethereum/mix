@@ -134,6 +134,12 @@ ColumnLayout {
 		previousWidth = width
 	}
 
+	function deleteTransaction(_block, _txIndex)
+	{
+		model.blocks[_block].transactions.splice(_txIndex, 1)
+		blockModel.removeTransaction(_block, _txIndex)
+	}
+
 	function getAccountNickname(address)
 	{
 		for (var k = 0; k < model.accounts.length; ++k)
@@ -226,6 +232,11 @@ ColumnLayout {
 		return states[record]
 	}
 
+	function rebuildRequired()
+	{
+		rebuild.startBlinking()
+	}
+
 	function load(scenario, index)
 	{
 		if (!scenario)
@@ -283,6 +294,7 @@ ColumnLayout {
 				addTransaction.parent.width = addBlockBtn.width * 2
 				newAccount.width = w > 30 ? w : 30
 				newAccount.parent.width = w > 30 ? w : 30
+				console.log("add tr " + w)
 			}
 
 			Connections
@@ -349,6 +361,8 @@ ColumnLayout {
 
 					function build()
 					{
+						if (clientModel.running)
+							return
 						if (ensureNotFuturetime.running || !model)
 							return
 						blockChainPanel.calls = {}
@@ -460,7 +474,7 @@ ColumnLayout {
 
 				ScenarioButton {
 					id: addTransaction
-					text: qsTr("Add Tx...")
+					text: qsTr("Add Transaction...")
 					enabled: scenarioIndex !== -1
 					onClicked:
 					{

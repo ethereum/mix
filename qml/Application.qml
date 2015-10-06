@@ -207,7 +207,7 @@ ApplicationWindow {
 
 	Action {
 		id: setAsDefaultAction
-		text: qsTr("Set current scenario as default")
+		text: qsTr("Set Current Scenario as Default")
 		shortcut: "Ctrl+Alt+D"
 		onTriggered:
 		{
@@ -430,7 +430,7 @@ ApplicationWindow {
 
 	Action {
 		id: goToCompilationError
-		text: qsTr("Go to compilation error")
+		text: qsTr("Go to Compilation Error")
 		shortcut: "F4"
 		onTriggered:
 		{
@@ -440,7 +440,7 @@ ApplicationWindow {
 
 	Action {
 		id: gasEstimationAction
-		text: qsTr("Display gas estimation")
+		text: qsTr("Display Gas Estimation")
 		shortcut: "Ctrl+G"
 		checkable: true
 		onTriggered: mainContent.codeEditor.displayGasEstimation(checked);
@@ -448,7 +448,7 @@ ApplicationWindow {
 
 	Action {
 		id: optimizeCodeAction
-		text: qsTr("Enable optimized compilation")
+		text: qsTr("Enable Optimized Compilation")
 		shortcut: "Ctrl+Shift+O"
 		checkable: true
 		onTriggered: codeModel.setOptimizeCode(checked)

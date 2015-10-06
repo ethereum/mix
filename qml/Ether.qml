@@ -21,6 +21,7 @@ RowLayout {
 	Component.onCompleted: update()
 	signal amountChanged
 	signal unitChanged
+	property int inputWidth
 
 	onReadOnlyChanged:
 	{
@@ -29,7 +30,6 @@ RowLayout {
 		readonlytxt.text = etherValueEdit.text
 		units.enabled = !readOnly
 	}
-
 
 	function update()
 	{
@@ -67,7 +67,22 @@ RowLayout {
 
 	Rectangle
 	{
-		Layout.fillWidth: true
+		Layout.preferredWidth:
+		{
+			return inputWidth ? inputWidth : 350
+		}
+		/*{
+			//console.log("parent width " + parent.width)
+			var w = parent.width
+			//console.log("width ff " + w + " " + formattedValue.width)
+			if (displayUnitSelection)
+				w = w - units.width
+			if (displayFormattedValue)
+				w = w - formattedValue.width
+			//console.log("width " + w)
+			return w
+		}*/
+
 		visible: edit
 		DefaultTextField
 		{

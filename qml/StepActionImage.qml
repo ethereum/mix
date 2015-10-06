@@ -101,7 +101,7 @@ Rectangle {
 
 		}
 
-		Button {
+		DefaultButton {
 			anchors.fill: parent
 			id: debugImg
 			action: buttonAction

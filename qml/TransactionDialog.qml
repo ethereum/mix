@@ -14,7 +14,7 @@ import "."
 Dialog {
 	id: modalTransactionDialog
 	modality: Qt.ApplicationModal
-	width: 580
+	width: 600
 	height: 500
 	visible: false
 	title:  editMode ? qsTr("Edit Transaction") : qsTr("Add Transaction")
@@ -301,7 +301,7 @@ Dialog {
 				width: 500
 				anchors.leftMargin:
 				{
-					return (containerRect.width - 500) /2
+					return (containerRect.width - 600) /2
 				}
 
 				RowLayout
@@ -713,7 +713,9 @@ Dialog {
 							DefaultLabel {
 								id: gasPriceMarket
 								anchors.top: gasPriceLabel.bottom
-								anchors.topMargin: 10
+								anchors.topMargin: 5
+								anchors.left: parent.left
+								anchors.leftMargin: 50
 								Component.onCompleted:
 								{
 									NetworkDeployment.gasPrice(function(result)
@@ -735,36 +737,33 @@ Dialog {
 				}
 
 
-				RowLayout
+				Row
 				{
+					layoutDirection: Qt.RightToLeft
+					Layout.preferredWidth: modalTransactionDialog.width
+					anchors.right: parent.right
+					anchors.rightMargin: 45
+					DefaultButton {
+						id: updateBtn
+						text: qsTr("Cancel");
+						onClicked: close();
+					}
 
-					Layout.preferredWidth: 500
-					Row
-					{
-						width: parent.width
-						anchors.right: parent.right
-						Button {
-							id: updateBtn
-							text: qsTr("Cancel");
-							onClicked: close();
-						}
-
-						Button {
-							text: editMode ? qsTr("Update") : qsTr("Ok")
-							onClicked: {
-								var invalid = InputValidator.validate(paramsModel, paramValues);
-								if (invalid.length === 0)
-								{
-									close();
-									accepted();
-								}
-								else
-								{
-									errorDialog.text = qsTr("Some parameters are invalid:\n");
-									for (var k in invalid)
-										errorDialog.text += invalid[k].message + "\n";
-									errorDialog.open();
-								}
+					DefaultButton {
+						text: editMode ? qsTr("Update") : qsTr("Ok")
+						onClicked: {
+							var invalid = InputValidator.validate(paramsModel, paramValues);
+							if (invalid.length === 0)
+							{
+								close();
+								accepted();
+							}
+							else
+							{
+								errorDialog.text = qsTr("Some parameters are invalid:\n");
+								for (var k in invalid)
+									errorDialog.text += invalid[k].message + "\n";
+								errorDialog.open();
 							}
 						}
 					}

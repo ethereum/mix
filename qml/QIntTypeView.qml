@@ -12,10 +12,6 @@ Item
 		textinput.cursorPosition = 0
 	}
 
-	DebuggerPaneStyle {
-		id: dbgStyle
-	}
-
 	DefaultTextField {
 		anchors.verticalCenter: parent.verticalCenter
 		id: textinput

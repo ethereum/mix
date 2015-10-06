@@ -383,7 +383,7 @@ Rectangle {
 				font.italic: true
 			}
 
-			Button
+			DefaultImgButton
 			{
 				height: 20
 				width: 20

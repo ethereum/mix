@@ -150,7 +150,7 @@ Rectangle
 						anchors.verticalCenter: parent.verticalCenter
 						spacing: 3
 
-						Button
+						DefaultImgButton
 						{
 							iconSource: "qrc:/qml/img/edit_combox.png"
 							tooltip: qsTr("Rename")
@@ -164,7 +164,7 @@ Rectangle
 							anchors.verticalCenter: parent.verticalCenter
 						}
 
-						Button
+						DefaultImgButton
 						{
 							tooltip: qsTr("Delete")
 							width: 20
@@ -174,17 +174,7 @@ Rectangle
 								deleteConfirmation.open();
 							}
 							anchors.verticalCenter: parent.verticalCenter
-
-							Image {
-								anchors {
-									left: parent.left
-									right: parent.right
-									top: parent.top
-									bottom: parent.bottom
-								}
-								source: "qrc:/qml/img/delete-block-icon@2x.png"
-								fillMode: Image.PreserveAspectFit
-							}
+							iconSource: "qrc:/qml/img/delete-block-icon@2x.png"
 						}
 					}
 
@@ -200,7 +190,7 @@ Rectangle
 							height: parent.height
 							visible: !renameMode
 							color: rootItem.isSelected ? projectFilesStyle.documentsList.selectedColor : projectFilesStyle.documentsList.color
-							text: name;
+							text: name
 							font.family: fileNameFont.name
 							verticalAlignment:  Text.AlignVCenter
 
@@ -214,6 +204,9 @@ Rectangle
 										rootItem.isSelected = true;
 									else
 										rootItem.isSelected = false;
+
+									if (sectionName === "Contracts")
+										rootItem.isSelected = name === doc
 
 									if (rootItem.isSelected && section.state === "hidden")
 										section.state = "";
@@ -291,7 +284,21 @@ Rectangle
 							{
 								rootItem.isSelected = true;
 								projectModel.openDocument(documentId);
-								documentSelected(documentId, groupName);
+								if (sectionName === "Contracts")
+								{
+									for (var k = 0; k < sectionModel.count; k++)
+									{
+										if (sectionModel.get(k).name === name)
+										{
+											documentSelected(name, groupName);
+											console.log(sectionModel.get(k).startlocation	)
+											mainContent.codeEditor.setCursor(sectionModel.get(k).startlocation, sectionModel.get(k).documentId)
+											return
+										}
+									}
+								}
+								else
+									documentSelected(documentId, groupName);
 							}
 						}
 					}

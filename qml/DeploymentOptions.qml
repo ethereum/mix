@@ -373,12 +373,10 @@ Rectangle
 				Layout.preferredHeight: 50
 				Layout.preferredWidth: parent.width - verLabel.width - 5
 				color: "#cccccc"
-				TextArea
+				DefaultTextArea
 				{
 					id: verificationTextArea
 					visible: false
-					//font.pointSize: 10
-					font.pixelSize: 12
 					backgroundVisible: false
 					anchors.fill: parent
 				}
@@ -408,7 +406,7 @@ Rectangle
 			standardButtons: StandardButton.Yes | StandardButton.No
 		}
 
-		Button
+		DefaultButton
 		{
 			id: deployBtn
 			anchors.right: parent.right

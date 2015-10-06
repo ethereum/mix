@@ -18,6 +18,7 @@ Dialog {
 	height: 180
 
 	property var accounts
+	property string secret
 
 	signal accepted(var ac)
 
@@ -34,6 +35,8 @@ Dialog {
 		{
 			addressText.text = ""
 			balance.value = QEtherHelper.createEther("0", QEther.Wei)
+			secret = clientModel.newSecret()
+			addressText.originalText = clientModel.address(secret)
 		}
 	}
 
@@ -43,6 +46,10 @@ Dialog {
 		{
 			anchors.fill: parent
 			anchors.margins: 10
+			onWidthChanged: {
+				addressText.Layout.preferredWidth = width - address.width - 55
+			}
+
 			RowLayout
 			{
 				DefaultLabel
@@ -56,22 +63,6 @@ Dialog {
 				{
 					id: addressText
 					anchors.verticalCenter: parent.verticalCenter
-					Layout.preferredWidth: 565
-				}
-
-				Button
-				{
-					property string secret
-					anchors.left: parent.right
-					anchors.leftMargin: 7
-					anchors.verticalCenter: parent.verticalCenter
-					iconSource: "qrc:/qml/img/Write.png"
-					tooltip: qsTr("Generate account")
-					onClicked: {
-						secret = clientModel.newSecret()
-						addressText.originalText = clientModel.address(secret)
-					}
-					id: btnNewAddress
 				}
 			}
 
@@ -116,7 +107,7 @@ Dialog {
 				anchors.bottom: parent.bottom
 				anchors.right: parent.right;
 
-				Button {
+				DefaultButton {
 					text: qsTr("Cancel");
 					onClicked:
 					{
@@ -124,24 +115,23 @@ Dialog {
 					}
 				}
 
-				Button {
+				DefaultButton {
 					id: okButton;
 					text: qsTr("OK");
-					enabled: btnNewAddress.secret !== ""
+					enabled: newAddressWin.secret !== ""
 					onClicked: {
 						if (accounts)
 							for (var k in accounts)
 							{
-								if (accounts[k].secret === btnNewAddress.secret)
+								if (accounts[k].secret === newAddressWin.secret)
 								{
 									newAddressWin.close()
 									return
 								}
 							}
-						var ac = projectModel.stateListModel.newAccount(balance.value.toWei().value(), QEther.Wei, btnNewAddress.secret.toLowerCase(), nickNameInput.text)
+						var ac = projectModel.stateListModel.newAccount(balance.value.toWei().value(), QEther.Wei, newAddressWin.secret.toLowerCase(), nickNameInput.text)
 						newAddressWin.addAccount(ac)
 						newAddressWin.close()
-						btnNewAddress.secret = ""
 						addressText.originalText = ""
 						nickNameInput.text = ""
 					}

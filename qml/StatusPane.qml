@@ -216,7 +216,7 @@ Rectangle {
 			}
 		}
 
-		Button
+		DefaultButton
 		{
 			anchors.fill: parent
 			id: toolTip
@@ -262,7 +262,7 @@ Rectangle {
 				{
 					color: "transparent"
 					anchors.fill: parent
-					Button
+					DefaultImgButton
 					{
 						z: 4
 						anchors.centerIn: parent
@@ -271,20 +271,7 @@ Rectangle {
 						width: 30
 						height: 30
 						action: goToCompilationError
-						style: ButtonStyle {
-							background: Rectangle {
-								color: "transparent"
-
-								Image {
-									source: "qrc:/qml/img/warningicon.png"
-									height: 30
-									width: 30
-									sourceSize.width: 30
-									sourceSize.height: 30
-									anchors.centerIn: parent
-								}
-							}
-						}
+						iconSource: "qrc:/qml/img/warningicon.png"
 					}
 				}
 			}
@@ -426,7 +413,7 @@ Rectangle {
 			{
 				color: "transparent"
 				anchors.fill: parent
-				Button
+				DefaultImgButton
 				{
 					anchors.right: parent.right
 					anchors.rightMargin: 9

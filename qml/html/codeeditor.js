@@ -213,6 +213,13 @@ goToCompilationError = function()
 		editor.setCursor(annotations[0].annotation.location.start.line, annotations[0].annotation.location.start.column)
 }
 
+setCursor = function(c)
+{
+	var line = editor.posFromIndex(c)
+	console.log("jjj " + JSON.stringify(line))
+	editor.setCursor(line);
+}
+
 setFontSize = function(size)
 {
 	editor.getWrapperElement().style["font-size"] = size + "px";

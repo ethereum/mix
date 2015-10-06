@@ -94,10 +94,6 @@ Rectangle {
 		Debugger.setBreakpoints(bp);
 	}
 
-	DebuggerPaneStyle {
-		id: dbgStyle
-	}
-
 	Connections {
 		target: clientModel
 		onDebugDataReady:  {
@@ -377,7 +373,7 @@ Rectangle {
 									anchors.rightMargin: 33
 									height: 30
 									width: 50
-									Button {
+									DefaultButton {
 										Component.onCompleted:
 										{
 											updateLabel()

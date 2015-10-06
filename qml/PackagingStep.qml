@@ -87,7 +87,7 @@ Rectangle {
 				text: projectPath + "package/"
 			}
 
-			Button
+			DefaultImgButton
 			{
 				iconSource: "qrc:/qml/img/Folder-Open.png"
 				anchors.verticalCenter: parent.verticalCenter
@@ -97,7 +97,7 @@ Rectangle {
 					ressourcesFolder.open()
 				}
 			}
-			Button
+			DefaultButton
 			{
 				id: generatePackageBtn
 				anchors.verticalCenter: parent.verticalCenter

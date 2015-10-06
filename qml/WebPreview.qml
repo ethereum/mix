@@ -223,7 +223,6 @@ Item {
 						setPreviewUrl(text);
 					}
 					focus: true
-					font.pixelSize: 12
 				}
 
 				Action {
@@ -286,13 +285,12 @@ Item {
 					style: CheckBoxStyle {
 						label: DefaultLabel {
 							text: qsTr("Auto reload on save")
-							font.pixelSize: 12
 						}
 					}
 					focus: true
 				}
 
-				Button
+				DefaultImgButton
 				{
 					height: 25
 					width: 25
@@ -383,7 +381,7 @@ Item {
 				{
 					id: rowConsole
 					width: parent.width
-					Button
+					DefaultImgButton
 					{
 						height: 22
 						width: 22
@@ -406,7 +404,6 @@ Item {
 						height: 20
 						font.family: webPreviewStyle.general.fontName
 						font.italic: true
-						font.pixelSize: 12
 						anchors.verticalCenter: parent.verticalCenter
 						property bool active: false
 						property var history: []
@@ -469,7 +466,7 @@ Item {
 					}
 				}
 
-				TextArea {
+				DefaultTextArea {
 
 					Image {
 						anchors.top: parent.top
@@ -480,7 +477,6 @@ Item {
 						height: 25
 						width: 25
 						fillMode: Image.PreserveAspectFit
-						visible: isCall
 					}
 
 					Layout.fillHeight: true
@@ -491,7 +487,6 @@ Item {
 					wrapMode: Text.Wrap
 					textFormat: Text.RichText
 					font.family: webPreviewStyle.general.fontName
-					font.pixelSize: 12
 					backgroundVisible: true
 					style: TextAreaStyle {
 						backgroundColor: "#f0f0f0"

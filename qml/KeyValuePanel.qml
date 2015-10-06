@@ -59,7 +59,6 @@ ColumnLayout {
 			anchors.left: parent.left
 			anchors.verticalCenter: parent.verticalCenter
 			color: "#414141"
-			font.pixelSize: 12
 			MouseArea
 			{
 				anchors.fill: parent

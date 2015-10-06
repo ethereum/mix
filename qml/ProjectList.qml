@@ -10,7 +10,8 @@ Item {
 	property bool renameMode: false;
 	property alias sections: sectionRepeater
 
-	ProjectFilesStyle {
+	ProjectFilesStyle
+	{
 		id: projectFilesStyle
 	}
 
@@ -116,8 +117,62 @@ Item {
 
 						Connections {
 							target: codeModel
+							property var contractsLocation: ({})
+							onNewContractCompiled:
+							{
+								if (modelData !== "Contracts")
+									return
+
+								var newLocation = codeModel.locationOf(_documentId)
+								var ctr = codeModel.contracts[_documentId]
+
+								for (var k in contractsLocation)
+								{
+									if (contractsLocation[k]["startlocation"] === newLocation["startlocation"]
+											&& contractsLocation[k]["source"] === newLocation["source"])
+									{
+										//location is the same, name may have changed
+										if (k !== _documentId)
+										{
+											delete contractsLocation[k]
+											contractsLocation[_documentId] = newLocation
+
+											for (var j = 0; j < sectionModel.count; j++)
+											{
+												var doc = sectionModel.get(j)
+												if (doc.startlocation === newLocation["startlocation"])
+												{
+													doc.name = _documentId
+													sectionModel.set(j, doc)
+													break
+												}
+											}
+										}
+										return;
+									}
+								}
+
+								var doc = projectModel.getDocument(ctr.documentId)
+								var item = {};
+								item.startlocation = newLocation["startlocation"]
+								item.name = _documentId
+								item.fileName = doc.fileName
+								item.contract = true
+								item.documentId = doc.documentId
+								item.groupName = doc.groupName
+								item.isContract = doc.isContract
+								item.isHtml = doc.isHtml
+								item.isText = doc.isText
+								item.path = doc.path
+								item.syntaxMode = doc.syntaxMode
+								sectionModel.append(item);
+								contractsLocation[item.name] = newLocation
+							}
+
 							onContractRenamed: {
-								if (modelData === "Contracts")
+
+
+								/*if (modelData === "Contracts")
 								{
 									var ci = 0;
 									for (var si = 0; si < projectModel.listModel.count; si++) {
@@ -140,11 +195,19 @@ Item {
 											ci++;
 										}
 									}
-								}
+								}*/
 							}
 
 							onCompilationComplete: {
-								if (modelData === "Contracts") {
+								//clean delete contract
+
+								for (var j = 0; j < sectionModel.count; j++)
+								{
+									if (!codeModel.contracts[sectionModel.get(j).name])
+										sectionModel.remove(j)
+								}
+
+								/*if (modelData === "Contracts") {
 									var ci = 0;
 									for (var si = 0; si < projectModel.listModel.count; si++) {
 										var document = projectModel.listModel.get(si);
@@ -158,7 +221,7 @@ Item {
 											ci++;
 										}
 									}
-								}
+								}*/
 							}
 						}
 
@@ -202,12 +265,13 @@ Item {
 
 							onProjectLoaded: {
 								sectionModel.clear();
-								addDocToSubModel();
+								if (modelData != "Contracts")
+									addDocToSubModel();
 								if (modelData === "Contracts")
 								{
 									var selItem = projectModel.listModel.get(0);
 									projectModel.openDocument(selItem.documentId);
-									sectionRepeater.selected(selItem.documentId, modelData);
+									//sectionRepeater.selected(selItem.documentId, modelData);
 								}
 							}
 

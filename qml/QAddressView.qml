@@ -193,7 +193,7 @@ ColumnLayout
 			}			
 		}
 
-		Button
+		DefaultButton
 		{
 			id: btnAdd
 			text: qsTr("Add")

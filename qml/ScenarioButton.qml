@@ -113,7 +113,7 @@ Rectangle {
 			fillMode: Image.PreserveAspectFit
 		}
 
-		Button {
+		DefaultButton {
 			anchors.fill: parent
 			id: debugImg
 			action: buttonAction
@@ -155,7 +155,6 @@ Rectangle {
 			text: buttonActionContainer.text
 			anchors.centerIn: parent
 			id: btnLabel
-			font.pixelSize: 11
 		}
 	}
 }

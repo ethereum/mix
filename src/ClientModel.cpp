@@ -591,7 +591,8 @@ QVariantMap ClientModel::contractStorage(std::unordered_map<u256, u256> _storage
 						storageDec = decIter->second;
 					else
 					{
-						storageDec = new QVariableDeclaration(this, codeDec.name.toStdString(), codeDec.type);
+						storageDec = new QVariableDeclaration(0, codeDec.name.toStdString(), codeDec.type);
+						QQmlEngine::setObjectOwnership(storageDec, QQmlEngine::JavaScriptOwnership);
 						storageDeclarations[storageDec->name()] = storageDec;
 					}
 					storageDeclarationList.push_back(QVariant::fromValue(storageDec));

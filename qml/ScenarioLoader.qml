@@ -23,7 +23,7 @@ ColumnLayout
 	signal closed()
 	property alias selectedScenarioIndex: scenarioList.currentIndex
 	property bool panelLoaded: false
-	property int btnWidth: 50
+	property int btnWidth: 77
 	spacing: 0
 	function init()
 	{
@@ -51,12 +51,14 @@ ColumnLayout
 		else
 			w = 100
 		updatebtnWidth(w)
-		if (_width < 824)
+		/*if (_width < 824)
             btnRowContainer.anchors.horizontalCenter = undefined
         else
             btnRowContainer.anchors.horizontalCenter = btnRowContainer.parent.horizontalCenter
-            
-		updatebtnWidth(rowBtn.width / 6 < btnWidth ? btnWidth : rowBtn.width / 6)
+		  */
+		console.log("updated width " + rowBtn.width)
+		console.log(rowBtn.width / 6 < btnWidth ? rowBtn.width / 6 : btnWidth)
+		updatebtnWidth(rowBtn.width / 6 < btnWidth ? rowBtn.width / 6 : btnWidth)
 		scenarioLabel.visible = rowBtn.width / 6 > btnWidth
 	}
 
@@ -101,19 +103,8 @@ ColumnLayout
 						text: qsTr("Scenario")
 						id: scenarioLabel
 						anchors.centerIn: parent
-						font.pixelSize: 12
 					}
 				}
-
-				/*Rectangle
-				{
-					id: left
-					width: 10
-					height: parent.height
-					anchors.left: parent.left
-					anchors.leftMargin: -2
-					radius: 15
-				}*/
 
 				Connections
 				{
@@ -190,7 +181,6 @@ ColumnLayout
 								anchors.left: parent.left
 								anchors.leftMargin: -4
 								anchors.top: parent.top
-								font.pixelSize: 11
 								Component.onCompleted:
 								{
 									comboLabel.updateLabel()
@@ -235,7 +225,6 @@ ColumnLayout
 					anchors.leftMargin: -4
 					height: parent.height
 					z: 5
-					font.pixelSize: 11
 					visible: false
 					width: 190
 					Keys.onEnterPressed:
@@ -301,14 +290,15 @@ ColumnLayout
 				}
 			}
 
-			Rectangle
+			Row
 			{
 				anchors.left: scenarioCont.right
 				anchors.leftMargin: 15
 				width: btnWidth * 6
 				height: 20
-				color: "transparent"
+				//color: "transparent"
 				id: rowBtn
+				//spacing: 0
 				ScenarioButton {
 					id: editScenario
 					width: btnWidth
@@ -327,7 +317,7 @@ ColumnLayout
 				{
 					width: 1
 					height: parent.height
-					anchors.right: deleteScenario.left
+					//anchors.right: deleteScenario.left
 					color: "#ededed"
 				}
 
@@ -336,14 +326,14 @@ ColumnLayout
 					enabled: panelLoaded
 					width: btnWidth
 					height: parent.height
-					anchors.left: editScenario.right
+					//anchors.left: editScenario.right
 					sourceImg: "qrc:/qml/img/delete-block-icon@2x.png"
 					onClicked: {
 						if (projectModel.stateListModel.count > 1)
 							deleteWarning.open()
 					}
 					text: qsTr("Delete")
-					roundRight: false
+					roundRight: true
 					roundLeft: false
 				}
 
@@ -363,7 +353,7 @@ ColumnLayout
 				{
 					width: 1
 					height: parent.height
-					anchors.right: addScenario.left
+					//anchors.right: addScenario.left
 					color: "#ededed"
 				}
 
@@ -372,7 +362,7 @@ ColumnLayout
 					enabled: panelLoaded
 					width: btnWidth
 					height: parent.height
-					anchors.left: deleteScenario.right
+					//anchors.left: deleteScenario.right
 					sourceImg: "qrc:/qml/img/newIcon@2x.png"
 					onClicked: {
 						var item = projectModel.stateListModel.createDefaultState();
@@ -391,7 +381,7 @@ ColumnLayout
 				{
 					width: 1
 					height: parent.height
-					anchors.right: restoreScenario.left
+					//anchors.right: restoreScenario.left
 					color: "#ededed"
 				}
 
@@ -400,7 +390,7 @@ ColumnLayout
 					enabled: panelLoaded
 					width: btnWidth
 					height: parent.height
-					anchors.left: addScenario.right
+					//anchors.left: addScenario.right
 					buttonShortcut: ""
 					sourceImg: "qrc:/qml/img/restoreicon@2x.png"
 					onClicked: {
@@ -424,14 +414,14 @@ ColumnLayout
 				{
 					width: 1
 					height: parent.height
-					anchors.right: saveScenario.left
+					//anchors.right: saveScenario.left
 					color: "#ededed"
 				}
 
 				ScenarioButton {
 					id: saveScenario
 					enabled: panelLoaded
-					anchors.left: restoreScenario.right
+					//anchors.left: restoreScenario.right
 					text: qsTr("Save")
 					onClicked: save()
 					width: btnWidth
@@ -460,14 +450,14 @@ ColumnLayout
 				{
 					width: 1
 					height: parent.height
-					anchors.right: duplicateScenario.left
+					//anchors.right: duplicateScenario.left
 					color: "#ededed"
 				}
 
 				ScenarioButton
 				{
 					id: duplicateScenario
-					anchors.left: saveScenario.right
+					//anchors.left: saveScenario.right
 					enabled: panelLoaded
 					text: qsTr("Duplicate")
 					onClicked: {

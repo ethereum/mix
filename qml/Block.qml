@@ -37,9 +37,10 @@ ColumnLayout
 	{
 		if (transactions && transactions.count > 0)
 		{
-			var h = 2 * trHeight
+			var h = trHeight
 			for (var k = 0; k < transactionRepeater.count; k++)
 			{
+				h += trHeight
 				if (transactionRepeater.itemAt(k))
 					h += transactionRepeater.itemAt(k).detailHeight()
 			}
@@ -103,10 +104,6 @@ ColumnLayout
 		setHeight()
 	}
 
-	DebuggerPaneStyle {
-		id: dbgStyle
-	}
-
 	Rectangle
 	{
 		id: top
@@ -149,30 +146,20 @@ ColumnLayout
 				}
 			}
 
-			Button {
+			DefaultButton {
 				anchors.verticalCenter: parent.verticalCenter
 				anchors.right: parent.right
 				anchors.rightMargin: 10
 				visible: number === -2
 				height: 18
-				width: 18
+				width: 150
 				enabled: scenarioIndex !== -1
 				onClicked:
 				{
 					// load edit block panel
 					projectModel.stateListModel.editState(scenarioIndex)
 				}
-
-				Image {
-					anchors {
-						left: parent.left
-						right: parent.right
-						top: parent.top
-						bottom: parent.bottom
-					}
-					source: "qrc:/qml/img/edit_combox.png"
-					fillMode: Image.PreserveAspectFit
-				}
+				text: qsTr("Edit Starting Parameters")
 			}
 		}
 	}

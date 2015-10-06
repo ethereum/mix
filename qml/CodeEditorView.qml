@@ -124,6 +124,13 @@ Item {
 			editor.showWarning(qsTr("Currently debugging in " + sourceName + ". Source not available."));
 	}
 
+	function setCursor(c, docId)
+	{
+		var editor = getEditor(docId);
+		if (editor)
+			editor.setCursor(c)
+	}
+
 	function editingContract() {
 		for (var i = 0; i < openDocCount; i++)
 			if (editorListModel.get(i).documentId === currentDocumentId)
@@ -257,11 +264,6 @@ Item {
 				}
 			}
 		}
-	}
-
-	CodeEditorStyle
-	{
-		id: style;
 	}
 
 	MessageDialog

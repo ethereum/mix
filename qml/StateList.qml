@@ -9,7 +9,7 @@ import "."
 Dialog {
 	id: stateListContainer
 	modality: Qt.WindowModal
-	width: 640
+	width: 400
 	height: 480
 	visible: false
 	contentItem: Rectangle {
@@ -37,6 +37,10 @@ Dialog {
 					title: qsTr("Scenario")
 					width: list.width
 				}
+				rowDelegate: Rectangle {
+					height: 35
+					color: styleData.alternate ? "transparent" : "#cccccc"
+				}
 			}
 
 			Row{
@@ -44,8 +48,9 @@ Dialog {
 				anchors.bottom: parent.bottom
 				anchors.right: parent.right
 				anchors.rightMargin: 10
-				Button {
-					action: closeAction
+				DefaultButton {
+					text: qsTr("Close")
+					onClicked: stateListContainer.close();
 				}
 			}
 		}
@@ -56,21 +61,20 @@ Dialog {
 		Item {
 			RowLayout {
 				anchors.fill: parent
+				anchors.margins: 5
 				DefaultText {
 					Layout.fillWidth: true
 					Layout.fillHeight: true
 					text: styleData.value
-					verticalAlignment: Text.AlignBottom
+					verticalAlignment: Text.AlignVCenter
 				}
-				ToolButton {
-					text: qsTr("Edit Genesis...");
-					Layout.fillHeight: true
+				DefaultButton {
+					text: qsTr("Edit Staring Parameters...");
 					onClicked: list.model.editState(styleData.row);
 				}
-				ToolButton {
+				DefaultButton {
 					visible: list.model.defaultStateIndex !== styleData.row
 					text: qsTr("Delete");
-					Layout.fillHeight: true
 					onClicked: deleteScenario.open()
 				}
 				MessageDialog
@@ -81,15 +85,6 @@ Dialog {
 					text: qsTr("Are you sure to delete this scenario?")
 				}
 			}
-		}
-	}
-
-	Row
-	{
-		Action {
-			id: closeAction
-			text: qsTr("Close")
-			onTriggered: stateListContainer.close();
 		}
 	}
 }

@@ -22,6 +22,15 @@ RowLayout
 	property int detailRowHeight: 25
 	property string trDetailColor: "#adadad"
 
+	Keys.onDeletePressed:
+	{
+		if (!isCall)
+		{
+			blockChain.deleteTransaction(blockIndex, txIndex)
+			blockChain.rebuildRequired()
+		}
+	}
+
 	function highlight()
 	{
 		rowContentTr.select()
@@ -146,7 +155,7 @@ RowLayout
 				txSelected(txIndex, callIndex)
 			else
 				txSelected(txIndex, -1)
-			blockChainPanel.forceActiveFocus()
+			rowTransaction.forceActiveFocus()
 		}
 
 		function deselect()
@@ -491,7 +500,7 @@ RowLayout
 						height: 22
 						width: 25
 					}
-					Button
+					DefaultButton
 					{
 						id: editTx
 						anchors.verticalCenter: parent.verticalCenter
@@ -502,16 +511,10 @@ RowLayout
 								root.editTx(index)
 						}
 						height: 22
-						style: ButtonStyle {
-							label: DefaultText
-							{
-								text: qsTr("Edit transaction...")
-								font.pixelSize: 10
-							}
-						}
+						text: qsTr("Edit transaction...")
 					}
 
-					Button
+					DefaultButton
 					{
 						id: debugTx
 						anchors.verticalCenter: parent.verticalCenter
@@ -521,13 +524,7 @@ RowLayout
 								clientModel.debugRecord(tx.recordIndex, tx.label);
 						}
 						height: 22
-						style: ButtonStyle {
-							label: DefaultText
-							{
-								text: isCall ? qsTr("Debug call...") : qsTr("Debug transaction...")
-								font.pixelSize: 10
-							}
-						}
+						text: isCall ? qsTr("Debug call...") : qsTr("Debug transaction...")
 					}
 				}
 			}

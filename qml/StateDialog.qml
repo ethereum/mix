@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.1
 import QtQuick.Window 2.0
 import QtQuick.Controls.Styles 1.3
 import org.ethereum.qml.QEther 1.0
+import org.ethereum.qml.InverseMouseArea 1.0
 import "js/QEtherHelper.js" as QEtherHelper
 import "js/TransactionHelper.js" as TransactionHelper
 import "."
@@ -13,7 +14,7 @@ Dialog {
 	id: modalStateDialog
 	modality: Qt.ApplicationModal
 
-	width: 630
+	width: 530
 	height: 660
 	title: qsTr("Edit Starting Parameters")
 	visible: false
@@ -100,28 +101,16 @@ Dialog {
 
 						Rectangle {
 							Layout.preferredWidth: 85
+
 							DefaultLabel {
 								id: contractsLabel
-								Layout.preferredWidth: 85
-								wrapMode: Text.WrapAnywhere
+								//Layout.preferredWidth: 85
+								//wrapMode: Text.WrapAnywhere
 								text: qsTr("Genesis\nContracts")
+								anchors.horizontalCenter: parent.horizontalCenter
+								//anchors.verticalCenter: parent.verticalCenter
 							}
 
-							Button {
-								id: importStateButton
-								anchors.top: contractsLabel.bottom
-								anchors.topMargin: 10
-								action: importStateAction
-							}
-
-							Action {
-								id: importStateAction
-								tooltip: qsTr("Import genesis state from JSON file")
-								text: qsTr("Import...")
-								onTriggered: {
-									importJsonFileDialog.open()
-								}
-							}
 							QFileDialog {
 								id: importJsonFileDialog
 								visible: false
@@ -154,6 +143,18 @@ Dialog {
 						}
 
 						TableView {
+
+							DefaultButton {
+								id: importStateButton
+								anchors.top: genesisContractsView.top
+								anchors.right: genesisContractsView.left
+								tooltip: qsTr("Import genesis state from JSON file")
+								text: qsTr("Import...")
+								onClicked: {
+									importJsonFileDialog.open()
+								}
+							}
+
 							id: genesisContractsView
 							Layout.fillWidth: true
 							model: contractsModel
@@ -167,7 +168,7 @@ Dialog {
 										height: 25
 										width: parent.width
 										anchors.verticalCenter: parent.verticalCenter
-										Button {
+										DefaultImgButton {
 											iconSource: "qrc:/qml/img/delete_sign.png"
 											action: deleteContractAction
 											anchors.verticalCenter: parent.verticalCenter
@@ -222,12 +223,13 @@ Dialog {
 
 					RowLayout {
 						Layout.fillWidth: true
-
+						Layout.preferredHeight: 300
 						Rectangle {
 							Layout.preferredWidth: 85
 							DefaultLabel {
 								id: accountsLabel
 								Layout.preferredWidth: 85
+								anchors.horizontalCenter: parent.horizontalCenter
 								text: qsTr("Accounts")
 							}							
 						}
@@ -240,8 +242,8 @@ Dialog {
 						}						
 
 						TableView {
-
-							Button
+							Layout.preferredHeight: 300
+							DefaultImgButton
 							{
 								id: addAccount
 								iconSource: "qrc:/qml/img/Write.png"
@@ -274,93 +276,160 @@ Dialog {
 								title: qsTr("Name")
 								width: 400
 								delegate: Item {
-									RowLayout {
-										height: 60
-										width: parent.width
-
-										Button {
-											iconSource: "qrc:/qml/img/delete-block-icon@2x.png"
-											action: deleteAccountAction
-											anchors.verticalCenter: parent.verticalCenter											
-											Image {
-												anchors {
-													left: parent.left
-													right: parent.right
-													top: parent.top
-													bottom: parent.bottom
-												}
-												source: "qrc:/qml/img/delete-block-icon@2x.png"
-												fillMode: Image.PreserveAspectFit
-											}
-										}
-
-										Action {
-											id: deleteAccountAction
-											tooltip: qsTr("Delete Account")
-											onTriggered: deleteAccountMsg.open()
-										}
-
-										MessageDialog
-										{
-											id: deleteAccountMsg
-											text: qsTr("Are you sure to delete this account?")
-											onYes:
-											{
-												stateAccounts.splice(styleData.row, 1)
-												accountsView.model.remove(styleData.row)
-											}
-											standardButtons: StandardButton.Yes | StandardButton.No
-										}
-
-										Component.onCompleted:
-										{
-											addressCopy.originalText = stateAccounts[styleData.row].address
-										}
-
-										DefaultTextField {
-											property bool first: true
+									Rectangle
+									{
+										anchors.fill: parent
+										color: "transparent"
+										height: 100
+										RowLayout {
 											anchors.top: parent.top
-											Layout.preferredWidth: 100
-											onTextChanged: {
-												if (styleData.row > -1 && stateAccounts[styleData.row])
-												{
-													stateAccounts[styleData.row].name = text
-													var index = comboMiner.currentIndex
-													comboMiner.model = stateAccounts
-													comboMiner.currentIndex = index
-												}
-												if (first)
-												{
-													addressField.cursorPosition = 0
-													first = false
-												}
+											anchors.topMargin: 10
+											anchors.left: parent.left
+											anchors.leftMargin: 10
+											Action {
+												id: deleteAccountAction
+												tooltip: qsTr("Delete Account")
+												onTriggered: deleteAccountMsg.open()
 											}
-											text: {
-												return styleData.value
-											}
-											id: addressField
 
-											DisableInput
+											MessageDialog
 											{
-												anchors.top: parent.bottom
-												anchors.topMargin: 5
-												id: addressCopy
-												width: 400
+												id: deleteAccountMsg
+												text: qsTr("Are you sure to delete this account?")
+												onYes:
+												{
+													stateAccounts.splice(styleData.row, 1)
+													accountsView.model.remove(styleData.row)
+												}
+												standardButtons: StandardButton.Yes | StandardButton.No
 											}
-										}
 
-										Ether {
-											anchors.top: parent.top
-											Layout.preferredWidth: 400
-											edit: true
-											displayFormattedValue: false
-											value: {
-												if (stateAccounts[styleData.row])
-													return stateAccounts[styleData.row].balance
+											Component.onCompleted:
+											{
+												addressCopy.originalText = stateAccounts[styleData.row].address
 											}
-											displayUnitSelection: true
-											Component.onCompleted: {
-												formatInput()
+
+											Rectangle
+											{
+												Layout.preferredWidth: 100
+												Layout.preferredHeight: 20
+												color: "transparent"
+												Rectangle
+												{
+													border.color: "#cccccc"
+													border.width: 1
+													width: 100
+													color: "transparent"
+													radius: 4
+													height: 20
+													anchors.verticalCenter: parent.verticalCenter
+													DefaultText
+													{
+														anchors.verticalCenter: parent.verticalCenter
+														anchors.left: parent.left
+														anchors.leftMargin: 2
+														id: labelUser
+														text: styleData.value
+														width: 100
+														MouseArea
+														{
+															anchors.fill: parent
+															onDoubleClicked:
+															{
+																parent.visible = false
+																parent.parent.visible = false
+																addressField.visible = true
+																inverseMouseArea.active = true
+																addressField.forceActiveFocus()
+															}
+														}
+													}
+												}
+
+												DefaultTextField {
+													id: addressField
+													property bool first: true
+													visible: false
+													anchors.verticalCenter: parent.verticalCenter
+													width: 100
+													onTextChanged: {
+														if (styleData.row > -1 && stateAccounts[styleData.row])
+														{
+															stateAccounts[styleData.row].name = text
+															var index = comboMiner.currentIndex
+															comboMiner.model = stateAccounts
+															comboMiner.currentIndex = index
+														}
+														if (first)
+														{
+															addressField.cursorPosition = 0
+															first = false
+														}
+													}
+													text: {
+														return styleData.value
+													}
+													Keys.onEnterPressed: {
+														hide()
+													}
+
+													Keys.onReturnPressed: {
+														hide()
+													}
+
+													function hide()
+													{
+														labelUser.visible = true
+														labelUser.parent.visible = true
+														addressField.visible = false
+														labelUser.text = addressField.text
+														inverseMouseArea.active = false
+													}
+
+													InverseMouseArea
+													{
+														id: inverseMouseArea
+														anchors.fill: parent
+														active: false
+														onClickedOutside: {
+															parent.hide()
+														}
+													}
+												}
+
+												DisableInput
+												{
+													anchors.top: parent.bottom
+													anchors.topMargin: 5
+													id: addressCopy
+													width: 265
+												}
+											}
+
+											Ether {
+												anchors.verticalCenter: parent.verticalCenter
+												inputWidth: 100
+												anchors.top: parent.top
+												height: 100
+												Layout.preferredWidth: 200
+												edit: true
+												displayFormattedValue: false
+												value: {
+													if (stateAccounts[styleData.row])
+														return stateAccounts[styleData.row].balance
+												}
+												displayUnitSelection: true
+												Component.onCompleted: {
+													formatInput()
+												}
+
+												DefaultImgButton {
+													iconSource: "qrc:/qml/img/delete-block-icon@2x.png"
+													action: deleteAccountAction
+													anchors.verticalCenter: parent.verticalCenter
+													anchors.left: parent.right
+													anchors.leftMargin: 10
+												}
 											}
 										}
 									}
@@ -369,7 +438,7 @@ Dialog {
 
 							rowDelegate: Rectangle {
 								color: styleData.alternate ? "transparent" : "#f0f0f0"
-								height: 60
+								height: 80
 							}
 						}
 					}
@@ -392,10 +461,16 @@ Dialog {
 
 					RowLayout {
 						Layout.fillWidth: true
-						DefaultLabel {
+
+						Rectangle {
 							Layout.preferredWidth: 85
-							text: qsTr("Miner")
+							DefaultLabel {
+								anchors.verticalCenter: parent.verticalCenter
+								anchors.horizontalCenter: parent.horizontalCenter
+								text: qsTr("Miner")
+							}
 						}
+
 						ComboBox {
 							id: comboMiner
 							textRole: "name"
@@ -412,14 +487,14 @@ Dialog {
 					anchors.bottom: parent.bottom
 					anchors.right: parent.right
 
-					Button {
+					DefaultButton {
 						text: qsTr("OK")
 						onClicked: {
 							close()
 							accepted()
 						}
 					}
-					Button {
+					DefaultButton {
 						text: qsTr("Cancel")
 						onClicked: close()
 					}

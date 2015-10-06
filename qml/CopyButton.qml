@@ -5,7 +5,7 @@ import QtQuick.Controls.Styles 1.3
 import QtQuick.Dialogs 1.1
 import Qt.labs.settings 1.0
 
-Button
+DefaultImgButton
 {
 	property var getContent;
 	iconSource: "qrc:/qml/img/copyiconactive.png"

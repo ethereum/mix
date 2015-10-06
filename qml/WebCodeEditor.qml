@@ -53,6 +53,13 @@ Item {
 			editorBrowser.runJavaScript("highlightExecution(" + location.start + "," + location.end + ", " + gasUsed +")");
 	}
 
+	function setCursor(ch)
+	{
+		console.log("nn  " + ch)
+		if (initialized && editorBrowser)
+			editorBrowser.runJavaScript("setCursor('" + ch + "')");
+	}
+
 	function showWarning(content) {
 		if (initialized && editorBrowser)
 			editorBrowser.runJavaScript("showWarning('" + content + "')");

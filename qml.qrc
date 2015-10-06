@@ -5,13 +5,11 @@
         <file>qml/BasicMessage.qml</file>
         <file>qml/BigIntValue.qml</file>
         <file>qml/CallStack.qml</file>
-        <file>qml/CodeEditorStyle.qml</file>
         <file>qml/CodeEditorView.qml</file>
         <file>qml/CommonSeparator.qml</file>
         <file>qml/DebugBasicInfo.qml</file>
         <file>qml/DebugInfoList.qml</file>
         <file>qml/Debugger.qml</file>
-        <file>qml/DebuggerPaneStyle.qml</file>
         <file>qml/DefaultLabel.qml</file>
         <file>qml/DefaultTextField.qml</file>
         <file>qml/DeploymentDialog.qml</file>
@@ -24,7 +22,6 @@
         <file>qml/MainContent.qml</file>
         <file>qml/ModalDialog.qml</file>
         <file>qml/NewProjectDialog.qml</file>
-        <file>qml/ProjectFilesStyle.qml</file>
         <file>qml/ProjectList.qml</file>
         <file>qml/ProjectModel.qml</file>
         <file>qml/QBoolTypeView.qml</file>
@@ -43,7 +40,6 @@
         <file>qml/StateDialogStyle.qml</file>
         <file>qml/StateList.qml</file>
         <file>qml/StateListModel.qml</file>
-        <file>qml/StateStyle.qml</file>
         <file>qml/StatusPane.qml</file>
         <file>qml/StatusPaneStyle.qml</file>
         <file>qml/StepActionImage.qml</file>
@@ -82,5 +78,9 @@
         <file>qml/DisableInput.qml</file>
         <file>qml/NewAccount.qml</file>
         <file>qml/DefaultText.qml</file>
+        <file>qml/ProjectFilesStyle.qml</file>
+        <file>qml/DefaultTextArea.qml</file>
+        <file>qml/DefaultButton.qml</file>
+        <file>qml/DefaultImgButton.qml</file>
     </qresource>
 </RCC>

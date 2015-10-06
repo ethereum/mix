@@ -156,7 +156,6 @@ Rectangle {
 				{
 					text: qsTr("(pastebin url or similar)")
 					anchors.verticalCenter: parent.verticalCenter
-					font.pixelSize: 12
 					anchors.top: httpurlLabel.bottom
 					anchors.topMargin: 2
 					anchors.left: httpurlLabel.left
@@ -230,7 +229,6 @@ Rectangle {
 				anchors.verticalCenter: parent.verticalCenter;
 				anchors.topMargin: 10
 				font.italic: true
-				font.pixelSize: 12
 			}
 
 			DefaultLabel
@@ -239,7 +237,6 @@ Rectangle {
 				anchors.verticalCenter: parent.verticalCenter;
 				anchors.topMargin: 10
 				font.italic: true
-				font.pixelSize: 12
 			}
 		}
 
@@ -395,7 +392,7 @@ Rectangle {
 			}
 		}
 
-		Button
+		DefaultButton
 		{
 			anchors.right: parent.right
 			anchors.rightMargin: 10
