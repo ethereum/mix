@@ -21,7 +21,7 @@
  */
 
 var htmlTemplate = "<html>\n<head>\n<script>\n</script>\n</head>\n<body>\n<script>\n</script>\n</body>\n</html>";
-var contractTemplate = "contract Contract {\n}\n";
+var contractTemplate = "contract FirstContract {\n}\n";
 
 function saveCurrentDocument()
 {

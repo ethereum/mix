@@ -55,9 +55,11 @@ Item {
 
 	function setCursor(ch)
 	{
-		console.log("nn  " + ch)
 		if (initialized && editorBrowser)
+		{
+			setFocus()
 			editorBrowser.runJavaScript("setCursor('" + ch + "')");
+		}
 	}
 
 	function showWarning(content) {

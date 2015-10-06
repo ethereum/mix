@@ -216,7 +216,6 @@ goToCompilationError = function()
 setCursor = function(c)
 {
 	var line = editor.posFromIndex(c)
-	console.log("jjj " + JSON.stringify(line))
 	editor.setCursor(line);
 }
 
