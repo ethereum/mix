@@ -122,7 +122,6 @@ Item {
 							{
 								if (modelData !== "Contracts")
 									return
-
 								var newLocation = codeModel.locationOf(_documentId)
 								var ctr = codeModel.contracts[_documentId]
 
@@ -169,32 +168,6 @@ Item {
 							}
 
 							onContractRenamed: {
-
-
-								/*if (modelData === "Contracts")
-								{
-									var ci = 0;
-									for (var si = 0; si < projectModel.listModel.count; si++) {
-										var document = projectModel.listModel.get(si);
-										if (document.isContract) {
-											if (_documentId === document.documentId && _newName !== document.name) {
-												var newPath = document.path.replace(document.fileName, _newName + ".sol")
-												fileIo.moveFile(document.path, newPath)
-												fileIo.stopWatching(document.path);
-												fileIo.deleteFile(document.path);
-												document.name = _newName
-												document.path = newPath
-												document.fileName = _newName + ".sol"
-												projectModel.listModel.set(si, document)
-												sectionModel.set(ci, document)
-												projectModel.saveProjectFile();
-												projectModel.documentUpdated(document.documentId);
-												fileIo.watchFileChanged(newPath)
-											}
-											ci++;
-										}
-									}
-								}*/
 							}
 
 							onCompilationComplete: {
@@ -205,22 +178,6 @@ Item {
 										if (!codeModel.contracts[sectionModel.get(j).name])
 											sectionModel.remove(j)
 									}
-
-								/*if (modelData === "Contracts") {
-									var ci = 0;
-									for (var si = 0; si < projectModel.listModel.count; si++) {
-										var document = projectModel.listModel.get(si);
-										if (document.isContract) {
-											var compiledDoc = codeModel.contractByDocumentId(document.documentId);
-											if (compiledDoc && compiledDoc.documentId === document.documentId && compiledDoc.contract.name !== document.name) {
-												document.name = compiledDoc.contract.name;
-												projectModel.listModel.set(si, document);
-												sectionModel.set(ci, document);
-											}
-											ci++;
-										}
-									}
-								}*/
 							}
 						}
 
@@ -270,7 +227,6 @@ Item {
 								{
 									var selItem = projectModel.listModel.get(0);
 									projectModel.openDocument(selItem.documentId);
-									//sectionRepeater.selected(selItem.documentId, modelData);
 								}
 							}
 

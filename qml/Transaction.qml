@@ -24,7 +24,7 @@ RowLayout
 
 	Keys.onDeletePressed:
 	{
-		if (!isCall)
+		if (!isCall && blockChain)
 		{
 			blockChain.deleteTransaction(blockIndex, txIndex)
 			blockChain.rebuildRequired()
@@ -64,7 +64,6 @@ RowLayout
 				txDetail.updateView()
 		}
 	}
-
 
 	Rectangle
 	{

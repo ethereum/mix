@@ -70,7 +70,7 @@ Rectangle {
 		ctrStorage.init()
 
 		storages.clear()
-		searchBox.visible = Object.keys(currentState.contractsStorage).length > 0
+		searchBox.visible = currentState.contractsStorage && Object.keys(currentState.contractsStorage).length > 0
 		for (var k in currentState.contractsStorage)
 			storages.append({ "key": k, "value": currentState.contractsStorage[k].values })
 		for (var k = 0; k < storages.count; k++)

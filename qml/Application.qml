@@ -138,6 +138,7 @@ ApplicationWindow {
 			MenuItem { action: showHideRightPanelAction }
 			MenuItem { action: toggleWebPreviewAction }
 			MenuItem { action: toggleWebPreviewOrientationAction }
+			MenuSeparator {}
 			MenuItem { action: increaseAppFontSize }
 			MenuItem { action: decreaseAppFontSize }
 			MenuItem { action: setEnvFontSize }
