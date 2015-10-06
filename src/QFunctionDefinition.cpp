@@ -49,8 +49,8 @@ QFunctionDefinition::QFunctionDefinition(QObject* _parent, ASTPointer<dev::solid
 	for (unsigned i = 0; i < _e->parameters().size(); ++i)
 		m_parameters.append(new QVariableDeclaration(parent(), _e->parameters().at(i)));
 	FunctionTypePointer _f = std::make_shared<FunctionType>(*_e);
-	m_hash = (FixedHash<4>)dev::sha3(_f->externalSignature(_e->name()));
-	m_fullHash = dev::sha3(_f->externalSignature(_e->name()));
+	m_hash = (FixedHash<4>)dev::sha3(_f->externalSignature());
+	m_fullHash = dev::sha3(_f->externalSignature());
 }
 
 void QFunctionDefinition::init(dev::solidity::FunctionTypePointer _f)
