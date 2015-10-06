@@ -104,11 +104,8 @@ Dialog {
 
 							DefaultLabel {
 								id: contractsLabel
-								//Layout.preferredWidth: 85
-								//wrapMode: Text.WrapAnywhere
 								text: qsTr("Genesis\nContracts")
 								anchors.horizontalCenter: parent.horizontalCenter
-								//anchors.verticalCenter: parent.verticalCenter
 							}
 
 							QFileDialog {
