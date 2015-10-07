@@ -150,6 +150,7 @@ Item {
 										return;
 									}
 								}
+								// new contract
 								var doc = projectModel.getDocument(ctr.documentId)
 								var item = {};
 								item.startlocation = newLocation["startlocation"]
@@ -171,13 +172,16 @@ Item {
 							}
 
 							onCompilationComplete: {
-								//clean delete contract
+
 								if (modelData === "Contracts")
+								{
+									//clean deleted contract
 									for (var j = 0; j < sectionModel.count; j++)
 									{
 										if (!codeModel.contracts[sectionModel.get(j).name])
 											sectionModel.remove(j)
 									}
+								}
 							}
 						}
 

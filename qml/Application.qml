@@ -181,7 +181,7 @@ ApplicationWindow {
 	Action {
 		id: decreaseAppFontSize
 		text: qsTr("Decrease Application Fontsize")
-		shortcut: "Ctrl+Shift+D"
+		shortcut: "Ctrl+Shift+L"
 		onTriggered:
 		{
 			if (appSettings.systemPointSize > 2)
@@ -497,5 +497,9 @@ ApplicationWindow {
 		property string nodeAddress: "http://localhost:8545"
 		property alias displayCalls: displayCallsAction.checked
 		property int systemPointSize: 11
+		function getFormattedPointSize()
+		{
+			return systemPointSize  - 3
+		}
 	}
 }

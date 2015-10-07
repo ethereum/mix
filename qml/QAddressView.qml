@@ -19,6 +19,10 @@ ColumnLayout
 	height: getHeight()
 	width: 320
 
+	onWidthChanged: {
+		console.log("width " + width)
+	}
+
 	SourceSansProBold
 	{
 		id: boldFont
@@ -162,12 +166,12 @@ ColumnLayout
 		anchors.top: parent.top
 		height: 30
 		id: rowCombobox
-		ComboBox
+		DefaultCombobox
 		{
 			property bool selected: false
 			id: trCombobox
 			model: ctrModel
-			width: 350
+			width: editRoot.width
 			textRole: "itemid"
 			function update()
 			{
@@ -176,11 +180,14 @@ ColumnLayout
 					return;
 				else if (currentText !== " - ")
 				{
-					if (model.get(currentIndex).type === "contract")
-						textinput.text = "<" + currentText + ">";
-					else
-						textinput.text = model.get(currentIndex).value; //address
-					trCombobox.selected = true;
+					if (model.get(currentIndex))
+					{
+						if (model.get(currentIndex).type === "contract")
+							textinput.text = "<" + currentText + ">";
+						else
+							textinput.text = model.get(currentIndex).value; //address
+						trCombobox.selected = true;
+					}
 				}
 				else if (textinput.text.indexOf("<") === 0)
 					textinput.text = "";
@@ -207,10 +214,9 @@ ColumnLayout
 		}
 	}
 
-
 	Rectangle {
 		radius: 4
-		width: 350
+		width: editRoot.width
 		height: 30
 		id: textInputRect
 		DefaultTextField {

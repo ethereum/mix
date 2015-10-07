@@ -57,7 +57,7 @@ ColumnLayout
 			btnRowContainer.anchors.horizontalCenter = btnRowContainer.parent.horizontalCenter
 
 		updatebtnWidth(w)
-		updatebtnWidth(rowBtn.width / 6 < btnWidth ? rowBtn.width / 6 : btnWidth)
+		updatebtnWidth((rowBtn.width - 20) / 6 < btnWidth ? (rowBtn.width - 20) / 6 : btnWidth)
 		scenarioLabel.visible = rowBtn.width / 6 > btnWidth
 	}
 
@@ -81,7 +81,6 @@ ColumnLayout
 		id: btnRowContainer
 		property int comboboxWidth: 100
 		property int minimalWidth: 100 * 6 + btnRowContainer.comboboxWidth
-		//Layout.preferredWidth: minimalWidth
 		Layout.preferredHeight: 40
 		Item
 		{
@@ -108,6 +107,16 @@ ColumnLayout
 				onStateDeleted: {
 					scenarioList.init()
 				}
+			}
+
+			Rectangle
+			{
+				id: left
+				width: 10
+				height: parent.height
+				anchors.left: scenarioList.left
+				anchors.leftMargin: -4
+				radius: 15
 			}
 
 			ComboBox
@@ -222,7 +231,7 @@ ColumnLayout
 				height: parent.height
 				z: 5
 				visible: false
-				width: 190
+				width: btnRowContainer.comboboxWidth
 				Keys.onEnterPressed:
 				{
 					toggleEdit()
@@ -288,8 +297,6 @@ ColumnLayout
 
 		Row
 		{
-			//anchors.left: scenarioCont.right
-			//anchors.leftMargin: 15
 			anchors.top: parent.top
 			width: btnWidth * 6
 			Layout.preferredWidth: btnWidth * 6

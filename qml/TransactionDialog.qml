@@ -14,8 +14,8 @@ import "."
 Dialog {
 	id: modalTransactionDialog
 	modality: Qt.ApplicationModal
-	width: 600
-	height: 500
+	width: 520
+	height: 470
 	visible: false
 	title:  editMode ? qsTr("Edit Transaction") : qsTr("Add Transaction")
 	property bool editMode
@@ -289,6 +289,8 @@ Dialog {
 		id: containerRect
 		color: transactionDialogStyle.generic.backgroundColor
 		anchors.fill: parent
+		implicitHeight: modalTransactionDialog.height
+		implicitWidth: modalTransactionDialog.width
 		ScrollView
 		{
 			anchors.top: parent.top
@@ -301,7 +303,7 @@ Dialog {
 				width: 500
 				anchors.leftMargin:
 				{
-					return (containerRect.width - 600) /2
+					return (containerRect.width - 500) /2
 				}
 
 				RowLayout
@@ -316,7 +318,7 @@ Dialog {
 							text: qsTr("Sender Account")
 						}
 					}
-					ComboBox {
+					DefaultCombobox {
 
 						function select(secret)
 						{
@@ -414,7 +416,7 @@ Dialog {
 							}
 						}
 
-						RadioButton {
+						DefaultRadioButton {
 							id: trTypeSend
 							objectName: "trTypeSend"
 							exclusiveGroup: rbbuttonList
@@ -423,7 +425,7 @@ Dialog {
 
 						}
 
-						RadioButton {
+						DefaultRadioButton {
 							id: trTypeCreate
 							objectName: "trTypeCreate"
 							exclusiveGroup: rbbuttonList
@@ -431,7 +433,7 @@ Dialog {
 							text: qsTr("Create Contract")
 						}
 
-						RadioButton {
+						DefaultRadioButton {
 							id: trTypeExecute
 							objectName: "trTypeExecute"
 							exclusiveGroup: rbbuttonList
@@ -481,7 +483,7 @@ Dialog {
 						}
 					}
 
-					ComboBox {
+					DefaultCombobox {
 						id: contractCreationComboBox
 						function currentValue() {
 							return (currentIndex >=0 && currentIndex < contractsModel.count) ? contractsModel.get(currentIndex).cid : "";
@@ -527,7 +529,7 @@ Dialog {
 						}
 					}
 
-					ComboBox {
+					DefaultCombobox {
 						id: functionComboBox
 						Layout.preferredWidth: 350
 						currentIndex: -1
@@ -701,6 +703,7 @@ Dialog {
 				{
 					Layout.preferredWidth: 500
 					Layout.preferredHeight: 45
+					spacing: 0
 					Rectangle
 					{
 						Layout.preferredWidth: 100
@@ -728,10 +731,11 @@ Dialog {
 					}
 
 					Ether {
-						Layout.preferredWidth: 400
+						Layout.preferredWidth: 340
+						width: 350
 						id: gasPriceField
 						edit: true
-						displayFormattedValue: false
+						displayFormattedValue: true
 						displayUnitSelection: true
 					}
 				}
@@ -743,6 +747,7 @@ Dialog {
 					Layout.preferredWidth: modalTransactionDialog.width
 					anchors.right: parent.right
 					anchors.rightMargin: 45
+					spacing: 10
 					DefaultButton {
 						id: updateBtn
 						text: qsTr("Cancel");

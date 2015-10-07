@@ -13,7 +13,8 @@ Dialog {
 	height: 480
 	visible: false
 	contentItem: Rectangle {
-		anchors.fill: parent
+		implicitHeight: stateListContainer.height
+		implicitWidth: stateListContainer.width
 		ColumnLayout
 		{
 			anchors.fill: parent

@@ -3,7 +3,7 @@ import QtQuick.Controls 1.1
 
 Label {
 	text: text
-	font.pixelSize: appSettings.systemPointSize
+	font.pointSize: appSettings.getFormattedPointSize()
 }
 
 

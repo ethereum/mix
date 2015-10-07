@@ -150,7 +150,7 @@ Rectangle
 				}
 			}
 
-			ComboBox
+			DefaultCombobox
 			{
 				id: accountsList
 				textRole: "id"

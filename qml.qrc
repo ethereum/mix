@@ -82,5 +82,7 @@
         <file>qml/DefaultTextArea.qml</file>
         <file>qml/DefaultButton.qml</file>
         <file>qml/DefaultImgButton.qml</file>
+        <file>qml/DefaultCombobox.qml</file>
+        <file>qml/DefaultRadioButton.qml</file>
     </qresource>
 </RCC>

@@ -94,7 +94,7 @@ Item {
 				}
 			}
 
-			ComboBox {
+			DefaultCombobox {
 				id: itemFilter
 
 				function getCurrentModel()

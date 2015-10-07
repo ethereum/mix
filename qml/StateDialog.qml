@@ -84,6 +84,8 @@ Dialog {
 
 	contentItem: Rectangle {
 		color: stateDialogStyle.generic.backgroundColor
+		implicitHeight: modalStateDialog.height
+		implicitWidth: modalStateDialog.width
 		Rectangle {
 			color: stateDialogStyle.generic.backgroundColor
 			anchors.top: parent.top
@@ -243,7 +245,7 @@ Dialog {
 							DefaultImgButton
 							{
 								id: addAccount
-								iconSource: "qrc:/qml/img/Write.png"
+								iconSource: "qrc:/qml/img/edit_combox.png"
 								tooltip: qsTr("Add new account")
 								onClicked:
 								{
@@ -399,7 +401,7 @@ Dialog {
 													anchors.top: parent.bottom
 													anchors.topMargin: 5
 													id: addressCopy
-													width: 265
+													width: 100
 												}
 											}
 
@@ -468,7 +470,7 @@ Dialog {
 							}
 						}
 
-						ComboBox {
+						DefaultCombobox {
 							id: comboMiner
 							textRole: "name"
 							Layout.fillWidth: true

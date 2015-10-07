@@ -14,7 +14,7 @@ Dialog {
 	modality: Qt.ApplicationModal
 	title: qsTr("New Account");
 
-	width: 750
+	width: 400
 	height: 180
 
 	property var accounts
@@ -41,13 +41,14 @@ Dialog {
 	}
 
 	contentItem: Rectangle {
-		anchors.fill: parent
+		implicitHeight: newAddressWin.height
+		implicitWidth: newAddressWin.width
 		ColumnLayout
 		{
 			anchors.fill: parent
 			anchors.margins: 10
 			onWidthChanged: {
-				addressText.Layout.preferredWidth = width - address.width - 55
+				addressText.Layout.preferredWidth = width - address.width - 50
 			}
 
 			RowLayout
@@ -68,6 +69,8 @@ Dialog {
 
 			RowLayout
 			{
+				Layout.fillWidth: true
+				Layout.preferredWidth: parent.width
 				DefaultLabel
 				{
 					text: qsTr("Balance")
@@ -77,6 +80,8 @@ Dialog {
 
 				Ether
 				{
+					Layout.preferredWidth: parent.width - balanceLabel.width - 5
+					width: parent.width - balanceLabel.width - 5
 					edit: true
 					readOnly: false
 					displayUnitSelection: true

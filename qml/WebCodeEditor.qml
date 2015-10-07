@@ -158,7 +158,7 @@ Item {
 
 		function compilationComplete()
 		{
-			if (editorBrowser)
+			if (editorBrowser && currentText !== "")
 			{
 				editorBrowser.runJavaScript("compilationComplete()", function(result) { });
 				parent.displayGasEstimation(gasEstimationAction.checked);

@@ -36,7 +36,8 @@ Item
 		visible: false
 
 		contentItem: Rectangle {
-			anchors.fill: parent
+			implicitHeight: newProjectWin.height
+			implicitWidth: newProjectWin.width
 			GridLayout
 			{
 				id: dialogContent

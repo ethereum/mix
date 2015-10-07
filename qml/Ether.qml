@@ -67,11 +67,21 @@ RowLayout {
 
 	Rectangle
 	{
+		anchors.left: parent.left
 		Layout.preferredWidth:
 		{
-			return inputWidth ? inputWidth : 350
+			if (inputWidth)
+				return inputWidth
+			else
+			{
+				var w = parent.width
+				if (displayUnitSelection)
+					w = w - units.width - 5
+				if (displayFormattedValue)
+					w = w - formattedValue.width - 5
+				return w
+			}
 		}
-
 		visible: edit
 		DefaultTextField
 		{
@@ -111,7 +121,7 @@ RowLayout {
 		}
 	}
 
-	ComboBox
+	DefaultCombobox
 	{
 		Layout.preferredWidth: 100
 		id: units

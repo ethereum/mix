@@ -48,7 +48,8 @@ Dialog {
 
 	contentItem: Rectangle {
 		color: appStyle.generic.layout.backgroundColor
-		anchors.fill: parent
+		implicitHeight: modalDeploymentDialog.height
+		implicitWidth: modalDeploymentDialog.width
 		ColumnLayout
 		{
 			spacing: 5

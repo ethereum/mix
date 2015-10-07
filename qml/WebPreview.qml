@@ -89,7 +89,7 @@ Item {
 		target: mainApplication
 		onLoaded: {
 			//We need to load the container using file scheme so that web security would allow loading local files in iframe
-			var containerPage = fileIo.readFile("qrc:///qml/html/WebContainer.html");
+			var containerPage = fileIo.readFile("qrc:///qml/html/WebContainer.html")
 			webView.loadHtml(containerPage, httpServer.url + "/WebContainer.html")
 		}
 	}	
