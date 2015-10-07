@@ -198,7 +198,8 @@ Item {
 			projectData.defaultStateIndex = stateListModel.defaultStateIndex;
 			stateListModel.data = projectData
 		}
-		onNewProject: {
+		onNewProject:
+		{
 			var state = toPlainStateItem(stateListModel.createDefaultState());
 			state.title = qsTr("Default");
 			projectData.states = [ state ];
@@ -393,6 +394,12 @@ Item {
 		{
 			stateListModel.append(item);
 			stateList.push(item);
+		}
+
+		function reset()
+		{
+			stateListModel.clear()
+			stateList = []
 		}
 
 		function editState(index) {

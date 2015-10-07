@@ -20,8 +20,8 @@
  * Ethereum IDE client.
  */
 
-var htmlTemplate = "<html>\n<head>\n<script>\n</script>\n</head>\n<body>\n<script>\n</script>\n</body>\n</html>";
-var contractTemplate = "contract FirstContract {\n}\n";
+var htmlTemplate = "<!doctype>\n<html>\n<head>\n<script type='text/javascript'>	window.onload = function()\n{\nweb3.eth.defaultAccount = web3.eth.accounts[0]\n}\nfunction getRating() {\nvar param = document.getElementById('query').value;\nvar res = contracts['Rating'].contract.ratings(param);\ndocument.getElementById('queryres').innerText = res;\n}\nfunction setRating() {\nvar key = document.getElementById('key').value;\nvar value = parseInt(document.getElementById('value').value);\nvar res = contracts['Rating'].contract.setRating(key, value);\n}\n</script>\n</head>\n<body bgcolor='#E6E6FA'>\n<h1>Sample Ratings</h1>\n<div>\nStore:\n<input type='string' id='key'>\n<input type='number' id='value'>\n<button onclick='setRating()'>Save</button>\n</div>\n<div>\nQuery:\n<input type='string' id='query' onkeyup='getRating()'>\n<div id='queryres'></div>\n</div>\n</body>\n</html>\n"
+var contractTemplate = "//Sample contract \ncontract Rating {\nfunction setRating(bytes32 _key, uint256 _value) {\nratings[_key] = _value;\n}\nmapping (bytes32 => uint256) public ratings;\n}\n"
 
 function saveCurrentDocument()
 {
@@ -158,7 +158,6 @@ function loadProject(path) {
 		if (mainApplication.trackLastProject)
 			projectSettings.lastProjectPath = path;
 		projectLoading(projectData);
-		projectLoaded()
 
 		//TODO: move this to codemodel
 		var contractSources = {};
@@ -168,6 +167,8 @@ function loadProject(path) {
 				contractSources[doc.documentId] = fileIo.readFile(doc.path);
 		}
 		codeModel.reset(contractSources);
+
+		projectLoaded()
 	});
 }
 
@@ -362,7 +363,7 @@ function newJsFile() {
 
 function newContract() {
 	var ctrName = "contract" + projectListModel.count
-	var ctr = contractTemplate.replace("Contract", ctrName)
+	var ctr = contractTemplate.replace("FirstContract", ctrName)
 	createAndAddFile("contract", "sol", ctr, ctrName + ".sol");
 }
 

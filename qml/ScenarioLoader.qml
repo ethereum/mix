@@ -364,6 +364,14 @@ ColumnLayout
 				height: parent.height
 				sourceImg: "qrc:/qml/img/newIcon@2x.png"
 				onClicked: {
+					addScenario.createScenario()
+				}
+				text: qsTr("New")
+				roundRight: false
+				roundLeft: false
+
+				function createScenario()
+				{
 					var item = projectModel.stateListModel.createDefaultState();
 					item.title = qsTr("New Scenario")
 					projectModel.stateListModel.appendState(item)
@@ -371,9 +379,6 @@ ColumnLayout
 					scenarioList.currentIndex = projectModel.stateListModel.count - 1
 					scenarioNameEdit.toggleEdit()
 				}
-				text: qsTr("New")
-				roundRight: false
-				roundLeft: false
 			}
 
 			Rectangle
