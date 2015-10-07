@@ -305,12 +305,38 @@ void CodeModel::runCompilationJob(int _jobId)
 				sourceNames.push_back(c.first.toStdString());
 			}
 		}
-		cs.compile(m_optimizeCode);
-		gasEstimation(cs);
-		collectContracts(cs, sourceNames);
+		if (!cs.compile(m_optimizeCode))
+		{
+			for (auto const& exception: cs.errors())
+			{
+				// This code is duplicated below for a transition period until we switch away from
+				// exceptions for error reporting.
+				std::stringstream error;
+				solidity::SourceReferenceFormatter::printExceptionInformation(error, *exception, "Error", cs);
+				QString message = QString::fromStdString(error.str());
+				QVariantMap firstLocation;
+				QVariantList secondLocations;
+				if (SourceLocation const* first = boost::get_error_info<solidity::errinfo_sourceLocation>(*exception))
+					firstLocation = resolveCompilationErrorLocation(cs, *first);
+				if (SecondarySourceLocation const* second = boost::get_error_info<solidity::errinfo_secondarySourceLocation>(*exception))
+				{
+					for (auto const& c: second->infos)
+						secondLocations.push_back(resolveCompilationErrorLocation(cs, c.second));
+				}
+				compilationError(message, firstLocation, secondLocations);
+				break; // @TODO provide a way to display multiple errors.
+			}
+		}
+		else
+		{
+			gasEstimation(cs);
+			collectContracts(cs, sourceNames);
+		}
 	}
 	catch (dev::Exception const& _exception)
 	{
+		// This code is duplicated above for a transition period until we switch away from
+		// exceptions for error reporting.
 		std::stringstream error;
 		solidity::SourceReferenceFormatter::printExceptionInformation(error, _exception, "Error", cs);
 		QString message = QString::fromStdString(error.str());
@@ -540,7 +566,7 @@ void CodeModel::retrieveSubType(SolidityType& _wrapperType, dev::solidity::Type 
 
 SolidityType CodeModel::nodeType(dev::solidity::Type const* _type)
 {
-	SolidityType r { SolidityType::Type::UnsignedInteger, 32, 1, false, false, QString::fromStdString(_type->toString(true)), std::vector<SolidityDeclaration>(), std::vector<QString>(), nullptr, DataLocation::CallData };
+	SolidityType r { SolidityType::Type::UnsignedInteger, 32, 1, false, false, QString::fromStdString(_type->canonicalName(true)), std::vector<SolidityDeclaration>(), std::vector<QString>(), nullptr, DataLocation::CallData };
 	auto ref = static_cast<ReferenceType const*>(_type);
 	if (ref)
 		r.dataLocation = ref->location();
