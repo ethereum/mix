@@ -154,7 +154,7 @@ Rectangle
 			{
 				id: accountsList
 				textRole: "id"
-				Layout.preferredWidth: 500
+				Layout.fillWidth: true
 				model: accountsModel
 				onCurrentTextChanged:
 				{
@@ -166,7 +166,8 @@ Rectangle
 			DefaultLabel
 			{
 				id: accountBalance
-				width: 70
+				Layout.preferredWidth: 70
+				visible: text !== ""
 			}
 		}
 
@@ -186,13 +187,20 @@ Rectangle
 				}
 			}
 
-			GasPrice
+			Rectangle
 			{
-				Layout.preferredWidth: 360
-				id: gasPriceConf
-				onGasPriceChanged: ctrDeployCtrLabel.setCost()
-				defaultGasPrice: true
-				defaultUnit: QEther.Finney
+				color: "transparent"
+				Layout.fillWidth: true
+				height: 60
+				GasPrice
+				{
+					width: 360
+					anchors.left: parent.left
+					id: gasPriceConf
+					onGasPriceChanged: ctrDeployCtrLabel.setCost()
+					defaultGasPrice: true
+					defaultUnit: QEther.Finney
+				}
 			}
 
 			Connections
