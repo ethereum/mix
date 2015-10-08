@@ -158,16 +158,6 @@ function loadProject(path) {
 		if (mainApplication.trackLastProject)
 			projectSettings.lastProjectPath = path;
 		projectLoading(projectData);
-
-		//TODO: move this to codemodel
-		var contractSources = {};
-		for (var d = 0; d < listModel.count; d++) {
-			var doc = listModel.get(d);
-			if (doc.isContract)
-				contractSources[doc.documentId] = fileIo.readFile(doc.path);
-		}
-		codeModel.reset(contractSources);
-
 		projectLoaded()
 	});
 }

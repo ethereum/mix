@@ -72,6 +72,11 @@ ColumnLayout
 		rowBtn.width = 6 * w
 	}
 
+	function createScenario(defaultScenario)
+	{
+		addScenario.createScenario(defaultScenario)
+	}
+
 	RowLayout
 	{
 		anchors.horizontalCenter: parent.horizontalCenter
@@ -364,20 +369,46 @@ ColumnLayout
 				height: parent.height
 				sourceImg: "qrc:/qml/img/newIcon@2x.png"
 				onClicked: {
-					addScenario.createScenario()
+					addScenario.createScenario(false)
 				}
 				text: qsTr("New")
 				roundRight: false
 				roundLeft: false
 
-				function createScenario()
+				function createScenario(defaultScenario)
 				{
 					var item = projectModel.stateListModel.createDefaultState();
-					item.title = qsTr("New Scenario")
+					if (defaultScenario)
+					{
+						//we add get and set transaction function call (of Rating contract)
+						var tx = projectModel.stateListModel.defaultTransactionItem()
+						tx.functionId = "setRating";
+						tx.contractId = "<Rating - 0>";
+						tx.parameters = { _key: "imthekey",_value: "12" }
+						tx.label = tx.contractId + "." + tx.functionId + "()"
+						tx.sender = item.accounts[0].secret;
+						tx.isContractCreation = false
+						item.transactions.push(tx);
+						item.blocks[0].transactions.push(tx)
+						var tx2 = projectModel.stateListModel.defaultTransactionItem()
+						tx2.functionId = "ratings";
+						tx2.contractId = "<Rating - 0>";
+						tx2.label = tx2.contractId + "." + tx2.functionId + "()"
+						tx2.sender = item.accounts[0].secret;
+						tx2.parameters = { "": "imthekey" }
+						tx2.isContractCreation = false
+						item.transactions.push(tx2);
+						item.blocks[0].transactions.push(tx2)
+					}
+
+					item.title = defaultScenario ? qsTr("Default") : qsTr("New Scenario")
 					projectModel.stateListModel.appendState(item)
 					projectModel.stateListModel.save()
-					scenarioList.currentIndex = projectModel.stateListModel.count - 1
-					scenarioNameEdit.toggleEdit()
+					scenarioList.currentIndex = defaultScenario ? 0 : projectModel.stateListModel.count - 1
+					if (defaultScenario)
+						scenarioList.load()
+					else
+						scenarioNameEdit.toggleEdit()
 				}
 			}
 

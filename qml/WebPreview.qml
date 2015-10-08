@@ -260,6 +260,16 @@ Item {
 
 				Connections
 				{
+					target: projectModel
+					onProjectClosed:
+					{
+						clientConnection.firstLoad = true
+					}
+				}
+
+				Connections
+				{
+					id: clientConnection
 					target: clientModel
 					property bool firstLoad: true
 					onSetupFinished:

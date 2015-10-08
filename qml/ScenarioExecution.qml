@@ -13,6 +13,7 @@ Rectangle {
 	id: root
 	color: "#ededed"
 	property alias bc: blockChain
+	property alias bcLoader: loader
 
 	function clear()
 	{
@@ -107,7 +108,8 @@ Rectangle {
 					{
 						currentSelectedBlock = blockIndex
 						currentSelectedTx = txIndex
-						updateWatchers(blockIndex, txIndex, callIndex)
+						if (blockChain.built)
+							updateWatchers(blockIndex, txIndex, callIndex)
 					}
 
 					function updateWatchers(blockIndex, txIndex, callIndex)

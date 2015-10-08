@@ -30,6 +30,7 @@ ColumnLayout {
 	signal txExecuted(var _blockIndex, var _txIndex, var _callIndex)
 	property bool firstLoad: true
 	property bool buildUseOptimizedCode: false
+	property bool built: false
 
 	Keys.onUpPressed:
 	{
@@ -298,10 +299,20 @@ ColumnLayout {
 
 			Connections
 			{
+				target: projectModel
+				onProjectClosed: {
+					firstLoad = true
+					built = false
+				}
+			}
+
+			Connections
+			{
 				target: clientModel
 				onSetupFinished:
 				{
 					firstLoad = false
+					built = true
 					if (model.blocks[model.blocks.length - 1].transactions.length > 0)
 						clientModel.mine()
 				}

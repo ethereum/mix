@@ -181,6 +181,8 @@ Item {
 	}
 
 	Connections {
+		id: projectConnection
+		property bool creating: false
 		target: projectModel
 		onProjectClosed: {
 			stateListModel.clear();
@@ -200,11 +202,23 @@ Item {
 		}
 		onNewProject:
 		{
-			var state = toPlainStateItem(stateListModel.createDefaultState());
-			state.title = qsTr("Default");
-			projectData.states = [ state ];
+			projectData.states = [];
 			projectData.defaultStateIndex = 0;
 			stateListModel.loadStatesFromProject(projectData);
+			creating = true
+		}
+	}
+
+	Connections
+	{
+		target: codeModel
+		onNewContractCompiled:
+		{
+			if (projectConnection.creating)
+			{
+				projectConnection.creating = false
+				mainContent.rightPane.bcLoader.createScenario(true)
+			}
 		}
 	}
 

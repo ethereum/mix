@@ -116,6 +116,7 @@ Item {
 						}
 
 						Connections {
+							id: projectConnection
 							target: codeModel
 							property var contractsLocation: ({})
 							onNewContractCompiled:
@@ -127,8 +128,8 @@ Item {
 
 								for (var k in contractsLocation)
 								{
-									if (contractsLocation[k]["startlocation"] === newLocation["startlocation"]
-											&& contractsLocation[k]["source"] === newLocation["source"])
+									if (contractsLocation[k]["startlocation"] === newLocation["startlocation"] &&
+										contractsLocation[k]["source"] === newLocation["source"])
 									{
 										//location is the same, name may have changed
 										if (k !== _documentId)
@@ -150,6 +151,7 @@ Item {
 										return;
 									}
 								}
+
 								// new contract
 								var doc = projectModel.getDocument(ctr.documentId)
 								var item = {};
@@ -220,6 +222,7 @@ Item {
 							}
 
 							onProjectClosed: {
+								projectConnection.contractsLocation = {}
 								sectionModel.clear();
 							}
 

@@ -191,7 +191,7 @@ ApplicationWindow {
 
 	Action {
 		id: setEnvFontSize
-		text: qsTr("Set to the Env Fontsize")
+		text: qsTr("Set to OS Font Size")
 		shortcut: ""
 		onTriggered:
 		{
