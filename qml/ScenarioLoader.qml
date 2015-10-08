@@ -128,6 +128,7 @@ ColumnLayout
 			{
 				id: scenarioList
 				anchors.left: parent.left
+				anchors.leftMargin: 3
 				model: projectModel.stateListModel
 				anchors.top: parent.top
 				textRole: "title"

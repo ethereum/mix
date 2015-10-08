@@ -268,7 +268,7 @@ RowLayout
 
 			function updateView()
 			{
-				height = 3 * labelFrom.height + 15
+				height = 3 * labelFrom.height + 25
 				height += editTx.height
 				var spacing = labelFrom.height
 				if (tx && tx.parameters)
@@ -489,6 +489,7 @@ RowLayout
 
 				Row
 				{
+					height: 35
 					spacing: 5
 					CopyButton
 					{

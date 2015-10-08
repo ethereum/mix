@@ -128,6 +128,8 @@ Rectangle {
 			id: searchBox
 			visible: false
 			height: 30
+			width: parent.width
+			spacing: 0
 			Image {
 				anchors.top: parent.top
 				anchors.topMargin: 8
@@ -140,7 +142,7 @@ Rectangle {
 			{
 				anchors.top: parent.top
 				anchors.topMargin: 5
-				Layout.preferredWidth: 350
+				Layout.fillWidth: true
 				onTextChanged: {
 					for (var k = 0; k < stoRepeater.count; k++)
 					{

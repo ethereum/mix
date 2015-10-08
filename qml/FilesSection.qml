@@ -214,7 +214,48 @@ Rectangle
 								}
 								onIsCleanChanged: {
 									if (groupName === sectionName && doc === documentId)
-										editStatusLabel.visible = !isClean;
+									{
+										if (sectionName === "Contracts")
+											codeConnection.hex = codeModel.contracts[name].codeHex
+										if (sectionName !== "Contracts" || isClean)
+											editStatusLabel.visible = !isClean;
+									}
+								}
+							}
+
+							Connections
+							{
+								id: codeConnection
+								target: codeModel
+								property string hex
+								onCompilationComplete:
+								{
+									if (sectionName !== "Contracts")
+										return
+									editErrorStatusLabel.visible = false
+									editStatusLabel.visible = true
+									//we have to check in the document if the modified contract is this one.
+									var IsClean = hex === codeModel.contracts[name].codeHex
+									console.log(hex + " " + name + " " + codeModel.contracts[name].codeHex)
+									console.log(IsClean)
+									editStatusLabel.visible = !IsClean
+								}
+
+								onCompilationError:
+								{
+									if (sectionName !== "Contracts")
+										return
+									if (_error.indexOf(documentId) !== -1)
+									{
+										editErrorStatusLabel.visible = true
+										editErrorStatusLabel.wasClean = !editStatusLabel.visible
+										editStatusLabel.visible = false
+									}
+								}
+
+								Component.onCompleted:
+								{
+									hex = codeModel.contracts[name].codeHex
 								}
 							}
 						}
@@ -223,10 +264,26 @@ Rectangle
 							id: editStatusLabel
 							visible: false
 							color: rootItem.isSelected ? projectFilesStyle.documentsList.selectedColor : projectFilesStyle.documentsList.color
-							verticalAlignment:  Text.AlignVCenter
+							verticalAlignment: Text.AlignVCenter
 							text: "*"
 							width: 10
 							height: parent.height
+						}
+
+						DefaultLabel {
+							property bool wasClean: true
+							id: editErrorStatusLabel
+							visible: false
+							color: "red"
+							verticalAlignment: Text.AlignVCenter
+							text: "*"
+							width: 10
+							height: parent.height
+							onVisibleChanged:
+							{
+								if (!visible)
+									editStatusLabel.visible = !wasClean
+							}
 						}
 					}
 
@@ -292,7 +349,7 @@ Rectangle
 										if (sectionModel.get(k).name === name)
 										{
 											documentSelected(name, groupName);
-											mainContent.codeEditor.setCursor(sectionModel.get(k).startlocation, sectionModel.get(k).documentId)
+											mainContent.codeEditor.setCursor(sectionModel.get(k).startlocation.startlocation, sectionModel.get(k).documentId)
 											return
 										}
 									}

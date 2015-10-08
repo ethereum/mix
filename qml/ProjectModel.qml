@@ -40,6 +40,7 @@ Item {
 	property string projectPath: ""
 	property string projectTitle: ""
 	property string currentDocumentId: ""
+	property int currentContractIndex: 0
 	property var deploymentAddresses: ({})
 	property string deploymentDir
 	property var listModel: projectListModel

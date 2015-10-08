@@ -60,12 +60,37 @@ Rectangle {
 			{				
 				id: scenarioColumn
 				width: parent.width
+
+				DefaultLabel {
+					text: qsTr("Manage Scenario")
+					anchors.top: parent.top
+					anchors.topMargin: 5
+					anchors.horizontalCenter: parent.horizontalCenter
+					Image {
+						source: loader.visible ? "qrc:/qml/img/opentriangleindicator_filesproject.png" : "qrc:/qml/img/closedtriangleindicator_filesproject.png"
+						width: 15
+						sourceSize.width: 12
+						id: imgArrow
+						anchors.right: parent.left
+						anchors.rightMargin: 2
+						anchors.top: parent.top
+					}
+
+					MouseArea {
+						anchors.fill: parent
+						onClicked: {
+							loader.visible = !loader.visible
+						}
+						cursorShape: Qt.PointingHandCursor
+					}
+				}
             
 				ScenarioLoader
 				{
 					Layout.preferredHeight: 40
 					Layout.preferredWidth: parent.width
 					width: parent.width
+					visible: false
 					id: loader
 				}
 

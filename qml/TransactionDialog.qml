@@ -308,10 +308,12 @@ Dialog {
 
 				RowLayout
 				{
-					Layout.preferredHeight: 80
+					Layout.preferredHeight: 55
 					Rectangle
 					{
+						color: "transparent"
 						Layout.preferredWidth: 100
+						Layout.fillHeight: true
 						DefaultLabel {
 							anchors.right: parent.right
 							anchors.verticalCenter: parent.verticalCenter
@@ -319,7 +321,7 @@ Dialog {
 						}
 					}
 					DefaultCombobox {
-
+						anchors.top: parent.top
 						function select(secret)
 						{
 							for (var i in model)
@@ -374,12 +376,10 @@ Dialog {
 					Rectangle
 					{
 						Layout.preferredWidth: 100
-						Layout.preferredHeight: 80
 						color: "transparent"
 						DefaultLabel
 						{
 							anchors.verticalCenter: parent.verticalCenter
-							anchors.top: parent.top
 							anchors.right: parent.right
 							text: qsTr("Type of Transaction")
 						}
@@ -421,7 +421,7 @@ Dialog {
 							objectName: "trTypeSend"
 							exclusiveGroup: rbbuttonList
 							height: 30
-							text: qsTr("Send ether to account")
+							text: qsTr("Send Ether to Account")
 
 						}
 
@@ -458,6 +458,7 @@ Dialog {
 
 					QAddressView
 					{
+						Layout.preferredHeight: 55
 						Layout.preferredWidth: 350
 						width: 350
 						id: recipientsAccount
@@ -610,6 +611,7 @@ Dialog {
 						DefaultLabel {
 							text: qsTr("Transaction fees")
 							anchors.horizontalCenter: parent.horizontalCenter
+							font.bold: true
 						}
 					}
 
@@ -631,6 +633,7 @@ Dialog {
 					Row
 					{
 						Layout.preferredWidth: 350
+						spacing: 5
 						DefaultTextField
 						{
 							property variant gasValue
@@ -692,18 +695,22 @@ Dialog {
 
 						CheckBox
 						{
+							anchors.verticalCenter: parent.verticalCenter
 							id: gasAutoCheck
 							checked: true
-							text: qsTr("Auto");
+							style: CheckBoxStyle {
+								label: DefaultLabel
+								{
+									text: qsTr("Auto");
+								}
+							}
 						}
 					}
 				}
 
 				RowLayout
 				{
-					Layout.preferredWidth: 500
 					Layout.preferredHeight: 45
-					spacing: 0
 					Rectangle
 					{
 						Layout.preferredWidth: 100
@@ -731,7 +738,7 @@ Dialog {
 					}
 
 					Ether {
-						Layout.preferredWidth: 340
+						Layout.preferredWidth: 350
 						width: 350
 						id: gasPriceField
 						edit: true

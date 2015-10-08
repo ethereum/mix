@@ -119,72 +119,74 @@ Item {
 							id: projectConnection
 							target: codeModel
 							property var contractsLocation: ({})
-							onNewContractCompiled:
+							onCompilationComplete:
 							{
 								if (modelData !== "Contracts")
 									return
-								var newLocation = codeModel.locationOf(_documentId)
-								var ctr = codeModel.contracts[_documentId]
 
-								for (var k in contractsLocation)
+								for (var name in codeModel.contracts)
 								{
-									if (contractsLocation[k]["startlocation"] === newLocation["startlocation"] &&
-										contractsLocation[k]["source"] === newLocation["source"])
-									{
-										//location is the same, name may have changed
-										if (k !== _documentId)
-										{
-											delete contractsLocation[k]
-											contractsLocation[_documentId] = newLocation
+									var newLocation = codeModel.locationOf(name)
+									var found = false
 
-											for (var j = 0; j < sectionModel.count; j++)
-											{
-												var doc = sectionModel.get(j)
-												if (doc.startlocation === newLocation["startlocation"])
-												{
-													doc.name = _documentId
-													sectionModel.set(j, doc)
-													break
-												}
-											}
+									for (var k = 0; k < sectionModel.count; k++)
+									{
+										var ctr = sectionModel.get(k)
+										if (ctr.startlocation["source"] === newLocation["source"]
+												&& ctr.startlocation["startlocation"] === newLocation["startlocation"]
+												&& name !== ctr.name)
+										{
+											found = true
+											ctr.name = name
+											sectionModel.set(k, ctr)
+											// we have a contract at a known location. contract name is changed
+											break
 										}
-										return;
+										else if ((ctr.startlocation["source"] !== newLocation["source"]
+													|| ctr.startlocation["startlocation"] !== newLocation["startlocation"])
+													&& name === ctr.name)
+										{
+											found = true
+											ctr.startLocation = newLocation
+											// we have a known contract at a different location
+											break;
+										}
+										else if (ctr.startlocation["source"] === newLocation["source"]
+												  && ctr.startlocation["startlocation"] === newLocation["startlocation"]
+												  && name === ctr.name)
+											found = true
+									}
+
+									if (!found)
+									{
+										var ctr = codeModel.contracts[name]
+										var doc = projectModel.getDocument(ctr.documentId)
+										var item = {};
+										item.startlocation = newLocation
+										item.name = name // change the filename by the contract name
+										item.fileName = doc.fileName
+										item.contract = true
+										item.documentId = doc.documentId
+										item.groupName = doc.groupName
+										item.isContract = doc.isContract
+										item.isHtml = doc.isHtml
+										item.isText = doc.isText
+										item.path = doc.path
+										item.syntaxMode = doc.syntaxMode
+										sectionModel.append(item);
+									}
+
+									for (var k = 0; k < sectionModel.count; k++)
+									{
+										var c = sectionModel.get(k)
+										if (!codeModel.contracts[c.name])
+											sectionModel.remove(k)
 									}
 								}
-
-								// new contract
-								var doc = projectModel.getDocument(ctr.documentId)
-								var item = {};
-								item.startlocation = newLocation["startlocation"]
-								item.name = _documentId
-								item.fileName = doc.fileName
-								item.contract = true
-								item.documentId = doc.documentId
-								item.groupName = doc.groupName
-								item.isContract = doc.isContract
-								item.isHtml = doc.isHtml
-								item.isText = doc.isText
-								item.path = doc.path
-								item.syntaxMode = doc.syntaxMode
-								sectionModel.append(item);
-								contractsLocation[item.name] = newLocation
 							}
 
 							onContractRenamed: {
-							}
-
-							onCompilationComplete: {
-
-								if (modelData === "Contracts")
-								{
-									//clean deleted contract
-									for (var j = 0; j < sectionModel.count; j++)
-									{
-										if (!codeModel.contracts[sectionModel.get(j).name])
-											sectionModel.remove(j)
-									}
-								}
-							}
+							}							
 						}
 
 						Connections {
@@ -242,14 +244,15 @@ Item {
 								var newDoc = projectModel.getDocument(documentId);
 								if (newDoc.groupName === modelData)
 								{
-									sectionModel.append(newDoc);
+									if (modelData !== "Contracts")
+										sectionModel.append(newDoc);
+
 									projectModel.openDocument(newDoc.documentId);
 									sectionRepeater.selected(newDoc.documentId, modelData);
 								}
 							}
 						}
 					}
-
 				}
 			}
 		}

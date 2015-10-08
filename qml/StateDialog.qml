@@ -14,7 +14,7 @@ Dialog {
 	id: modalStateDialog
 	modality: Qt.ApplicationModal
 
-	width: 530
+	width: 630
 	height: 660
 	title: qsTr("Edit Starting Parameters")
 	visible: false
@@ -145,8 +145,10 @@ Dialog {
 
 							DefaultButton {
 								id: importStateButton
-								anchors.top: genesisContractsView.top
-								anchors.right: genesisContractsView.left
+								anchors.bottom: genesisContractsView.bottom
+								anchors.right: genesisContractsView.right
+								anchors.rightMargin: 1
+								anchors.bottomMargin: 1
 								tooltip: qsTr("Import genesis state from JSON file")
 								text: qsTr("Import...")
 								onClicked: {
@@ -168,15 +170,14 @@ Dialog {
 										width: parent.width
 										anchors.verticalCenter: parent.verticalCenter
 										DefaultImgButton {
-											iconSource: "qrc:/qml/img/delete_sign.png"
 											action: deleteContractAction
 											anchors.verticalCenter: parent.verticalCenter
-										}
-
-										Action {
-											id: deleteContractAction
+											Image {
+												anchors.fill: parent
+												source: "qrc:/qml/img/delete-block-icon@2x.png"
+											}
 											tooltip: qsTr("Delete Contract")
-											onTriggered: {
+											onClicked: {
 												stateContracts.splice(styleData.row, 1)
 												contractsModel.remove(styleData.row)
 											}
@@ -252,8 +253,10 @@ Dialog {
 									newAddressWin.accounts = stateAccounts
 									newAddressWin.open()
 								}
-								anchors.top: accountsView.top
-								anchors.right: accountsView.left
+								anchors.bottom: accountsView.bottom
+								anchors.right: accountsView.right
+								anchors.rightMargin: 15
+								anchors.bottomMargin: 1
 							}
 
 							CopyButton
@@ -262,8 +265,9 @@ Dialog {
 								getContent: function() {
 									return JSON.stringify(stateAccounts, null, "\t");
 								}
-								anchors.top: addAccount.bottom
-								anchors.right: addAccount.right
+								anchors.top: addAccount.top
+								anchors.right: addAccount.left
+								anchors.bottomMargin: 1
 							}
 
 							id: accountsView
@@ -285,11 +289,6 @@ Dialog {
 											anchors.topMargin: 10
 											anchors.left: parent.left
 											anchors.leftMargin: 10
-											Action {
-												id: deleteAccountAction
-												tooltip: qsTr("Delete Account")
-												onTriggered: deleteAccountMsg.open()
-											}
 
 											MessageDialog
 											{
@@ -424,10 +423,15 @@ Dialog {
 
 												DefaultImgButton {
 													iconSource: "qrc:/qml/img/delete-block-icon@2x.png"
-													action: deleteAccountAction
 													anchors.verticalCenter: parent.verticalCenter
 													anchors.left: parent.right
 													anchors.leftMargin: 10
+													tooltip: qsTr("Delete Account")
+													onClicked: deleteAccountMsg.open()
+													Image {
+														anchors.fill: parent
+														source: "qrc:/qml/img/delete-block-icon@2x.png"
+													}
 												}
 											}
 										}
