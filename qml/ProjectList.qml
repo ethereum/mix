@@ -139,7 +139,7 @@ Item {
 											found = true
 											ctr.name = name
 											sectionModel.set(k, ctr)
-											// we have a contract at a known location. contract name is changed
+											// we have a contract at a known location. contract name has changed
 											break
 										}
 										else if ((ctr.startlocation["source"] !== newLocation["source"]
@@ -154,7 +154,10 @@ Item {
 										else if (ctr.startlocation["source"] === newLocation["source"]
 												  && ctr.startlocation["startlocation"] === newLocation["startlocation"]
 												  && name === ctr.name)
+										{
 											found = true
+											break;
+										}
 									}
 
 									if (!found)
@@ -175,13 +178,13 @@ Item {
 										item.syntaxMode = doc.syntaxMode
 										sectionModel.append(item);
 									}
+								}
 
-									for (var k = 0; k < sectionModel.count; k++)
-									{
-										var c = sectionModel.get(k)
-										if (!codeModel.contracts[c.name])
-											sectionModel.remove(k)
-									}
+								for (var k = 0; k < sectionModel.count; k++)
+								{
+									var c = sectionModel.get(k)
+									if (!codeModel.contracts[c.name])
+										sectionModel.remove(k)
 								}
 							}
 

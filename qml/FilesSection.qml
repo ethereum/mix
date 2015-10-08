@@ -215,8 +215,8 @@ Rectangle
 								onIsCleanChanged: {
 									if (groupName === sectionName && doc === documentId)
 									{
-										if (sectionName === "Contracts")
-											codeConnection.hex = codeModel.contracts[name].codeHex
+										if (sectionName === "Contracts" && isClean)
+											codeConnection.hex = codeModel.contracts[name].codeHex + name
 										if (sectionName !== "Contracts" || isClean)
 											editStatusLabel.visible = !isClean;
 									}
@@ -235,9 +235,7 @@ Rectangle
 									editErrorStatusLabel.visible = false
 									editStatusLabel.visible = true
 									//we have to check in the document if the modified contract is this one.
-									var IsClean = hex === codeModel.contracts[name].codeHex
-									console.log(hex + " " + name + " " + codeModel.contracts[name].codeHex)
-									console.log(IsClean)
+									var IsClean = hex === (codeModel.contracts[name].codeHex + name)
 									editStatusLabel.visible = !IsClean
 								}
 
@@ -255,7 +253,7 @@ Rectangle
 
 								Component.onCompleted:
 								{
-									hex = codeModel.contracts[name].codeHex
+									hex = codeModel.contracts[name].codeHex + name
 								}
 							}
 						}
