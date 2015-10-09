@@ -253,7 +253,8 @@ Rectangle
 
 								Component.onCompleted:
 								{
-									hex = codeModel.contracts[name].codeHex + name
+									if (codeModel.contracts[name])
+										hex = codeModel.contracts[name].codeHex + name
 								}
 							}
 						}
@@ -329,6 +330,17 @@ Rectangle
 						}
 					}
 
+					Connections {
+						id: projectModelConnection
+						target: projectModel
+
+						onContractSelected:
+						{
+							if (sectionName === "Contracts" && _contractIndex === index)
+								mouseArea.select()
+						}
+					}
+
 					MouseArea {
 						id: mouseArea
 						z: 1
@@ -337,24 +349,31 @@ Rectangle
 						acceptedButtons: Qt.LeftButton | Qt.RightButton
 						onClicked:{
 							if (mouse.button === Qt.LeftButton)
+								select(mouse)
+						}
+
+						function select()
+						{
+							rootItem.isSelected = true;
+							projectModel.openDocument(documentId);
+							if (sectionName === "Contracts")
 							{
-								rootItem.isSelected = true;
-								projectModel.openDocument(documentId);
-								if (sectionName === "Contracts")
+								projectModel.currentContractIndex = index
+								for (var k = 0; k < sectionModel.count; k++)
 								{
-									for (var k = 0; k < sectionModel.count; k++)
+									if (sectionModel.get(k).name === name)
 									{
-										if (sectionModel.get(k).name === name)
-										{
-											documentSelected(name, groupName);
-											mainContent.codeEditor.setCursor(sectionModel.get(k).startlocation.startlocation, sectionModel.get(k).documentId)
-											return
-										}
+										documentSelected(name, groupName);
+										mainContent.codeEditor.setCursor(sectionModel.get(k).startlocation.startlocation, sectionModel.get(k).documentId)
+										mainContent.codeEditor.basicHighlight(sectionModel.get(k).documentId,
+																			  sectionModel.get(k).startlocation.startlocation,
+																			  sectionModel.get(k).startlocation.endlocation)
+										return
 									}
 								}
-								else
-									documentSelected(documentId, groupName);
 							}
+							else
+								documentSelected(documentId, groupName);
 						}
 					}
 

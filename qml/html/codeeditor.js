@@ -143,6 +143,14 @@ highlightExecution = function(start, end, gasUsed) {
 	}
 }
 
+var basicHighlightMark;
+basicHighlight = function (start, end)
+{
+	if (basicHighlightMark)
+		basicHighlightMark.clear()
+	basicHighlightMark = editor.markText(editor.posFromIndex(start), editor.posFromIndex(end), { className: "CodeMirror-basicHighlight", clearOnEnter: true });
+}
+
 var changeId;
 changeGeneration = function()
 {

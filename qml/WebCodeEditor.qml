@@ -53,6 +53,12 @@ Item {
 			editorBrowser.runJavaScript("highlightExecution(" + location.start + "," + location.end + ", " + gasUsed +")");
 	}
 
+	function basicHighlight(start, end)
+	{
+		if (initialized && editorBrowser)
+			editorBrowser.runJavaScript("basicHighlight(" + start + "," + end + ")");
+	}
+
 	function setCursor(ch)
 	{
 		if (initialized && editorBrowser)

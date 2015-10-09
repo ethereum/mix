@@ -128,7 +128,6 @@ Item {
 								{
 									var newLocation = codeModel.locationOf(name)
 									var found = false
-
 									for (var k = 0; k < sectionModel.count; k++)
 									{
 										var ctr = sectionModel.get(k)
@@ -179,7 +178,7 @@ Item {
 										sectionModel.append(item);
 									}
 								}
-
+								var toRename = {}
 								for (var k = 0; k < sectionModel.count; k++)
 								{
 									var c = sectionModel.get(k)

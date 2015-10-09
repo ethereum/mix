@@ -661,6 +661,7 @@ QVariantMap CodeModel::locationOf(QString _contract)
 			if (ctr == _contract)
 			{
 				ret["startlocation"] = map.find(loc).key().first;
+				ret["endlocation"] = map.find(loc).key().second;
 				ret["source"] = s;
 				break;
 			}

@@ -114,6 +114,13 @@ Item {
 		}
 	}
 
+	function basicHighlight(documentId, start, end)
+	{
+		var editor = getEditor(documentId);
+		if (editor)
+			editor.basicHighlight(start, end);
+	}
+
 	// Execution is not in the current document. Try:
 	// Open targeted document and hightlight (TODO) or
 	// Warn user that file is not available

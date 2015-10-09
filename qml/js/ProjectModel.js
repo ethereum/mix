@@ -159,6 +159,13 @@ function loadProject(path) {
 		if (mainApplication.trackLastProject)
 			projectSettings.lastProjectPath = path;
 		projectLoading(projectData);
+		//TODO: move this to codemodel
+		var contractSources = {};
+		for (var d = 0; d < listModel.count; d++) {
+			var doc = listModel.get(d);
+			if (doc.isContract)
+				projectModel.openDocument(doc.documentId)
+		}
 		projectLoaded()
 	});
 }
@@ -211,6 +218,12 @@ function getDocumentByPath(_path)
 	return null;
 }
 
+function selectContractByIndex(contractIndex)
+{
+	currentContractIndex = contractIndex	
+	contractSelected(contractIndex)
+}
+
 function openDocument(documentId) {
 	if (documentId !== currentDocumentId) {
 		documentOpened(projectListModel.get(getDocumentIndex(documentId)));
@@ -218,8 +231,30 @@ function openDocument(documentId) {
 	}
 }
 
+function openNextContract()
+{
+	if (Object.keys(codeModel.contracts).length - 1 > currentContractIndex)
+	{
+		currentContractIndex++
+		selectContractByIndex(currentContractIndex)
+		return true
+	}
+	else
+	{
+		currentContractIndex = -1
+		return false
+	}
+}
+
 function openNextDocument() {
-	var docIndex = getDocumentIndex(currentDocumentId);
+	var docIndex = getDocumentIndex(currentDocumentId)
+	var doc = getDocument(currentDocumentId)
+	if (doc.isContract)
+	{
+		if (openNextContract())
+			return;
+	}
+
 	var nextDocId = "";
 	while (nextDocId === "") {
 		docIndex++;
@@ -228,13 +263,45 @@ function openNextDocument() {
 		var document = projectListModel.get(docIndex);
 		if (document.isText)
 			nextDocId = document.documentId;
-
+		if (document.isContract && doc.isContract)
+			nextDocId = ""
 	}
+
 	openDocument(nextDocId);
+	doc = getDocument(nextDocId)
+	if (doc.isContract)
+	{
+		currentContractIndex = 0
+		selectContractByIndex(currentContractIndex)
+	}
+}
+
+function openPrevContract()
+{
+	if (currentContractIndex === -1)
+		currentContractIndex = Object.keys(codeModel.contracts).length
+	if (currentContractIndex > 0)
+	{
+		currentContractIndex--
+		selectContractByIndex(currentContractIndex)
+		return true
+	}
+	else
+	{
+		currentContractIndex = -1
+		return false
+	}
 }
 
 function openPrevDocument() {
 	var docIndex = getDocumentIndex(currentDocumentId);
+	var doc = getDocument(currentDocumentId)
+	if (doc.isContract)
+	{
+		if (openPrevContract())
+			return
+	}
+	// selecting the next document
 	var prevDocId = "";
 	while (prevDocId === "") {
 		docIndex--;
@@ -243,8 +310,17 @@ function openPrevDocument() {
 		var document = projectListModel.get(docIndex);
 		if (document.isText)
 			prevDocId = document.documentId;
-	}
+		if (document.isContract && doc.isContract)
+			prevDocId = ""
+	}	
 	openDocument(prevDocId);
+	doc = getDocument(prevDocId)
+	if (doc.isContract)
+	{
+		currentContractIndex = Object.keys(codeModel.contracts).length - 1
+		console.log("prev " + currentContractIndex)
+		selectContractByIndex(currentContractIndex)
+	}
 }
 
 function doCloseProject() {
@@ -358,7 +434,6 @@ function newContract() {
 	var ctr = basicContractTemplate.replace("FirstContract", ctrName)
 	createAndAddFile("contract", "sol", ctr, ctrName + ".sol");
 }
-
 
 function createAndAddFile(name, extension, content, fileName) {
 	if (!fileName)

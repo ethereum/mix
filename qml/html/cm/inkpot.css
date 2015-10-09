@@ -47,6 +47,11 @@ span.CodeMirror-selectedtext { color: #ffffff !important; }
 	background: #754d19
 }
 
+/* Basic Highlight */
+.CodeMirror-basicHighlight {
+	background: #6B1E00
+}
+
 
 /* Error annotation */
 .CodeMirror-errorannotation {
