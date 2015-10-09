@@ -300,8 +300,13 @@ Dialog {
 				Layout.preferredWidth: rowWidth
 				anchors.top: parent.top
 				anchors.left: parent.left
+				anchors.topMargin: 10
 				width: 500
-				anchors.margins: 10
+				anchors.leftMargin:
+				{
+					return (containerRect.width - 500) /2
+				}
+
 
 				RowLayout
 				{
