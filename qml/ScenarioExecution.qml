@@ -74,6 +74,13 @@ Rectangle {
 						anchors.right: parent.left
 						anchors.rightMargin: 2
 						anchors.top: parent.top
+						MouseArea {
+							anchors.fill: parent
+							onClicked: {
+								loader.visible = !loader.visible
+							}
+							cursorShape: Qt.PointingHandCursor
+						}
 					}
 
 					MouseArea {
@@ -84,7 +91,7 @@ Rectangle {
 						cursorShape: Qt.PointingHandCursor
 					}
 				}
-            
+
 				ScenarioLoader
 				{
 					Layout.preferredHeight: 40

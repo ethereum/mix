@@ -15,7 +15,7 @@ Dialog {
 	id: modalTransactionDialog
 	modality: Qt.ApplicationModal
 	width: 520
-	height: 470
+	height: 440
 	visible: false
 	title:  editMode ? qsTr("Edit Transaction") : qsTr("Add Transaction")
 	property bool editMode
@@ -222,7 +222,7 @@ Dialog {
 		item.sender = senderComboBox.model[senderComboBox.currentIndex].secret;
 		item.parameters = paramValues;
 		return item;
-	}	
+	}
 
 	function load(isContractCreation, isFunctionCall, functionId, contractId)
 	{
@@ -294,17 +294,14 @@ Dialog {
 		ScrollView
 		{
 			anchors.top: parent.top
-			anchors.fill: parent
+			width: parent.width
+			height: parent.height - separator.height - validationRow.height
 			ColumnLayout {
 				Layout.preferredWidth: rowWidth
 				anchors.top: parent.top
-				anchors.topMargin: 10
 				anchors.left: parent.left
 				width: 500
-				anchors.leftMargin:
-				{
-					return (containerRect.width - 500) /2
-				}
+				anchors.margins: 10
 
 				RowLayout
 				{
@@ -327,7 +324,7 @@ Dialog {
 							for (var i in model)
 								if (model[i].secret === secret)
 								{
-									currentIndex = i;									
+									currentIndex = i;
 									break;
 								}
 						}
@@ -701,98 +698,104 @@ Dialog {
 							style: CheckBoxStyle {
 								label: DefaultLabel
 								{
-									text: qsTr("Auto");
-								}
+								text: qsTr("Auto");
 							}
 						}
 					}
 				}
+			}
 
-				RowLayout
+			RowLayout
+			{
+				Layout.preferredHeight: 45
+				Rectangle
 				{
-					Layout.preferredHeight: 45
-					Rectangle
-					{
-						Layout.preferredWidth: 100
+					Layout.preferredWidth: 100
+					DefaultLabel {
+						id: gasPriceLabel
+						anchors.verticalCenter: parent.verticalCenter
+						anchors.right: parent.right
+						text: qsTr("Gas Price")
+
 						DefaultLabel {
-							id: gasPriceLabel
-							anchors.verticalCenter: parent.verticalCenter
-							anchors.right: parent.right
-							text: qsTr("Gas Price")
-
-							DefaultLabel {
-								id: gasPriceMarket
-								anchors.top: gasPriceLabel.bottom
-								anchors.topMargin: 5
-								anchors.left: parent.left
-								anchors.leftMargin: 50
-								Component.onCompleted:
+							id: gasPriceMarket
+							anchors.top: gasPriceLabel.bottom
+							anchors.topMargin: 5
+							anchors.left: parent.left
+							anchors.leftMargin: 50
+							Component.onCompleted:
+							{
+								NetworkDeployment.gasPrice(function(result)
 								{
-									NetworkDeployment.gasPrice(function(result)
-									{
-										gasPriceMarket.text = qsTr("Current market: ") + " " + QEtherHelper.createEther(result, QEther.Wei).format()
-									}, function (){});
-								}
+									gasPriceMarket.text = qsTr("Current market: ") + " " + QEtherHelper.createEther(result, QEther.Wei).format()
+								}, function (){});
 							}
 						}
 					}
-
-					Ether {
-						Layout.preferredWidth: 350
-						width: 350
-						id: gasPriceField
-						edit: true
-						displayFormattedValue: true
-						displayUnitSelection: true
-					}
 				}
 
-
-				Row
-				{
-					layoutDirection: Qt.RightToLeft
-					Layout.preferredWidth: modalTransactionDialog.width
-					anchors.right: parent.right
-					anchors.rightMargin: 45
-					spacing: 10
-					DefaultButton {
-						id: updateBtn
-						text: qsTr("Cancel");
-						onClicked: close();
-					}
-
-					DefaultButton {
-						text: editMode ? qsTr("Update") : qsTr("Ok")
-						onClicked: {
-							var invalid = InputValidator.validate(paramsModel, paramValues);
-							if (invalid.length === 0)
-							{
-								close();
-								accepted();
-							}
-							else
-							{
-								errorDialog.text = qsTr("Some parameters are invalid:\n");
-								for (var k in invalid)
-									errorDialog.text += invalid[k].message + "\n";
-								errorDialog.open();
-							}
-						}
-					}
-
-					MessageDialog {
-						id: errorDialog
-						standardButtons: StandardButton.Ok
-						icon: StandardIcon.Critical
-					}
-				}
-
-				RowLayout
-				{
-					Layout.preferredHeight: 30
-					anchors.bottom: parent.bottom
+				Ether {
+					Layout.preferredWidth: 350
+					width: 350
+					id: gasPriceField
+					edit: true
+					displayFormattedValue: true
+					displayUnitSelection: true
 				}
 			}
 		}
 	}
+
+	CommonSeparator
+	{
+		id: separator
+		height: 1
+		width: parent.width
+		anchors.bottom: validationRow.top
+	}
+
+	Row
+	{
+		id: validationRow
+		anchors.bottom: parent.bottom
+		layoutDirection: Qt.RightToLeft
+		width: parent.width
+		anchors.right: parent.right
+		anchors.rightMargin: 10
+		spacing: 10
+		height: 40
+		DefaultButton {
+			anchors.verticalCenter: parent.verticalCenter
+			id: updateBtn
+			text: qsTr("Cancel");
+			onClicked: close();
+		}
+
+		DefaultButton {
+			anchors.verticalCenter: parent.verticalCenter
+			text: editMode ? qsTr("Update") : qsTr("Ok")
+			onClicked: {
+				var invalid = InputValidator.validate(paramsModel, paramValues);
+				if (invalid.length === 0)
+				{
+					close();
+					accepted();
+				}
+				else
+				{
+					errorDialog.text = qsTr("Some parameters are invalid:\n");
+					for (var k in invalid)
+						errorDialog.text += invalid[k].message + "\n";
+					errorDialog.open();
+				}
+			}
+		}
+
+		MessageDialog {
+			id: errorDialog
+			standardButtons: StandardButton.Ok
+			icon: StandardIcon.Critical
+		}
+	}
+}
 }

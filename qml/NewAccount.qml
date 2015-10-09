@@ -15,7 +15,7 @@ Dialog {
 	title: qsTr("New Account");
 
 	width: 400
-	height: 180
+	height: 150
 
 	property var accounts
 	property string secret
@@ -110,15 +110,7 @@ Dialog {
 			RowLayout
 			{
 				anchors.bottom: parent.bottom
-				anchors.right: parent.right;
-
-				DefaultButton {
-					text: qsTr("Cancel");
-					onClicked:
-					{
-						newAddressWin.close()
-					}
-				}
+				anchors.right: parent.right
 
 				DefaultButton {
 					id: okButton;
@@ -139,6 +131,14 @@ Dialog {
 						newAddressWin.close()
 						addressText.originalText = ""
 						nickNameInput.text = ""
+					}
+				}
+
+				DefaultButton {
+					text: qsTr("Cancel");
+					onClicked:
+					{
+						newAddressWin.close()
 					}
 				}
 			}
