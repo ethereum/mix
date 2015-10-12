@@ -24,14 +24,20 @@ var htmlTemplate = "<!doctype>\n<html>\n<head>\n<script type='text/javascript'>	
 var contractTemplate = "//Sample contract \ncontract Rating {\nfunction setRating(bytes32 _key, uint256 _value) {\nratings[_key] = _value;\n}\nmapping (bytes32 => uint256) public ratings;\n}\n"
 var basicContractTemplate = "contract FirstContract {}"
 
-function saveCurrentDocument()
+
+function saveDocument(documentId)
 {
-	var doc = projectListModel.get(getDocumentIndex(currentDocumentId));
+	var doc = projectListModel.get(getDocumentIndex(documentId));
 	documentSaving(doc);
 	if (doc.isContract)
 		contractSaved(currentDocumentId);
 	else
 		documentSaved(currentDocumentId);
+}
+
+function saveCurrentDocument()
+{	
+	saveDocument(currentDocumentId)
 }
 
 function saveAll() {

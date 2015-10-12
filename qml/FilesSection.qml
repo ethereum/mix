@@ -218,7 +218,11 @@ Rectangle
 										if (sectionName === "Contracts" && isClean && codeModel.contracts[name])
 											codeConnection.hex = codeModel.contracts[name].codeHex + name
 										if (sectionName !== "Contracts" || isClean)
-											editStatusLabel.visible = !isClean;
+										{
+											editStatusLabel.visible = !isClean
+											editErrorStatusLabel.visible = !isClean
+										}
+
 									}
 								}
 							}
@@ -238,8 +242,10 @@ Rectangle
 									//we have to check in the document if the modified contract is this one.
 									if (codeModel.contracts[name])
 									{
-										var IsClean = hex === (codeModel.contracts[name].codeHex + name)
-										editStatusLabel.visible = !IsClean
+										var isClean = hex === (codeModel.contracts[name].codeHex + name)
+										editStatusLabel.visible = !isClean
+										if (isClean)
+											projectModel.saveDocument(codeModel.contracts[name].documentId)
 									}
 								}
 

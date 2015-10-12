@@ -64,6 +64,7 @@ Item {
 	//interface
 	function saveAll() { ProjectModelCode.saveAll(); }
 	function saveCurrentDocument() { ProjectModelCode.saveCurrentDocument(); }
+	function saveDocument(documentId) { ProjectModelCode.saveDocument(documentId); }
 	function createProject() { ProjectModelCode.createProject(); }
 	function closeProject(callBack) { ProjectModelCode.closeProject(callBack); }
 	function saveProject() { ProjectModelCode.saveProject(); }
