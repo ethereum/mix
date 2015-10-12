@@ -255,7 +255,7 @@ RowLayout
 			}
 		}
 
-		Rectangle
+		ColumnLayout
 		{
 			id: txDetail
 			anchors.top: rowTransactionItem.bottom
@@ -264,7 +264,33 @@ RowLayout
 			width: blockWidth
 			height: 0
 			visible: false
-			color: txColor
+
+			Rectangle
+			{
+				anchors.fill: parent
+				color: txColor
+			}
+
+			Connections
+			{
+				target: mainApplication.mainSettings
+				property int pointSize
+				property int defaultPointSize: 11
+				Component.onCompleted:
+				{
+					if (mainApplication.mainSettings.systemPointSize !== defaultPointSize)
+					{
+						txDetail.height = txDetail.height + (mainApplication.mainSettings.systemPointSize - defaultPointSize) * 4
+						pointSize = mainApplication.mainSettings.systemPointSize
+					}
+				}
+
+				onSystemPointSizeChanged:
+				{
+					txDetail.height = txDetail.height + (mainApplication.mainSettings.systemPointSize - pointSize) * 4
+					pointSize = mainApplication.mainSettings.systemPointSize
+				}
+			}
 
 			function updateView()
 			{
@@ -489,7 +515,6 @@ RowLayout
 
 				Row
 				{
-					height: 35
 					spacing: 5
 					width: parent.width
 					layoutDirection: Qt.RightToLeft

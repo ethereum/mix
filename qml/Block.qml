@@ -152,7 +152,6 @@ ColumnLayout
 				anchors.rightMargin: 10
 				visible: number === -2
 				height: 18
-				width: 150
 				enabled: scenarioIndex !== -1
 				onClicked:
 				{

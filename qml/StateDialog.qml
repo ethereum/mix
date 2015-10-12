@@ -15,7 +15,7 @@ Dialog {
 	modality: Qt.ApplicationModal
 
 	width: 630
-	height: 500
+	height: 480
 	title: qsTr("Edit Starting Parameters")
 	visible: false
 
@@ -110,7 +110,7 @@ Dialog {
 			id: dialogContent
 			anchors.top: parent.top
 			width: parent.width
-			height: parent.height - validationRow.height - separator.height
+			height: parent.height - validationRow.height
 
 			ColumnLayout {
 				Layout.fillWidth: true
@@ -225,10 +225,6 @@ Dialog {
 						height: 30
 					}
 				}
-			}
-
-			CommonSeparator {
-				Layout.fillWidth: true
 			}
 
 			ColumnLayout {
@@ -471,11 +467,7 @@ Dialog {
 				}
 			}
 
-			CommonSeparator {
-				Layout.fillWidth: true
-			}
-
-			RowLayout {
+			ColumnLayout {
 				DefaultLabel {
 					Layout.preferredWidth: 50
 					text: qsTr("Miner")
@@ -487,19 +479,6 @@ Dialog {
 					Layout.fillWidth: true
 				}
 			}
-
-			Rectangle {
-				Layout.preferredWidth: parent.width
-				Layout.preferredHeight: 1
-			}
-		}
-
-		CommonSeparator
-		{
-			height: 1
-			id: separator
-			width: parent.width
-			anchors.bottom: validationRow.top
 		}
 
 		Row {

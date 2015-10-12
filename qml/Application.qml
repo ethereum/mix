@@ -29,6 +29,7 @@ ApplicationWindow {
 	property alias clientModel: clientModel;
 	property alias projectModel: projectModel;
 	property alias appService: appService;
+	property alias mainSettings: appSettings
 	property bool trackLastProject: true;
 
 	ApplicationService {
@@ -174,7 +175,8 @@ ApplicationWindow {
 		shortcut: "Ctrl+Shift+I"
 		onTriggered:
 		{
-			appSettings.systemPointSize = appSettings.systemPointSize + 1
+			if (appSettings.systemPointSize < 23)
+				appSettings.systemPointSize = appSettings.systemPointSize + 1
 		}
 	}
 
@@ -184,7 +186,7 @@ ApplicationWindow {
 		shortcut: "Ctrl+Shift+L"
 		onTriggered:
 		{
-			if (appSettings.systemPointSize > 2)
+			if (appSettings.systemPointSize > 9)
 				appSettings.systemPointSize = appSettings.systemPointSize - 1
 		}
 	}

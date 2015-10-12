@@ -155,6 +155,28 @@ Rectangle {
 			text: buttonActionContainer.text
 			anchors.centerIn: parent
 			id: btnLabel
+
+			Connections
+			{
+				target: mainApplication.mainSettings
+				property int pointSize
+				property int defaultPointSize: 11
+				Component.onCompleted:
+				{
+					if (mainApplication.mainSettings.systemPointSize !== defaultPointSize)
+					{
+						buttonActionContainer.width = buttonActionContainer.width + (mainApplication.mainSettings.systemPointSize - defaultPointSize) * 2
+						pointSize = mainApplication.mainSettings.systemPointSize
+					}
+				}
+
+				onSystemPointSizeChanged:
+				{
+					buttonActionContainer.width = buttonActionContainer.width + (mainApplication.mainSettings.systemPointSize - pointSize) * 2
+					pointSize = mainApplication.mainSettings.systemPointSize
+				}
+			}
 		}
 	}
 }
+

@@ -280,6 +280,7 @@ ColumnLayout {
 		color: "transparent"
 		id: btnsContainer
 		anchors.top: parent.top
+
 		Row
 		{
 			width: parent.width
@@ -295,6 +296,27 @@ ColumnLayout {
 				addTransaction.parent.width = addBlockBtn.width * 2
 				newAccount.width = w > 30 ? w : 30
 				newAccount.parent.width = w > 30 ? w : 30
+			}
+
+			Connections
+			{
+				target: mainApplication.mainSettings
+				property int pointSize
+				property int defaultPointSize: 11
+				Component.onCompleted:
+				{
+					if (mainApplication.mainSettings.systemPointSize !== defaultPointSize)
+					{
+						btnsContainer.Layout.preferredWidth = btnsContainer.Layout.preferredWidth + (mainApplication.mainSettings.systemPointSize - defaultPointSize) * 20
+						pointSize = mainApplication.mainSettings.systemPointSize
+					}
+				}
+
+				onSystemPointSizeChanged:
+				{
+					btnsContainer.Layout.preferredWidth = btnsContainer.Layout.preferredWidth + (mainApplication.mainSettings.systemPointSize - pointSize) * 20
+					pointSize = mainApplication.mainSettings.systemPointSize
+				}
 			}
 
 			Connections
