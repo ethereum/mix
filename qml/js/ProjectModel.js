@@ -318,7 +318,6 @@ function openPrevDocument() {
 	if (doc.isContract)
 	{
 		currentContractIndex = Object.keys(codeModel.contracts).length - 1
-		console.log("prev " + currentContractIndex)
 		selectContractByIndex(currentContractIndex)
 	}
 }

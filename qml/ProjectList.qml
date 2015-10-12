@@ -52,7 +52,8 @@ Item {
 				anchors.left: parent.left
 				anchors.leftMargin: projectFilesStyle.general.leftMargin
 				font.family: srcSansProLight.name
-				font.weight: Font.Light
+				font.bold: true
+				font.wordSpacing: 2
 			}
 
 			DefaultText
@@ -147,6 +148,7 @@ Item {
 										{
 											found = true
 											ctr.startLocation = newLocation
+											sectionModel.set(k, ctr)
 											// we have a known contract at a different location
 											break;
 										}
@@ -158,6 +160,9 @@ Item {
 											break;
 										}
 									}
+
+									//before, we delete duplicate (empty file) which lead to the same sol file.
+
 
 									if (!found)
 									{
@@ -175,15 +180,47 @@ Item {
 										item.isText = doc.isText
 										item.path = doc.path
 										item.syntaxMode = doc.syntaxMode
-										sectionModel.append(item);
+
+										//we have a new contract, check if this contract has been created in an empty doc which already exist.
+										var emptyFileNotFound = true
+										for (var k = 0; k < sectionModel.count; k++)
+										{
+											var doc = sectionModel.get(k)
+											if (doc.name === qsTr("(empty)") && doc.documentId === codeModel.contracts[name].documentId)
+											{
+												if (emptyFileNotFound)
+												{
+													sectionModel.set(k, item);
+													emptyFileNotFound = false
+													break;
+												}
+											}
+										}
+										if (emptyFileNotFound)
+											sectionModel.append(item);
 									}
 								}
-								var toRename = {}
+
+								var alreadyEmpty = {}
 								for (var k = 0; k < sectionModel.count; k++)
 								{
 									var c = sectionModel.get(k)
 									if (!codeModel.contracts[c.name])
-										sectionModel.remove(k)
+									{
+										if (projectModel.codeEditor.getDocumentText(c.documentId).trim() !== "")
+											sectionModel.remove(k)
+										else
+										{
+											if (alreadyEmpty[c.documentId])
+												sectionModel.remove(k)
+											else
+											{
+												alreadyEmpty[c.documentId] = 1
+												c.name = qsTr("(empty)")
+												sectionModel.set(k, c)
+											}
+										}
+									}
 								}
 							}
 

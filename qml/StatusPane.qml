@@ -20,7 +20,7 @@ Rectangle {
 		if (!message)
 		{
 			status.state = "";
-			status.text = qsTr("Compile successfully.");
+			status.text = qsTr("Compiled successfully.");
 			debugImg.state = "active";
 			currentStatus = { "type": "Comp", "date": Qt.formatDateTime(new Date(), "hh:mm:ss"), "content": status.text, "level": "info" }
 		}
@@ -96,7 +96,7 @@ Rectangle {
 		onRunStarted:
 		{
 			logPane.clear()
-			infoMessage(qsTr("Running transactions..."), "Run");
+			infoMessage(qsTr("Running transactions"), "Run");
 		}
 		onRunFailed: errorMessage(format(_message), "Run");
 		onRunComplete: infoMessage(qsTr("Run complete"), "Run");

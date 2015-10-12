@@ -411,7 +411,7 @@ Item {
 					DefaultTextField {
 						id: expressionInput
 						width: parent.width - 15
-						height: 20
+						height: 23
 						font.family: webPreviewStyle.general.fontName
 						font.italic: true
 						anchors.verticalCenter: parent.verticalCenter

@@ -307,7 +307,6 @@ Dialog {
 					return (containerRect.width - 500) /2
 				}
 
-
 				RowLayout
 				{
 					Layout.preferredHeight: 55

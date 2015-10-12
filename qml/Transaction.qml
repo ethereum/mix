@@ -491,6 +491,8 @@ RowLayout
 				{
 					height: 35
 					spacing: 5
+					width: parent.width
+					layoutDirection: Qt.RightToLeft
 					CopyButton
 					{
 						anchors.verticalCenter: parent.verticalCenter
