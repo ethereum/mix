@@ -137,6 +137,7 @@ function validateInt(_type, _value)
 			ret.message = "uint type cannot represent negative number";
 		}
 	}
+
 	ret.valid = nbRegEx.test(_value);
 	if (!ret.valid)
 		ret.message = _value + " does not represent " + _type + " type.";

@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.1
 import Qt.labs.settings 1.0
 import "js/Debugger.js" as Debugger
 import "js/ErrorLocationFormater.js" as ErrorLocationFormater
+import "js/ScientificNumber.js" as ScientificNumber
 import "."
 
 RowLayout
@@ -292,6 +293,11 @@ RowLayout
 				}
 			}
 
+			function ensureScientificNumber(value)
+			{
+				return ScientificNumber.shouldConvertToScientific ? ScientificNumber.toScientificNumber(value) + " (" + value + ")" : value
+			}
+
 			function updateView()
 			{
 				height = 3 * labelFrom.height + 25
@@ -304,7 +310,7 @@ RowLayout
 					for (var k in keys)
 					{
 						labelInput.visible = true
-						inputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": tx.parameters[keys[k]] })
+						inputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": ensureScientificNumber(tx.parameters[keys[k]]) })
 						txDetail.height += spacing
 					}
 				}
@@ -316,7 +322,7 @@ RowLayout
 					for (var k in keys)
 					{
 						labelOutput.visible = true
-						outputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": tx.returnParameters[keys[k]] })
+						outputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": ensureScientificNumber(tx.returnParameters[keys[k]]) })
 						txDetail.height += spacing
 					}
 				}

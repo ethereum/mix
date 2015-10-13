@@ -140,8 +140,7 @@ Rectangle {
 					{
 						currentSelectedBlock = blockIndex
 						currentSelectedTx = txIndex
-						if (blockChain.built)
-							updateWatchers(blockIndex, txIndex, callIndex)
+						updateWatchers(blockIndex, txIndex, callIndex)
 					}
 
 					function updateWatchers(blockIndex, txIndex, callIndex)

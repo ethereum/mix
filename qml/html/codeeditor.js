@@ -238,6 +238,11 @@ setFontSize = function(size)
 {
 	editor.getWrapperElement().style["font-size"] = size + "px";
 	editor.refresh();
+	if (showingGasEstimation)
+	{
+		displayGasEstimation(false)
+		displayGasEstimation(true)
+	}
 }
 
 makeGasCostMarker = function(value) {

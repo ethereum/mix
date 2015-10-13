@@ -168,7 +168,7 @@ Rectangle {
 					title = storages.get(index).key
 					ctrsStorage.model.clear()
 					for (var k in storages.get(index).value)
-						ctrsStorage.model.append({ "key": k, "value": JSON.stringify(storages.get(index).value[k]) })
+						ctrsStorage.add(k, JSON.stringify(storages.get(index).value[k]))
 				}
 				onMinimized:
 				{

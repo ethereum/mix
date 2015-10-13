@@ -127,11 +127,6 @@ ColumnLayout {
 		var minWidth = scenarioMinWidth - 20 // margin
 		fromWidth = width / 2
 		toWidth = width / 2
-		if (width < 350)
-			btnsContainer.Layout.preferredWidth = width - 30
-		else
-			btnsContainer.Layout.preferredWidth = 350
-
 		previousWidth = width
 	}
 
@@ -274,7 +269,7 @@ ColumnLayout {
 
 	Rectangle
 	{
-		Layout.preferredWidth: 350
+		Layout.preferredWidth: 310
 		Layout.preferredHeight: 40
 		anchors.horizontalCenter: parent.horizontalCenter
 		color: "transparent"
@@ -298,24 +293,45 @@ ColumnLayout {
 				newAccount.parent.width = w > 30 ? w : 30
 			}
 
+			Settings
+			{
+				id: btnsWidth
+				property int widthValue: 0
+			}
+
 			Connections
 			{
 				target: mainApplication.mainSettings
 				property int pointSize
 				property int defaultPointSize: 11
+
 				Component.onCompleted:
 				{
 					if (mainApplication.mainSettings.systemPointSize !== defaultPointSize)
 					{
-						btnsContainer.Layout.preferredWidth = btnsContainer.Layout.preferredWidth + (mainApplication.mainSettings.systemPointSize - defaultPointSize) * 20
+						if (btnsWidth.widthValue !== 0)
+							btnsContainer.Layout.preferredWidth = btnsWidth.widthValue
+						else
+							btnsContainer.Layout.preferredWidth = btnsContainer.Layout.preferredWidth + (mainApplication.mainSettings.systemPointSize - defaultPointSize) * 25
+
 						pointSize = mainApplication.mainSettings.systemPointSize
+						if (mainApplication.mainSettings.systemPointSize <= defaultPointSize)
+							btnsContainer.Layout.preferredWidth = 310
 					}
 				}
 
 				onSystemPointSizeChanged:
 				{
-					btnsContainer.Layout.preferredWidth = btnsContainer.Layout.preferredWidth + (mainApplication.mainSettings.systemPointSize - pointSize) * 20
+					btnsContainer.Layout.preferredWidth = btnsContainer.Layout.preferredWidth + (mainApplication.mainSettings.systemPointSize - pointSize) * 25
+					btnsWidth.widthValue = btnsContainer.Layout.preferredWidth
 					pointSize = mainApplication.mainSettings.systemPointSize
+					if (mainApplication.mainSettings.systemPointSize <= defaultPointSize)
+						btnsContainer.Layout.preferredWidth = 310
+					if (mainApplication.mainSettings.systemPointSize === defaultPointSize)
+					{
+						btnsWidth.widthValue = 0
+						pointSize = 0
+					}
 				}
 			}
 
@@ -324,7 +340,6 @@ ColumnLayout {
 				target: projectModel
 				onProjectClosed: {
 					firstLoad = true
-					built = false
 				}
 			}
 
@@ -334,7 +349,6 @@ ColumnLayout {
 				onSetupFinished:
 				{
 					firstLoad = false
-					built = true
 					if (model.blocks[model.blocks.length - 1].transactions.length > 0)
 						clientModel.mine()
 				}
