@@ -53,6 +53,7 @@ protected:
 private:
 	dev::eth::Interface* client() override { return m_client; }
 	std::shared_ptr<dev::shh::Interface> face() override;
+	dev::bzz::Interface* bzz() override;
 	dev::WebThreeNetworkFace* network() override;
 	dev::WebThreeStubDatabaseFace* db() override { return this; }
 

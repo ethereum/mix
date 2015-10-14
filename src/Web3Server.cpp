@@ -136,6 +136,11 @@ std::shared_ptr<dev::shh::Interface> Web3Server::face()
 	BOOST_THROW_EXCEPTION(InterfaceNotSupported("dev::shh::Interface"));
 }
 
+dev::bzz::Interface* Web3Server::bzz()
+{
+	BOOST_THROW_EXCEPTION(InterfaceNotSupported("dev::bzz::Interface"));
+}
+
 dev::WebThreeNetworkFace* Web3Server::network()
 {
 	return m_network.get();
