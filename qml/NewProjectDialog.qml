@@ -36,7 +36,8 @@ Item
 		visible: false
 
 		contentItem: Rectangle {
-			anchors.fill: parent
+			implicitHeight: newProjectWin.height
+			implicitWidth: newProjectWin.width
 			GridLayout
 			{
 				id: dialogContent
@@ -71,7 +72,7 @@ Item
 								acceptAndClose();
 						}
 					}
-					Button {
+					DefaultButton {
 						text: qsTr("Browse")
 						onClicked:
 						{
@@ -86,7 +87,7 @@ Item
 					anchors.bottom: parent.bottom
 					anchors.right: parent.right;
 
-					Button {
+					DefaultButton {
 						id: okButton;
 						enabled: titleField.text != "" && pathField.text != ""
 						text: qsTr("OK");
@@ -94,7 +95,7 @@ Item
 							acceptAndClose();
 						}
 					}
-					Button {
+					DefaultButton {
 						text: qsTr("Cancel");
 						onClicked: close();
 					}

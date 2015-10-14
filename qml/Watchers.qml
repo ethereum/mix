@@ -70,7 +70,7 @@ Rectangle {
 		ctrStorage.init()
 
 		storages.clear()
-		searchBox.visible = Object.keys(currentState.contractsStorage).length > 0
+		searchBox.visible = currentState.contractsStorage && Object.keys(currentState.contractsStorage).length > 0
 		for (var k in currentState.contractsStorage)
 			storages.append({ "key": k, "value": currentState.contractsStorage[k].values })
 		for (var k = 0; k < storages.count; k++)
@@ -128,6 +128,8 @@ Rectangle {
 			id: searchBox
 			visible: false
 			height: 30
+			width: parent.width
+			spacing: 0
 			Image {
 				anchors.top: parent.top
 				anchors.topMargin: 8
@@ -140,7 +142,7 @@ Rectangle {
 			{
 				anchors.top: parent.top
 				anchors.topMargin: 5
-				Layout.preferredWidth: 350
+				Layout.fillWidth: true
 				onTextChanged: {
 					for (var k = 0; k < stoRepeater.count; k++)
 					{
@@ -166,7 +168,7 @@ Rectangle {
 					title = storages.get(index).key
 					ctrsStorage.model.clear()
 					for (var k in storages.get(index).value)
-						ctrsStorage.model.append({ "key": k, "value": JSON.stringify(storages.get(index).value[k]) })
+						ctrsStorage.add(k, JSON.stringify(storages.get(index).value[k]))
 				}
 				onMinimized:
 				{

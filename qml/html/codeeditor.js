@@ -143,6 +143,21 @@ highlightExecution = function(start, end, gasUsed) {
 	}
 }
 
+var basicHighlightMark;
+basicHighlight = function (start, end)
+{
+	if (basicHighlightMark)
+		editor.removeLineClass(basicHighlightMark, "background","CodeMirror-basicHighlight")
+	var line = editor.posFromIndex(start)
+	basicHighlightMark = line.line
+	editor.addLineClass(line.line, "background","CodeMirror-basicHighlight")
+	setTimeout(function(){
+		if (basicHighlightMark)
+			editor.removeLineClass(basicHighlightMark, "background","CodeMirror-basicHighlight")
+		basicHighlightMark = undefined
+	}, 800)
+}
+
 var changeId;
 changeGeneration = function()
 {
@@ -213,10 +228,21 @@ goToCompilationError = function()
 		editor.setCursor(annotations[0].annotation.location.start.line, annotations[0].annotation.location.start.column)
 }
 
+setCursor = function(c)
+{
+	var line = editor.posFromIndex(c)
+	editor.setCursor(line);
+}
+
 setFontSize = function(size)
 {
 	editor.getWrapperElement().style["font-size"] = size + "px";
 	editor.refresh();
+	if (showingGasEstimation)
+	{
+		displayGasEstimation(false)
+		displayGasEstimation(true)
+	}
 }
 
 makeGasCostMarker = function(value) {

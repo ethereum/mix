@@ -150,7 +150,7 @@ Rectangle
 						anchors.verticalCenter: parent.verticalCenter
 						spacing: 3
 
-						Button
+						DefaultImgButton
 						{
 							iconSource: "qrc:/qml/img/edit_combox.png"
 							tooltip: qsTr("Rename")
@@ -164,9 +164,10 @@ Rectangle
 							anchors.verticalCenter: parent.verticalCenter
 						}
 
-						Button
+						DefaultImgButton
 						{
 							tooltip: qsTr("Delete")
+							visible: !isContract
 							width: 20
 							height: 20
 							onClicked:
@@ -174,17 +175,7 @@ Rectangle
 								deleteConfirmation.open();
 							}
 							anchors.verticalCenter: parent.verticalCenter
-
-							Image {
-								anchors {
-									left: parent.left
-									right: parent.right
-									top: parent.top
-									bottom: parent.bottom
-								}
-								source: "qrc:/qml/img/delete-block-icon@2x.png"
-								fillMode: Image.PreserveAspectFit
-							}
+							iconSource: "qrc:/qml/img/delete-block-icon@2x.png"
 						}
 					}
 
@@ -200,7 +191,7 @@ Rectangle
 							height: parent.height
 							visible: !renameMode
 							color: rootItem.isSelected ? projectFilesStyle.documentsList.selectedColor : projectFilesStyle.documentsList.color
-							text: name;
+							text: name
 							font.family: fileNameFont.name
 							verticalAlignment:  Text.AlignVCenter
 
@@ -215,12 +206,65 @@ Rectangle
 									else
 										rootItem.isSelected = false;
 
+									if (sectionName === "Contracts")
+										rootItem.isSelected = name === doc
+
 									if (rootItem.isSelected && section.state === "hidden")
 										section.state = "";
 								}
 								onIsCleanChanged: {
 									if (groupName === sectionName && doc === documentId)
-										editStatusLabel.visible = !isClean;
+									{
+										if (sectionName === "Contracts" && isClean && codeModel.contracts[name])
+											codeConnection.hex = codeModel.contracts[name].codeHex + name
+										if (sectionName !== "Contracts" || isClean)
+										{
+											editStatusLabel.visible = !isClean
+											editErrorStatusLabel.visible = !isClean
+										}
+
+									}
+								}
+							}
+
+							Connections
+							{
+								id: codeConnection
+								target: codeModel
+								property string hex
+								onCompilationComplete:
+								{
+									if (sectionName !== "Contracts")
+										return
+									editErrorStatusLabel.visible = false
+									editStatusLabel.visible = true
+									nameText.text = name
+									//we have to check in the document if the modified contract is this one.
+									if (codeModel.contracts[name])
+									{
+										var isClean = hex === (codeModel.contracts[name].codeHex + name)
+										editStatusLabel.visible = !isClean
+										if (isClean)
+											projectModel.saveDocument(codeModel.contracts[name].documentId)
+									}
+								}
+
+								onCompilationError:
+								{
+									if (sectionName !== "Contracts")
+										return
+									if (_error.indexOf(documentId) !== -1)
+									{
+										editErrorStatusLabel.visible = true
+										editErrorStatusLabel.wasClean = !editStatusLabel.visible
+										editStatusLabel.visible = false
+									}
+								}
+
+								Component.onCompleted:
+								{
+									if (codeModel.contracts[name])
+										hex = codeModel.contracts[name].codeHex + name
 								}
 							}
 						}
@@ -229,11 +273,27 @@ Rectangle
 							id: editStatusLabel
 							visible: false
 							color: rootItem.isSelected ? projectFilesStyle.documentsList.selectedColor : projectFilesStyle.documentsList.color
-							verticalAlignment:  Text.AlignVCenter
+							verticalAlignment: Text.AlignVCenter
 							text: "*"
 							width: 10
 							height: parent.height
-						}						
+						}
+
+						DefaultLabel {
+							property bool wasClean: true
+							id: editErrorStatusLabel
+							visible: false
+							color: "red"
+							verticalAlignment: Text.AlignVCenter
+							text: "*"
+							width: 10
+							height: parent.height
+							onVisibleChanged:
+							{
+								if (!visible)
+									editStatusLabel.visible = !wasClean
+							}
+						}
 					}
 
 					TextInput {
@@ -280,6 +340,17 @@ Rectangle
 						}
 					}
 
+					Connections {
+						id: projectModelConnection
+						target: projectModel
+
+						onContractSelected:
+						{
+							if (sectionName === "Contracts" && _contractIndex === index)
+								mouseArea.select()
+						}
+					}
+
 					MouseArea {
 						id: mouseArea
 						z: 1
@@ -288,11 +359,31 @@ Rectangle
 						acceptedButtons: Qt.LeftButton | Qt.RightButton
 						onClicked:{
 							if (mouse.button === Qt.LeftButton)
+								select(mouse)
+						}
+
+						function select()
+						{
+							rootItem.isSelected = true;
+							projectModel.openDocument(documentId);
+							if (sectionName === "Contracts")
 							{
-								rootItem.isSelected = true;
-								projectModel.openDocument(documentId);
-								documentSelected(documentId, groupName);
+								projectModel.currentContractIndex = index
+								for (var k = 0; k < sectionModel.count; k++)
+								{
+									if (sectionModel.get(k).name === name)
+									{
+										documentSelected(name, groupName);
+										mainContent.codeEditor.setCursor(sectionModel.get(k).startlocation.startlocation, sectionModel.get(k).documentId)
+										mainContent.codeEditor.basicHighlight(sectionModel.get(k).documentId,
+																			  sectionModel.get(k).startlocation.startlocation,
+																			  sectionModel.get(k).startlocation.endlocation)
+										return
+									}
+								}
 							}
+							else
+								documentSelected(documentId, groupName);
 						}
 					}
 

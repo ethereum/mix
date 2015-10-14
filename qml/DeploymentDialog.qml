@@ -48,7 +48,8 @@ Dialog {
 
 	contentItem: Rectangle {
 		color: appStyle.generic.layout.backgroundColor
-		anchors.fill: parent
+		implicitHeight: modalDeploymentDialog.height
+		implicitWidth: modalDeploymentDialog.width
 		ColumnLayout
 		{
 			spacing: 5
@@ -180,7 +181,7 @@ Dialog {
 				Layout.preferredHeight: 30
 				color: "transparent"
 
-				Button
+				DefaultButton
 				{
 					id: resetBtn
 					anchors.left: parent.left
@@ -206,7 +207,7 @@ Dialog {
 					standardButtons: StandardButton.Yes | StandardButton.No
 				}
 
-				Button
+				DefaultButton
 				{
 					text: qsTr("Cancel")
 					anchors.right: parent.right

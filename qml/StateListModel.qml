@@ -181,6 +181,8 @@ Item {
 	}
 
 	Connections {
+		id: projectConnection
+		property bool creating: false
 		target: projectModel
 		onProjectClosed: {
 			stateListModel.clear();
@@ -198,12 +200,25 @@ Item {
 			projectData.defaultStateIndex = stateListModel.defaultStateIndex;
 			stateListModel.data = projectData
 		}
-		onNewProject: {
-			var state = toPlainStateItem(stateListModel.createDefaultState());
-			state.title = qsTr("Default");
-			projectData.states = [ state ];
+		onNewProject:
+		{
+			projectData.states = [];
 			projectData.defaultStateIndex = 0;
 			stateListModel.loadStatesFromProject(projectData);
+			creating = true
+		}
+	}
+
+	Connections
+	{
+		target: codeModel
+		onNewContractCompiled:
+		{
+			if (projectConnection.creating)
+			{
+				projectConnection.creating = false
+				mainContent.rightPane.bcLoader.createScenario(true)
+			}
 		}
 	}
 
@@ -393,6 +408,12 @@ Item {
 		{
 			stateListModel.append(item);
 			stateList.push(item);
+		}
+
+		function reset()
+		{
+			stateListModel.clear()
+			stateList = []
 		}
 
 		function editState(index) {

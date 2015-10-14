@@ -172,6 +172,10 @@ view-port
   background: #734a13
 }
 
+/* Basic Highlight */
+.CodeMirror-basicHighlight {
+	background: #6B1E00
+}
 
 /* Error annotation */
 .CodeMirror-errorannotation {

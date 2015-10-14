@@ -53,6 +53,21 @@ Item {
 			editorBrowser.runJavaScript("highlightExecution(" + location.start + "," + location.end + ", " + gasUsed +")");
 	}
 
+	function basicHighlight(start, end)
+	{
+		if (initialized && editorBrowser)
+			editorBrowser.runJavaScript("basicHighlight(" + start + "," + end + ")");
+	}
+
+	function setCursor(ch)
+	{
+		if (initialized && editorBrowser)
+		{
+			setFocus()
+			editorBrowser.runJavaScript("setCursor('" + ch + "')");
+		}
+	}
+
 	function showWarning(content) {
 		if (initialized && editorBrowser)
 			editorBrowser.runJavaScript("showWarning('" + content + "')");
@@ -149,7 +164,7 @@ Item {
 
 		function compilationComplete()
 		{
-			if (editorBrowser)
+			if (editorBrowser && currentText !== "")
 			{
 				editorBrowser.runJavaScript("compilationComplete()", function(result) { });
 				parent.displayGasEstimation(gasEstimationAction.checked);

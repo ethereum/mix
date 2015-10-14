@@ -1,4 +1,4 @@
-import QtQuick 2.2
+	import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
 import QtQuick.Dialogs 1.1
@@ -29,6 +29,7 @@ ApplicationWindow {
 	property alias clientModel: clientModel;
 	property alias projectModel: projectModel;
 	property alias appService: appService;
+	property alias mainSettings: appSettings
 	property bool trackLastProject: true;
 
 	ApplicationService {
@@ -138,6 +139,10 @@ ApplicationWindow {
 			MenuItem { action: showHideRightPanelAction }
 			MenuItem { action: toggleWebPreviewAction }
 			MenuItem { action: toggleWebPreviewOrientationAction }
+			MenuSeparator {}
+			MenuItem { action: increaseAppFontSize }
+			MenuItem { action: decreaseAppFontSize }
+			MenuItem { action: setEnvFontSize }
 		}
 	}
 
@@ -162,6 +167,38 @@ ApplicationWindow {
 		property alias mainHeight: mainApplication.height
 		property alias mainX: mainApplication.x
 		property alias mainY: mainApplication.y
+	}
+
+	Action {
+		id: increaseAppFontSize
+		text: qsTr("Increase Application Fontsize")
+		shortcut: "Ctrl+Shift+I"
+		onTriggered:
+		{
+			if (appSettings.systemPointSize < 23)
+				appSettings.systemPointSize = appSettings.systemPointSize + 1
+		}
+	}
+
+	Action {
+		id: decreaseAppFontSize
+		text: qsTr("Decrease Application Fontsize")
+		shortcut: "Ctrl+Shift+L"
+		onTriggered:
+		{
+			if (appSettings.systemPointSize > 9)
+				appSettings.systemPointSize = appSettings.systemPointSize - 1
+		}
+	}
+
+	Action {
+		id: setEnvFontSize
+		text: qsTr("Set to OS Font Size")
+		shortcut: ""
+		onTriggered:
+		{
+			appSettings.systemPointSize = appService.systemPointSize
+		}
 	}
 
 	Action {
@@ -207,7 +244,7 @@ ApplicationWindow {
 
 	Action {
 		id: setAsDefaultAction
-		text: qsTr("Set current scenario as default")
+		text: qsTr("Set Current Scenario as Default")
 		shortcut: "Ctrl+Alt+D"
 		onTriggered:
 		{
@@ -430,7 +467,7 @@ ApplicationWindow {
 
 	Action {
 		id: goToCompilationError
-		text: qsTr("Go to compilation error")
+		text: qsTr("Go to Compilation Error")
 		shortcut: "F4"
 		onTriggered:
 		{
@@ -440,7 +477,7 @@ ApplicationWindow {
 
 	Action {
 		id: gasEstimationAction
-		text: qsTr("Display gas estimation")
+		text: qsTr("Display Gas Estimation")
 		shortcut: "Ctrl+G"
 		checkable: true
 		onTriggered: mainContent.codeEditor.displayGasEstimation(checked);
@@ -448,7 +485,7 @@ ApplicationWindow {
 
 	Action {
 		id: optimizeCodeAction
-		text: qsTr("Enable optimized compilation")
+		text: qsTr("Enable Optimized Compilation")
 		shortcut: "Ctrl+Shift+O"
 		checkable: true
 		onTriggered: codeModel.setOptimizeCode(checked)
@@ -461,5 +498,10 @@ ApplicationWindow {
 		property alias optimizeCode: optimizeCodeAction.checked
 		property string nodeAddress: "http://localhost:8545"
 		property alias displayCalls: displayCallsAction.checked
+		property int systemPointSize: 11
+		function getFormattedPointSize()
+		{
+			return systemPointSize  - 3
+		}
 	}
 }

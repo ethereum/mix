@@ -114,6 +114,13 @@ Item {
 		}
 	}
 
+	function basicHighlight(documentId, start, end)
+	{
+		var editor = getEditor(documentId);
+		if (editor)
+			editor.basicHighlight(start, end);
+	}
+
 	// Execution is not in the current document. Try:
 	// Open targeted document and hightlight (TODO) or
 	// Warn user that file is not available
@@ -122,6 +129,13 @@ Item {
 		var editor = getEditor(currentDocumentId);
 		if (editor)
 			editor.showWarning(qsTr("Currently debugging in " + sourceName + ". Source not available."));
+	}
+
+	function setCursor(c, docId)
+	{
+		var editor = getEditor(docId);
+		if (editor)
+			editor.setCursor(c)
 	}
 
 	function editingContract() {
@@ -257,11 +271,6 @@ Item {
 				}
 			}
 		}
-	}
-
-	CodeEditorStyle
-	{
-		id: style;
 	}
 
 	MessageDialog

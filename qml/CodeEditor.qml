@@ -25,10 +25,6 @@ Item {
 	width: parent.width
 	height: parent.height * 0.7
 
-	CodeEditorStyle {
-		id: style
-	}
-
 	Rectangle {
 		id: lineColumn
 		property int rowHeight: codeEditor.font.pixelSize + 3
@@ -55,7 +51,7 @@ Item {
 		}
 	}
 
-	TextArea {
+	DefaultTextArea {
 		id: codeEditor
 		textColor: "#EEE8D5"
 		style: TextAreaStyle {
@@ -71,7 +67,6 @@ Item {
 
 		height: parent.height
 		font.family: "Monospace"
-		font.pixelSize: 12
 		width: parent.width
 
 		tabChangesFocus: false

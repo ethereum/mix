@@ -274,6 +274,12 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 
 	m_ethAccounts->setAccounts(m_accountsSecret);
 
+	//m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, std::vector<KeyPair>());
+	m_web3Server.reset(new Web3Server(*m_rpcConnector.get(), m_ethAccounts, std::vector<KeyPair>(), m_client.get()));
+	connect(m_web3Server.get(), &Web3Server::newTransaction, this, [=]() {
+		onNewTransaction(RecordLogEntry::TxSource::Web3);
+	}, Qt::DirectConnection);
+
 	for (auto const& c: stateContracts)
 	{
 		QVariantMap contract = c.toMap();
@@ -591,7 +597,8 @@ QVariantMap ClientModel::contractStorage(std::unordered_map<u256, u256> _storage
 						storageDec = decIter->second;
 					else
 					{
-						storageDec = new QVariableDeclaration(this, codeDec.name.toStdString(), codeDec.type);
+						storageDec = new QVariableDeclaration(0, codeDec.name.toStdString(), codeDec.type);
+						QQmlEngine::setObjectOwnership(storageDec, QQmlEngine::JavaScriptOwnership);
 						storageDeclarations[storageDec->name()] = storageDec;
 					}
 					storageDeclarationList.push_back(QVariant::fromValue(storageDec));

@@ -1,6 +1,6 @@
 import QtQuick 2.0
 
 Text {
-	font.pixelSize: 11
+	font.pointSize: appSettings.getFormattedPointSize()
 }
 

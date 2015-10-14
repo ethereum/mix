@@ -94,15 +94,7 @@ Item {
 				}
 			}
 
-			Button
-			{
-				id: mineBtn
-				anchors.rightMargin: 9
-				anchors.verticalCenter: parent.verticalCenter
-				action: mineAction
-			}
-
-			ComboBox {
+			DefaultCombobox {
 				id: itemFilter
 
 				function getCurrentModel()

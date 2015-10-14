@@ -264,7 +264,7 @@ AbstractDialog {
                 anchors.rightMargin: spacing
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 4
-				ComboBox {
+				DefaultCombobox {
                     id: filterField
                     model: root.nameFilters
                     visible: !selectFolder
@@ -275,12 +275,12 @@ AbstractDialog {
                         view.model.nameFilters = root.selectedNameFilterExtensions
                     }
                 }
-                Button {
+				DefaultButton {
                     id: cancelButton
                     text: qsTr("Cancel")
                     onClicked: root.reject()
                 }
-                Button {
+				DefaultButton {
                     id: okButton
                     text: root.selectFolder ? qsTr("Choose") : (selectExisting ? qsTr("Open") : qsTr("Save"))
                     onClicked: {

@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.1
 import Qt.labs.settings 1.0
 import "js/Debugger.js" as Debugger
 import "js/ErrorLocationFormater.js" as ErrorLocationFormater
+import "js/ScientificNumber.js" as ScientificNumber
 import "."
 
 RowLayout
@@ -21,6 +22,15 @@ RowLayout
 	property alias detailVisible: txDetail.visible
 	property int detailRowHeight: 25
 	property string trDetailColor: "#adadad"
+
+	Keys.onDeletePressed:
+	{
+		if (!isCall && blockChain)
+		{
+			blockChain.deleteTransaction(blockIndex, txIndex)
+			blockChain.rebuildRequired()
+		}
+	}
 
 	function highlight()
 	{
@@ -55,7 +65,6 @@ RowLayout
 				txDetail.updateView()
 		}
 	}
-
 
 	Rectangle
 	{
@@ -146,7 +155,7 @@ RowLayout
 				txSelected(txIndex, callIndex)
 			else
 				txSelected(txIndex, -1)
-			blockChainPanel.forceActiveFocus()
+			rowTransaction.forceActiveFocus()
 		}
 
 		function deselect()
@@ -247,7 +256,7 @@ RowLayout
 			}
 		}
 
-		Rectangle
+		ColumnLayout
 		{
 			id: txDetail
 			anchors.top: rowTransactionItem.bottom
@@ -256,11 +265,42 @@ RowLayout
 			width: blockWidth
 			height: 0
 			visible: false
-			color: txColor
+
+			Rectangle
+			{
+				anchors.fill: parent
+				color: txColor
+			}
+
+			Connections
+			{
+				target: mainApplication.mainSettings
+				property int pointSize
+				property int defaultPointSize: 11
+				Component.onCompleted:
+				{
+					if (mainApplication.mainSettings.systemPointSize !== defaultPointSize)
+					{
+						txDetail.height = txDetail.height + (mainApplication.mainSettings.systemPointSize - defaultPointSize) * 4
+						pointSize = mainApplication.mainSettings.systemPointSize
+					}
+				}
+
+				onSystemPointSizeChanged:
+				{
+					txDetail.height = txDetail.height + (mainApplication.mainSettings.systemPointSize - pointSize) * 4
+					pointSize = mainApplication.mainSettings.systemPointSize
+				}
+			}
+
+			function ensureScientificNumber(value)
+			{
+				return ScientificNumber.shouldConvertToScientific ? ScientificNumber.toScientificNumber(value) + " (" + value + ")" : value
+			}
 
 			function updateView()
 			{
-				height = 3 * labelFrom.height + 15
+				height = 3 * labelFrom.height + 25
 				height += editTx.height
 				var spacing = labelFrom.height
 				if (tx && tx.parameters)
@@ -270,7 +310,7 @@ RowLayout
 					for (var k in keys)
 					{
 						labelInput.visible = true
-						inputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": tx.parameters[keys[k]] })
+						inputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": ensureScientificNumber(tx.parameters[keys[k]]) })
 						txDetail.height += spacing
 					}
 				}
@@ -282,7 +322,7 @@ RowLayout
 					for (var k in keys)
 					{
 						labelOutput.visible = true
-						outputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": tx.returnParameters[keys[k]] })
+						outputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": ensureScientificNumber(tx.returnParameters[keys[k]]) })
 						txDetail.height += spacing
 					}
 				}
@@ -482,6 +522,8 @@ RowLayout
 				Row
 				{
 					spacing: 5
+					width: parent.width
+					layoutDirection: Qt.RightToLeft
 					CopyButton
 					{
 						anchors.verticalCenter: parent.verticalCenter
@@ -491,7 +533,7 @@ RowLayout
 						height: 22
 						width: 25
 					}
-					Button
+					DefaultButton
 					{
 						id: editTx
 						anchors.verticalCenter: parent.verticalCenter
@@ -502,16 +544,10 @@ RowLayout
 								root.editTx(index)
 						}
 						height: 22
-						style: ButtonStyle {
-							label: DefaultText
-							{
-								text: qsTr("Edit transaction...")
-								font.pixelSize: 10
-							}
-						}
+						text: qsTr("Edit transaction...")
 					}
 
-					Button
+					DefaultButton
 					{
 						id: debugTx
 						anchors.verticalCenter: parent.verticalCenter
@@ -521,13 +557,7 @@ RowLayout
 								clientModel.debugRecord(tx.recordIndex, tx.label);
 						}
 						height: 22
-						style: ButtonStyle {
-							label: DefaultText
-							{
-								text: isCall ? qsTr("Debug call...") : qsTr("Debug transaction...")
-								font.pixelSize: 10
-							}
-						}
+						text: isCall ? qsTr("Debug call...") : qsTr("Debug transaction...")
 					}
 				}
 			}

@@ -30,6 +30,7 @@ ColumnLayout {
 	signal txExecuted(var _blockIndex, var _txIndex, var _callIndex)
 	property bool firstLoad: true
 	property bool buildUseOptimizedCode: false
+	property bool built: false
 
 	Keys.onUpPressed:
 	{
@@ -126,12 +127,13 @@ ColumnLayout {
 		var minWidth = scenarioMinWidth - 20 // margin
 		fromWidth = width / 2
 		toWidth = width / 2
-		if (width < 350)
-			btnsContainer.Layout.preferredWidth = width - 30
-		else
-			btnsContainer.Layout.preferredWidth = 350
-
 		previousWidth = width
+	}
+
+	function deleteTransaction(_block, _txIndex)
+	{
+		model.blocks[_block].transactions.splice(_txIndex, 1)
+		blockModel.removeTransaction(_block, _txIndex)
 	}
 
 	function getAccountNickname(address)
@@ -226,6 +228,11 @@ ColumnLayout {
 		return states[record]
 	}
 
+	function rebuildRequired()
+	{
+		rebuild.startBlinking()
+	}
+
 	function load(scenario, index)
 	{
 		if (!scenario)
@@ -262,12 +269,13 @@ ColumnLayout {
 
 	Rectangle
 	{
-		Layout.preferredWidth: 350
+		Layout.preferredWidth: 310
 		Layout.preferredHeight: 40
 		anchors.horizontalCenter: parent.horizontalCenter
 		color: "transparent"
 		id: btnsContainer
 		anchors.top: parent.top
+
 		Row
 		{
 			width: parent.width
@@ -283,6 +291,56 @@ ColumnLayout {
 				addTransaction.parent.width = addBlockBtn.width * 2
 				newAccount.width = w > 30 ? w : 30
 				newAccount.parent.width = w > 30 ? w : 30
+			}
+
+			Settings
+			{
+				id: btnsWidth
+				property int widthValue: 0
+			}
+
+			Connections
+			{
+				target: mainApplication.mainSettings
+				property int pointSize
+				property int defaultPointSize: 11
+
+				Component.onCompleted:
+				{
+					if (mainApplication.mainSettings.systemPointSize !== defaultPointSize)
+					{
+						if (btnsWidth.widthValue !== 0)
+							btnsContainer.Layout.preferredWidth = btnsWidth.widthValue
+						else
+							btnsContainer.Layout.preferredWidth = btnsContainer.Layout.preferredWidth + (mainApplication.mainSettings.systemPointSize - defaultPointSize) * 25
+
+						pointSize = mainApplication.mainSettings.systemPointSize
+						if (mainApplication.mainSettings.systemPointSize <= defaultPointSize)
+							btnsContainer.Layout.preferredWidth = 310
+					}
+				}
+
+				onSystemPointSizeChanged:
+				{
+					btnsContainer.Layout.preferredWidth = btnsContainer.Layout.preferredWidth + (mainApplication.mainSettings.systemPointSize - pointSize) * 25
+					btnsWidth.widthValue = btnsContainer.Layout.preferredWidth
+					pointSize = mainApplication.mainSettings.systemPointSize
+					if (mainApplication.mainSettings.systemPointSize <= defaultPointSize)
+						btnsContainer.Layout.preferredWidth = 310
+					if (mainApplication.mainSettings.systemPointSize === defaultPointSize)
+					{
+						btnsWidth.widthValue = 0
+						pointSize = 0
+					}
+				}
+			}
+
+			Connections
+			{
+				target: projectModel
+				onProjectClosed: {
+					firstLoad = true
+				}
 			}
 
 			Connections
@@ -349,6 +407,8 @@ ColumnLayout {
 
 					function build()
 					{
+						if (clientModel.running)
+							return
 						if (ensureNotFuturetime.running || !model)
 							return
 						blockChainPanel.calls = {}
@@ -460,7 +520,7 @@ ColumnLayout {
 
 				ScenarioButton {
 					id: addTransaction
-					text: qsTr("Add Tx...")
+					text: qsTr("Add Transaction...")
 					enabled: scenarioIndex !== -1
 					onClicked:
 					{
