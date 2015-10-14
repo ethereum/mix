@@ -640,7 +640,6 @@ SolidityType CodeModel::nodeType(dev::solidity::Type const* _type)
 	case Type::Category::Modifier:
 	case Type::Category::Real:
 	case Type::Category::TypeType:
-	case Type::Category::Void:
 	default:
 		break;
 	}
