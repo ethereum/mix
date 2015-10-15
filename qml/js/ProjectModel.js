@@ -22,58 +22,57 @@
 
 var basicContractTemplate = "contract FirstContract {}"
 var htmlTemplate = "<!doctype>\n" +
-        "<html>\n" +
-        "<head>\n" +
-        "<script type='text/javascript'>\n" +
-        "\n" +
-        "window.onload = function()\n" +
-        "{\n" +
-        "   web3.eth.defaultAccount = web3.eth.accounts[0];\n" +
-        "   //get();\n" +
-        "}\n" +
-        "\n" +
-        "function get() {\n" +
-        "   var param = document.getElementById('query').value;\n" +
-        "   var res = contracts['Sample'].contract.get();//call();\n" +
-        "   document.getElementById('queryres').innerText = res;\n" +
-        "}\n" +
-        "\n" +
-        "function set() {\n" +
-        "   var key = document.getElementById('key').value;\n" +
-        "   var res = contracts['Sample'].contract.set(key);\n" +
-        "}\n" +
-        "\n" +
-        "</script>\n" +
-        "</head>\n" +
-        "<body bgcolor='#E6E6FA'>\n" +
-        "   <h1>Sample Ratings</h1>\n" +
-        "<div>\n" +
-        "Store:\n" +
-        "    <input type='number' id='key'>\n" +
-        "    <button onclick='set()'>Save</button>\n" +
-        "</div>\n" +
-        "<div>\n" +
-        "Query:\n" +
-        "   <input value='get' type='button' id='query' onclick='get()' />\n" +
-        "   <div id='queryres'></div>\n" +
-        "</div>\n" +
-        "</body>\n" +
-        "</html>\n";
+		"<html>\n" +
+		"<head>\n" +
+		"<script type='text/javascript'>\n" +
+		"\n" +
+		"window.onload = function()\n" +
+		"{\n" +
+		"   web3.eth.defaultAccount = web3.eth.accounts[0];\n" +
+		"}\n" +
+		"\n" +
+		"function get() {\n" +
+		"   var param = document.getElementById('query').value;\n" +
+		"   var res = contracts['Sample'].contract.get();\n" +
+		"   document.getElementById('queryres').innerText = res;\n" +
+		"}\n" +
+		"\n" +
+		"function set() {\n" +
+		"   var key = document.getElementById('key').value;\n" +
+		"   var res = contracts['Sample'].contract.set(key);\n" +
+		"}\n" +
+		"\n" +
+		"</script>\n" +
+		"</head>\n" +
+		"<body bgcolor='#E6E6FA'>\n" +
+		"   <h1>Sample Ratings</h1>\n" +
+		"<div>\n" +
+		"Store:\n" +
+		"    <input type='number' id='key'>\n" +
+		"    <button onclick='set()'>Save</button>\n" +
+		"</div>\n" +
+		"<div>\n" +
+		"Query:\n" +
+		"   <input value='get' type='button' id='query' onclick='get()' />\n" +
+		"   <div id='queryres'></div>\n" +
+		"</div>\n" +
+		"</body>\n" +
+		"</html>\n";
 
 var contractTemplate = "//Sample contract\n" +
-        "contract Sample\n" +
-        "{\n" +
-        "   uint value;\n" +
-        "   function Sample(uint v) {\n" +
-        "       value = v;\n" +
-        "   }\n" +
-        "   function set(uint v) {\n" +
-        "       value = v;\n" +
-        "   }\n" +
-        "   function get() constant returns (uint) {\n" +
-        "       return value;\n" +
-        "   }\n" +
-        "}\n";
+		"contract Sample\n" +
+		"{\n" +
+		"   uint value;\n" +
+		"   function Sample(uint v) {\n" +
+		"       value = v;\n" +
+		"   }\n" +
+		"   function set(uint v) {\n" +
+		"       value = v;\n" +
+		"   }\n" +
+		"   function get() constant returns (uint) {\n" +
+		"       return value;\n" +
+		"   }\n" +
+		"}\n";
 
 
 function saveDocument(documentId)
