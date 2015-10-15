@@ -381,25 +381,8 @@ ColumnLayout
 					var item = projectModel.stateListModel.createDefaultState();
 					if (defaultScenario)
 					{
-						//we add get and set transaction function call (of Rating contract)
-						var tx = projectModel.stateListModel.defaultTransactionItem()
-						tx.functionId = "setRating";
-						tx.contractId = "<Rating - 0>";
-						tx.parameters = { _key: "imthekey",_value: "12" }
-						tx.label = tx.contractId + "." + tx.functionId + "()"
-						tx.sender = item.accounts[0].secret;
-						tx.isContractCreation = false
-						item.transactions.push(tx);
-						item.blocks[0].transactions.push(tx)
-						var tx2 = projectModel.stateListModel.defaultTransactionItem()
-						tx2.functionId = "ratings";
-						tx2.contractId = "<Rating - 0>";
-						tx2.label = tx2.contractId + "." + tx2.functionId + "()"
-						tx2.sender = item.accounts[0].secret;
-						tx2.parameters = { "": "imthekey" }
-						tx2.isContractCreation = false
-						item.transactions.push(tx2);
-						item.blocks[0].transactions.push(tx2)
+						//initiate input parameters
+						item.blocks[0].transactions[0].parameters = { "v": 12 }
 					}
 
 					item.title = defaultScenario ? qsTr("Default") : qsTr("New Scenario")

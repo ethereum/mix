@@ -13,7 +13,7 @@ Item
 	{
 		if (value !== "")
 		{
-			textinput.text = ScientificNumber.shouldConvertToScientific ? ScientificNumber.toScientificNumber(value) : value
+			textinput.text = ScientificNumber.shouldConvertToScientific(value) ? ScientificNumber.toScientificNumber(value) : value
 			textinput.cursorPosition = 0
 		}
 	}
