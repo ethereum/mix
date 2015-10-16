@@ -46,7 +46,7 @@ DefaultTextField
 	{
 		id: buttonCopy
 		anchors.left: parent.right
-		anchors.leftMargin: 7
+		anchors.leftMargin: 5
 		anchors.verticalCenter: parent.verticalCenter
 		getContent: function()
 		{

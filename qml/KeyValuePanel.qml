@@ -9,6 +9,7 @@ import "js/Debugger.js" as Debugger
 import "js/ErrorLocationFormater.js" as ErrorLocationFormater
 import "js/TransactionHelper.js" as TransactionHelper
 import "js/QEtherHelper.js" as QEtherHelper
+import "js/ScientificNumber.js" as ScientificNumber
 import "."
 
 ColumnLayout {
@@ -25,7 +26,7 @@ ColumnLayout {
 
 	function add(key, value)
 	{
-		modelKeyValue.append({ "key": key, "value": value })
+		modelKeyValue.append({ "key": key, "value": toScientificNumber(value) })
 	}
 
 	function clear()
@@ -44,9 +45,25 @@ ColumnLayout {
 			{
 				var keys = Object.keys(_data[role])
 				for (var k in keys)
-					modelKeyValue.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": _data[role][keys[k]] })
+					modelKeyValue.append({ "key": keys[k] === "" ? qsTr("anonymous") : keys[k], "value": toScientificNumber(_data[role][keys[k]]) })
 			}
 		}
+	}
+
+	function toScientificNumber(value)
+	{
+		if (ScientificNumber.isNumber(value))
+		{
+			value = ScientificNumber.normalize(value)
+			if (ScientificNumber.shouldConvertToScientific(value.replace(/"/g, "")))
+			{
+				return ScientificNumber.toScientificNumber(value.replace(/"/g, "")) + " (" + value + ")"
+			}
+			else
+				return value
+		}
+		else
+			return value
 	}
 
 	RowLayout
@@ -59,7 +76,6 @@ ColumnLayout {
 			anchors.left: parent.left
 			anchors.verticalCenter: parent.verticalCenter
 			color: "#414141"
-			font.pixelSize: 12
 			MouseArea
 			{
 				anchors.fill: parent

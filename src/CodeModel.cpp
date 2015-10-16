@@ -640,12 +640,36 @@ SolidityType CodeModel::nodeType(dev::solidity::Type const* _type)
 	case Type::Category::Modifier:
 	case Type::Category::Real:
 	case Type::Category::TypeType:
-	case Type::Category::Void:
+	case Type::Category::Tuple:
 	default:
 		break;
 	}
 	return r;
 }
+
+QVariantMap CodeModel::locationOf(QString _contract)
+{
+	QVariantMap ret;
+	ret["source"] = "-1";
+	ret["startlocation"] = "-1";
+	for (auto const& s: m_sourceMaps.keys())
+	{
+		LocationMap map = m_sourceMaps.find(s).value().contracts;
+		for (auto const& loc: map.keys())
+		{
+			QString ctr = map.find(loc).value();
+			if (ctr == _contract)
+			{
+				ret["startlocation"] = map.find(loc).key().first;
+				ret["endlocation"] = map.find(loc).key().second;
+				ret["source"] = s;
+				break;
+			}
+		}
+	}
+	return ret;
+}
+
 
 bool CodeModel::isContractOrFunctionLocation(dev::SourceLocation const& _location)
 {

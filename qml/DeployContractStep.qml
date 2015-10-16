@@ -149,7 +149,7 @@ Rectangle {
 			ColumnLayout
 			{
 				Layout.preferredWidth: 400
-				ComboBox
+				DefaultCombobox
 				{
 					id: contractList
 					Layout.fillWidth: true

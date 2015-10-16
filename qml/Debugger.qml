@@ -94,10 +94,6 @@ Rectangle {
 		Debugger.setBreakpoints(bp);
 	}
 
-	DebuggerPaneStyle {
-		id: dbgStyle
-	}
-
 	Connections {
 		target: clientModel
 		onDebugDataReady:  {
@@ -145,28 +141,36 @@ Rectangle {
 					text: qsTr("Current Transaction")
 				}
 
-				Rectangle
-				{
-					anchors.left: parent.left
-					anchors.leftMargin: 10
-					width: 40
+				DefaultButton {
+					anchors.right: parent.right
 					height: parent.height
-					color: "transparent"
-					anchors.verticalCenter: parent.verticalCenter
-					Image {
-						source: "qrc:/qml/img/leftarrowcircle.png"
-						width: parent.width
-						fillMode: Image.PreserveAspectFit
-						anchors.centerIn: parent
-					}
-					MouseArea
+					Component.onCompleted:
 					{
-						anchors.fill: parent
-						onClicked:
-						{
-							Debugger.init(null);
-							panelClosed()
-						}
+						updateLabel()
+					}
+
+					function updateLabel()
+					{
+						if (mainContent.debuggerPanel.assemblyMode)
+							text = qsTr("Solidity")
+						else
+							text = qsTr("VM")
+					}
+					onClicked:
+					{
+						mainContent.debuggerPanel.assemblyMode = !mainContent.debuggerPanel.assemblyMode;
+						updateLabel()
+					}
+				}
+
+				DefaultButton {
+					anchors.left: parent.left
+					height: parent.height
+					text: qsTr("Scenario View")
+					onClicked:
+					{
+						Debugger.init(null);
+						panelClosed()
 					}
 				}
 			}
@@ -366,37 +370,7 @@ Rectangle {
 											radius: 12
 										}
 									}
-								}
-
-								Rectangle
-								{
-									color: "transparent"
-									anchors.top: statesSlider.bottom
-									anchors.right: statesSlider.right
-									anchors.topMargin: 6
-									anchors.rightMargin: 33
-									height: 30
-									width: 50
-									Button {
-										Component.onCompleted:
-										{
-											updateLabel()
-										}
-
-										function updateLabel()
-										{
-											if (mainContent.debuggerPanel.assemblyMode)
-												text = qsTr("Solidity")
-											else
-												text = qsTr("VM")
-										}
-										onClicked:
-										{
-											mainContent.debuggerPanel.assemblyMode = !mainContent.debuggerPanel.assemblyMode;
-											updateLabel()
-										}
-									}
-								}
+								}								
 							}
 						}
 					}

@@ -17,7 +17,6 @@ Rectangle {
 		id: messageTxt
 		text: ""
 		wrapMode: "Wrap"
-		font.pixelSize: 12
 	}
 }
 

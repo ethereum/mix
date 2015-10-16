@@ -43,7 +43,7 @@ Rectangle
 		RowLayout
 		{
 			height: 40
-			Button
+			DefaultButton
 			{
 				Layout.preferredWidth: 200
 				text: qsTr("Copy Base64")
@@ -51,7 +51,7 @@ Rectangle
 				enabled: deploymentDialog.packageStep.packageBase64 != ""
 			}
 
-			Button
+			DefaultButton
 			{
 				width: 200
 				text: qsTr("Host in pastebin.com")

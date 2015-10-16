@@ -253,6 +253,8 @@ public:
 	Q_INVOKABLE QString sha3(QString _source) { return QString::fromStdString(dev::sha3(_source.toStdString()).hex()); }
 	int txGas() { return static_cast<int>(dev::eth::c_txGas); }
 	int callStipend() { return static_cast<int>(dev::eth::c_callStipend); }
+	/// Return the location of the given contract
+	Q_INVOKABLE QVariantMap locationOf(QString _contract);
 
 signals:
 	/// Emited on compilation state change

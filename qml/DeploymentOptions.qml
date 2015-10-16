@@ -150,11 +150,11 @@ Rectangle
 				}
 			}
 
-			ComboBox
+			DefaultCombobox
 			{
 				id: accountsList
 				textRole: "id"
-				Layout.preferredWidth: 500
+				Layout.fillWidth: true
 				model: accountsModel
 				onCurrentTextChanged:
 				{
@@ -166,7 +166,8 @@ Rectangle
 			DefaultLabel
 			{
 				id: accountBalance
-				width: 70
+				Layout.preferredWidth: 70
+				visible: text !== ""
 			}
 		}
 
@@ -186,13 +187,20 @@ Rectangle
 				}
 			}
 
-			GasPrice
+			Rectangle
 			{
-				Layout.preferredWidth: 360
-				id: gasPriceConf
-				onGasPriceChanged: ctrDeployCtrLabel.setCost()
-				defaultGasPrice: true
-				defaultUnit: QEther.Finney
+				color: "transparent"
+				Layout.fillWidth: true
+				height: 60
+				GasPrice
+				{
+					width: 360
+					anchors.left: parent.left
+					id: gasPriceConf
+					onGasPriceChanged: ctrDeployCtrLabel.setCost()
+					defaultGasPrice: true
+					defaultUnit: QEther.Finney
+				}
 			}
 
 			Connections
@@ -373,12 +381,10 @@ Rectangle
 				Layout.preferredHeight: 50
 				Layout.preferredWidth: parent.width - verLabel.width - 5
 				color: "#cccccc"
-				TextArea
+				DefaultTextArea
 				{
 					id: verificationTextArea
 					visible: false
-					//font.pointSize: 10
-					font.pixelSize: 12
 					backgroundVisible: false
 					anchors.fill: parent
 				}
@@ -408,7 +414,7 @@ Rectangle
 			standardButtons: StandardButton.Yes | StandardButton.No
 		}
 
-		Button
+		DefaultButton
 		{
 			id: deployBtn
 			anchors.right: parent.right

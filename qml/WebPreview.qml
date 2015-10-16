@@ -89,7 +89,7 @@ Item {
 		target: mainApplication
 		onLoaded: {
 			//We need to load the container using file scheme so that web security would allow loading local files in iframe
-			var containerPage = fileIo.readFile("qrc:///qml/html/WebContainer.html");
+			var containerPage = fileIo.readFile("qrc:///qml/html/WebContainer.html")
 			webView.loadHtml(containerPage, httpServer.url + "/WebContainer.html")
 		}
 	}	
@@ -223,7 +223,6 @@ Item {
 						setPreviewUrl(text);
 					}
 					focus: true
-					font.pixelSize: 12
 				}
 
 				Action {
@@ -261,6 +260,16 @@ Item {
 
 				Connections
 				{
+					target: projectModel
+					onProjectClosed:
+					{
+						clientConnection.firstLoad = true
+					}
+				}
+
+				Connections
+				{
+					id: clientConnection
 					target: clientModel
 					property bool firstLoad: true
 					onSetupFinished:
@@ -286,13 +295,12 @@ Item {
 					style: CheckBoxStyle {
 						label: DefaultLabel {
 							text: qsTr("Auto reload on save")
-							font.pixelSize: 12
 						}
 					}
 					focus: true
 				}
 
-				Button
+				DefaultImgButton
 				{
 					height: 25
 					width: 25
@@ -383,7 +391,7 @@ Item {
 				{
 					id: rowConsole
 					width: parent.width
-					Button
+					DefaultImgButton
 					{
 						height: 22
 						width: 22
@@ -403,10 +411,9 @@ Item {
 					DefaultTextField {
 						id: expressionInput
 						width: parent.width - 15
-						height: 20
+						height: 23
 						font.family: webPreviewStyle.general.fontName
 						font.italic: true
-						font.pixelSize: 12
 						anchors.verticalCenter: parent.verticalCenter
 						property bool active: false
 						property var history: []
@@ -469,7 +476,7 @@ Item {
 					}
 				}
 
-				TextArea {
+				DefaultTextArea {
 
 					Image {
 						anchors.top: parent.top
@@ -480,7 +487,6 @@ Item {
 						height: 25
 						width: 25
 						fillMode: Image.PreserveAspectFit
-						visible: isCall
 					}
 
 					Layout.fillHeight: true
@@ -491,7 +497,6 @@ Item {
 					wrapMode: Text.Wrap
 					textFormat: Text.RichText
 					font.family: webPreviewStyle.general.fontName
-					font.pixelSize: 12
 					backgroundVisible: true
 					style: TextAreaStyle {
 						backgroundColor: "#f0f0f0"

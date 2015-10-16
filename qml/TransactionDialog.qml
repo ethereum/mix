@@ -14,8 +14,8 @@ import "."
 Dialog {
 	id: modalTransactionDialog
 	modality: Qt.ApplicationModal
-	width: 580
-	height: 500
+	width: 520
+	height: 440
 	visible: false
 	title:  editMode ? qsTr("Edit Transaction") : qsTr("Add Transaction")
 	property bool editMode
@@ -222,7 +222,7 @@ Dialog {
 		item.sender = senderComboBox.model[senderComboBox.currentIndex].secret;
 		item.parameters = paramValues;
 		return item;
-	}	
+	}
 
 	function load(isContractCreation, isFunctionCall, functionId, contractId)
 	{
@@ -289,15 +289,18 @@ Dialog {
 		id: containerRect
 		color: transactionDialogStyle.generic.backgroundColor
 		anchors.fill: parent
+		implicitHeight: modalTransactionDialog.height
+		implicitWidth: modalTransactionDialog.width
 		ScrollView
 		{
 			anchors.top: parent.top
-			anchors.fill: parent
+			width: parent.width
+			height: parent.height - separator.height - validationRow.height
 			ColumnLayout {
 				Layout.preferredWidth: rowWidth
 				anchors.top: parent.top
-				anchors.topMargin: 10
 				anchors.left: parent.left
+				anchors.topMargin: 10
 				width: 500
 				anchors.leftMargin:
 				{
@@ -306,24 +309,26 @@ Dialog {
 
 				RowLayout
 				{
-					Layout.preferredHeight: 80
+					Layout.preferredHeight: 55
 					Rectangle
 					{
+						color: "transparent"
 						Layout.preferredWidth: 100
+						Layout.fillHeight: true
 						DefaultLabel {
 							anchors.right: parent.right
 							anchors.verticalCenter: parent.verticalCenter
 							text: qsTr("Sender Account")
 						}
 					}
-					ComboBox {
-
+					DefaultCombobox {
+						anchors.top: parent.top
 						function select(secret)
 						{
 							for (var i in model)
 								if (model[i].secret === secret)
 								{
-									currentIndex = i;									
+									currentIndex = i;
 									break;
 								}
 						}
@@ -372,12 +377,10 @@ Dialog {
 					Rectangle
 					{
 						Layout.preferredWidth: 100
-						Layout.preferredHeight: 80
 						color: "transparent"
 						DefaultLabel
 						{
 							anchors.verticalCenter: parent.verticalCenter
-							anchors.top: parent.top
 							anchors.right: parent.right
 							text: qsTr("Type of Transaction")
 						}
@@ -414,16 +417,16 @@ Dialog {
 							}
 						}
 
-						RadioButton {
+						DefaultRadioButton {
 							id: trTypeSend
 							objectName: "trTypeSend"
 							exclusiveGroup: rbbuttonList
 							height: 30
-							text: qsTr("Send ether to account")
+							text: qsTr("Send Ether to Account")
 
 						}
 
-						RadioButton {
+						DefaultRadioButton {
 							id: trTypeCreate
 							objectName: "trTypeCreate"
 							exclusiveGroup: rbbuttonList
@@ -431,7 +434,7 @@ Dialog {
 							text: qsTr("Create Contract")
 						}
 
-						RadioButton {
+						DefaultRadioButton {
 							id: trTypeExecute
 							objectName: "trTypeExecute"
 							exclusiveGroup: rbbuttonList
@@ -456,6 +459,7 @@ Dialog {
 
 					QAddressView
 					{
+						Layout.preferredHeight: 55
 						Layout.preferredWidth: 350
 						width: 350
 						id: recipientsAccount
@@ -481,7 +485,7 @@ Dialog {
 						}
 					}
 
-					ComboBox {
+					DefaultCombobox {
 						id: contractCreationComboBox
 						function currentValue() {
 							return (currentIndex >=0 && currentIndex < contractsModel.count) ? contractsModel.get(currentIndex).cid : "";
@@ -527,7 +531,7 @@ Dialog {
 						}
 					}
 
-					ComboBox {
+					DefaultCombobox {
 						id: functionComboBox
 						Layout.preferredWidth: 350
 						currentIndex: -1
@@ -608,6 +612,7 @@ Dialog {
 						DefaultLabel {
 							text: qsTr("Transaction fees")
 							anchors.horizontalCenter: parent.horizontalCenter
+							font.bold: true
 						}
 					}
 
@@ -629,6 +634,7 @@ Dialog {
 					Row
 					{
 						Layout.preferredWidth: 350
+						spacing: 5
 						DefaultTextField
 						{
 							property variant gasValue
@@ -690,98 +696,110 @@ Dialog {
 
 						CheckBox
 						{
+							anchors.verticalCenter: parent.verticalCenter
 							id: gasAutoCheck
 							checked: true
-							text: qsTr("Auto");
-						}
-					}
-				}
-
-				RowLayout
-				{
-					Layout.preferredWidth: 500
-					Layout.preferredHeight: 45
-					Rectangle
-					{
-						Layout.preferredWidth: 100
-						DefaultLabel {
-							id: gasPriceLabel
-							anchors.verticalCenter: parent.verticalCenter
-							anchors.right: parent.right
-							text: qsTr("Gas Price")
-
-							DefaultLabel {
-								id: gasPriceMarket
-								anchors.top: gasPriceLabel.bottom
-								anchors.topMargin: 10
-								Component.onCompleted:
+							style: CheckBoxStyle {
+								label: DefaultLabel
 								{
-									NetworkDeployment.gasPrice(function(result)
-									{
-										gasPriceMarket.text = qsTr("Current market: ") + " " + QEtherHelper.createEther(result, QEther.Wei).format()
-									}, function (){});
-								}
+								text: qsTr("Auto");
 							}
 						}
 					}
-
-					Ether {
-						Layout.preferredWidth: 400
-						id: gasPriceField
-						edit: true
-						displayFormattedValue: false
-						displayUnitSelection: true
-					}
 				}
+			}
 
-
-				RowLayout
+			RowLayout
+			{
+				Layout.preferredHeight: 45
+				Rectangle
 				{
-
-					Layout.preferredWidth: 500
-					Row
-					{
-						width: parent.width
+					Layout.preferredWidth: 100
+					DefaultLabel {
+						id: gasPriceLabel
+						anchors.verticalCenter: parent.verticalCenter
 						anchors.right: parent.right
-						Button {
-							id: updateBtn
-							text: qsTr("Cancel");
-							onClicked: close();
-						}
+						text: qsTr("Gas Price")
 
-						Button {
-							text: editMode ? qsTr("Update") : qsTr("Ok")
-							onClicked: {
-								var invalid = InputValidator.validate(paramsModel, paramValues);
-								if (invalid.length === 0)
+						DefaultLabel {
+							id: gasPriceMarket
+							anchors.top: gasPriceLabel.bottom
+							anchors.topMargin: 5
+							anchors.left: parent.left
+							anchors.leftMargin: 50
+							Component.onCompleted:
+							{
+								NetworkDeployment.gasPrice(function(result)
 								{
-									close();
-									accepted();
-								}
-								else
-								{
-									errorDialog.text = qsTr("Some parameters are invalid:\n");
-									for (var k in invalid)
-										errorDialog.text += invalid[k].message + "\n";
-									errorDialog.open();
-								}
+									gasPriceMarket.text = qsTr("Current market: ") + " " + QEtherHelper.createEther(result, QEther.Wei).format()
+								}, function (){});
 							}
 						}
 					}
-
-					MessageDialog {
-						id: errorDialog
-						standardButtons: StandardButton.Ok
-						icon: StandardIcon.Critical
-					}
 				}
 
-				RowLayout
-				{
-					Layout.preferredHeight: 30
-					anchors.bottom: parent.bottom
+				Ether {
+					Layout.preferredWidth: 350
+					width: 350
+					id: gasPriceField
+					edit: true
+					displayFormattedValue: true
+					displayUnitSelection: true
 				}
 			}
 		}
 	}
+
+	CommonSeparator
+	{
+		id: separator
+		height: 1
+		width: parent.width
+		anchors.bottom: validationRow.top
+	}
+
+	Row
+	{
+		id: validationRow
+		anchors.bottom: parent.bottom
+		layoutDirection: Qt.RightToLeft
+		width: parent.width
+		anchors.right: parent.right
+		anchors.rightMargin: 10
+		spacing: 10
+		height: 40
+		DefaultButton {
+			anchors.verticalCenter: parent.verticalCenter
+			id: updateBtn
+			text: qsTr("Cancel");
+			onClicked: close();
+		}
+
+		DefaultButton {
+			anchors.verticalCenter: parent.verticalCenter
+			text: editMode ? qsTr("Update") : qsTr("Ok")
+			onClicked: {
+				var invalid = InputValidator.validate(paramsModel, paramValues);
+				if (invalid.length === 0)
+				{
+					close();
+					accepted();
+				}
+				else
+				{
+					errorDialog.text = qsTr("Some parameters are invalid:\n");
+					for (var k in invalid)
+						errorDialog.text += invalid[k].message + "\n";
+					errorDialog.open();
+				}
+			}
+		}
+
+		MessageDialog {
+			id: errorDialog
+			standardButtons: StandardButton.Ok
+			icon: StandardIcon.Critical
+		}
+	}
+}
 }

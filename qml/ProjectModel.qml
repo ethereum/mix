@@ -31,6 +31,7 @@ Item {
 	signal deploymentComplete()
 	signal deploymentError(string error)
 	signal isCleanChanged(var isClean, string documentId)
+	signal contractSelected(var _contractIndex)
 
 	property bool isEmpty: (projectPath === "")
 	readonly property string projectFileName: ".mix"
@@ -40,6 +41,7 @@ Item {
 	property string projectPath: ""
 	property string projectTitle: ""
 	property string currentDocumentId: ""
+	property int currentContractIndex: -1
 	property var deploymentAddresses: ({})
 	property string deploymentDir
 	property var listModel: projectListModel
@@ -62,6 +64,7 @@ Item {
 	//interface
 	function saveAll() { ProjectModelCode.saveAll(); }
 	function saveCurrentDocument() { ProjectModelCode.saveCurrentDocument(); }
+	function saveDocument(documentId) { ProjectModelCode.saveDocument(documentId); }
 	function createProject() { ProjectModelCode.createProject(); }
 	function closeProject(callBack) { ProjectModelCode.closeProject(callBack); }
 	function saveProject() { ProjectModelCode.saveProject(); }
@@ -72,6 +75,7 @@ Item {
 	function newCssFile() { ProjectModelCode.newCssFile(); }
 	function newContract() { ProjectModelCode.newContract(); }
 	function openDocument(documentId) { ProjectModelCode.openDocument(documentId); }
+	function selectContractByIndex(index, name) { ProjectModelCode.selectContractByIndex(index, name); }
 	function openNextDocument() { ProjectModelCode.openNextDocument(); }
 	function openPrevDocument() { ProjectModelCode.openPrevDocument(); }
 	function renameDocument(documentId, newName) { ProjectModelCode.renameDocument(documentId, newName); }

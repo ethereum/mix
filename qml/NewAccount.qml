@@ -14,10 +14,11 @@ Dialog {
 	modality: Qt.ApplicationModal
 	title: qsTr("New Account");
 
-	width: 750
-	height: 180
+	width: 400
+	height: 150
 
 	property var accounts
+	property string secret
 
 	signal accepted(var ac)
 
@@ -34,15 +35,22 @@ Dialog {
 		{
 			addressText.text = ""
 			balance.value = QEtherHelper.createEther("0", QEther.Wei)
+			secret = clientModel.newSecret()
+			addressText.originalText = clientModel.address(secret)
 		}
 	}
 
 	contentItem: Rectangle {
-		anchors.fill: parent
+		implicitHeight: newAddressWin.height
+		implicitWidth: newAddressWin.width
 		ColumnLayout
 		{
 			anchors.fill: parent
 			anchors.margins: 10
+			onWidthChanged: {
+				addressText.Layout.preferredWidth = width - address.width - 50
+			}
+
 			RowLayout
 			{
 				DefaultLabel
@@ -56,27 +64,13 @@ Dialog {
 				{
 					id: addressText
 					anchors.verticalCenter: parent.verticalCenter
-					Layout.preferredWidth: 565
-				}
-
-				Button
-				{
-					property string secret
-					anchors.left: parent.right
-					anchors.leftMargin: 7
-					anchors.verticalCenter: parent.verticalCenter
-					iconSource: "qrc:/qml/img/Write.png"
-					tooltip: qsTr("Generate account")
-					onClicked: {
-						secret = clientModel.newSecret()
-						addressText.originalText = clientModel.address(secret)
-					}
-					id: btnNewAddress
 				}
 			}
 
 			RowLayout
 			{
+				Layout.fillWidth: true
+				Layout.preferredWidth: parent.width
 				DefaultLabel
 				{
 					text: qsTr("Balance")
@@ -86,6 +80,8 @@ Dialog {
 
 				Ether
 				{
+					Layout.preferredWidth: parent.width - balanceLabel.width - 5
+					width: parent.width - balanceLabel.width - 5
 					edit: true
 					readOnly: false
 					displayUnitSelection: true
@@ -114,36 +110,35 @@ Dialog {
 			RowLayout
 			{
 				anchors.bottom: parent.bottom
-				anchors.right: parent.right;
+				anchors.right: parent.right
 
-				Button {
-					text: qsTr("Cancel");
-					onClicked:
-					{
-						newAddressWin.close()
-					}
-				}
-
-				Button {
+				DefaultButton {
 					id: okButton;
 					text: qsTr("OK");
-					enabled: btnNewAddress.secret !== ""
+					enabled: newAddressWin.secret !== ""
 					onClicked: {
 						if (accounts)
 							for (var k in accounts)
 							{
-								if (accounts[k].secret === btnNewAddress.secret)
+								if (accounts[k].secret === newAddressWin.secret)
 								{
 									newAddressWin.close()
 									return
 								}
 							}
-						var ac = projectModel.stateListModel.newAccount(balance.value.toWei().value(), QEther.Wei, btnNewAddress.secret.toLowerCase(), nickNameInput.text)
+						var ac = projectModel.stateListModel.newAccount(balance.value.toWei().value(), QEther.Wei, newAddressWin.secret.toLowerCase(), nickNameInput.text)
 						newAddressWin.addAccount(ac)
 						newAddressWin.close()
-						btnNewAddress.secret = ""
 						addressText.originalText = ""
 						nickNameInput.text = ""
+					}
+				}
+
+				DefaultButton {
+					text: qsTr("Cancel");
+					onClicked:
+					{
+						newAddressWin.close()
 					}
 				}
 			}

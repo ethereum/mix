@@ -113,7 +113,7 @@ Rectangle {
 			fillMode: Image.PreserveAspectFit
 		}
 
-		Button {
+		DefaultButton {
 			anchors.fill: parent
 			id: debugImg
 			action: buttonAction
@@ -155,7 +155,28 @@ Rectangle {
 			text: buttonActionContainer.text
 			anchors.centerIn: parent
 			id: btnLabel
-			font.pixelSize: 11
+
+			Connections
+			{
+				target: mainApplication.mainSettings
+				property int pointSize
+				property int defaultPointSize: 11
+				Component.onCompleted:
+				{
+					if (mainApplication.mainSettings.systemPointSize !== defaultPointSize)
+					{
+						buttonActionContainer.width = buttonActionContainer.width + (mainApplication.mainSettings.systemPointSize - defaultPointSize) * 2
+						pointSize = mainApplication.mainSettings.systemPointSize
+					}
+				}
+
+				onSystemPointSizeChanged:
+				{
+					buttonActionContainer.width = buttonActionContainer.width + (mainApplication.mainSettings.systemPointSize - pointSize) * 2
+					pointSize = mainApplication.mainSettings.systemPointSize
+				}
+			}
 		}
 	}
 }
+

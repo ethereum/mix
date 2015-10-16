@@ -20,17 +20,74 @@
  * Ethereum IDE client.
  */
 
-var htmlTemplate = "<html>\n<head>\n<script>\n</script>\n</head>\n<body>\n<script>\n</script>\n</body>\n</html>";
-var contractTemplate = "contract Contract {\n}\n";
+var basicContractTemplate = "contract FirstContract {}"
+var htmlTemplate = "<!doctype>\n" +
+		"<html>\n" +
+		"<head>\n" +
+		"<script type='text/javascript'>\n" +
+		"\n" +
+		"window.onload = function()\n" +
+		"{\n" +
+		"   web3.eth.defaultAccount = web3.eth.accounts[0];\n" +
+		"}\n" +
+		"\n" +
+		"function get() {\n" +
+		"   var param = document.getElementById('query').value;\n" +
+		"   var res = contracts['Sample'].contract.get();\n" +
+		"   document.getElementById('queryres').innerText = res;\n" +
+		"}\n" +
+		"\n" +
+		"function set() {\n" +
+		"   var key = document.getElementById('key').value;\n" +
+		"   var res = contracts['Sample'].contract.set(key);\n" +
+		"}\n" +
+		"\n" +
+		"</script>\n" +
+		"</head>\n" +
+		"<body bgcolor='#E6E6FA'>\n" +
+		"   <h1>Sample Ratings</h1>\n" +
+		"<div>\n" +
+		"Store:\n" +
+		"    <input type='number' id='key'>\n" +
+		"    <button onclick='set()'>Save</button>\n" +
+		"</div>\n" +
+		"<div>\n" +
+		"Query:\n" +
+		"   <input value='get' type='button' id='query' onclick='get()' />\n" +
+		"   <div id='queryres'></div>\n" +
+		"</div>\n" +
+		"</body>\n" +
+		"</html>\n";
 
-function saveCurrentDocument()
+var contractTemplate = "//Sample contract\n" +
+		"contract Sample\n" +
+		"{\n" +
+		"   uint value;\n" +
+		"   function Sample(uint v) {\n" +
+		"       value = v;\n" +
+		"   }\n" +
+		"   function set(uint v) {\n" +
+		"       value = v;\n" +
+		"   }\n" +
+		"   function get() constant returns (uint) {\n" +
+		"       return value;\n" +
+		"   }\n" +
+		"}\n";
+
+
+function saveDocument(documentId)
 {
-	var doc = projectListModel.get(getDocumentIndex(currentDocumentId));
+	var doc = projectListModel.get(getDocumentIndex(documentId));
 	documentSaving(doc);
 	if (doc.isContract)
 		contractSaved(currentDocumentId);
 	else
 		documentSaved(currentDocumentId);
+}
+
+function saveCurrentDocument()
+{	
+	saveDocument(currentDocumentId)
 }
 
 function saveAll() {
@@ -158,16 +215,14 @@ function loadProject(path) {
 		if (mainApplication.trackLastProject)
 			projectSettings.lastProjectPath = path;
 		projectLoading(projectData);
-		projectLoaded()
-
 		//TODO: move this to codemodel
 		var contractSources = {};
 		for (var d = 0; d < listModel.count; d++) {
 			var doc = listModel.get(d);
 			if (doc.isContract)
-				contractSources[doc.documentId] = fileIo.readFile(doc.path);
+				projectModel.openDocument(doc.documentId)
 		}
-		codeModel.reset(contractSources);
+		projectLoaded()
 	});
 }
 
@@ -219,6 +274,12 @@ function getDocumentByPath(_path)
 	return null;
 }
 
+function selectContractByIndex(contractIndex)
+{
+	currentContractIndex = contractIndex	
+	contractSelected(contractIndex)
+}
+
 function openDocument(documentId) {
 	if (documentId !== currentDocumentId) {
 		documentOpened(projectListModel.get(getDocumentIndex(documentId)));
@@ -226,8 +287,30 @@ function openDocument(documentId) {
 	}
 }
 
+function openNextContract()
+{
+	if (Object.keys(codeModel.contracts).length - 1 > currentContractIndex)
+	{
+		currentContractIndex++
+		selectContractByIndex(currentContractIndex)
+		return true
+	}
+	else
+	{
+		currentContractIndex = -1
+		return false
+	}
+}
+
 function openNextDocument() {
-	var docIndex = getDocumentIndex(currentDocumentId);
+	var docIndex = getDocumentIndex(currentDocumentId)
+	var doc = getDocument(currentDocumentId)
+	if (doc.isContract)
+	{
+		if (openNextContract())
+			return;
+	}
+
 	var nextDocId = "";
 	while (nextDocId === "") {
 		docIndex++;
@@ -236,12 +319,45 @@ function openNextDocument() {
 		var document = projectListModel.get(docIndex);
 		if (document.isText)
 			nextDocId = document.documentId;
+		if (document.isContract && doc.isContract)
+			nextDocId = ""
 	}
+
 	openDocument(nextDocId);
+	doc = getDocument(nextDocId)
+	if (doc.isContract)
+	{
+		currentContractIndex = 0
+		selectContractByIndex(currentContractIndex)
+	}
+}
+
+function openPrevContract()
+{
+	if (currentContractIndex === -1)
+		currentContractIndex = Object.keys(codeModel.contracts).length
+	if (currentContractIndex > 0)
+	{
+		currentContractIndex--
+		selectContractByIndex(currentContractIndex)
+		return true
+	}
+	else
+	{
+		currentContractIndex = -1
+		return false
+	}
 }
 
 function openPrevDocument() {
 	var docIndex = getDocumentIndex(currentDocumentId);
+	var doc = getDocument(currentDocumentId)
+	if (doc.isContract)
+	{
+		if (openPrevContract())
+			return
+	}
+	// selecting the next document
 	var prevDocId = "";
 	while (prevDocId === "") {
 		docIndex--;
@@ -250,8 +366,16 @@ function openPrevDocument() {
 		var document = projectListModel.get(docIndex);
 		if (document.isText)
 			prevDocId = document.documentId;
-	}
+		if (document.isContract && doc.isContract)
+			prevDocId = ""
+	}	
 	openDocument(prevDocId);
+	doc = getDocument(prevDocId)
+	if (doc.isContract)
+	{
+		currentContractIndex = Object.keys(codeModel.contracts).length - 1
+		selectContractByIndex(currentContractIndex)
+	}
 }
 
 function doCloseProject() {
@@ -362,10 +486,9 @@ function newJsFile() {
 
 function newContract() {
 	var ctrName = "contract" + projectListModel.count
-	var ctr = contractTemplate.replace("Contract", ctrName)
+	var ctr = basicContractTemplate.replace("FirstContract", ctrName)
 	createAndAddFile("contract", "sol", ctr, ctrName + ".sol");
 }
-
 
 function createAndAddFile(name, extension, content, fileName) {
 	if (!fileName)
