@@ -20,9 +20,59 @@
  * Ethereum IDE client.
  */
 
-var htmlTemplate = "<!doctype>\n<html>\n<head>\n<script type='text/javascript'>	window.onload = function()\n{\nweb3.eth.defaultAccount = web3.eth.accounts[0]\n}\nfunction getRating() {\nvar param = document.getElementById('query').value;\nvar res = contracts['Rating'].contract.ratings(param);\ndocument.getElementById('queryres').innerText = res;\n}\nfunction setRating() {\nvar key = document.getElementById('key').value;\nvar value = parseInt(document.getElementById('value').value);\nvar res = contracts['Rating'].contract.setRating(key, value);\n}\n</script>\n</head>\n<body bgcolor='#E6E6FA'>\n<h1>Sample Ratings</h1>\n<div>\nStore:\n<input type='string' id='key'>\n<input type='number' id='value'>\n<button onclick='setRating()'>Save</button>\n</div>\n<div>\nQuery:\n<input type='string' id='query' onkeyup='getRating()'>\n<div id='queryres'></div>\n</div>\n</body>\n</html>\n"
-var contractTemplate = "//Sample contract \ncontract Rating {\nfunction setRating(bytes32 _key, uint256 _value) {\nratings[_key] = _value;\n}\nmapping (bytes32 => uint256) public ratings;\n}\n"
 var basicContractTemplate = "contract FirstContract {}"
+var htmlTemplate = "<!doctype>\n" +
+		"<html>\n" +
+		"<head>\n" +
+		"<script type='text/javascript'>\n" +
+		"\n" +
+		"window.onload = function()\n" +
+		"{\n" +
+		"   web3.eth.defaultAccount = web3.eth.accounts[0];\n" +
+		"}\n" +
+		"\n" +
+		"function get() {\n" +
+		"   var param = document.getElementById('query').value;\n" +
+		"   var res = contracts['Sample'].contract.get();\n" +
+		"   document.getElementById('queryres').innerText = res;\n" +
+		"}\n" +
+		"\n" +
+		"function set() {\n" +
+		"   var key = document.getElementById('key').value;\n" +
+		"   var res = contracts['Sample'].contract.set(key);\n" +
+		"}\n" +
+		"\n" +
+		"</script>\n" +
+		"</head>\n" +
+		"<body bgcolor='#E6E6FA'>\n" +
+		"   <h1>Sample Ratings</h1>\n" +
+		"<div>\n" +
+		"Store:\n" +
+		"    <input type='number' id='key'>\n" +
+		"    <button onclick='set()'>Save</button>\n" +
+		"</div>\n" +
+		"<div>\n" +
+		"Query:\n" +
+		"   <input value='get' type='button' id='query' onclick='get()' />\n" +
+		"   <div id='queryres'></div>\n" +
+		"</div>\n" +
+		"</body>\n" +
+		"</html>\n";
+
+var contractTemplate = "//Sample contract\n" +
+		"contract Sample\n" +
+		"{\n" +
+		"   uint value;\n" +
+		"   function Sample(uint v) {\n" +
+		"       value = v;\n" +
+		"   }\n" +
+		"   function set(uint v) {\n" +
+		"       value = v;\n" +
+		"   }\n" +
+		"   function get() constant returns (uint) {\n" +
+		"       return value;\n" +
+		"   }\n" +
+		"}\n";
 
 
 function saveDocument(documentId)

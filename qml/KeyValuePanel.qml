@@ -54,11 +54,11 @@ ColumnLayout {
 	{
 		if (ScientificNumber.isNumber(value))
 		{
+			value = ScientificNumber.normalize(value)
 			if (ScientificNumber.shouldConvertToScientific(value.replace(/"/g, "")))
 			{
 				return ScientificNumber.toScientificNumber(value.replace(/"/g, "")) + " (" + value + ")"
 			}
-
 			else
 				return value
 		}

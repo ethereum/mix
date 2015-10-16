@@ -9,6 +9,8 @@ function isScientificNumber(_value)
 
 function isNumber(_value)
 {
+	if (!isNaN(_value))
+		_value = _value.toString();
 	var nbRegEx = new RegExp('^[0-9]+$');
 	return nbRegEx.test(_value.replace(/"/g, "").replace(/'/g, "").replace(".", ""))
 }
@@ -71,6 +73,8 @@ function removeLeadingZero(_value)
 
 function normalize(_value)
 {
+	if (!isNaN(_value))
+		_value = _value.toString()
 	var val = _value
 	var splitted = _value.split(".")
 	if (splitted.length > 1)
@@ -87,7 +91,7 @@ function normalize(_value)
 function toScientificNumber(_value)
 {
 	var val = normalize(_value)
-	if (_value.indexOf(".") !== -1)
+	if (val.indexOf(".") !== -1)
 		val = _value.replace(".", "")
 	var k = 0
 	var zeroPos = {}
