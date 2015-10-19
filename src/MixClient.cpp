@@ -301,10 +301,16 @@ Block MixClient::asOf(h256 const& _block) const
 
 pair<h256, Address> MixClient::submitTransaction(eth::TransactionSkeleton const& _ts, Secret const& _secret, bool _gasAuto)
 {
-	WriteGuard l(x_state);
 	TransactionSkeleton ts = _ts;
 	ts.from = toAddress(_secret);
 	ts.nonce = m_postMine.transactionsFrom(ts.from);
+	if (ts.nonce == UndefinedU256)
+		ts.nonce = max<u256>(postMine().transactionsFrom(ts.from), m_tq.maxNonce(ts.from));
+	if (ts.gasPrice == UndefinedU256)
+		ts.gasPrice = gasBidPrice();
+	if (ts.gas == UndefinedU256)
+		ts.gas = min<u256>(gasLimitRemaining() / 5, balanceAt(ts.from) / ts.gasPrice);
+	WriteGuard l(x_state);
 	eth::Transaction t(ts, _secret);
 	executeTransaction(t, m_postMine, false, _gasAuto, _secret);
 	return make_pair(t.sha3(), toAddress(ts.from, ts.nonce));
@@ -315,7 +321,9 @@ dev::eth::ExecutionResult MixClient::call(Address const& _from, u256 _value, Add
 	(void)_blockNumber;
 	Block block = asOf(eth::PendingBlock);
 	u256 n = block.transactionsFrom(_from);
-	Transaction t(_value, _gasPrice, _gas, _dest, _data, n);
+	u256 gas = _gas == UndefinedU256 ? gasLimitRemaining() : _gas;
+	u256 gasPrice = _gasPrice == UndefinedU256 ? gasBidPrice() : _gasPrice;
+	Transaction t(_value, gasPrice, gas, _dest, _data, n);
 	t.forceSender(_from);
 	if (_ff == FudgeFactor::Lenient)
 		block.mutableState().addBalance(_from, (u256)(t.gasRequired() * t.gasPrice() + t.value()));
