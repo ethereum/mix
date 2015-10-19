@@ -38,7 +38,8 @@ updateContracts = function(contracts) {
 };
 
 init = function(url) {
-	web3 = require('web3');
+	var Web3 = require('web3');
+	web3 = new Web3();
 	window.web3 = web3;
 	web3.setProvider(new web3.providers.HttpProvider(url));
 };
