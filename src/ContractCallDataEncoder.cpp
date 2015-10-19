@@ -27,6 +27,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <libdevcore/SHA3.h>
 #include <libethcore/CommonJS.h>
 #include <libsolidity/AST.h>
 #include "QVariableDeclaration.h"
@@ -388,39 +389,47 @@ QVariant ContractCallDataEncoder::decodeRawArray(SolidityType const& _type, byte
 
 QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot)
 {
-	dev::bytes b;
+	/*dev::bytes b;
+	int k = 0;
 	for (auto const& sto: _storage)
 	{
 		u256 slotValue = sto.second;
 		bytes slotBytes = toBigEndian(slotValue);
 		b += slotBytes;
+		stringstream s;
+		s << sto.first;
+		qDebug() << QString::fromStdString(s.str()) << " " << toString(slotBytes);
+		k++;
 	}
-	int pos = _offset + static_cast<int>(_slot) * 32;
-	if (b.size() > static_cast<unsigned>(pos))
+	qDebug() << " ==> " <<	 toString(b);
+	*/
+
+	if (_type.array)
+		return formatStorageArray(_type, _storage, _offset, _slot);
+	else
+		return decode(_type, toBigEndian(_storage.at(_slot)), 0);
+}
+
+QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot)
+{
+	Q_UNUSED(_offset);
+	u256 loc = u256("0x" + dev::sha3(toBigEndian(_slot)).hex());
+	QVariantList array;
+	int offset = 0;
+	for (int k = 0; k < _storage.at(_slot); ++k)
 	{
-		QVariantList items;
-		ContractCallDataEncoder decoder;
-		if (_type.array)
-			return decodeRawArray(_type, b, pos);
-		else if (_type.type == SolidityType::Struct)
+		if (_type.baseType.get()->array)
 		{
-			for (auto const& m: _type.members)
-			{
-				if (m.type.array)
-					items.append(decodeRawArray(m.type, b, pos));
-				else
-					items.append(decoder.decodeType(m.type, b, pos));
-			}
+			array.append(formatStorageArray(*_type.baseType, _storage, _offset, loc));
 		}
 		else
 		{
-			bytes rawValue = toBigEndian(_storage.at(_slot));
-			return decoder.decodeType(_type, rawValue, (int&)_offset);
+			bytes value = toBigEndian(_storage.at(loc));
+			array.append(decode(_type, value, offset));
 		}
-		return items;
+		loc++;
 	}
-	else
-		return QVariant();
+	return array;
 }
 
 

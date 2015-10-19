@@ -27,11 +27,7 @@ Rectangle {
 
 	function clear()
 	{
-		inputParams.clear()
-		returnParams.clear()
 		accounts.clear()
-		events.clear()
-		ctrStorage.clear()
 		accounts.visible = false
 	}
 
@@ -48,27 +44,7 @@ Rectangle {
 		txIndex = _txIndex
 		callIndex = _callIndex
 		currentState = _state
-		storage = clientModel.contractStorageByIndex(_tx.recordIndex, _tx.isContractCreation ? _tx.returned : blockChain.getContractAddress(_tx.contractId))
-		inputParams.init()
-		if (_tx.isContractCreation)
-		{
-			returnParams.role = "creationAddr"
-			returnParams._data = {
-				creationAddr : {
-				}
-			}
-			returnParams._data.creationAddr[qsTr("contract address")] = _tx.returned
-		}
-		else
-		{
-			returnParams.role = "returnParameters"
-			returnParams._data = tx
-		}
-		returnParams.init()
 		accounts.init()
-		events.init()
-		ctrStorage.init()
-
 		storages.clear()
 		searchBox.visible = currentState.contractsStorage && Object.keys(currentState.contractsStorage).length > 0
 		for (var k in currentState.contractsStorage)
@@ -82,6 +58,7 @@ Rectangle {
 	radius: 4
 	Column {
 		anchors.fill: parent
+		spacing: 12
 		id: colWatchers
 		ListModel
 		{
@@ -95,7 +72,7 @@ Rectangle {
 			visible: false
 			anchors.horizontalCenter: parent.horizontalCenter
 			id: accounts
-			title: qsTr("Accounts")
+			title: qsTr("User Account")
 			role: "accounts"
 			_data: currentState
 			function computeData()
@@ -125,9 +102,23 @@ Rectangle {
 
 		RowLayout
 		{
+			Layout.preferredHeight: 20
+			Layout.fillWidth: true
+			DefaultLabel
+			{
+				id: titleLabel
+				anchors.left: parent.left
+				anchors.verticalCenter: parent.verticalCenter
+				color: "#414141"
+				text: qsTr("Contract Account")
+			}
+		}
+
+		RowLayout
+		{
 			id: searchBox
 			visible: false
-			height: 30
+			height: 25
 			width: parent.width
 			spacing: 0
 			Image {
@@ -180,112 +171,6 @@ Rectangle {
 					root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
 					root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
 				}
-			}
-		}
-
-		KeyValuePanel
-		{
-			visible: false
-			height: minHeight
-			width: parent.width
-			anchors.horizontalCenter: parent.horizontalCenter
-			id: inputParams
-			title: qsTr("INPUT PARAMETERS")
-			role: "parameters"
-			_data: tx
-			onMinimized:
-			{
-				root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
-				root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
-			}
-			onExpanded:
-			{
-				root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
-				root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
-			}
-		}
-
-		KeyValuePanel
-		{
-			visible: false
-			height: minHeight
-			width: parent.width
-			anchors.horizontalCenter: parent.horizontalCenter
-			id: returnParams
-			title: qsTr("RETURN PARAMETERS")
-			role: "returnParameters"
-			_data: tx
-			onMinimized:
-			{
-				root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
-				root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
-			}
-			onExpanded:
-			{
-				root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
-				root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
-			}
-		}
-
-		KeyValuePanel
-		{
-			visible: false
-			height: minHeight
-			width: parent.width
-			anchors.horizontalCenter: parent.horizontalCenter
-			id: ctrStorage
-			title: qsTr("CONTRACT STORAGE")
-			function computeData()
-			{
-				model.clear()
-				if (storage.values)
-					for (var k in storage.values)
-						model.append({ "key": k, "value": JSON.stringify(storage.values[k]) })
-			}
-			onMinimized:
-			{
-				root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
-				root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
-			}
-			onExpanded:
-			{
-				root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
-				root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
-			}
-		}
-
-		KeyValuePanel
-		{
-			visible: false
-			height: minHeight
-			width: parent.width
-			anchors.horizontalCenter: parent.horizontalCenter
-			id: events
-			title: qsTr("EVENTS")
-			function computeData()
-			{
-				model.clear()
-				var ret = []
-				for (var k in tx.logs)
-				{
-					var param = ""
-					for (var p in tx.logs[k].param)
-					{
-						param += " " + tx.logs[k].param[p].value + " "
-					}
-					param = "(" + param + ")"
-					model.append({ "key": tx.logs[k].name, "value": param })
-				}
-			}
-			onMinimized:
-			{
-				root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
-				root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
-			}
-			onExpanded:
-			{
-				root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
-				root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
 			}
 		}
 	}

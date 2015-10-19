@@ -19,10 +19,6 @@ ColumnLayout
 	height: getHeight()
 	width: 320
 
-	onWidthChanged: {
-		console.log("width " + width)
-	}
-
 	SourceSansProBold
 	{
 		id: boldFont

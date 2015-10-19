@@ -1043,11 +1043,10 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 	for (auto const& ctr : m_contractAddresses)
 	{
 		u256 wei = m_client->balanceAt(ctr.second, PendingBlock);
-		accountBalances.insert("0x" + QString::fromStdString(ctr.second.hex()), QEther(wei, QEther::Wei).format());
 		auto contractAddressIter = m_contractNames.find(ctr.second);
 		CompiledContract const& compilerRes = m_codeModel->contract(contractAddressIter->second);
 		QVariantMap sto = contractStorage(m_client->storageAt(ctr.second, PendingBlock), &compilerRes);
-		contractsStorage.insert(contractAddressIter->second + " - " + QString::fromStdString(ctr.second.hex()), sto);
+		contractsStorage.insert(contractAddressIter->second + " - " + QString::fromStdString(ctr.second.hex()) + " - " + QEther(wei, QEther::Wei).format(), sto);
 	}
 	for (auto const& account : m_accounts)
 	{

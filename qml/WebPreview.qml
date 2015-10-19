@@ -374,7 +374,7 @@ Item {
 					expressionInput.history.unshift(expressionInput.text);
 					expressionInput.index = -1;
 					webView.runJavaScript("executeJavaScript(\"" + expressionInput.text.replace(/"/g, '\\"') + "\")", function(result) {
-						resultTextArea.text = "> " + result + "\n\n" + resultTextArea.text;
+						resultTextArea.text = "> " + expressionInput.text + "\n\t" + result + "\n" + resultTextArea.text;
 						expressionInput.text = "";
 					});
 				}

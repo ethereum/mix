@@ -118,5 +118,5 @@ function toScientificNumber(_value)
 
 function shouldConvertToScientific(_value)
 {
-	return normalize(_value).length > 7
+	return isNumber(_value) && normalize(_value).length > 7
 }
