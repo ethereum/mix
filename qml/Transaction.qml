@@ -295,7 +295,7 @@ RowLayout
 
 			function ensureScientificNumber(value)
 			{
-				return ScientificNumber.shouldConvertToScientific ? ScientificNumber.toScientificNumber(value) + " (" + value + ")" : value
+				return ScientificNumber.shouldConvertToScientific(value) ? ScientificNumber.toScientificNumber(value) + " (" + value + ")" : value
 			}
 
 			function updateView()

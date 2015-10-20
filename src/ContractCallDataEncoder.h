@@ -75,8 +75,12 @@ public:
 	bigint decodeInt(dev::bytes const& _rawValue);
 	/// Format storage
 	QVariant formatStorageValue(SolidityType const& _type, std::unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot);
+	/// Format array from storage
+	QVariant formatStorageArray(SolidityType const& _type, std::unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot);
 	/// Decode raw array
 	QVariant decodeRawArray(SolidityType const& _type, bytes const& _value, int& pos);
+	/// Decode struct stored in storage
+	QVariant formatStorageStruct(SolidityType const& _type, std::unordered_map<u256, u256> const& _storage);
 
 private:
 	unsigned encodeSingleItem(QString const& _data, SolidityType const& _type, bytes& _dest);

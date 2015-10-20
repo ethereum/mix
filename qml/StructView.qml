@@ -36,7 +36,7 @@ Column
 
 			Component.onCompleted:
 			{
-				if (QSolidityType.Address === members[index].type.category && members[index].type.array && context === "parameter")
+				if (members[index] && QSolidityType.Address === members[index].type.category && members[index].type.array && context === "parameter")
 					height = 60
 				else
 					height = 30 + (members[index].type.category === QSolidityType.Struct ? (30 * members[index].type.members.length) : 0)
@@ -54,13 +54,13 @@ Column
 					DefaultLabel
 					{
 						id: nameLabel
-						text: modelData.name
+						text: modelData ? modelData.name : ""
 					}
 
 					DefaultLabel
 					{
 						id: typeLabel
-						text: " (" + modelData.type.name + ")"
+						text: modelData ? " (" + modelData.type.name + ")" : ""
 						font.italic: true
 						font.weight: Font.Light
 					}
@@ -72,6 +72,8 @@ Column
 				id: typeLoader
 				sourceComponent:
 				{
+					if (!modelData)
+						return undefined
 					var t = modelData.type.category;
 					if (t === QSolidityType.SignedInteger || t === QSolidityType.UnsignedInteger)
 						return Qt.createComponent("qrc:/qml/QIntTypeView.qml");

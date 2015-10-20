@@ -58,6 +58,12 @@ getContent = function() {
 	return body.innerHTML;
 }
 
+setDefaultAccount = function()
+{
+    if (web3.eth.accounts.length > 0)
+	web3.eth.defaultAccount = web3.eth.accounts[0]
+}
+
 </script>
 
 <style>

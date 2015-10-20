@@ -76,19 +76,6 @@ ColumnLayout {
 			anchors.left: parent.left
 			anchors.verticalCenter: parent.verticalCenter
 			color: "#414141"
-			MouseArea
-			{
-				anchors.fill: parent
-				onClicked:
-				{
-					root.height = root.height === minHeight ? maxHeight : minHeight
-					if (root.height === minHeight)
-						minimized()
-					else
-						expanded()
-				}
-				cursorShape: Qt.PointingHandCursor
-			}
 		}
 	}
 
@@ -162,6 +149,38 @@ ColumnLayout {
 					}
 				}
 
+			}
+
+			Rectangle
+			{
+				id: slider
+				height: 5
+				width: parent.width
+				anchors.top: parent.bottom
+				color: "#cccccc"
+				MouseArea
+				{
+					anchors.fill: parent
+					drag.target: slider
+					drag.axis: Drag.YAxis
+					acceptedButtons: Qt.LeftButton
+					cursorShape: Qt.SplitVCursor
+					property int pos
+					onMouseYChanged:
+					{
+						if (pressed)
+						{
+							var newHeight = root.height + mouseY - pos
+							if (newHeight > minHeight && newHeight < 800)
+								root.height = newHeight
+						}
+					}
+
+					onPressed:
+					{
+						pos = mouseY
+					}
+				}
 			}
 		}
 	}

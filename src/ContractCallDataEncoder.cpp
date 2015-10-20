@@ -27,6 +27,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <libdevcore/SHA3.h>
 #include <libethcore/CommonJS.h>
 #include <libsolidity/AST.h>
 #include "QVariableDeclaration.h"
@@ -388,39 +389,69 @@ QVariant ContractCallDataEncoder::decodeRawArray(SolidityType const& _type, byte
 
 QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot)
 {
-	dev::bytes b;
-	for (auto const& sto: _storage)
+	if (_storage.find(_slot) == _storage.end())
+		return QVariant();
+	if (_type.array)
+		return formatStorageArray(_type, _storage, _offset, _slot);
+	else if (_type.members.size() > 0)
+		return formatStorageStruct(_type, _storage);
+	else
+		return decode(_type, toBigEndian(_storage.at(_slot)), _offset);
+}
+
+QVariant ContractCallDataEncoder::formatStorageStruct(SolidityType const& _type, unordered_map<u256, u256> const& _storage)
+{
+	QVariantMap ret;
+	for (auto const& type: _type.members)
+		ret.insert(type.name, formatStorageValue(type.type, _storage, type.offset, type.slot));
+	return ret;
+}
+
+QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot)
+{
+	Q_UNUSED(_offset);
+	QVariantList array;
+	unsigned pos = 0;
+	u256 count = 0;
+	u256 contentIndex;
+	if (_type.dynamicSize)
 	{
-		u256 slotValue = sto.second;
-		bytes slotBytes = toBigEndian(slotValue);
-		b += slotBytes;
+		count = _storage.at(_slot);
+		contentIndex = u256("0x" + dev::sha3(toBigEndian(_slot)).hex());
 	}
-	int pos = _offset + static_cast<int>(_slot) * 32;
-	if (b.size() > static_cast<unsigned>(pos))
+	else
 	{
-		QVariantList items;
-		ContractCallDataEncoder decoder;
-		if (_type.array)
-			return decodeRawArray(_type, b, pos);
-		else if (_type.type == SolidityType::Struct)
+		count = _type.count;
+		contentIndex = _slot;
+	}
+
+	int offset = 32 - _type.size;
+	for (int k = 0; k < count; ++k)
+	{
+		if (_type.baseType.get()->array)
 		{
-			for (auto const& m: _type.members)
-			{
-				if (m.type.array)
-					items.append(decodeRawArray(m.type, b, pos));
-				else
-					items.append(decoder.decodeType(m.type, b, pos));
-			}
+			array.append(formatStorageArray(*_type.baseType, _storage, _offset, contentIndex));
+			contentIndex++;
 		}
 		else
 		{
-			bytes rawValue = toBigEndian(_storage.at(_slot));
-			return decoder.decodeType(_type, rawValue, (int&)_offset);
+			if (_storage.find(contentIndex) == _storage.end())
+				continue;
+			bytes value = toBigEndian(_storage.at(contentIndex));
+			bytesConstRef valueParam(value.data() + offset, _type.size);
+			bytes rawParam(_type.size);
+			valueParam.populate(&rawParam);
+			rawParam = padded(rawParam, 32);
+			array.append(decode(*_type.baseType, rawParam, pos));
+			offset = offset - _type.size;
+			if (offset < 0)
+			{
+				offset = 32 - _type.size;
+				contentIndex++;
+			}
 		}
-		return items;
 	}
-	else
-		return QVariant();
+	return array;
 }
 
 

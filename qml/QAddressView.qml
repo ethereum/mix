@@ -19,10 +19,6 @@ ColumnLayout
 	height: getHeight()
 	width: 320
 
-	onWidthChanged: {
-		console.log("width " + width)
-	}
-
 	SourceSansProBold
 	{
 		id: boldFont
@@ -238,6 +234,16 @@ ColumnLayout
 					trCombobox.currentIndex = 0;
 					trCombobox.selected = false;
 				}
+			}
+		}
+		CopyButton
+		{
+			visible: textinput.visible && textinput.readOnly
+			anchors.left: textinput.right
+			anchors.verticalCenter: parent.verticalCenter
+			getContent: function()
+			{
+				return textinput.text
 			}
 		}
 	}

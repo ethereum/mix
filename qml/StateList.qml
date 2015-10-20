@@ -12,6 +12,7 @@ Dialog {
 	width: 400
 	height: 480
 	visible: false
+	title: qsTr("Scenarios Management")
 	contentItem: Rectangle {
 		implicitHeight: stateListContainer.height
 		implicitWidth: stateListContainer.width
@@ -19,12 +20,6 @@ Dialog {
 		{
 			anchors.fill: parent
 			anchors.margins: 10
-			DefaultLabel
-			{
-				text: qsTr("Scenarios Management:")
-				anchors.horizontalCenter: parent.horizontalCenter
-			}
-
 			TableView {
 				id: list
 				Layout.fillHeight: true
