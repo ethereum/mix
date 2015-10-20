@@ -95,8 +95,8 @@ void MixClient::resetState(std::unordered_map<Address, Account> const& _accounts
 	m_bc.reset(new MixBlockChain(m_dbPath, stateRoot));
 	Block b(m_stateDB, BaseState::PreExisting, KeyPair(_miner).address());
 	b.sync(bc());
-	m_preMine = b;
-	m_postMine = b;
+	m_preSeal = b;
+	m_postSeal = b;
 	WriteGuard lx(x_executions);
 	m_executions.clear();
 }
@@ -138,7 +138,7 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 	d.inputParameters = _t.data();
 	d.executonIndex = m_executions.size();
 	if (!_call)
-		d.transactionIndex = m_postMine.pending().size();
+		d.transactionIndex = m_postSeal.pending().size();
 
 	try
 	{
@@ -232,7 +232,7 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 
 void MixClient::executeTransaction(Transaction const& _t, Block& _block, bool _call, bool _gasAuto, Secret const& _secret)
 {
-	Transaction t = _gasAuto ? replaceGas(_t, m_postMine.gasLimitRemaining()) : _t;
+	Transaction t = _gasAuto ? replaceGas(_t, m_postSeal.gasLimitRemaining()) : _t;
 
 	// do debugging run first
 	EnvInfo envInfo(bc().info(), bc().lastHashes());
@@ -262,21 +262,21 @@ void MixClient::executeTransaction(Transaction const& _t, Block& _block, bool _c
 
 std::unordered_map<u256, u256> MixClient::contractStorage(Address _contract)
 {
-	return m_preMine.state().storage(_contract);
+	return m_preSeal.state().storage(_contract);
 }
 
 void MixClient::mine()
 {
 	WriteGuard l(x_state);
-	m_postMine.commitToSeal(bc());
+	m_postSeal.commitToSeal(bc());
 
-	NoProof::BlockHeader h(m_postMine.info());
+	NoProof::BlockHeader h(m_postSeal.info());
 	RLPStream header;
 	h.streamRLP(header);
-	m_postMine.sealBlock(header.out());
-	bc().import(m_postMine.blockData(), m_postMine.state().db(), (ImportRequirements::Everything & ~ImportRequirements::ValidSeal) != 0);
-	m_postMine.sync(bc());
-	m_preMine = m_postMine;
+	m_postSeal.sealBlock(header.out());
+	bc().import(m_postSeal.blockData(), m_postSeal.state().db(), (ImportRequirements::Everything & ~ImportRequirements::ValidSeal) != 0);
+	m_postSeal.sync(bc());
+	m_preSeal = m_postSeal;
 }
 
 ExecutionResult MixClient::lastExecution() const
@@ -304,9 +304,9 @@ pair<h256, Address> MixClient::submitTransaction(eth::TransactionSkeleton const&
 	WriteGuard l(x_state);
 	TransactionSkeleton ts = _ts;
 	ts.from = toAddress(_secret);
-	ts.nonce = m_postMine.transactionsFrom(ts.from);
+	ts.nonce = m_postSeal.transactionsFrom(ts.from);
 	eth::Transaction t(ts, _secret);
-	executeTransaction(t, m_postMine, false, _gasAuto, _secret);
+	executeTransaction(t, m_postSeal, false, _gasAuto, _secret);
 	return make_pair(t.sha3(), toAddress(ts.from, ts.nonce));
 }
 
@@ -357,7 +357,7 @@ eth::BlockInfo MixClient::blockInfo() const
 void MixClient::setAuthor(Address const& _us)
 {
 	WriteGuard l(x_state);
-	m_postMine.setAuthor(_us);
+	m_postSeal.setAuthor(_us);
 }
 
 void MixClient::startSealing()

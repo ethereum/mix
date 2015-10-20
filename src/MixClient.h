@@ -115,16 +115,16 @@ protected:
 	virtual dev::eth::Block asOf(h256 const& _block) const override;
 	virtual dev::eth::BlockChain& bc() override { return *m_bc; }
 	virtual dev::eth::BlockChain const& bc() const override { return *m_bc; }
-	virtual dev::eth::Block preMine() const override { ReadGuard l(x_state);  return m_preMine; }
-	virtual dev::eth::Block postMine() const override { ReadGuard l(x_state); return m_postMine; }
+	virtual dev::eth::Block preSeal() const override { ReadGuard l(x_state);  return m_preSeal; }
+	virtual dev::eth::Block postSeal() const override { ReadGuard l(x_state); return m_postSeal; }
 	virtual void prepareForTransaction() override {}
 
 private:
 	void executeTransaction(dev::eth::Transaction const& _t, eth::Block& _block, bool _call, bool _gasAuto, dev::Secret const& _secret = dev::Secret());
 	dev::eth::Transaction replaceGas(dev::eth::Transaction const& _t, dev::u256 const& _gas, dev::Secret const& _secret = dev::Secret());
 
-	eth::Block m_preMine;
-	eth::Block m_postMine;
+	eth::Block m_preSeal;
+	eth::Block m_postSeal;
 	OverlayDB m_stateDB;
 	std::unique_ptr<MixBlockChain> m_bc;
 	mutable boost::shared_mutex x_state;
