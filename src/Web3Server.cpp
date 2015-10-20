@@ -32,7 +32,7 @@ using namespace dev;
 
 namespace
 {
-class EmptyNetwork : public dev::WebThreeNetworkFace
+class EmptyNetwork : public dev::NetworkFace
 {
 	std::vector<p2p::PeerSessionInfo> peers() override
 	{
