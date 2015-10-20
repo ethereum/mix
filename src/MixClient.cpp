@@ -26,7 +26,7 @@
 #include <libdevcore/Exceptions.h>
 #include <libethcore/Params.h>
 #include <libethcore/BasicAuthority.h>
-#include <libethereum/CanonBlockChain.h>
+#include <libethereum/BlockChain.h>
 #include <libethereum/Transaction.h>
 #include <libethereum/Executive.h>
 #include <libethereum/ExtVM.h>
