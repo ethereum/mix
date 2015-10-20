@@ -19,7 +19,7 @@
  * @date 2014
  */
 
-#include <libsolidity/AST.h>
+#include <libsolidity/ast/AST.h>
 #include <libdevcore/SHA3.h>
 #include <libdevcore/Exceptions.h>
 #include "QVariableDeclaration.h"

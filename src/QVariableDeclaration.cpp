@@ -21,7 +21,7 @@
  */
 
 #include "QVariableDeclaration.h"
-#include <libsolidity/AST.h>
+#include <libsolidity/ast/AST.h>
 #include "CodeModel.h"
 
 using namespace solidity;
