@@ -26,11 +26,6 @@ var htmlTemplate = "<!doctype>\n" +
 		"<head>\n" +
 		"<script type='text/javascript'>\n" +
 		"\n" +
-		"window.onload = function()\n" +
-		"{\n" +
-		"   web3.eth.defaultAccount = web3.eth.accounts[0];\n" +
-		"}\n" +
-		"\n" +
 		"function get() {\n" +
 		"   var param = document.getElementById('query').value;\n" +
 		"   var res = contracts['Sample'].contract.get();\n" +

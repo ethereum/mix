@@ -353,8 +353,12 @@ Item {
 						if (pendingPageUrl)
 							setPreviewUrl(pendingPageUrl);
 						ready();
+						if (LoadStatus === LoadSucceededStatus)
+							webView.runJavaScript("setDefaultAccount()")
 					}
+
 				}
+
 			}
 
 			Column {
