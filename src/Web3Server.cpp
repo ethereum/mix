@@ -32,7 +32,7 @@ using namespace dev;
 
 namespace
 {
-class EmptyNetwork : public dev::WebThreeNetworkFace
+class EmptyNetwork : public dev::NetworkFace
 {
 	std::vector<p2p::PeerSessionInfo> peers() override
 	{
@@ -141,7 +141,7 @@ dev::bzz::Interface* Web3Server::bzz()
 	BOOST_THROW_EXCEPTION(InterfaceNotSupported("dev::bzz::Interface"));
 }
 
-dev::WebThreeNetworkFace* Web3Server::network()
+dev::NetworkFace* Web3Server::network()
 {
 	return m_network.get();
 }
