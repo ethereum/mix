@@ -391,21 +391,6 @@ QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, 
 {
 	if (_storage.find(_slot) == _storage.end())
 		return QVariant();
-	dev::bytes b;
-	int k = 0;
-	for (auto const& sto: _storage)
-	{
-		u256 slotValue = sto.second;
-		bytes slotBytes = toBigEndian(slotValue);
-		b += slotBytes;
-		stringstream s;
-		s << sto.first;
-		qDebug() << QString::fromStdString(s.str()) << " " << toString(slotBytes);
-		k++;
-	}
-	qDebug() << " ==> " <<	 toString(b);
-
-
 	if (_type.array)
 		return formatStorageArray(_type, _storage, _offset, _slot);
 	else if (_type.members.size() > 0)
@@ -421,7 +406,6 @@ QVariant ContractCallDataEncoder::formatStorageStruct(SolidityType const& _type,
 		ret.insert(type.name, formatStorageValue(type.type, _storage, type.offset, type.slot));
 	return ret;
 }
-
 
 QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot)
 {
