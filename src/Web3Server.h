@@ -54,7 +54,7 @@ private:
 	dev::eth::Interface* client() override { return m_client; }
 	std::shared_ptr<dev::shh::Interface> face() override;
 	dev::bzz::Interface* bzz() override;
-	dev::WebThreeNetworkFace* network() override;
+	dev::NetworkFace* network() override;
 	dev::WebThreeStubDatabaseFace* db() override { return this; }
 
 	std::string get(std::string const& _name, std::string const& _key) override;
@@ -63,7 +63,7 @@ private:
 private:
 	dev::eth::Interface* m_client;
 	std::map<std::string, std::string> m_db;
-	std::unique_ptr<dev::WebThreeNetworkFace> m_network;
+	std::unique_ptr<dev::NetworkFace> m_network;
 };
 
 }

@@ -354,18 +354,18 @@ eth::BlockInfo MixClient::blockInfo() const
 	return BlockInfo(bc().block());
 }
 
-void MixClient::setBeneficiary(Address const& _us)
+void MixClient::setAuthor(Address const& _us)
 {
 	WriteGuard l(x_state);
-	m_postMine.setBeneficiary(_us);
+	m_postMine.setAuthor(_us);
 }
 
-void MixClient::startMining()
+void MixClient::startSealing()
 {
 	//no-op
 }
 
-void MixClient::stopMining()
+void MixClient::stopSealing()
 {
 	//no-op
 }

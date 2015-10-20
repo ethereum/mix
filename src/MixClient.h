@@ -91,13 +91,14 @@ public:
 	std::pair<h256, Address> submitTransaction(eth::TransactionSkeleton const& _ts, Secret const& _secret, bool _gasAuto);
 	dev::eth::ExecutionResult call(Address const& _secret, u256 _value, Address _dest, bytes const& _data, u256 _gas, u256 _gasPrice, eth::BlockNumber _blockNumber, bool _gasAuto, eth::FudgeFactor _ff = eth::FudgeFactor::Strict);
 	ExecutionResult debugTransaction(dev::eth::Transaction const& _t, eth:: State const& _state, eth::EnvInfo const& _envInfo, bool _call);
-	void setBeneficiary(Address const& _us) override;
-	void startMining() override;
-	void stopMining() override;
+	void setAuthor(Address const& _us) override;
+	void startSealing() override;
+	void stopSealing() override;
+	virtual void flushTransactions() override {}
+
 	bool isMining() const override;
 	u256 hashrate() const override;
 	eth::WorkingProgress miningProgress() const override;
-	virtual void flushTransactions() override {}
 
 	/// @returns the last mined block information
 	using Interface::blockInfo; // to remove warning about hiding virtual function
