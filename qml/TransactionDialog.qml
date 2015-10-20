@@ -66,6 +66,17 @@ Dialog {
 		load(item.isContractCreation, item.isFunctionCall, functionId, contractId)
 
 		estimatedGas.updateView()
+		if (mainApplication.systemPointSize >= appSettings.systemPointSize)
+		{
+			width = 520
+			containerRect.implicitWidth = 520
+		}
+		else
+		{
+			width = 520 + (11 * appSettings.systemPointSize)
+			containerRect.implicitWidth = width
+		}
+		console.log("jjj " + width)
 		visible = true;
 	}
 

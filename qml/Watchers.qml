@@ -46,7 +46,7 @@ Rectangle {
 		currentState = _state
 		accounts.init()
 		storages.clear()
-		searchBox.visible = currentState.contractsStorage && Object.keys(currentState.contractsStorage).length > 0
+		searchBox.visible = currentState && currentState.contractsStorage && Object.keys(currentState.contractsStorage).length > 0
 		for (var k in currentState.contractsStorage)
 			storages.append({ "key": k, "value": currentState.contractsStorage[k].values })
 		for (var k = 0; k < storages.count; k++)
@@ -58,7 +58,7 @@ Rectangle {
 	radius: 4
 	Column {
 		anchors.fill: parent
-		spacing: 12
+		spacing: 7
 		id: colWatchers
 		ListModel
 		{
@@ -100,76 +100,76 @@ Rectangle {
 			}
 		}
 
-		RowLayout
-		{
-			Layout.preferredHeight: 20
-			Layout.fillWidth: true
-			DefaultLabel
-			{
-				id: titleLabel
-				anchors.left: parent.left
-				anchors.verticalCenter: parent.verticalCenter
-				color: "#414141"
-				text: qsTr("Contract Account")
-			}
-		}
-
-		RowLayout
+		ColumnLayout
 		{
 			id: searchBox
 			visible: false
-			height: 25
+			Layout.preferredHeight: 20
 			width: parent.width
 			spacing: 0
-			Image {
-				anchors.top: parent.top
-				anchors.topMargin: 8
-				sourceSize.width: 20
-				sourceSize.height: 20
-				source: "qrc:/qml/img/searchicon.png"
-				fillMode: Image.PreserveAspectFit
-			}
-			DefaultTextField
+
+			RowLayout
 			{
-				anchors.top: parent.top
-				anchors.topMargin: 5
+				Layout.preferredHeight: 20
 				Layout.fillWidth: true
-				onTextChanged: {
-					for (var k = 0; k < stoRepeater.count; k++)
-					{
-						var label = storages.get(k).key.split(" - ")
-						stoRepeater.itemAt(k).visible = text.trim() === "" || label[0].toLowerCase().indexOf(text.toLowerCase()) !== -1 || label[1].toLowerCase().indexOf(text.toLowerCase()) !== -1
+				DefaultLabel
+				{
+					id: titleLabel
+					anchors.left: parent.left
+					anchors.verticalCenter: parent.verticalCenter
+					color: "#414141"
+					text: qsTr("Contract Account")
+				}
+			}
+
+			RowLayout
+			{
+				Image {
+					sourceSize.width: 20
+					sourceSize.height: 20
+					source: "qrc:/qml/img/searchicon.png"
+					fillMode: Image.PreserveAspectFit
+				}
+				DefaultTextField
+				{
+					Layout.fillWidth: true
+					onTextChanged: {
+						for (var k = 0; k < stoRepeater.count; k++)
+						{
+							var label = storages.get(k).key.split(" - ")
+							stoRepeater.itemAt(k).visible = text.trim() === "" || label[0].toLowerCase().indexOf(text.toLowerCase()) !== -1 || label[1].toLowerCase().indexOf(text.toLowerCase()) !== -1
+						}
 					}
 				}
 			}
-		}
 
-		Repeater
-		{
-			id: stoRepeater
-			model: storages
-			KeyValuePanel
+			Repeater
 			{
-				height: minHeight
-				width: colWatchers.width
-				anchors.horizontalCenter: colWatchers.horizontalCenter
-				id: ctrsStorage
-				function computeData()
+				id: stoRepeater
+				model: storages
+				KeyValuePanel
 				{
-					title = storages.get(index).key
-					ctrsStorage.model.clear()
-					for (var k in storages.get(index).value)
-						ctrsStorage.add(k, JSON.stringify(storages.get(index).value[k]))
-				}
-				onMinimized:
-				{
-					root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
-					root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
-				}
-				onExpanded:
-				{
-					root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
-					root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
+					height: minHeight
+					width: colWatchers.width
+					anchors.horizontalCenter: colWatchers.horizontalCenter
+					id: ctrsStorage
+					function computeData()
+					{
+						title = storages.get(index).key
+						ctrsStorage.model.clear()
+						for (var k in storages.get(index).value)
+							ctrsStorage.add(k, JSON.stringify(storages.get(index).value[k]))
+					}
+					onMinimized:
+					{
+						root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
+						root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
+					}
+					onExpanded:
+					{
+						root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
+						root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
+					}
 				}
 			}
 		}

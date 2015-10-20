@@ -389,7 +389,9 @@ QVariant ContractCallDataEncoder::decodeRawArray(SolidityType const& _type, byte
 
 QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot)
 {
-	/*dev::bytes b;
+	if (_storage.find(_slot) == _storage.end())
+		return QVariant();
+	dev::bytes b;
 	int k = 0;
 	for (auto const& sto: _storage)
 	{
@@ -402,32 +404,68 @@ QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, 
 		k++;
 	}
 	qDebug() << " ==> " <<	 toString(b);
-	*/
+
 
 	if (_type.array)
 		return formatStorageArray(_type, _storage, _offset, _slot);
+	else if (_type.members.size() > 0)
+		return formatStorageStruct(_type, _storage);
 	else
-		return decode(_type, toBigEndian(_storage.at(_slot)), 0);
+		return decode(_type, toBigEndian(_storage.at(_slot)), _offset);
 }
+
+QVariant ContractCallDataEncoder::formatStorageStruct(SolidityType const& _type, unordered_map<u256, u256> const& _storage)
+{
+	QVariantMap ret;
+	for (auto const& type: _type.members)
+		ret.insert(type.name, formatStorageValue(type.type, _storage, type.offset, type.slot));
+	return ret;
+}
+
 
 QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot)
 {
 	Q_UNUSED(_offset);
-	u256 loc = u256("0x" + dev::sha3(toBigEndian(_slot)).hex());
 	QVariantList array;
-	int offset = 0;
-	for (int k = 0; k < _storage.at(_slot); ++k)
+	unsigned pos = 0;
+	u256 count = 0;
+	u256 contentIndex;
+	if (_type.dynamicSize)
+	{
+		count = _storage.at(_slot);
+		contentIndex = u256("0x" + dev::sha3(toBigEndian(_slot)).hex());
+	}
+	else
+	{
+		count = _type.count;
+		contentIndex = _slot;
+	}
+
+	int offset = 32 - _type.size;
+	for (int k = 0; k < count; ++k)
 	{
 		if (_type.baseType.get()->array)
 		{
-			array.append(formatStorageArray(*_type.baseType, _storage, _offset, loc));
+			array.append(formatStorageArray(*_type.baseType, _storage, _offset, contentIndex));
+			contentIndex++;
 		}
 		else
 		{
-			bytes value = toBigEndian(_storage.at(loc));
-			array.append(decode(_type, value, offset));
+			if (_storage.find(contentIndex) == _storage.end())
+				continue;
+			bytes value = toBigEndian(_storage.at(contentIndex));
+			bytesConstRef valueParam(value.data() + offset, _type.size);
+			bytes rawParam(_type.size);
+			valueParam.populate(&rawParam);
+			rawParam = padded(rawParam, 32);
+			array.append(decode(*_type.baseType, rawParam, pos));
+			offset = offset - _type.size;
+			if (offset < 0)
+			{
+				offset = 32 - _type.size;
+				contentIndex++;
+			}
 		}
-		loc++;
 	}
 	return array;
 }

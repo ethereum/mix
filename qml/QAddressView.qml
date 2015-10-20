@@ -236,5 +236,15 @@ ColumnLayout
 				}
 			}
 		}
+		CopyButton
+		{
+			visible: textinput.visible && textinput.readOnly
+			anchors.left: textinput.right
+			anchors.verticalCenter: parent.verticalCenter
+			getContent: function()
+			{
+				return textinput.text
+			}
+		}
 	}
 }
