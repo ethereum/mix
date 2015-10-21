@@ -202,7 +202,7 @@ Item {
 			anchors.leftMargin: 4
 			color: webPreviewStyle.general.headerBackgroundColor
 			Layout.preferredWidth: parent.width
-			Layout.preferredHeight: 32
+			Layout.minimumHeight: 32
 			Row {
 				anchors.top: parent.top
 				anchors.fill: parent
@@ -327,7 +327,7 @@ Item {
 
 		Rectangle
 		{
-			Layout.preferredHeight: 1
+			Layout.minimumHeight: 1
 			Layout.preferredWidth: parent.width
 			color: webPreviewStyle.general.separatorColor
 		}

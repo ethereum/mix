@@ -93,10 +93,10 @@ ColumnLayout
 			transactionRepeater.itemAt(k).hideCalls()
 	}
 
+	Layout.minimumHeight: trHeight
 	function setHeight()
 	{
-		Layout.preferredHeight = calculateHeight()
-		height = calculateHeight()
+		Layout.minimumHeight = calculateHeight()
 	}
 
 	onOpenedTrChanged:
@@ -119,15 +119,19 @@ ColumnLayout
 
 	RowLayout
 	{
-		Layout.preferredHeight: trHeight
 		Layout.preferredWidth: blockWidth
 		id: rowHeader
 		spacing: 0
-		Rectangle
+		RowLayout
 		{
+			Layout.minimumHeight: trHeight
+			Rectangle
+			{
+				anchors.fill: parent
+				color: status === "mined" ? txColor : halfOpacity
+			}
+
 			Layout.preferredWidth: blockWidth
-			Layout.preferredHeight: trHeight
-			color: status === "mined" ? txColor : halfOpacity
 			anchors.left: parent.left
 			anchors.leftMargin: statusWidth
 			DefaultLabel {
@@ -151,7 +155,6 @@ ColumnLayout
 				anchors.right: parent.right
 				anchors.rightMargin: 10
 				visible: number === -2
-				height: 18
 				enabled: scenarioIndex !== -1
 				onClicked:
 				{
@@ -218,8 +221,7 @@ ColumnLayout
 			{
 				for (var k in calls)
 					callsModel.append(calls[k])
-				root.Layout.preferredHeight = calculateHeight()
-				root.height = calculateHeight()
+				root.Layout.minimumHeight = calculateHeight()
 			}
 
 			function hideCalls()

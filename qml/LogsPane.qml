@@ -232,7 +232,7 @@ Rectangle
 			GradientStop { position: 0.0; color: "#f1f1f1" }
 			GradientStop { position: 1.0; color: "#d9d7da" }
 		}
-		Layout.preferredHeight: logStyle.generic.layout.headerHeight
+		Layout.minimumHeight: logStyle.generic.layout.headerHeight
 		height: logStyle.generic.layout.headerHeight
 		width: logsPane.width
 		anchors.bottom: parent.bottom

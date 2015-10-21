@@ -12,7 +12,7 @@ import "."
 RowLayout
 {
 	id: rowTransaction
-	Layout.preferredHeight: trHeight
+	//Layout.minimumHeight: trHeight
 	spacing: 0
 	property bool isCall
 
@@ -20,7 +20,6 @@ RowLayout
 	property int txIndex
 	property int callIndex
 	property alias detailVisible: txDetail.visible
-	property int detailRowHeight: 25
 	property string trDetailColor: "#adadad"
 
 	Keys.onDeletePressed:
@@ -52,7 +51,7 @@ RowLayout
 			else
 				detailH = 0
 		}
-		Layout.preferredHeight = trHeight + detailH
+		Layout.minimumHeight = trHeight + detailH
 		return detailH
 	}
 
@@ -70,7 +69,7 @@ RowLayout
 	{
 		id: trSaveStatus
 		Layout.preferredWidth: statusWidth
-		Layout.preferredHeight: parent.height
+		//Layout.minimumHeight: parent.height
 		color: "transparent"
 		anchors.top: parent.top
 		property bool saveStatus
@@ -127,14 +126,16 @@ RowLayout
 		}
 	}
 
-	Rectangle
+	ColumnLayout
 	{
-		Layout.preferredWidth: blockWidth
-		Layout.preferredHeight: trHeight
-		height: trHeight
-		color: rowContentTr.selected ? selectedTxColor : (status === "mined" ? (isCall ? callColor : txColor) : halfOpacity)
 		id: rowContentTr
 		anchors.top: parent.top
+
+		Rectangle
+		{
+			anchors.fill: parent
+			color: rowContentTr.selected ? selectedTxColor : (status === "mined" ? (isCall ? callColor : txColor) : halfOpacity)
+		}
 
 		property bool selected: false
 		Connections
@@ -183,63 +184,52 @@ RowLayout
 		{
 			id: rowTransactionItem
 			Layout.fillWidth: true
-			Layout.preferredHeight: trHeight - 10
-			anchors.verticalCenter: parent.verticalCenter
-			Rectangle
-			{
-				Layout.preferredWidth: fromWidth
-				anchors.left: parent.left
-				anchors.leftMargin: horizontalMargin
-				anchors.verticalCenter: parent.verticalCenter
-				DefaultText
-				{
-					id: hash
-					width: parent.width - 30
-					elide: Text.ElideRight
-					anchors.verticalCenter: parent.verticalCenter
-					maximumLineCount: 1
-					clip: true
-					color: labelColor
-					font.bold: true
-					text: {
-						if (tx)
-							return bc.addAccountNickname(clientModel.resolveAddress(tx.sender), true)
-						else
-							return ""
-					}
-				}
+			//Layout.minimumHeight: trHeight - 10
+			//anchors.verticalCenter: parent.verticalCenter
 
-				DefaultLabel
-				{
-					anchors.left: hash.right
-					anchors.leftMargin: 1
-					text: "→"
-					anchors.verticalCenter: parent.verticalCenter
-					width: 20
+			DefaultText
+			{
+				id: hash
+				width: parent.width - 30
+				elide: Text.ElideRight
+				anchors.verticalCenter: parent.verticalCenter
+				maximumLineCount: 1
+				clip: true
+				color: labelColor
+				font.bold: true
+				text: {
+					if (tx)
+						return bc.addAccountNickname(clientModel.resolveAddress(tx.sender), true)
+					else
+						return ""
 				}
 			}
 
-			Rectangle
+			DefaultLabel
 			{
-				Layout.preferredWidth: toWidth
+				anchors.left: hash.right
+				anchors.leftMargin: 1
+				text: "→"
 				anchors.verticalCenter: parent.verticalCenter
-				DefaultText
-				{
-					id: func
-					text: {
-						if (tx)
-							return bc.formatRecipientLabel(tx)
-						else
-							return ""
-					}
-					elide: Text.ElideRight
-					anchors.verticalCenter: parent.verticalCenter
-					color: labelColor
-					font.bold: true
-					clip: true
-					maximumLineCount: 1
-					width: parent.width - 58
+				width: 20
+			}
+
+			DefaultText
+			{
+				id: func
+				text: {
+					if (tx)
+						return bc.formatRecipientLabel(tx)
+					else
+						return ""
 				}
+				elide: Text.ElideRight
+				anchors.verticalCenter: parent.verticalCenter
+				color: labelColor
+				font.bold: true
+				clip: true
+				maximumLineCount: 1
+				width: parent.width - 58
 			}
 
 			function userFrienldyToken(value)
@@ -343,11 +333,11 @@ RowLayout
 				}
 			}
 
-			Column
+			ColumnLayout
 			{
 				anchors.fill: parent
 				anchors.margins: 10
-				Row
+				RowLayout
 				{
 					DefaultLabel
 					{
@@ -373,7 +363,7 @@ RowLayout
 					}
 				}
 
-				Row
+				RowLayout
 				{
 					DefaultLabel
 					{
@@ -390,7 +380,7 @@ RowLayout
 					}
 				}
 
-				Row
+				RowLayout
 				{
 					DefaultLabel
 					{
@@ -406,7 +396,7 @@ RowLayout
 						font.bold: true
 					}
 				}
-				Row
+				RowLayout
 				{
 					Column
 					{
@@ -426,24 +416,21 @@ RowLayout
 						Repeater
 						{
 							model: inputList
-							Row
+							DefaultLabel
 							{
-								DefaultLabel
-								{
-									color: trDetailColor
-									text: key + "\t" + value
-									width: rowTransactionItem.width - 40
-									elide: Text.ElideRight
-									font.bold: true
-								}
+								color: trDetailColor
+								text: key + "\t" + value
+								width: rowTransactionItem.width - 40
+								elide: Text.ElideRight
+								font.bold: true
 							}
 						}
 					}
 				}
 
-				Row
+				RowLayout
 				{
-					Column
+					ColumnLayout
 					{
 						DefaultLabel
 						{
@@ -462,24 +449,21 @@ RowLayout
 						{
 							model: outputList
 
-							Row
+							DefaultLabel
 							{
-								DefaultLabel
-								{
-									color: trDetailColor
-									text: key + "\t" + value
-									width: rowTransactionItem.width - 30
-									elide: Text.ElideRight
-									font.bold: true
-								}
+								color: trDetailColor
+								text: key + "\t" + value
+								width: rowTransactionItem.width - 30
+								elide: Text.ElideRight
+								font.bold: true
 							}
 						}
 					}
 				}
 
-				Row
+				RowLayout
 				{
-					Column
+					ColumnLayout
 					{
 						DefaultLabel
 						{
@@ -497,7 +481,7 @@ RowLayout
 						Repeater
 						{
 							model: eventList
-							Row
+							RowLayout
 							{
 								DefaultLabel
 								{
@@ -519,7 +503,7 @@ RowLayout
 					}
 				}
 
-				Row
+				RowLayout
 				{
 					spacing: 5
 					width: parent.width
@@ -530,7 +514,7 @@ RowLayout
 						getContent: function() {
 							return JSON.stringify(tx)
 						}
-						height: 22
+						//height: 22
 						width: 25
 					}
 					DefaultButton
@@ -543,7 +527,7 @@ RowLayout
 							if (!isCall)
 								root.editTx(index)
 						}
-						height: 22
+						//height: 22
 						text: qsTr("Edit transaction...")
 					}
 
@@ -556,7 +540,7 @@ RowLayout
 							if (tx.recordIndex !== undefined)
 								clientModel.debugRecord(tx.recordIndex, tx.label);
 						}
-						height: 22
+						//height: 22
 						text: isCall ? qsTr("Debug call...") : qsTr("Debug transaction...")
 					}
 				}

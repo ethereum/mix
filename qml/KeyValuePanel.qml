@@ -68,7 +68,7 @@ ColumnLayout {
 
 	RowLayout
 	{
-		Layout.preferredHeight: 20
+		Layout.minimumHeight: 20
 		Layout.fillWidth: true
 		DefaultLabel
 		{
@@ -82,21 +82,27 @@ ColumnLayout {
 	RowLayout
 	{
 		Layout.fillWidth: true
-		Layout.preferredHeight: 100
+		//Layout.minimumHeight: 100
 		ListModel
 		{
 			id: modelKeyValue
 		}
 
-		Rectangle
+		RowLayout
 		{
 			Layout.fillWidth: true
 			Layout.fillHeight: true
-			color: "white"
-			border.width: 1
-			border.color: "#cccccc"
-			radius: 2
 			anchors.left: parent.left
+
+			Rectangle
+			{
+				anchors.fill: parent
+				color: "white"
+				border.width: 1
+				border.color: "#cccccc"
+				radius: 2
+			}
+
 			ScrollView
 			{
 				id: columnValues
@@ -115,7 +121,7 @@ ColumnLayout {
 						model: modelKeyValue
 						Row
 						{
-							Layout.preferredHeight: 20
+							Layout.minimumHeight: 20
 							spacing: 5
 							anchors.left: colValue.left
 							anchors.leftMargin: 5
@@ -172,7 +178,7 @@ ColumnLayout {
 						{
 							var newHeight = root.height + mouseY - pos
 							if (newHeight > minHeight && newHeight < 800)
-								root.height = newHeight
+								root.Layout.minimunHeight = newHeight
 						}
 					}
 

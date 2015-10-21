@@ -119,8 +119,7 @@ Rectangle
 		ColumnLayout {
 			height: wrapperItem.hiddenHeightRepeater()
 			Layout.minimumHeight: wrapperItem.hiddenHeightRepeater()
-			Layout.preferredHeight: wrapperItem.hiddenHeightRepeater()
-			Layout.maximumHeight: wrapperItem.hiddenHeightRepeater()
+			//Layout.maximumHeight: wrapperItem.hiddenHeightRepeater()
 			width: parent.width
 			visible: section.state !== "hidden"
 			spacing: 0
@@ -135,8 +134,7 @@ Rectangle
 					id: rootItem
 					Layout.fillWidth: true
 					Layout.minimumHeight: wrapperItem.hiddenHeightElement()
-					Layout.preferredHeight: wrapperItem.hiddenHeightElement()
-					Layout.maximumHeight: wrapperItem.hiddenHeightElement()
+					//Layout.maximumHeight: wrapperItem.hiddenHeightElement()
 					height: wrapperItem.hiddenHeightElement()
 					color: isSelected ? projectFilesStyle.documentsList.highlightColor : "transparent"
 					property bool isSelected

@@ -309,7 +309,7 @@ Dialog {
 									}
 
 									Layout.preferredWidth: parent.width
-									Layout.preferredHeight: 20
+									Layout.minimumHeight: 20
 									spacing: 5
 
 									Rectangle

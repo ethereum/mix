@@ -129,7 +129,7 @@ Rectangle {
 				id: top
 				color: "transparent"
 				Layout.fillWidth: true
-				Layout.preferredHeight:
+				Layout.minimumHeight:
 				{
 					return 30 + 50 * topMenu.model[index].actions.length
 				}
@@ -180,7 +180,7 @@ Rectangle {
 						model: topMenu.model[index].actions
 						Rectangle
 						{
-							Layout.preferredHeight: 50
+							Layout.minimumHeight: 50
 							Layout.preferredWidth: col.width
 							color: "transparent"
 							id: itemContainer							
@@ -288,7 +288,7 @@ Rectangle {
 					Rectangle
 					{
 						Layout.preferredWidth: col.width
-						Layout.preferredHeight: 2
+						Layout.minimumHeight: 2
 						color: "#cccccc"
 					}
 				}
@@ -348,7 +348,7 @@ Rectangle {
 		Rectangle
 		{
 			Layout.fillWidth: true
-			Layout.preferredHeight: 2
+			Layout.minimumHeight: 2
 			color: "#cccccc"
 		}
 
@@ -367,7 +367,7 @@ Rectangle {
 
 		Rectangle
 		{
-			Layout.preferredHeight: 20
+			Layout.minimumHeight: 20
 			Layout.fillWidth: true
 			color: "#cccccc"
 			LogsPaneStyle

@@ -56,7 +56,7 @@ Rectangle {
 
 	color: "transparent"
 	radius: 4
-	Column {
+	ColumnLayout {
 		anchors.fill: parent
 		spacing: 7
 		id: colWatchers
@@ -67,10 +67,10 @@ Rectangle {
 
 		KeyValuePanel
 		{
-			height: minHeight
-			width: parent.width
+			Layout.minimumHeight: minHeight
+			Layout.fillWidth: true
 			visible: false
-			anchors.horizontalCenter: parent.horizontalCenter
+			//anchors.horizontalCenter: parent.horizontalCenter
 			id: accounts
 			title: qsTr("User Account")
 			role: "accounts"
@@ -90,13 +90,13 @@ Rectangle {
 			}
 			onMinimized:
 			{
-				root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
-				root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
+				root.Layout.minimumHeight = root.Layout.minimumHeight - maxHeight
+				root.Layout.minimumHeight = root.Layout.minimumHeight + minHeight
 			}
 			onExpanded:
 			{
-				root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
-				root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
+				root.Layout.minimumHeight = root.Layout.minimumHeight - minHeight
+				root.Layout.minimumHeight = root.Layout.minimumHeight + maxHeight
 			}
 		}
 
@@ -104,13 +104,12 @@ Rectangle {
 		{
 			id: searchBox
 			visible: false
-			Layout.preferredHeight: 20
-			width: parent.width
+			Layout.fillWidth: true
 			spacing: 0
 
 			RowLayout
 			{
-				Layout.preferredHeight: 20
+				Layout.minimumHeight: 20
 				Layout.fillWidth: true
 				DefaultLabel
 				{
@@ -149,8 +148,8 @@ Rectangle {
 				model: storages
 				KeyValuePanel
 				{
-					height: minHeight
-					width: colWatchers.width
+					anchors.horizontalCenter: parent.horizontalCenter
+					Layout.fillWidth: true
 					id: ctrsStorage
 					function computeData()
 					{
@@ -161,13 +160,13 @@ Rectangle {
 					}
 					onMinimized:
 					{
-						root.Layout.preferredHeight = root.Layout.preferredHeight - maxHeight
-						root.Layout.preferredHeight = root.Layout.preferredHeight + minHeight
+						root.Layout.minimumHeight = root.Layout.minimumHeight - maxHeight
+						root.Layout.minimumHeight = root.Layout.minimumHeight + minHeight
 					}
 					onExpanded:
 					{
-						root.Layout.preferredHeight = root.Layout.preferredHeight - minHeight
-						root.Layout.preferredHeight = root.Layout.preferredHeight + maxHeight
+						root.Layout.minimumHeight = root.Layout.minimumHeight - minHeight
+						root.Layout.minimumHeight = root.Layout.minimumHeight + maxHeight
 					}
 				}
 			}

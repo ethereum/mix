@@ -86,7 +86,7 @@ ColumnLayout
 		id: btnRowContainer
 		property int comboboxWidth: 100
 		property int minimalWidth: 100 * 6 + btnRowContainer.comboboxWidth
-		Layout.preferredHeight: 40
+		Layout.minimumHeight: 40
 		Item
 		{
 			Layout.preferredWidth: parent.comboboxWidth

@@ -113,7 +113,7 @@ Rectangle {
 			height: 40
 			Layout.row: 0
 			Layout.fillWidth: true
-			Layout.preferredHeight: 40
+			Layout.minimumHeight: 40
 			id: headerView
 			Rectangle
 			{
@@ -139,7 +139,7 @@ Rectangle {
 
 		Rectangle {
 			Layout.fillWidth: true
-			Layout.preferredHeight: root.height - headerView.height;
+			Layout.minimumHeight: root.height - headerView.height;
 
 			Settings {
 				id: splitSettings

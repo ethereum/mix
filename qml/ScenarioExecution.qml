@@ -94,7 +94,7 @@ Rectangle {
 
 				ScenarioLoader
 				{
-					Layout.preferredHeight: 40
+					Layout.minimumHeight: 40
 					Layout.preferredWidth: parent.width
 					width: parent.width
 					visible: false
@@ -172,18 +172,18 @@ Rectangle {
 				id: watchers
 				bc: blockChain
 				Layout.fillWidth: true
-				Layout.preferredHeight: 110 // 110 / panel
+				Layout.minimumHeight: 110 // 110 / panel
 				onUpdated:
 				{
 					var count = Object.keys(currentState.contractsStorage).length
-					Layout.preferredHeight = (count + 1) * 110
+					Layout.minimumHeight = (count + 1) * 110
 				}
 			}
 
 			Rectangle
 			{
 				color: "transparent"
-				Layout.preferredHeight: 50
+				Layout.minimumHeight: 50
 				Layout.fillWidth: true
 			}
 		}

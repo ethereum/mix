@@ -320,7 +320,7 @@ Dialog {
 
 				RowLayout
 				{
-					Layout.preferredHeight: 55
+					Layout.minimumHeight: 55
 					Rectangle
 					{
 						color: "transparent"
@@ -400,7 +400,7 @@ Dialog {
 					Column
 					{
 						Layout.preferredWidth: 350
-						Layout.preferredHeight: 90
+						Layout.minimumHeight: 90
 						ExclusiveGroup {
 							id: rbbuttonList
 							onCurrentChanged: {
@@ -470,7 +470,7 @@ Dialog {
 
 					QAddressView
 					{
-						Layout.preferredHeight: 55
+						Layout.minimumHeight: 55
 						Layout.preferredWidth: 350
 						width: 350
 						id: recipientsAccount
@@ -569,7 +569,7 @@ Dialog {
 					function updateView()
 					{
 						paramScroll.visible = paramsModel.length > 0
-						paramScroll.Layout.preferredHeight = paramScroll.colHeight
+						paramScroll.Layout.minimumHeight = paramScroll.colHeight
 						if (paramsModel.length === 0)
 							paramScroll.height = 0
 					}
@@ -599,7 +599,7 @@ Dialog {
 
 				Rectangle
 				{
-					Layout.preferredHeight: 30
+					Layout.minimumHeight: 30
 					Layout.fillWidth: true
 					color: "transparent"
 					Rectangle
@@ -631,7 +631,7 @@ Dialog {
 
 				RowLayout
 				{
-					Layout.preferredHeight: 45
+					Layout.minimumHeight: 45
 					Rectangle
 					{
 						Layout.preferredWidth: 100
@@ -722,7 +722,7 @@ Dialog {
 
 			RowLayout
 			{
-				Layout.preferredHeight: 45
+				Layout.minimumHeight: 45
 				Rectangle
 				{
 					Layout.preferredWidth: 100
