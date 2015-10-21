@@ -48,11 +48,11 @@ public:
 	/// Encode data for corresponding type
 	void encode(QVariant const& _data, SolidityType const& _type);
 	/// Decode variable in order to be sent to QML view.
-	QStringList decode(QList<QVariableDeclaration*> const& _dec, bytes _value, unsigned const& _offset = 0);
+	QStringList decode(QList<QVariableDeclaration*> const& _dec, bytes _value, u256 const& _offset = 0);
 	/// Decode @param _parameter
-	QString decode(QVariableDeclaration* const& _param, bytes _value, unsigned const& _offset = 0);
+	QString decode(QVariableDeclaration* const& _param, bytes _value, u256 const& _offset = 0);
 	/// Decode single variable
-	QVariant decode(SolidityType const& _type, bytes const& _value, unsigned const& _offset = 0);
+	QVariant decode(SolidityType const& _type, bytes const& _value, u256 const& _offset = 0);
 	/// Get all encoded data encoded by encode function.
 	bytes encodedData();
 	/// Encode a string to bytes (in order to be used as funtion param)
@@ -62,15 +62,15 @@ public:
 	/// Decode bytes from ABI
 	dev::bytes decodeBytes(dev::bytes const& _rawValue);
 	/// Decode struct
-	QVariantList decodeStruct(SolidityType const& _type, dev::bytes const& _rawValue, int& _offset);
+	QVariantList decodeStruct(SolidityType const& _type, dev::bytes const& _rawValue, u256& _offset);
 	/// Decode array
-	QJsonArray decodeArray(SolidityType const& _type, bytes const& _value, int& pos);
+	QJsonArray decodeArray(SolidityType const& _type, bytes const& _value, u256& pos);
 	/// Decode array items
-	QJsonValue decodeArrayContent(SolidityType const& _type, bytes const& _value, int& pos);
+	QJsonValue decodeArrayContent(SolidityType const& _type, bytes const& _value, u256& pos);
 	/// Decode enum
 	QString decodeEnum(bytes _value);
 	/// Decode type
-	QVariant decodeType(SolidityType _type, bytes _value, int& _readPosition);
+	QVariant decodeType(SolidityType _type, bytes _value, u256& _readPosition);
 	/// Decode int
 	bigint decodeInt(dev::bytes const& _rawValue);
 	/// Format storage
@@ -78,7 +78,7 @@ public:
 	/// Format array from storage
 	QVariant formatStorageArray(SolidityType const& _type, std::unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot);
 	/// Decode raw array
-	QVariant decodeRawArray(SolidityType const& _type, bytes const& _value, int& pos);
+	QVariant decodeRawArray(SolidityType const& _type, bytes const& _value, u256& pos);
 	/// Decode struct stored in storage
 	QVariant formatStorageStruct(SolidityType const& _type, std::unordered_map<u256, u256> const& _storage, u256 _slot);
 
