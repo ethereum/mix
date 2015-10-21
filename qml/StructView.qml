@@ -36,11 +36,14 @@ Column
 
 			Component.onCompleted:
 			{
-				if (members[index] && QSolidityType.Address === members[index].type.category && members[index].type.array && context === "parameter")
-					height = 60
-				else
-					height = 30 + (members[index].type.category === QSolidityType.Struct ? (30 * members[index].type.members.length) : 0)
-				root.colHeight += height
+				if (members[index])
+				{
+					if (QSolidityType.Address === members[index].type.category && members[index].type.array && context === "parameter")
+						height = 60
+					else
+						height = 30 + (members[index].type.category === QSolidityType.Struct ? (30 * members[index].type.members.length) : 0)
+					root.colHeight += height
+				}
 			}
 
 			Rectangle
@@ -97,6 +100,7 @@ Column
 					var ptype = members[index].type;
 					var pname = members[index].name;
 					var vals = value
+
 					item.readOnly = context === "variable";
 					if (ptype.category === QSolidityType.Address)
 					{
@@ -112,10 +116,11 @@ Column
 					else if (ptype.category === QSolidityType.Struct && !item.members)
 					{
 						var val = {}
+
 						for (var k in members[index].type.members)
 						{
 							var param = members[index].type.members[k]
-							val[param.name] = vals[pname][k]
+							val[param.name] = vals[pname][param.name]
 						}
 						item.value = val
 						item.members = members[index].type.members
@@ -124,6 +129,7 @@ Column
 						item.subType = modelData.type.name
 					else
 						item.value = getValue();
+
 
 					if (item.init)
 						item.init()
