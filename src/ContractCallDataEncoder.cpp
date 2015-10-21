@@ -34,6 +34,7 @@
 #include "QVariableDefinition.h"
 #include "QFunctionDefinition.h"
 #include "ContractCallDataEncoder.h"
+#include "CodeModel.h"
 using namespace std;
 using namespace dev;
 using namespace dev::solidity;
@@ -394,16 +395,16 @@ QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, 
 	if (_type.array)
 		return formatStorageArray(_type, _storage, _offset, _slot);
 	else if (_type.members.size() > 0)
-		return formatStorageStruct(_type, _storage);
+		return formatStorageStruct(_type, _storage, _slot);
 	else
 		return decode(_type, toBigEndian(_storage.at(_slot)), _offset);
 }
 
-QVariant ContractCallDataEncoder::formatStorageStruct(SolidityType const& _type, unordered_map<u256, u256> const& _storage)
+QVariant ContractCallDataEncoder::formatStorageStruct(SolidityType const& _type, unordered_map<u256, u256> const& _storage, u256 _slot)
 {
 	QVariantMap ret;
 	for (auto const& type: _type.members)
-		ret.insert(type.name, formatStorageValue(type.type, _storage, type.offset, type.slot));
+		ret.insert(type.name, formatStorageValue(type.type, _storage, type.offset, _slot + type.slot));
 	return ret;
 }
 
