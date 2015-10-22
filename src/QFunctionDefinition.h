@@ -23,7 +23,7 @@
 
 #include <QObject>
 #include <QQmlListProperty>
-#include <libsolidity/AST.h>
+#include <libsolidity/ast/AST.h>
 #include "QVariableDeclaration.h"
 #include "QBasicNodeDefinition.h"
 

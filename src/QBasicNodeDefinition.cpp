@@ -20,7 +20,7 @@
  */
 
 #include "QBasicNodeDefinition.h"
-#include <libsolidity/AST.h>
+#include <libsolidity/ast/AST.h>
 
 namespace dev
 {

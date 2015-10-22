@@ -25,10 +25,10 @@
 #include <QTextDocument>
 #include <QTextBlock>
 #include <QTextLayout>
-#include <libsolidity/ASTVisitor.h>
-#include <libsolidity/AST.h>
-#include <libsolidity/Scanner.h>
-#include <libsolidity/Exceptions.h>
+#include <libsolidity/ast/ASTVisitor.h>
+#include <libsolidity/ast/AST.h>
+#include <libsolidity/parsing/Scanner.h>
+#include <libsolidity/interface/Exceptions.h>
 #include "CodeHighlighter.h"
 
 using namespace dev::mix;
