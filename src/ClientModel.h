@@ -296,7 +296,7 @@ private:
 	void onNewTransaction(RecordLogEntry::TxSource _source);
 	void showDebuggerForTransaction(ExecutionResult const& _t, QString const& _label = "");
 	QVariant formatValue(SolidityType const& _type, dev::u256 const& _value);
-	QVariant formatValue(SolidityType const& _type, dev::bytes const& _value, int& _offset);
+	QVariant formatValue(SolidityType const& _type, dev::bytes const& _value, u256& _offset);
 	QString resolveToken(std::pair<QString, int> const& _value);
 	std::pair<QString, int> retrieveToken(QString const& _value);
 	std::pair<QString, int> resolvePair(QString const& _contractId);

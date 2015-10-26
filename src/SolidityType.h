@@ -25,7 +25,7 @@ along with cpp-ethereum.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QString>
 #include <vector>
-#include <libsolidity/Types.h>
+#include <libsolidity/ast/Types.h>
 #include <libdevcore/Common.h>
 
 namespace dev

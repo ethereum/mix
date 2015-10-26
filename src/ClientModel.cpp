@@ -30,7 +30,7 @@
 #include <jsonrpccpp/server.h>
 #include <libethcore/CommonJS.h>
 #include <libethcore/KeyManager.h>
-#include <libsolidity/Types.h>
+#include <libsolidity/ast/Types.h>
 #include <libethereum/Transaction.h>
 #include <libwebthree/WebThree.h>
 #include <libdevcore/FixedHash.h>
@@ -713,7 +713,7 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t, QString 
 					if (loc == DataLocation::Memory)
 					{
 						u256 pos = s.stack[l.first];
-						int offset = static_cast<int>(pos);
+						u256 offset = pos;
 						localValues[l.second->name()] = formatValue(l.second->type()->type(), s.memory, offset);
 					}
 					else if (loc == DataLocation::Storage)
@@ -747,14 +747,14 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t, QString 
 QVariant ClientModel::formatValue(SolidityType const& _type, u256 const& _value)
 {
 	bytes val = toBigEndian(_value);
-	int pos = 0;
+	u256 pos = 0;
 	return formatValue(_type, val, pos);
 }
 
-QVariant ClientModel::formatValue(SolidityType const& _type, bytes const& _value, int& _offset)
+QVariant ClientModel::formatValue(SolidityType const& _type, bytes const& _value, u256& _offset)
 {
 	ContractCallDataEncoder decoder;
-	int pos = static_cast<int>(_offset);
+	u256 pos = _offset;
 	QVariant res;
 	if (_type.array)
 		res = decoder.decodeRawArray(_type, _value, _offset);

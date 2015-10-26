@@ -151,7 +151,6 @@ Rectangle {
 				{
 					height: minHeight
 					width: colWatchers.width
-					anchors.horizontalCenter: colWatchers.horizontalCenter
 					id: ctrsStorage
 					function computeData()
 					{

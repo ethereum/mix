@@ -21,8 +21,8 @@
 
 #include <QDebug>
 #include <QVariantList>
-#include <libsolidity/AST.h>
-#include <libsolidity/Types.h>
+#include <libsolidity/ast/AST.h>
+#include <libsolidity/ast/Types.h>
 #include "QBasicNodeDefinition.h"
 #include "SolidityType.h"
 
