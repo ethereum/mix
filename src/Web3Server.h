@@ -34,7 +34,7 @@ namespace dev
 namespace mix
 {
 
-class Web3Server: public QObject, public dev::WebThreeStubServerBase, public dev::WebThreeStubDatabaseFace
+class Web3Server: public QObject, public dev::WebThreeStubServerBase
 {
 	Q_OBJECT
 
@@ -55,10 +55,6 @@ private:
 	std::shared_ptr<dev::shh::Interface> face() override;
 	dev::bzz::Interface* bzz() override;
 	dev::WebThreeNetworkFace* network() override;
-	dev::WebThreeStubDatabaseFace* db() override { return this; }
-
-	std::string get(std::string const& _name, std::string const& _key) override;
-	void put(std::string const& _name, std::string const& _key, std::string const& _value) override;
 
 private:
 	dev::eth::Interface* m_client;

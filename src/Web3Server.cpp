@@ -146,18 +146,6 @@ dev::WebThreeNetworkFace* Web3Server::network()
 	return m_network.get();
 }
 
-std::string Web3Server::get(std::string const& _name, std::string const& _key)
-{
-	std::string k(_name + "/" + _key);
-	return m_db[k];
-}
-
-void Web3Server::put(std::string const& _name, std::string const& _key, std::string const& _value)
-{
-	std::string k(_name + "/" + _key);
-	m_db[k] = _value;
-}
-
 Json::Value Web3Server::eth_getFilterChanges(std::string const& _filterId)
 {
 	return WebThreeStubServerBase::eth_getFilterChanges(_filterId);
