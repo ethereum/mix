@@ -35,6 +35,7 @@
 #include "QEther.h"
 
 template <class... Is> class ModularServer;
+class AbstractDb;
 
 namespace dev
 {
@@ -313,7 +314,7 @@ private:
 	QFuture<void> m_runFuture;
 	std::unique_ptr<MixClient> m_client;
 	unsigned m_rpcConnectorId;
-	std::unique_ptr<ModularServer<Web3Server>> m_web3Server;
+	std::unique_ptr<ModularServer<Web3Server, AbstractDb>> m_web3Server;
 	std::shared_ptr<eth::FixedAccountHolder> m_ethAccounts;
 	std::unordered_map<Address, eth::Account> m_accounts;
 	std::vector<KeyPair> m_accountsSecret;
