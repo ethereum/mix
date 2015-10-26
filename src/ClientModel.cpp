@@ -30,7 +30,7 @@
 #include <jsonrpccpp/server.h>
 #include <libethcore/CommonJS.h>
 #include <libethcore/KeyManager.h>
-#include <libsolidity/Types.h>
+#include <libsolidity/ast/Types.h>
 #include <libethereum/Transaction.h>
 #include <libwebthree/WebThree.h>
 #include <libdevcore/FixedHash.h>

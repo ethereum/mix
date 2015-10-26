@@ -22,12 +22,12 @@
 #include <QObject>
 
 #include "QContractDefinition.h"
-#include <libsolidity/CompilerStack.h>
-#include <libsolidity/AST.h>
-#include <libsolidity/Scanner.h>
-#include <libsolidity/Parser.h>
-#include <libsolidity/Scanner.h>
-#include <libsolidity/NameAndTypeResolver.h>
+#include <libsolidity/interface/CompilerStack.h>
+#include <libsolidity/ast/AST.h>
+#include <libsolidity/parsing/Scanner.h>
+#include <libsolidity/parsing/Parser.h>
+#include <libsolidity/parsing/Scanner.h>
+#include <libsolidity/analysis/NameAndTypeResolver.h>
 using namespace dev::solidity;
 using namespace dev::mix;
 

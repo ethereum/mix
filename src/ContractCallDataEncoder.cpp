@@ -29,7 +29,7 @@
 #include <QJsonObject>
 #include <libdevcore/SHA3.h>
 #include <libethcore/CommonJS.h>
-#include <libsolidity/AST.h>
+#include <libsolidity/ast/AST.h>
 #include "QVariableDeclaration.h"
 #include "QVariableDefinition.h"
 #include "QFunctionDefinition.h"
