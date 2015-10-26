@@ -73,7 +73,7 @@ private:
 
 
 ClientModel::ClientModel():
-	m_running(false), m_rpcConnector(new RpcConnector())
+	m_running(false)
 {
 	qRegisterMetaType<QBigInt*>("QBigInt*");
 	qRegisterMetaType<QVariableDefinition*>("QVariableDefinition*");
@@ -105,8 +105,10 @@ void ClientModel::init(QString _dbpath)
 		m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString() + m_dbpath.toStdString()));
 
 	m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, std::vector<KeyPair>());
-	m_web3Server.reset(new Web3Server(*m_rpcConnector.get(), m_ethAccounts, std::vector<KeyPair>(), m_client.get()));
-	connect(m_web3Server.get(), &Web3Server::newTransaction, this, [=]() {
+	auto webthreeFace = new Web3Server(m_ethAccounts, std::vector<KeyPair>(), m_client.get());
+	m_web3Server.reset(new ModularServer<Web3Server>(webthreeFace));
+	m_rpcConnectorId = m_web3Server->addConnector(new RpcConnector());
+	connect(webthreeFace, &Web3Server::newTransaction, this, [=]() {
 		onNewTransaction(RecordLogEntry::TxSource::Web3);
 	}, Qt::DirectConnection);
 }
@@ -115,8 +117,9 @@ QString ClientModel::apiCall(QString const& _message)
 {
 	try
 	{
-		m_rpcConnector->OnRequest(_message.toStdString(), nullptr);
-		return m_rpcConnector->response();
+		auto connector = static_cast<RpcConnector*>(m_web3Server->connector(m_rpcConnectorId));
+		connector->OnRequest(_message.toStdString(), nullptr);
+		return connector->response();
 	}
 	catch (...)
 	{
@@ -273,10 +276,11 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 	}
 
 	m_ethAccounts->setAccounts(m_accountsSecret);
-
-	//m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, std::vector<KeyPair>());
-	m_web3Server.reset(new Web3Server(*m_rpcConnector.get(), m_ethAccounts, std::vector<KeyPair>(), m_client.get()));
-	connect(m_web3Server.get(), &Web3Server::newTransaction, this, [=]() {
+	
+	auto webthreeFace = new Web3Server(m_ethAccounts, std::vector<KeyPair>(), m_client.get());
+	m_web3Server.reset(new ModularServer<Web3Server>(webthreeFace));
+	m_rpcConnectorId = m_web3Server->addConnector(new RpcConnector());
+	connect(webthreeFace, &Web3Server::newTransaction, this, [=]() {
 		onNewTransaction(RecordLogEntry::TxSource::Web3);
 	}, Qt::DirectConnection);
 

@@ -120,8 +120,8 @@ class EmptyNetwork : public dev::WebThreeNetworkFace
 
 }
 
-Web3Server::Web3Server(jsonrpc::AbstractServerConnector& _conn, std::shared_ptr<eth::AccountHolder> const& _ethAccounts, std::vector<dev::KeyPair> const& _shhAccounts, dev::eth::Interface* _client):
-	WebThreeStubServerBase(_conn, _ethAccounts, _shhAccounts),
+Web3Server::Web3Server(std::shared_ptr<eth::AccountHolder> const& _ethAccounts, std::vector<dev::KeyPair> const& _shhAccounts, dev::eth::Interface* _client):
+	WebThreeStubServerBase(_ethAccounts, _shhAccounts),
 	m_client(_client),
 	m_network(new EmptyNetwork())
 {
