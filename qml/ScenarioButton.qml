@@ -49,11 +49,6 @@ Rectangle {
 		updateColor(buttonActionContainer.color)
 	}
 
-	onWidthChanged:
-	{
-		btnLabel.visible = width > 60
-	}
-
 	Rectangle
 	{
 		id: left
@@ -111,6 +106,8 @@ Rectangle {
 			}
 			source: sourceImg
 			fillMode: Image.PreserveAspectFit
+			height: 30
+			width: 30
 		}
 
 		DefaultButton {
@@ -153,10 +150,11 @@ Rectangle {
 		DefaultLabel
 		{
 			text: buttonActionContainer.text
+			visible: false
 			anchors.centerIn: parent
 			id: btnLabel
 
-			Connections
+			/*Connections
 			{
 				target: mainApplication.mainSettings
 				property int pointSize
@@ -175,7 +173,7 @@ Rectangle {
 					buttonActionContainer.width = buttonActionContainer.width + (mainApplication.mainSettings.systemPointSize - pointSize) * 2
 					pointSize = mainApplication.mainSettings.systemPointSize
 				}
-			}
+			}*/
 		}
 	}
 }

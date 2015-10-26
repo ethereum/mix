@@ -270,7 +270,7 @@ ColumnLayout {
 	Rectangle
 	{
 		Layout.preferredWidth: 310
-		Layout.minimumHeight: 40
+		Layout.minimumHeight: 35
 		anchors.horizontalCenter: parent.horizontalCenter
 		color: "transparent"
 		id: btnsContainer
@@ -282,54 +282,10 @@ ColumnLayout {
 			anchors.top: parent.top
 			spacing: 20
 			id: rowBtns
-			onWidthChanged: {
-				var w = (width - (2 * 20)) / 4
-				rebuild.width = w > 30 ? w : 30
-				addTransaction.width = w > 30 ? w : 30
-				addBlockBtn.width = w > 30 ? w : 30
-				newAccount.width = w > 30 ? w : 30
-			}
-
 			Settings
 			{
 				id: btnsWidth
 				property int widthValue: 0
-			}
-
-			Connections
-			{
-				target: mainApplication.mainSettings
-				property int pointSize
-				property int defaultPointSize: 11
-
-				Component.onCompleted:
-				{
-					if (mainApplication.mainSettings.systemPointSize !== defaultPointSize)
-					{
-						if (btnsWidth.widthValue !== 0)
-							btnsContainer.Layout.preferredWidth = btnsWidth.widthValue
-						else
-							btnsContainer.Layout.preferredWidth = btnsContainer.Layout.preferredWidth + (mainApplication.mainSettings.systemPointSize - defaultPointSize) * 25
-
-						pointSize = mainApplication.mainSettings.systemPointSize
-						if (mainApplication.mainSettings.systemPointSize <= defaultPointSize)
-							btnsContainer.Layout.preferredWidth = 310
-					}
-				}
-
-				onSystemPointSizeChanged:
-				{
-					btnsContainer.Layout.preferredWidth = btnsContainer.Layout.preferredWidth + (mainApplication.mainSettings.systemPointSize - pointSize) * 25
-					btnsWidth.widthValue = btnsContainer.Layout.preferredWidth
-					pointSize = mainApplication.mainSettings.systemPointSize
-					if (mainApplication.mainSettings.systemPointSize <= defaultPointSize)
-						btnsContainer.Layout.preferredWidth = 310
-					if (mainApplication.mainSettings.systemPointSize === defaultPointSize)
-					{
-						btnsWidth.widthValue = 0
-						pointSize = 0
-					}
-				}
 			}
 
 			Connections
@@ -355,7 +311,7 @@ ColumnLayout {
 				id: rebuild
 				text: qsTr("Rebuild Scenario")
 				width: 80
-				Layout.minimumHeight: 20
+				Layout.minimumHeight: 30
 				roundLeft: true
 				roundRight: true
 				enabled: scenarioIndex !== -1
@@ -529,7 +485,7 @@ ColumnLayout {
 					}
 				}
 				width: 80
-				Layout.minimumHeight: 20
+				Layout.minimumHeight: 30
 				buttonShortcut: ""
 				sourceImg: "qrc:/qml/img/sendtransactionicon@2x.png"
 				roundLeft: true
@@ -578,7 +534,7 @@ ColumnLayout {
 					blockModel.appendBlock(block)
 				}
 				width: 80
-				Layout.minimumHeight: 20
+				Layout.minimumHeight: 30
 
 				buttonShortcut: ""
 				sourceImg: "qrc:/qml/img/newblock@2x.png"
@@ -606,6 +562,7 @@ ColumnLayout {
 				}
 				onNewRecord:
 				{
+
 					if (_r.transactionIndex !== "Call")
 					{
 						var blockIndex =  parseInt(_r.transactionIndex.split(":")[0]) - 1
@@ -699,7 +656,7 @@ ColumnLayout {
 					newAddressWin.open()
 				}
 				width: 80
-				Layout.minimumHeight: 20
+				Layout.minimumHeight: 30
 				buttonShortcut: ""
 				sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
 				roundLeft: true
@@ -746,51 +703,41 @@ ColumnLayout {
 			{
 				id: blockChainLayout
 				width: parent.width
-				spacing: 10
-				Rectangle
+				Connections
 				{
-					Layout.minimumHeight: 40
+					id: displayCallConnection
+					target: mainContent
+					onDisplayCallsChanged:
+					{
+						updateCalls()
+					}
+
+					Component.onCompleted:
+					{
+						blockChainRepeater.callsDisplayed = mainContent.displayCalls
+					}
+
+					function updateCalls()
+					{
+						blockChainRepeater.callsDisplayed = mainContent.displayCalls
+						if (mainContent.displayCalls)
+							blockChainRepeater.displayCalls()
+						else
+							blockChainRepeater.hideCalls()
+					}
+				}
+
+				Block
+				{
+					id: genesis
 					Layout.preferredWidth: blockChainScrollView.width
-					color: "transparent"
-
-					Connections
-					{
-						id: displayCallConnection
-						target: mainContent
-						onDisplayCallsChanged:
-						{
-							updateCalls()
-						}
-
-						Component.onCompleted:
-						{
-							blockChainRepeater.callsDisplayed = mainContent.displayCalls
-						}
-
-						function updateCalls()
-						{
-							blockChainRepeater.callsDisplayed = mainContent.displayCalls
-							if (mainContent.displayCalls)
-								blockChainRepeater.displayCalls()
-							else
-								blockChainRepeater.hideCalls()
-						}
-					}
-
-					Block
-					{
-						id: genesis
-						scenario: blockChainPanel.model
-						scenarioIndex: scenarioIndex
-						Layout.preferredWidth: blockChainScrollView.width
-						Layout.minimumHeight: 40
-						width: blockChainScrollView.width
-						blockIndex: -1
-						transactions: []
-						status: ""
-						number: -2
-						trHeight: 40
-					}
+					scenario: blockChainPanel.model
+					scenarioIndex: scenarioIndex
+					blockIndex: -1
+					transactions: []
+					status: ""
+					number: -2
+					trHeight: 40
 				}
 
 				Connections
@@ -859,22 +806,9 @@ ColumnLayout {
 							}
 						}
 
-						Connections
-						{
-							target: blockChainRepeater
-							onCallsDisplayedChanged:
-							{
-								block.Layout.minimumHeight = block.calculateHeight()
-							}
-						}
-
 						id: block
 						scenario: blockChainPanel.model
 						Layout.preferredWidth: blockChainScrollView.width
-						Layout.minimumHeight:
-						{
-							return calculateHeight()
-						}
 						blockIndex: index
 						transactions:
 						{

@@ -123,7 +123,7 @@ RowLayout {
 
 	DefaultCombobox
 	{
-		Layout.preferredWidth: 100
+		Layout.minimumWidth: 100
 		id: units
 		visible: displayUnitSelection;
 		onCurrentTextChanged:
@@ -162,7 +162,7 @@ RowLayout {
 
 	DefaultLabel
 	{
-		Layout.preferredWidth: 100
+		Layout.minimumWidth: 100
 		visible: displayFormattedValue
 		id: formattedValue
 	}

@@ -31,7 +31,7 @@ Rectangle {
 	property alias codeEditor: codeEditor
 	property bool webViewHorizontal: codeWebSplitter.orientation === Qt.Vertical //vertical splitter positions elements vertically, splits screen horizontally
 	property bool displayCalls
-	property int scenarioMinWidth: 350
+	property int scenarioMinWidth: 370
 
 	Connections {
 		target: debugPanel
@@ -155,12 +155,8 @@ Rectangle {
 
 				ProjectList	{
 					id: projectList
-					width: 200
-					Layout.minimumWidth: 170
+					Layout.minimumWidth: 200
 					Layout.fillHeight: true
-					Connections {
-						target: projectModel.codeEditor
-					}
 				}
 
 				Rectangle {

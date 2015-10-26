@@ -306,6 +306,7 @@ Dialog {
 		{
 			anchors.top: parent.top
 			width: parent.width
+			anchors.fill: parent
 			height: parent.height - separator.height - validationRow.height
 			ColumnLayout {
 				Layout.preferredWidth: rowWidth
@@ -317,10 +318,11 @@ Dialog {
 				{
 					return (containerRect.width - 500) /2
 				}
+				spacing: 10
 
 				RowLayout
 				{
-					Layout.minimumHeight: 55
+					Layout.minimumHeight: 60
 					Rectangle
 					{
 						color: "transparent"
@@ -434,7 +436,6 @@ Dialog {
 							exclusiveGroup: rbbuttonList
 							height: 30
 							text: qsTr("Send Ether to Account")
-
 						}
 
 						DefaultRadioButton {
@@ -589,7 +590,7 @@ Dialog {
 					}
 
 					Ether {
-						Layout.preferredWidth: 350
+						Layout.minimumWidth: 350
 						id: valueField
 						edit: true
 						displayFormattedValue: true
@@ -611,22 +612,10 @@ Dialog {
 					}
 				}
 
-				Rectangle
-				{
-					height: 20
-					color: "transparent"
-					Layout.preferredWidth: 500
-					Rectangle
-					{
-
-						anchors.horizontalCenter: parent.horizontalCenter
-						DefaultLabel {
-							text: qsTr("Transaction fees")
-							anchors.horizontalCenter: parent.horizontalCenter
-							font.bold: true
-						}
-					}
-
+				DefaultLabel {
+					text: qsTr("Transaction fees")
+					anchors.horizontalCenter: parent.horizontalCenter
+					font.bold: true
 				}
 
 				RowLayout

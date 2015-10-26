@@ -11,7 +11,7 @@ import "js/TransactionHelper.js" as TransactionHelper
 import "js/QEtherHelper.js" as QEtherHelper
 import "."
 
-Rectangle {
+ColumnLayout {
 	id: root
 	property variant tx
 	property variant currentState
@@ -54,123 +54,87 @@ Rectangle {
 		updated()
 	}
 
-	color: "transparent"
-	radius: 4
-	ColumnLayout {
-		anchors.fill: parent
-		spacing: 7
-		id: colWatchers
-		ListModel
+	ListModel
+	{
+		id: storages
+	}
+
+	KeyValuePanel
+	{
+		width: parent.width
+		visible: false
+		id: accounts
+		title: qsTr("User Account")
+		role: "accounts"
+		_data: currentState
+		function computeData()
 		{
-			id: storages
+			model.clear()
+			var ret = []
+			if (currentState)
+				for (var k in currentState.accounts)
+				{
+					var label = blockChain.addAccountNickname(k, false)
+					if (label === k)
+						label = blockChain.addContractName(k) //try to resolve the contract name
+					model.append({ "key": label, "value": currentState.accounts[k] })
+				}
 		}
+	}
 
-		KeyValuePanel
+	RowLayout
+	{
+		Layout.minimumHeight: 20
+		Layout.fillWidth: true
+		DefaultLabel
 		{
-			Layout.minimumHeight: minHeight
-			Layout.fillWidth: true
-			visible: false
-			//anchors.horizontalCenter: parent.horizontalCenter
-			id: accounts
-			title: qsTr("User Account")
-			role: "accounts"
-			_data: currentState
-			function computeData()
-			{
-				model.clear()
-				var ret = []
-				if (currentState)
-					for (var k in currentState.accounts)
-					{
-						var label = blockChain.addAccountNickname(k, false)
-						if (label === k)
-							label = blockChain.addContractName(k) //try to resolve the contract name
-						model.append({ "key": label, "value": currentState.accounts[k] })
-					}
-			}
-			onMinimized:
-			{
-				root.Layout.minimumHeight = root.Layout.minimumHeight - maxHeight
-				root.Layout.minimumHeight = root.Layout.minimumHeight + minHeight
-			}
-			onExpanded:
-			{
-				root.Layout.minimumHeight = root.Layout.minimumHeight - minHeight
-				root.Layout.minimumHeight = root.Layout.minimumHeight + maxHeight
-			}
+			id: titleLabel
+			anchors.left: parent.left
+			anchors.verticalCenter: parent.verticalCenter
+			color: "#414141"
+			text: qsTr("Contract Account")
 		}
+	}
 
-		ColumnLayout
+	RowLayout
+	{
+		id: searchBox
+		Image {
+			sourceSize.width: 20
+			sourceSize.height: 20
+			source: "qrc:/qml/img/searchicon.png"
+			fillMode: Image.PreserveAspectFit
+		}
+		DefaultTextField
 		{
-			id: searchBox
-			visible: false
 			Layout.fillWidth: true
-			spacing: 0
-
-			RowLayout
-			{
-				Layout.minimumHeight: 20
-				Layout.fillWidth: true
-				DefaultLabel
+			onTextChanged: {
+				for (var k = 0; k < stoRepeater.count; k++)
 				{
-					id: titleLabel
-					anchors.left: parent.left
-					anchors.verticalCenter: parent.verticalCenter
-					color: "#414141"
-					text: qsTr("Contract Account")
-				}
-			}
-
-			RowLayout
-			{
-				Image {
-					sourceSize.width: 20
-					sourceSize.height: 20
-					source: "qrc:/qml/img/searchicon.png"
-					fillMode: Image.PreserveAspectFit
-				}
-				DefaultTextField
-				{
-					Layout.fillWidth: true
-					onTextChanged: {
-						for (var k = 0; k < stoRepeater.count; k++)
-						{
-							var label = storages.get(k).key.split(" - ")
-							stoRepeater.itemAt(k).visible = text.trim() === "" || label[0].toLowerCase().indexOf(text.toLowerCase()) !== -1 || label[1].toLowerCase().indexOf(text.toLowerCase()) !== -1
-						}
-					}
-				}
-			}
-
-			Repeater
-			{
-				id: stoRepeater
-				model: storages
-				KeyValuePanel
-				{
-					anchors.horizontalCenter: parent.horizontalCenter
-					Layout.fillWidth: true
-					id: ctrsStorage
-					function computeData()
-					{
-						title = storages.get(index).key
-						ctrsStorage.model.clear()
-						for (var k in storages.get(index).value)
-							ctrsStorage.add(k, JSON.stringify(storages.get(index).value[k]))
-					}
-					onMinimized:
-					{
-						root.Layout.minimumHeight = root.Layout.minimumHeight - maxHeight
-						root.Layout.minimumHeight = root.Layout.minimumHeight + minHeight
-					}
-					onExpanded:
-					{
-						root.Layout.minimumHeight = root.Layout.minimumHeight - minHeight
-						root.Layout.minimumHeight = root.Layout.minimumHeight + maxHeight
-					}
+					var label = storages.get(k).key.split(" - ")
+					stoRepeater.itemAt(k).visible = text.trim() === "" || label[0].toLowerCase().indexOf(text.toLowerCase()) !== -1 || label[1].toLowerCase().indexOf(text.toLowerCase()) !== -1
 				}
 			}
 		}
 	}
+
+	Repeater
+	{
+		id: stoRepeater
+		model: storages
+		KeyValuePanel
+		{
+			width: root.width
+			id: ctrsStorage
+			function computeData()
+			{
+				title = storages.get(index).key
+				ctrsStorage.model.clear()
+				for (var k in storages.get(index).value)
+					ctrsStorage.add(k, JSON.stringify(storages.get(index).value[k]))
+			}
+		}
+	}
 }
+
 

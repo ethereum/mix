@@ -9,17 +9,18 @@ import "js/ErrorLocationFormater.js" as ErrorLocationFormater
 import "js/ScientificNumber.js" as ScientificNumber
 import "."
 
-RowLayout
+ColumnLayout
 {
 	id: rowTransaction
-	//Layout.minimumHeight: trHeight
-	spacing: 0
+	Layout.minimumHeight: trHeight
+	Layout.preferredWidth: blockWidth
+	spacing: 1
 	property bool isCall
 
 	property variant tx
 	property int txIndex
 	property int callIndex
-	property alias detailVisible: txDetail.visible
+	property bool detailVisible: txDetail.visible
 	property string trDetailColor: "#adadad"
 
 	Keys.onDeletePressed:
@@ -41,20 +42,6 @@ RowLayout
 		rowContentTr.deselect()
 	}
 
-	function detailHeight()
-	{
-		var detailH = 0
-		if (tx)
-		{
-			if (txDetail.visible)
-				detailH = txDetail.height
-			else
-				detailH = 0
-		}
-		Layout.minimumHeight = trHeight + detailH
-		return detailH
-	}
-
 	Connections
 	{
 		target: blockChainPanel
@@ -63,80 +50,14 @@ RowLayout
 			if (_blockIndex == blockIndex && _txIndex == txIndex && _callIndex == callIndex)
 				txDetail.updateView()
 		}
-	}
-
-	Rectangle
-	{
-		id: trSaveStatus
-		Layout.preferredWidth: statusWidth
-		//Layout.minimumHeight: parent.height
-		color: "transparent"
-		anchors.top: parent.top
-		property bool saveStatus
-		Image {
-			anchors.top: parent.top
-			anchors.left: parent.left
-			anchors.leftMargin: -4
-			anchors.topMargin: 0
-			id: saveStatusImage
-			source: "qrc:/qml/img/recyclediscard@2x.png"
-			width: statusWidth + 10
-			fillMode: Image.PreserveAspectFit
-			visible: !isCall
-		}
-
-		Image {
-			anchors.top: parent.top
-			anchors.left: parent.left
-			anchors.leftMargin: 3
-			anchors.topMargin: 5
-			source: "qrc:/qml/img/javascript_logo.png"
-			height: 15
-			width: 15
-			fillMode: Image.PreserveAspectFit
-			visible: isCall
-		}
-
-
-		Component.onCompleted:
-		{
-			if (tx && tx.saveStatus)
-				saveStatus = tx.saveStatus
-		}
-
-		onSaveStatusChanged:
-		{
-			if (saveStatus)
-				saveStatusImage.source = "qrc:/qml/img/recyclekeep@2x.png"
-			else
-				saveStatusImage.source = "qrc:/qml/img/recyclediscard@2x.png"
-
-			if (index >= 0)
-				tx.saveStatus = saveStatus
-		}
-
-		MouseArea {
-			id: statusMouseArea
-			anchors.fill: parent
-			onClicked:
-			{
-				if (!isCall)
-					parent.saveStatus = !parent.saveStatus
-			}
-		}
-	}
+	}	
 
 	ColumnLayout
 	{
 		id: rowContentTr
 		anchors.top: parent.top
-
-		Rectangle
-		{
-			anchors.fill: parent
-			color: rowContentTr.selected ? selectedTxColor : (status === "mined" ? (isCall ? callColor : txColor) : halfOpacity)
-		}
-
+		Layout.preferredWidth: parent.width
+		spacing: 0
 		property bool selected: false
 		Connections
 		{
@@ -180,368 +101,170 @@ RowLayout
 			}
 		}
 
-		RowLayout
+		Rectangle
 		{
-			id: rowTransactionItem
-			Layout.fillWidth: true
-			//Layout.minimumHeight: trHeight - 10
-			//anchors.verticalCenter: parent.verticalCenter
-
-			DefaultText
+			color: rowContentTr.selected ? selectedTxColor : (status === "mined" ? (isCall ? callColor : txColor) : halfOpacity)
+			Layout.preferredWidth: blockWidth
+			Layout.minimumHeight: trHeight
+			anchors.top: parent.top
+			anchors.left: parent.left
+			anchors.leftMargin: statusWidth
+			Rectangle
 			{
-				id: hash
-				width: parent.width - 30
-				elide: Text.ElideRight
-				anchors.verticalCenter: parent.verticalCenter
-				maximumLineCount: 1
-				clip: true
-				color: labelColor
-				font.bold: true
-				text: {
-					if (tx)
-						return bc.addAccountNickname(clientModel.resolveAddress(tx.sender), true)
-					else
-						return ""
+				id: trSaveStatus
+				anchors.right: parent.left
+				anchors.top: parent.top
+				width: statusWidth
+				height: rowTransactionItem.height < trHeight ? trHeight : rowTransactionItem.height
+				color: "transparent"
+				property bool saveStatus
+				Image {
+					anchors.verticalCenter: parent.verticalCenter
+					anchors.left: parent.left
+					anchors.leftMargin: -4
+					id: saveStatusImage
+					source: "qrc:/qml/img/recyclediscard@2x.png"
+					width: statusWidth + 10
+					fillMode: Image.PreserveAspectFit
+					visible: !isCall
 				}
-			}
 
-			DefaultLabel
-			{
-				anchors.left: hash.right
-				anchors.leftMargin: 1
-				text: "→"
-				anchors.verticalCenter: parent.verticalCenter
-				width: 20
-			}
-
-			DefaultText
-			{
-				id: func
-				text: {
-					if (tx)
-						return bc.formatRecipientLabel(tx)
-					else
-						return ""
+				Image {
+					anchors.verticalCenter: parent.verticalCenter
+					anchors.left: parent.left
+					anchors.leftMargin: 3
+					source: "qrc:/qml/img/javascript_logo.png"
+					height: 15
+					width: 15
+					fillMode: Image.PreserveAspectFit
+					visible: isCall
 				}
-				elide: Text.ElideRight
-				anchors.verticalCenter: parent.verticalCenter
-				color: labelColor
-				font.bold: true
-				clip: true
-				maximumLineCount: 1
-				width: parent.width - 58
-			}
 
-			function userFrienldyToken(value)
-			{
-				if (value && value.indexOf("<") === 0)
+
+				Component.onCompleted:
 				{
-					if (value.split("> ")[1] === " - ")
-						return value.split(" - ")[0].replace("<", "")
-					else
-						return value.split(" - ")[0].replace("<", "") + "." + value.split("> ")[1] + "()";
+					if (tx && tx.saveStatus)
+						saveStatus = tx.saveStatus
 				}
-				else
-					return value
-			}
-		}
 
-		ColumnLayout
-		{
-			id: txDetail
-			anchors.top: rowTransactionItem.bottom
-			anchors.topMargin: 10
-			anchors.left: rowTransactionItem.left
-			width: blockWidth
-			height: 0
-			visible: false
+				onSaveStatusChanged:
+				{
+					if (saveStatus)
+						saveStatusImage.source = "qrc:/qml/img/recyclekeep@2x.png"
+					else
+						saveStatusImage.source = "qrc:/qml/img/recyclediscard@2x.png"
+
+					if (index >= 0)
+						tx.saveStatus = saveStatus
+				}
+
+				MouseArea {
+					id: statusMouseArea
+					anchors.fill: parent
+					onClicked:
+					{
+						if (!isCall)
+							parent.saveStatus = !parent.saveStatus
+					}
+				}
+			}
+
+			RowLayout
+			{
+				id: rowTransactionItem
+				anchors.verticalCenter: parent.verticalCenter
+				onHeightChanged: {
+					parent.Layout.minimumHeight = height < trHeight ? trHeight : height
+				}
+
+				Component.onCompleted: {
+					parent.Layout.minimumHeight = trHeight
+				}
+
+				DefaultText
+				{
+					id: hash
+					width: parent.width - 30
+					anchors.verticalCenter: parent.verticalCenter
+					anchors.left: parent.left
+					anchors.leftMargin: horizontalMargin
+					elide: Text.ElideRight
+					maximumLineCount: 1
+					clip: true
+					color: labelColor
+					font.bold: true
+					text: {
+						if (tx)
+							return bc.addAccountNickname(clientModel.resolveAddress(tx.sender), true)
+						else
+							return ""
+					}
+				}
+
+				DefaultLabel
+				{
+					anchors.verticalCenter: parent.verticalCenter
+					text: "→"
+					width: 20
+				}
+
+				DefaultText
+				{
+					anchors.verticalCenter: parent.verticalCenter
+					id: func
+					text: {
+						if (tx)
+							return bc.formatRecipientLabel(tx)
+						else
+							return ""
+					}
+					elide: Text.ElideRight
+					color: labelColor
+					font.bold: true
+					clip: true
+					maximumLineCount: 1
+				}
+
+				function userFrienldyToken(value)
+				{
+					if (value && value.indexOf("<") === 0)
+					{
+						if (value.split("> ")[1] === " - ")
+							return value.split(" - ")[0].replace("<", "")
+						else
+							return value.split(" - ")[0].replace("<", "") + "." + value.split("> ")[1] + "()";
+					}
+					else
+						return value
+				}
+			}
 
 			Rectangle
 			{
-				anchors.fill: parent
-				color: txColor
-			}
-
-			Connections
-			{
-				target: mainApplication.mainSettings
-				property int pointSize
-				property int defaultPointSize: 11
-				Component.onCompleted:
-				{
-					if (mainApplication.mainSettings.systemPointSize !== defaultPointSize)
-					{
-						txDetail.height = txDetail.height + (mainApplication.mainSettings.systemPointSize - defaultPointSize) * 4
-						pointSize = mainApplication.mainSettings.systemPointSize
-					}
-				}
-
-				onSystemPointSizeChanged:
-				{
-					txDetail.height = txDetail.height + (mainApplication.mainSettings.systemPointSize - pointSize) * 4
-					pointSize = mainApplication.mainSettings.systemPointSize
-				}
-			}
-
-			function ensureScientificNumber(value)
-			{
-				return ScientificNumber.shouldConvertToScientific(value) ? ScientificNumber.toScientificNumber(value) + " (" + value + ")" : value
-			}
-
-			function updateView()
-			{
-				height = 3 * labelFrom.height + 25
-				height += editTx.height
-				var spacing = labelFrom.height
-				if (tx && tx.parameters)
-				{
-					var keys = Object.keys(tx.parameters)
-					txDetail.height += keys.length > 0 ? spacing : 0
-					for (var k in keys)
-					{
-						labelInput.visible = true
-						inputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": ensureScientificNumber(tx.parameters[keys[k]]) })
-						txDetail.height += spacing
-					}
-				}
-
-				if (tx && tx.returnParameters)
-				{
-					var keys = Object.keys(tx.returnParameters)
-					txDetail.height += keys.length > 0 ? spacing : 0
-					for (var k in keys)
-					{
-						labelOutput.visible = true
-						outputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": ensureScientificNumber(tx.returnParameters[keys[k]]) })
-						txDetail.height += spacing
-					}
-				}
-
-				if (tx && tx.logs)
-				{
-					txDetail.height += tx.logs.count > 0 ? spacing : 0
-					for (var k = 0; k < tx.logs.count; k++)
-					{
-						labelEvent.visible = true
-						var param = ""
-						for (var p = 0; p < tx.logs.get(k).param.count; p++)
-							param += " " + tx.logs.get(k).param.get(p).value + " "
-						param = "(" + param + ")"
-						eventList.append({ "key": tx.logs.get(k).name, "value": param })
-						txDetail.height += spacing
-					}
-				}
-			}
-
-			ColumnLayout
-			{
-				anchors.fill: parent
-				anchors.margins: 10
-				RowLayout
-				{
-					DefaultLabel
-					{
-						id: labelFrom
-						text: qsTr("From: ")
-						color: trDetailColor
-					}
-					DefaultLabel
-					{
-						text: {
-							if (!tx)
-								return ""
-							else
-							{
-								var addr = clientModel.resolveAddress(tx.sender)
-								return blockChain.addAccountNickname(addr, true)
-							}
-						}
-						width: rowTransactionItem.width - 75
-						elide: Text.ElideRight
-						color: trDetailColor
-						font.bold: true
-					}
-				}
-
-				RowLayout
-				{
-					DefaultLabel
-					{
-						text: qsTr("To: ")
-						color: trDetailColor
-					}
-					DefaultLabel
-					{
-						text: blockChain.formatRecipientLabel(tx)
-						width: rowTransactionItem.width - 75
-						elide: Text.ElideRight
-						color: trDetailColor
-						font.bold: true
-					}
-				}
-
-				RowLayout
-				{
-					DefaultLabel
-					{
-						text: qsTr("Value: ")
-						color: trDetailColor
-					}
-					DefaultLabel
-					{
-						text:  tx ? tx.value.format() : ""
-						width: rowTransactionItem.width - 30
-						elide: Text.ElideRight
-						color: trDetailColor
-						font.bold: true
-					}
-				}
-				RowLayout
-				{
-					Column
-					{
-						DefaultLabel
-						{
-							id: labelInput
-							text: qsTr("Input:")
-							visible: false
-							color: trDetailColor
-						}
-
-						ListModel
-						{
-							id: inputList
-						}
-
-						Repeater
-						{
-							model: inputList
-							DefaultLabel
-							{
-								color: trDetailColor
-								text: key + "\t" + value
-								width: rowTransactionItem.width - 40
-								elide: Text.ElideRight
-								font.bold: true
-							}
-						}
-					}
-				}
-
-				RowLayout
-				{
-					ColumnLayout
-					{
-						DefaultLabel
-						{
-							color: trDetailColor
-							id: labelOutput
-							text: qsTr("Output:")
-							visible: false
-						}
-
-						ListModel
-						{
-							id: outputList
-						}
-
-						Repeater
-						{
-							model: outputList
-
-							DefaultLabel
-							{
-								color: trDetailColor
-								text: key + "\t" + value
-								width: rowTransactionItem.width - 30
-								elide: Text.ElideRight
-								font.bold: true
-							}
-						}
-					}
-				}
-
-				RowLayout
-				{
-					ColumnLayout
-					{
-						DefaultLabel
-						{
-							color: trDetailColor
-							id: labelEvent
-							text: qsTr("Events:")
-							visible: false
-						}
-
-						ListModel
-						{
-							id: eventList
-						}
-
-						Repeater
-						{
-							model: eventList
-							RowLayout
-							{
-								DefaultLabel
-								{
-									color: trDetailColor
-									text: index >= 0 ? eventList.get(index).key : ""
-									font.bold: true
-								}
-
-								DefaultLabel
-								{
-									color: trDetailColor
-									text: index >= 0 ? eventList.get(index).value : ""
-									width: rowTransactionItem.width - 30
-									elide: Text.ElideRight
-									font.bold: true
-								}
-							}
-						}
-					}
-				}
-
-				RowLayout
-				{
-					spacing: 5
+				width: 15
+				height: 15
+				anchors.right: parent.right
+				anchors.verticalCenter: parent.verticalCenter
+				anchors.rightMargin: 10
+				color: "transparent"
+				Image {
+					id: debugImg
+					source: txDetail.visible ? "qrc:/qml/img/contract-icon@2x.png" : "qrc:/qml/img/expand-icon@2x.png"
 					width: parent.width
-					layoutDirection: Qt.RightToLeft
-					CopyButton
+					fillMode: Image.PreserveAspectFit
+					anchors.horizontalCenter: parent.horizontalCenter
+					visible: tx !== null && tx !== undefined && tx.recordIndex !== undefined
+					MouseArea
 					{
-						anchors.verticalCenter: parent.verticalCenter
-						getContent: function() {
-							return JSON.stringify(tx)
-						}
-						//height: 22
-						width: 25
-					}
-					DefaultButton
-					{
-						id: editTx
-						anchors.verticalCenter: parent.verticalCenter
-						visible: !isCall
+						anchors.fill: parent
 						onClicked:
 						{
-							if (!isCall)
-								root.editTx(index)
+							txDetail.visible = !txDetail.visible
+							if (txDetail.visible)
+								colDetail.updateContainerHeight()
+							else
+								txDetail.Layout.preferredHeight = 0
 						}
-						//height: 22
-						text: qsTr("Edit transaction...")
-					}
-
-					DefaultButton
-					{
-						id: debugTx
-						anchors.verticalCenter: parent.verticalCenter
-						onClicked:
-						{
-							if (tx.recordIndex !== undefined)
-								clientModel.debugRecord(tx.recordIndex, tx.label);
-						}
-						//height: 22
-						text: isCall ? qsTr("Debug call...") : qsTr("Debug transaction...")
 					}
 				}
 			}
@@ -550,26 +273,290 @@ RowLayout
 
 	Rectangle
 	{
-		width: 15
-		height: 15
-		anchors.right: rowContentTr.right
-		anchors.top: rowContentTr.top
-		anchors.rightMargin: 10
-		anchors.topMargin: 5
-		color: "transparent"
-		Image {
-			id: debugImg
-			source: txDetail.visible ? "qrc:/qml/img/contract-icon@2x.png" : "qrc:/qml/img/expand-icon@2x.png"
-			width: parent.width
-			fillMode: Image.PreserveAspectFit
-			anchors.horizontalCenter: parent.horizontalCenter
-			visible: tx !== null && tx !== undefined && tx.recordIndex !== undefined
-			MouseArea
+		Layout.preferredWidth: blockWidth
+		color: status === "mined" ? (isCall ? callColor : txColor) : halfOpacity
+		visible: false
+		id: txDetail
+		anchors.left: parent.left
+		anchors.leftMargin: statusWidth
+		function ensureScientificNumber(value)
+		{
+			return ScientificNumber.shouldConvertToScientific(value) ? ScientificNumber.toScientificNumber(value) + " (" + value + ")" : value
+		}
+
+		function updateView()
+		{
+			inputList.clear()
+			outputList.clear()
+			eventList.clear()
+			if (tx && tx.parameters)
 			{
-				anchors.fill: parent
-				onClicked:
+				var keys = Object.keys(tx.parameters)
+				for (var k in keys)
+					inputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": ensureScientificNumber(tx.parameters[keys[k]]) })
+			}
+
+			if (tx && tx.returnParameters)
+			{
+				var keys = Object.keys(tx.returnParameters)
+				for (var k in keys)
+					outputList.append({ "key": keys[k] === "" ? "undefined" : keys[k], "value": ensureScientificNumber(tx.returnParameters[keys[k]]) })
+			}
+
+			if (tx && tx.logs)
+			{
+				for (var k = 0; k < tx.logs.count; k++)
 				{
-					txDetail.visible = !txDetail.visible
+					var param = ""
+					for (var p = 0; p < tx.logs.get(k).param.count; p++)
+						param += " " + tx.logs.get(k).param.get(p).value + " "
+					param = "(" + param + ")"
+					eventList.append({ "key": tx.logs.get(k).name, "value": param })
+				}
+			}
+		}
+
+		ColumnLayout
+		{
+			anchors.top: parent.top
+			id: colDetail
+			onHeightChanged: {
+				updateContainerHeight()
+			}
+
+			Component.onCompleted: {
+				updateContainerHeight()
+			}
+
+			function updateContainerHeight()
+			{
+				if (txDetail.visible)
+					parent.Layout.preferredHeight = height + 5
+				else
+					parent.Layout.preferredHeight = 0
+			}
+
+			spacing: 5
+			RowLayout
+			{
+				anchors.left: parent.left
+				anchors.leftMargin: 5
+				DefaultLabel
+				{
+					id: labelFrom
+					text: qsTr("From: ")
+					color: trDetailColor
+				}
+
+				DefaultLabel
+				{
+					text: {
+						if (!tx)
+							return ""
+						else
+						{
+							var addr = clientModel.resolveAddress(tx.sender)
+							return blockChain.addAccountNickname(addr, true)
+						}
+					}
+					width: rowTransactionItem.width - 75
+					elide: Text.ElideRight
+					color: trDetailColor
+					font.bold: true
+				}
+			}
+
+			RowLayout
+			{
+				id: toDetail
+				anchors.left: parent.left
+				anchors.leftMargin: 5
+				DefaultLabel
+				{
+					text: qsTr("To: ")
+					color: trDetailColor
+				}
+				DefaultLabel
+				{
+					text: blockChain.formatRecipientLabel(tx)
+					width: rowTransactionItem.width - 75
+					elide: Text.ElideRight
+					color: trDetailColor
+					font.bold: true
+				}
+			}
+
+			RowLayout
+			{
+				id: valueDetail
+				anchors.left: parent.left
+				anchors.leftMargin: 5
+				DefaultLabel
+				{
+					text: qsTr("Value: ")
+					color: trDetailColor
+				}
+				DefaultLabel
+				{
+					text:  tx ? tx.value.format() : ""
+					width: rowTransactionItem.width - 30
+					elide: Text.ElideRight
+					color: trDetailColor
+					font.bold: true
+				}
+			}
+
+			RowLayout
+			{
+				id: inputDetail
+				anchors.left: parent.left
+				anchors.leftMargin: 5
+				Column
+				{
+					DefaultLabel
+					{
+						id: labelInput
+						text: qsTr("Input:")
+						color: trDetailColor
+					}
+
+					ListModel
+					{
+						id: inputList
+					}
+
+					Repeater
+					{
+						model: inputList
+						DefaultLabel
+						{
+							color: trDetailColor
+							text: key + "\t" + value
+							width: rowTransactionItem.width - 40
+							elide: Text.ElideRight
+							font.bold: true
+						}
+					}
+				}
+			}
+
+			RowLayout
+			{
+				id: outputDetail
+				anchors.left: parent.left
+				anchors.leftMargin: 5
+				ColumnLayout
+				{
+					DefaultLabel
+					{
+						color: trDetailColor
+						id: labelOutput
+						text: qsTr("Output:")
+					}
+
+					ListModel
+					{
+						id: outputList
+					}
+
+					Repeater
+					{
+						model: outputList
+						DefaultLabel
+						{
+							color: trDetailColor
+							text: key + "\t" + value
+							width: rowTransactionItem.width - 30
+							elide: Text.ElideRight
+							font.bold: true
+						}
+					}
+				}
+			}
+
+			RowLayout
+			{
+				id: eventDetail
+				anchors.left: parent.left
+				anchors.leftMargin: 5
+				ColumnLayout
+				{
+					DefaultLabel
+					{
+						color: trDetailColor
+						id: labelEvent
+						text: qsTr("Events:")
+					}
+
+					ListModel
+					{
+						id: eventList
+					}
+
+					Repeater
+					{
+						model: eventList
+						RowLayout
+						{
+							DefaultLabel
+							{
+								color: trDetailColor
+								text: index >= 0 ? eventList.get(index).key : ""
+								font.bold: true
+							}
+
+							DefaultLabel
+							{
+								color: trDetailColor
+								text: index >= 0 ? eventList.get(index).value : ""
+								width: rowTransactionItem.width - 30
+								elide: Text.ElideRight
+								font.bold: true
+							}
+						}
+					}
+				}
+			}
+
+			RowLayout
+			{
+				id: debugDetail
+				spacing: 5
+				width: parent.width
+				layoutDirection: Qt.RightToLeft
+				anchors.left: parent.left
+				anchors.leftMargin: 5
+				CopyButton
+				{
+					anchors.verticalCenter: parent.verticalCenter
+					getContent: function() {
+						return JSON.stringify(tx)
+					}
+					width: 25
+				}
+				DefaultButton
+				{
+					id: editTx
+					anchors.verticalCenter: parent.verticalCenter
+					visible: !isCall
+					onClicked:
+					{
+						if (!isCall)
+							root.editTx(index)
+					}
+					text: qsTr("Edit transaction...")
+				}
+
+				DefaultButton
+				{
+					id: debugTx
+					anchors.verticalCenter: parent.verticalCenter
+					onClicked:
+					{
+						if (tx.recordIndex !== undefined)
+							clientModel.debugRecord(tx.recordIndex, tx.label);
+					}
+					text: isCall ? qsTr("Debug call...") : qsTr("Debug transaction...")
 				}
 			}
 		}

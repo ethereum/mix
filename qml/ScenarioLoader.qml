@@ -86,11 +86,11 @@ ColumnLayout
 		id: btnRowContainer
 		property int comboboxWidth: 100
 		property int minimalWidth: 100 * 6 + btnRowContainer.comboboxWidth
-		Layout.minimumHeight: 40
+		Layout.minimumHeight: 30
 		Item
 		{
 			Layout.preferredWidth: parent.comboboxWidth
-			height: 20
+			Layout.minimumHeight: 30
 			id: scenarioCont
 			anchors.top: parent.top
 			Rectangle
@@ -132,7 +132,7 @@ ColumnLayout
 				model: projectModel.stateListModel
 				anchors.top: parent.top
 				textRole: "title"
-				height: parent.height
+				height: scenarioCont.height
 				width: btnRowContainer.comboboxWidth
 				signal updateView()
 
@@ -191,7 +191,7 @@ ColumnLayout
 							anchors.verticalCenter: parent.verticalCenter
 							anchors.left: parent.left
 							anchors.leftMargin: -4
-							anchors.top: parent.top
+							//anchors.top: parent.top
 							Component.onCompleted:
 							{
 								comboLabel.updateLabel()
@@ -306,7 +306,7 @@ ColumnLayout
 			anchors.top: parent.top
 			width: btnWidth * 6
 			Layout.preferredWidth: btnWidth * 6
-			height: 20
+			Layout.minimumHeight: 30
 			id: rowBtn
 			ScenarioButton {
 				id: editScenario

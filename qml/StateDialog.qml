@@ -82,8 +82,7 @@ Dialog {
 		return item
 	}
 
-	contentItem: Rectangle {
-		color: "transparent"
+	contentItem: ColumnLayout {
 		implicitHeight: modalStateDialog.height
 		implicitWidth: modalStateDialog.width
 		anchors.fill: parent
@@ -110,7 +109,6 @@ Dialog {
 			id: dialogContent
 			anchors.top: parent.top
 			width: parent.width
-			height: parent.height - validationRow.height
 
 			ColumnLayout {
 				Layout.fillWidth: true
@@ -285,11 +283,11 @@ Dialog {
 							{
 								anchors.fill: parent
 								color: "transparent"
-								height: 100
 								RowLayout {
 									anchors.top: parent.top
 									anchors.topMargin: 10
 									anchors.horizontalCenter: parent.horizontalCenter
+									anchors.verticalCenter: parent.verticalCenter
 									width: parent.width - 20
 									MessageDialog
 									{
@@ -322,7 +320,7 @@ Dialog {
 											width: parent.width
 											color: "transparent"
 											radius: 4
-											height: 20
+											height: labelUser.height
 											anchors.verticalCenter: parent.verticalCenter
 											DefaultText
 											{
@@ -404,7 +402,7 @@ Dialog {
 									Ether {
 										anchors.verticalCenter: parent.verticalCenter
 										inputWidth: 100
-										Layout.preferredWidth: 210
+										Layout.minimumWidth: 210
 										edit: true
 										displayFormattedValue: false
 										value: {
@@ -425,7 +423,9 @@ Dialog {
 										Layout.preferredWidth: 150
 
 										DefaultImgButton {
-											iconSource: "qrc:/qml/img/delete-block-icon@2x.png"
+											height: 25
+											width: 25
+											anchors.verticalCenter: parent.verticalCenter
 											anchors.left: parent.right
 											anchors.leftMargin: 50
 											anchors.top: parent.top
@@ -450,7 +450,7 @@ Dialog {
 
 					rowDelegate: Rectangle {
 						color: styleData.alternate ? "transparent" : "#f0f0f0"
-						height: 40
+						height: 60
 					}
 				}
 			}
@@ -507,6 +507,5 @@ Dialog {
 				}
 			}
 		}
-
 	}
 }
