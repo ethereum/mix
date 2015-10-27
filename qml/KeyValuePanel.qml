@@ -20,8 +20,6 @@ ColumnLayout {
 	property alias model: modelKeyValue
 	property int minHeight: 100
 	property int maxHeight: 250
-	signal expanded
-	signal minimized
 	spacing: 0
 
 	function add(key, value)
@@ -68,7 +66,7 @@ ColumnLayout {
 
 	RowLayout
 	{
-		Layout.preferredHeight: 20
+		Layout.minimumHeight: 20
 		Layout.fillWidth: true
 		DefaultLabel
 		{
@@ -79,10 +77,17 @@ ColumnLayout {
 		}
 	}
 
+	onWidthChanged:
+	{
+		keyPanel.width = width
+	}
+
 	RowLayout
 	{
-		Layout.fillWidth: true
-		Layout.preferredHeight: 100
+		Layout.preferredWidth: parent.width
+		width: parent.width
+		id: keyPanel
+
 		ListModel
 		{
 			id: modelKeyValue
@@ -90,66 +95,11 @@ ColumnLayout {
 
 		Rectangle
 		{
-			Layout.fillWidth: true
-			Layout.fillHeight: true
+			anchors.fill: parent
 			color: "white"
 			border.width: 1
 			border.color: "#cccccc"
 			radius: 2
-			anchors.left: parent.left
-			ScrollView
-			{
-				id: columnValues
-				horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
-				anchors.fill: parent
-				clip: true
-				ColumnLayout
-				{
-					spacing: 0
-					id: colValue
-					anchors.top: parent.top
-					anchors.topMargin: 5
-					Repeater
-					{
-						id: repeaterKeyValue
-						model: modelKeyValue
-						Row
-						{
-							Layout.preferredHeight: 20
-							spacing: 5
-							anchors.left: colValue.left
-							anchors.leftMargin: 5
-							DefaultLabel
-							{
-								maximumLineCount: 1
-								text: {
-									if (index >= 0 && repeaterKeyValue.model.get(index).key !== undefined)
-										return repeaterKeyValue.model.get(index).key
-									else
-										return ""
-								}
-							}
-
-							DefaultLabel
-							{
-								text: "="
-							}
-
-							DefaultLabel
-							{
-								maximumLineCount: 1
-								text: {
-									if (index >= 0 && repeaterKeyValue.model.get(index).value !== undefined)
-										return repeaterKeyValue.model.get(index).value
-									else
-										return ""
-								}
-							}
-						}
-					}
-				}
-
-			}
 
 			Rectangle
 			{
@@ -170,15 +120,73 @@ ColumnLayout {
 					{
 						if (pressed)
 						{
-							var newHeight = root.height + mouseY - pos
+							var newHeight = columnValues.Layout.minimumHeight + mouseY - pos
+							console.log(columnValues.Layout.minimumHeight  + " " + newHeight)
 							if (newHeight > minHeight && newHeight < 800)
-								root.height = newHeight
+								columnValues.Layout.minimumHeight = newHeight
 						}
 					}
 
 					onPressed:
 					{
 						pos = mouseY
+					}
+				}
+			}
+		}
+
+		ScrollView
+		{
+			id: columnValues
+			horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+			Layout.preferredWidth: parent.width
+			width: parent.width
+			clip: true
+			anchors.left: parent.left
+
+			ColumnLayout
+			{
+				spacing: 0
+				id: colValue
+				anchors.top: parent.top
+				anchors.topMargin: 5
+
+				Repeater
+				{
+					id: repeaterKeyValue
+					model: modelKeyValue
+					Row
+					{
+						Layout.minimumHeight: 20
+						spacing: 5
+						anchors.left: colValue.left
+						anchors.leftMargin: 5
+						DefaultLabel
+						{
+							maximumLineCount: 1
+							text: {
+								if (index >= 0 && repeaterKeyValue.model.get(index).key !== undefined)
+									return repeaterKeyValue.model.get(index).key
+								else
+									return ""
+							}
+						}
+
+						DefaultLabel
+						{
+							text: "="
+						}
+
+						DefaultLabel
+						{
+							maximumLineCount: 1
+							text: {
+								if (index >= 0 && repeaterKeyValue.model.get(index).value !== undefined)
+									return repeaterKeyValue.model.get(index).value
+								else
+									return ""
+							}
+						}
 					}
 				}
 			}

@@ -270,69 +270,22 @@ ColumnLayout {
 	Rectangle
 	{
 		Layout.preferredWidth: 310
-		Layout.preferredHeight: 40
+		Layout.minimumHeight: 35
 		anchors.horizontalCenter: parent.horizontalCenter
 		color: "transparent"
 		id: btnsContainer
 		anchors.top: parent.top
 
-		Row
+		RowLayout
 		{
 			width: parent.width
 			anchors.top: parent.top
 			spacing: 20
 			id: rowBtns
-			onWidthChanged: {
-				var w = (width - (2 * 20)) / 4
-				rebuild.width = w > 30 ? w : 30
-				rebuild.parent.width = w > 30 ? w : 30
-				addTransaction.width = w > 30 ? w : 30
-				addBlockBtn.width = w > 30 ? w : 30
-				addTransaction.parent.width = addBlockBtn.width * 2
-				newAccount.width = w > 30 ? w : 30
-				newAccount.parent.width = w > 30 ? w : 30
-			}
-
 			Settings
 			{
 				id: btnsWidth
 				property int widthValue: 0
-			}
-
-			Connections
-			{
-				target: mainApplication.mainSettings
-				property int pointSize
-				property int defaultPointSize: 11
-
-				Component.onCompleted:
-				{
-					if (mainApplication.mainSettings.systemPointSize !== defaultPointSize)
-					{
-						if (btnsWidth.widthValue !== 0)
-							btnsContainer.Layout.preferredWidth = btnsWidth.widthValue
-						else
-							btnsContainer.Layout.preferredWidth = btnsContainer.Layout.preferredWidth + (mainApplication.mainSettings.systemPointSize - defaultPointSize) * 25
-
-						pointSize = mainApplication.mainSettings.systemPointSize
-						if (mainApplication.mainSettings.systemPointSize <= defaultPointSize)
-							btnsContainer.Layout.preferredWidth = 310
-					}
-				}
-
-				onSystemPointSizeChanged:
-				{
-					btnsContainer.Layout.preferredWidth = btnsContainer.Layout.preferredWidth + (mainApplication.mainSettings.systemPointSize - pointSize) * 25
-					btnsWidth.widthValue = btnsContainer.Layout.preferredWidth
-					pointSize = mainApplication.mainSettings.systemPointSize
-					if (mainApplication.mainSettings.systemPointSize <= defaultPointSize)
-						btnsContainer.Layout.preferredWidth = 310
-					if (mainApplication.mainSettings.systemPointSize === defaultPointSize)
-					{
-						btnsWidth.widthValue = 0
-						pointSize = 0
-					}
-				}
 			}
 
 			Connections
@@ -354,259 +307,238 @@ ColumnLayout {
 				}
 			}
 
-			Rectangle {
-				width: 20
-				height: 20
-				ScenarioButton {
-					id: rebuild
-					text: qsTr("Rebuild Scenario")
-					width: 20
-					height: 20
-					roundLeft: true
-					roundRight: true
-					enabled: scenarioIndex !== -1
-					property variant contractsHex: ({})
-					property variant txSha3: ({})
-					property variant accountsSha3
-					property variant contractsSha3
-					property variant txChanged: []
-					property var blinkReasons: []
+			ScenarioButton {
+				id: rebuild
+				text: qsTr("Rebuild Scenario")
+				width: 80
+				Layout.minimumHeight: 30
+				roundLeft: true
+				roundRight: true
+				enabled: scenarioIndex !== -1
+				property variant contractsHex: ({})
+				property variant txSha3: ({})
+				property variant accountsSha3
+				property variant contractsSha3
+				property variant txChanged: []
+				property var blinkReasons: []
 
-					function needRebuild(reason)
+				function needRebuild(reason)
+				{
+					if (scenarioIndex !== -1)
 					{
-						if (scenarioIndex !== -1)
-						{
-							rebuild.startBlinking()
-							blinkReasons.push(reason)
-						}
+						rebuild.startBlinking()
+						blinkReasons.push(reason)
 					}
-
-					function containsRebuildCause(reason)
-					{
-						for (var c in blinkReasons)
-						{
-							if (blinkReasons[c] === reason)
-								return true
-						}
-						return false
-					}
-
-					function notNeedRebuild(reason)
-					{
-						for (var c in blinkReasons)
-						{
-							if (blinkReasons[c] === reason)
-							{
-								blinkReasons.splice(c, 1)
-								break
-							}
-						}
-						if (blinkReasons.length === 0)
-							rebuild.stopBlinking()
-					}
-
-					function build()
-					{
-						if (clientModel.running)
-							return
-						if (ensureNotFuturetime.running || !model)
-							return
-						blockChainPanel.calls = {}
-						stopBlinking()
-						rebuilding()
-						states = []
-						var retBlocks = [];
-						var bAdded = 0;
-						for (var j = 0; j < model.blocks.length; j++)
-						{
-							var b = model.blocks[j];
-							var block = {
-								hash: b.hash,
-								number: b.number,
-								transactions: [],
-								status: b.status
-							}
-							for (var k = 0; k < model.blocks[j].transactions.length; k++)
-							{
-								if (blockModel.get(j).transactions.get(k).saveStatus)
-								{
-									var tr = model.blocks[j].transactions[k]
-									tr.saveStatus = true
-									block.transactions.push(tr);
-								}
-
-							}
-							if (block.transactions.length > 0)
-							{
-								bAdded++
-								block.number = bAdded
-								block.status = "mined"
-								retBlocks.push(block)
-							}
-						}
-						if (retBlocks.length === 0)
-							retBlocks.push(projectModel.stateListModel.createEmptyBlock())
-						else
-						{
-							var last = retBlocks[retBlocks.length - 1]
-							last.number = -1
-							last.status = "pending"
-						}
-
-						model.blocks = retBlocks
-						blockModel.clear()
-						for (var j = 0; j < model.blocks.length; j++)
-							blockModel.append(model.blocks[j])
-
-						ensureNotFuturetime.start()
-
-						takeCodeSnapshot()
-						takeTxSnaphot()
-						takeAccountsSnapshot()
-						takeContractsSnapShot()
-						blinkReasons = []
-						buildUseOptimizedCode = codeModel.optimizeCode
-						clientModel.setupScenario(model);
-						blockChainPanel.forceActiveFocus()
-					}
-
-					onClicked:
-					{
-						build()
-					}
-
-					function takeContractsSnapShot()
-					{
-						contractsSha3 = codeModel.sha3(JSON.stringify(model.contracts))
-					}
-
-					function takeAccountsSnapshot()
-					{
-						accountsSha3 = codeModel.sha3(JSON.stringify(model.accounts))
-					}
-
-					function takeCodeSnapshot()
-					{
-						contractsHex = {}
-						for (var c in codeModel.contracts)
-							contractsHex[c] = codeModel.contracts[c].codeHex
-					}
-
-					function takeTxSnaphot()
-					{
-						txSha3 = {}
-						txChanged = []
-						for (var j = 0; j < model.blocks.length; j++)
-						{
-							for (var k = 0; k < model.blocks[j].transactions.length; k++)
-							{
-								if (txSha3[j] === undefined)
-									txSha3[j] = {}
-								txSha3[j][k] = codeModel.sha3(JSON.stringify(model.blocks[j].transactions[k]))
-							}
-						}
-					}
-
-					buttonShortcut: ""
-					sourceImg: "qrc:/qml/img/recycleicon@2x.png"
 				}
+
+				function containsRebuildCause(reason)
+				{
+					for (var c in blinkReasons)
+					{
+						if (blinkReasons[c] === reason)
+							return true
+					}
+					return false
+				}
+
+				function notNeedRebuild(reason)
+				{
+					for (var c in blinkReasons)
+					{
+						if (blinkReasons[c] === reason)
+						{
+							blinkReasons.splice(c, 1)
+							break
+						}
+					}
+					if (blinkReasons.length === 0)
+						rebuild.stopBlinking()
+				}
+
+				function build()
+				{
+					if (clientModel.running)
+						return
+					if (ensureNotFuturetime.running || !model)
+						return
+					blockChainPanel.calls = {}
+					stopBlinking()
+					rebuilding()
+					states = []
+					var retBlocks = [];
+					var bAdded = 0;
+					for (var j = 0; j < model.blocks.length; j++)
+					{
+						var b = model.blocks[j];
+						var block = {
+							hash: b.hash,
+							number: b.number,
+							transactions: [],
+							status: b.status
+						}
+						for (var k = 0; k < model.blocks[j].transactions.length; k++)
+						{
+							if (blockModel.get(j).transactions.get(k).saveStatus)
+							{
+								var tr = model.blocks[j].transactions[k]
+								tr.saveStatus = true
+								block.transactions.push(tr);
+							}
+
+						}
+						if (block.transactions.length > 0)
+						{
+							bAdded++
+							block.number = bAdded
+							block.status = "mined"
+							retBlocks.push(block)
+						}
+					}
+					if (retBlocks.length === 0)
+						retBlocks.push(projectModel.stateListModel.createEmptyBlock())
+					else
+					{
+						var last = retBlocks[retBlocks.length - 1]
+						last.number = -1
+						last.status = "pending"
+					}
+
+					model.blocks = retBlocks
+					blockModel.clear()
+					for (var j = 0; j < model.blocks.length; j++)
+						blockModel.append(model.blocks[j])
+
+					ensureNotFuturetime.start()
+
+					takeCodeSnapshot()
+					takeTxSnaphot()
+					takeAccountsSnapshot()
+					takeContractsSnapShot()
+					blinkReasons = []
+					buildUseOptimizedCode = codeModel.optimizeCode
+					clientModel.setupScenario(model);
+					blockChainPanel.forceActiveFocus()
+				}
+
+				onClicked:
+				{
+					build()
+				}
+
+				function takeContractsSnapShot()
+				{
+					contractsSha3 = codeModel.sha3(JSON.stringify(model.contracts))
+				}
+
+				function takeAccountsSnapshot()
+				{
+					accountsSha3 = codeModel.sha3(JSON.stringify(model.accounts))
+				}
+
+				function takeCodeSnapshot()
+				{
+					contractsHex = {}
+					for (var c in codeModel.contracts)
+						contractsHex[c] = codeModel.contracts[c].codeHex
+				}
+
+				function takeTxSnaphot()
+				{
+					txSha3 = {}
+					txChanged = []
+					for (var j = 0; j < model.blocks.length; j++)
+					{
+						for (var k = 0; k < model.blocks[j].transactions.length; k++)
+						{
+							if (txSha3[j] === undefined)
+								txSha3[j] = {}
+							txSha3[j][k] = codeModel.sha3(JSON.stringify(model.blocks[j].transactions[k]))
+						}
+					}
+				}
+
+				buttonShortcut: ""
+				sourceImg: "qrc:/qml/img/recycleicon@2x.png"
 			}
 
-			Rectangle
-			{
-				width: 100
-				height: 20
-				color: "transparent"
-
-				ScenarioButton {
-					id: addTransaction
-					text: qsTr("Add Transaction...")
-					enabled: scenarioIndex !== -1
-					onClicked:
+			ScenarioButton {
+				id: addTransaction
+				text: qsTr("Add Transaction...")
+				enabled: scenarioIndex !== -1
+				onClicked:
+				{
+					if (model && model.blocks)
 					{
-						if (model && model.blocks)
+						var lastBlock = model.blocks[model.blocks.length - 1];
+						if (lastBlock.status === "mined")
 						{
-							var lastBlock = model.blocks[model.blocks.length - 1];
-							if (lastBlock.status === "mined")
-							{
-								var newblock = projectModel.stateListModel.createEmptyBlock()
-								blockModel.appendBlock(newblock)
-								model.blocks.push(newblock);
-							}
-
-							var item = TransactionHelper.defaultTransaction()
-							transactionDialog.execute = !rebuild.isBlinking
-							transactionDialog.stateAccounts = model.accounts
-							transactionDialog.editMode = false
-							transactionDialog.open(model.blocks[model.blocks.length - 1].transactions.length, model.blocks.length - 1, item)
+							var newblock = projectModel.stateListModel.createEmptyBlock()
+							blockModel.appendBlock(newblock)
+							model.blocks.push(newblock);
 						}
+
+						var item = TransactionHelper.defaultTransaction()
+						transactionDialog.execute = !rebuild.isBlinking
+						transactionDialog.stateAccounts = model.accounts
+						transactionDialog.editMode = false
+						transactionDialog.open(model.blocks[model.blocks.length - 1].transactions.length, model.blocks.length - 1, item)
 					}
-					width: 50
-					height: 20
-					buttonShortcut: ""
-					sourceImg: "qrc:/qml/img/sendtransactionicon@2x.png"
-					roundLeft: true
-					roundRight: false
 				}
+				width: 80
+				Layout.minimumHeight: 30
+				buttonShortcut: ""
+				sourceImg: "qrc:/qml/img/sendtransactionicon@2x.png"
+				roundLeft: true
+				roundRight: true
+			}
 
-				Timer
+			Timer
+			{
+				id: ensureNotFuturetime
+				interval: 1000
+				repeat: false
+				running: false
+			}
+
+			ScenarioButton {
+				id: addBlockBtn
+				text: qsTr("Add Block")
+				enabled: scenarioIndex !== -1
+				roundLeft: true
+				roundRight: true
+				onClicked:
 				{
-					id: ensureNotFuturetime
-					interval: 1000
-					repeat: false
-					running: false
-				}
-
-				Rectangle
-				{
-					width: 1
-					height: parent.height
-					anchors.right: addBlockBtn.left
-					color: "#ededed"
-				}
-
-				ScenarioButton {
-					id: addBlockBtn
-					text: qsTr("Add Block")
-					anchors.left: addTransaction.right
-					enabled: scenarioIndex !== -1
-					roundLeft: false
-					roundRight: true
-					onClicked:
+					if (ensureNotFuturetime.running)
+						return
+					if (clientModel.mining || clientModel.running)
+						return
+					if (model.blocks.length > 0)
 					{
-						if (ensureNotFuturetime.running)
-							return
-						if (clientModel.mining || clientModel.running)
-							return
-						if (model.blocks.length > 0)
+						var lastBlock = model.blocks[model.blocks.length - 1]
+						if (lastBlock.status === "pending")
 						{
-							var lastBlock = model.blocks[model.blocks.length - 1]
-							if (lastBlock.status === "pending")
-							{
-								ensureNotFuturetime.start()
-								clientModel.mine()
-							}
-							else
-								addNewBlock()
+							ensureNotFuturetime.start()
+							clientModel.mine()
 						}
 						else
 							addNewBlock()
 					}
-
-					function addNewBlock()
-					{
-						var block = projectModel.stateListModel.createEmptyBlock()
-						model.blocks.push(block)
-						blockModel.appendBlock(block)
-					}
-					width: 50
-					height: 20
-
-					buttonShortcut: ""
-					sourceImg: "qrc:/qml/img/newblock@2x.png"
+					else
+						addNewBlock()
 				}
-			}
 
+				function addNewBlock()
+				{
+					var block = projectModel.stateListModel.createEmptyBlock()
+					model.blocks.push(block)
+					blockModel.appendBlock(block)
+				}
+				width: 80
+				Layout.minimumHeight: 30
+
+				buttonShortcut: ""
+				sourceImg: "qrc:/qml/img/newblock@2x.png"
+			}
 
 			Connections
 			{
@@ -630,6 +562,7 @@ ColumnLayout {
 				}
 				onNewRecord:
 				{
+
 					if (_r.transactionIndex !== "Call")
 					{
 						var blockIndex =  parseInt(_r.transactionIndex.split(":")[0]) - 1
@@ -714,26 +647,20 @@ ColumnLayout {
 				}
 			}
 
-			Rectangle {
-				width: 50
-				height: 20
-				border.width: 1
-				border.color: "red"
-				ScenarioButton {
-					id: newAccount
-					enabled: scenarioIndex !== -1
-					text: qsTr("New Account...")
-					onClicked: {
-						newAddressWin.accounts = model.accounts
-						newAddressWin.open()
-					}
-					width: 80
-					height: 20
-					buttonShortcut: ""
-					sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
-					roundLeft: true
-					roundRight: true
+			ScenarioButton {
+				id: newAccount
+				enabled: scenarioIndex !== -1
+				text: qsTr("New Account...")
+				onClicked: {
+					newAddressWin.accounts = model.accounts
+					newAddressWin.open()
 				}
+				width: 80
+				Layout.minimumHeight: 30
+				buttonShortcut: ""
+				sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
+				roundLeft: true
+				roundRight: true
 			}
 
 			NewAccount
@@ -759,7 +686,7 @@ ColumnLayout {
 				blockChainPanel.forceActiveFocus()
 			}
 		}
-		Layout.preferredHeight: 300
+		Layout.minimumHeight: 300
 		Layout.preferredWidth: parent.width
 		border.color: "#cccccc"
 		border.width: 1
@@ -776,52 +703,41 @@ ColumnLayout {
 			{
 				id: blockChainLayout
 				width: parent.width
-				spacing: 10
-				Rectangle
+				Connections
 				{
-					Layout.preferredHeight: 40
+					id: displayCallConnection
+					target: mainContent
+					onDisplayCallsChanged:
+					{
+						updateCalls()
+					}
+
+					Component.onCompleted:
+					{
+						blockChainRepeater.callsDisplayed = mainContent.displayCalls
+					}
+
+					function updateCalls()
+					{
+						blockChainRepeater.callsDisplayed = mainContent.displayCalls
+						if (mainContent.displayCalls)
+							blockChainRepeater.displayCalls()
+						else
+							blockChainRepeater.hideCalls()
+					}
+				}
+
+				Block
+				{
+					id: genesis
 					Layout.preferredWidth: blockChainScrollView.width
-					color: "transparent"
-
-					Connections
-					{
-						id: displayCallConnection
-						target: mainContent
-						onDisplayCallsChanged:
-						{
-							updateCalls()
-						}
-
-						Component.onCompleted:
-						{
-							blockChainRepeater.callsDisplayed = mainContent.displayCalls
-						}
-
-						function updateCalls()
-						{
-							blockChainRepeater.callsDisplayed = mainContent.displayCalls
-							if (mainContent.displayCalls)
-								blockChainRepeater.displayCalls()
-							else
-								blockChainRepeater.hideCalls()
-						}
-					}
-
-					Block
-					{
-						id: genesis
-						scenario: blockChainPanel.model
-						scenarioIndex: scenarioIndex
-						Layout.preferredWidth: blockChainScrollView.width
-						Layout.preferredHeight: 40
-						width: blockChainScrollView.width
-						height: 40
-						blockIndex: -1
-						transactions: []
-						status: ""
-						number: -2
-						trHeight: 40
-					}
+					scenario: blockChainPanel.model
+					scenarioIndex: scenarioIndex
+					blockIndex: -1
+					transactions: []
+					status: ""
+					number: -2
+					trHeight: 40
 				}
 
 				Connections
@@ -890,22 +806,9 @@ ColumnLayout {
 							}
 						}
 
-						Connections
-						{
-							target: blockChainRepeater
-							onCallsDisplayedChanged:
-							{
-								block.Layout.preferredHeight = block.calculateHeight()
-							}
-						}
-
 						id: block
 						scenario: blockChainPanel.model
 						Layout.preferredWidth: blockChainScrollView.width
-						Layout.preferredHeight:
-						{
-							return calculateHeight()
-						}
 						blockIndex: index
 						transactions:
 						{
@@ -964,8 +867,8 @@ ColumnLayout {
 						var newHeight = bcContainer.height + mouseY - pos
 						if (newHeight > 300 && newHeight < 800)
 						{
-							bcContainer.Layout.preferredHeight = newHeight
-							blockChainPanel.Layout.preferredHeight = blockChainPanel.height + mouseY - pos
+							bcContainer.Layout.minimumHeight = newHeight
+							blockChainPanel.Layout.minimumHeight = blockChainPanel.height + mouseY - pos
 						}
 					}
 				}

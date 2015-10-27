@@ -202,7 +202,7 @@ Item {
 			anchors.leftMargin: 4
 			color: webPreviewStyle.general.headerBackgroundColor
 			Layout.preferredWidth: parent.width
-			Layout.preferredHeight: 32
+			Layout.minimumHeight: 32
 			Row {
 				anchors.top: parent.top
 				anchors.fill: parent
@@ -233,28 +233,22 @@ Item {
 					}
 				}
 
-				Rectangle {
-					width: 23
+				ScenarioButton {
+					id: reloadFrontend
+					text: qsTr("Reload frontend")
 					height: 23
-					anchors.verticalCenter: parent.verticalCenter
-					ScenarioButton {
-						id: reloadFrontend
-						text: qsTr("Reload frontend")
-						width: 23
-						height: 23
-						roundLeft: true
-						roundRight: true
-						onClicked:
-						{
-							reload()
-						}
-						buttonShortcut: ""
-						sourceImg: "qrc:/qml/img/recycleicon@2x.png"
-						function reload()
-						{
-							mainContent.webView.reload()
-							reloadFrontend.stopBlinking()
-						}
+					roundLeft: true
+					roundRight: true
+					onClicked:
+					{
+						reload()
+					}
+					buttonShortcut: ""
+					sourceImg: "qrc:/qml/img/recycleicon@2x.png"
+					function reload()
+					{
+						mainContent.webView.reload()
+						reloadFrontend.stopBlinking()
 					}
 				}
 
@@ -327,7 +321,7 @@ Item {
 
 		Rectangle
 		{
-			Layout.preferredHeight: 1
+			Layout.minimumHeight: 1
 			Layout.preferredWidth: parent.width
 			color: webPreviewStyle.general.separatorColor
 		}
@@ -397,6 +391,7 @@ Item {
 					width: parent.width
 					DefaultImgButton
 					{
+						anchors.verticalCenter: parent.verticalCenter
 						height: 22
 						width: 22
 						action: clearAction
@@ -415,7 +410,6 @@ Item {
 					DefaultTextField {
 						id: expressionInput
 						width: parent.width - 15
-						height: 23
 						font.family: webPreviewStyle.general.fontName
 						font.italic: true
 						anchors.verticalCenter: parent.verticalCenter

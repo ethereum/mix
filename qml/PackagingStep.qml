@@ -65,7 +65,7 @@ Rectangle {
 		RowLayout
 		{
 			Layout.fillWidth: true
-			Layout.preferredHeight: 20
+			Layout.minimumHeight: 20
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 5
@@ -114,7 +114,7 @@ Rectangle {
 		RowLayout
 		{
 			Layout.fillWidth: true
-			Layout.preferredHeight: 20
+			Layout.minimumHeight: 20
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 5

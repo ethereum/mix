@@ -130,11 +130,11 @@ Rectangle {
 		RowLayout
 		{
 			Layout.preferredWidth: parent.width
-			Layout.preferredHeight: 20
+			Layout.minimumHeight: 20
 			Rectangle
 			{
 				Layout.preferredWidth: parent.width
-				Layout.preferredHeight: parent.height
+				Layout.minimumHeight: parent.height
 				color: "transparent"
 				DefaultText {
 					anchors.centerIn: parent
@@ -179,11 +179,11 @@ Rectangle {
 		RowLayout
 		{
 			Layout.preferredWidth: parent.width
-			Layout.preferredHeight: 20
+			Layout.minimumHeight: 20
 			Rectangle
 			{
 				Layout.preferredWidth: parent.width
-				Layout.preferredHeight: parent.height
+				Layout.minimumHeight: parent.height
 				color: "#accbf2"
 				DefaultText {
 					id: trName

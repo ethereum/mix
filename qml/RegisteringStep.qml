@@ -103,7 +103,7 @@ Rectangle {
 		RowLayout
 		{
 			Layout.fillWidth: true
-			Layout.preferredHeight: 20
+			Layout.minimumHeight: 20
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 5
@@ -140,7 +140,7 @@ Rectangle {
 		RowLayout
 		{
 			Layout.fillWidth: true
-			Layout.preferredHeight: 20
+			Layout.minimumHeight: 20
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 5
@@ -180,7 +180,7 @@ Rectangle {
 		RowLayout
 		{
 			Layout.fillWidth: true
-			Layout.preferredHeight: 20
+			Layout.minimumHeight: 20
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 5
@@ -211,7 +211,7 @@ Rectangle {
 		RowLayout
 		{
 			Layout.fillWidth: true
-			Layout.preferredHeight: 20
+			Layout.minimumHeight: 20
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 4
@@ -257,7 +257,7 @@ Rectangle {
 			Item
 			{
 				Layout.preferredWidth: 450
-				Layout.preferredHeight: 60
+				Layout.minimumHeight: 60
 				GasPrice
 				{
 					id: gasPriceConf
@@ -282,7 +282,7 @@ Rectangle {
 		RowLayout
 		{
 			Layout.fillWidth: true
-			Layout.preferredHeight: 20
+			Layout.minimumHeight: 20
 			Rectangle
 			{
 				Layout.preferredWidth: col.width / 5

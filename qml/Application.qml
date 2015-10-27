@@ -501,7 +501,7 @@ ApplicationWindow {
 		property int systemPointSize: 11
 		function getFormattedPointSize()
 		{
-			return systemPointSize  - 3
+			return systemPointSize
 		}
 	}
 }

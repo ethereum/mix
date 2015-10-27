@@ -281,7 +281,7 @@ Rectangle
 			{
 				color: "#cccccc"
 				Layout.fillWidth: true
-				Layout.preferredHeight: 50
+				Layout.minimumHeight: 50
 				CopyButton
 				{
 					anchors.top: parent.top
@@ -378,7 +378,7 @@ Rectangle
 
 			Rectangle
 			{
-				Layout.preferredHeight: 50
+				Layout.minimumHeight: 50
 				Layout.preferredWidth: parent.width - verLabel.width - 5
 				color: "#cccccc"
 				DefaultTextArea

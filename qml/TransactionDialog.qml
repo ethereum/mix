@@ -306,6 +306,7 @@ Dialog {
 		{
 			anchors.top: parent.top
 			width: parent.width
+			anchors.fill: parent
 			height: parent.height - separator.height - validationRow.height
 			ColumnLayout {
 				Layout.preferredWidth: rowWidth
@@ -317,10 +318,11 @@ Dialog {
 				{
 					return (containerRect.width - 500) /2
 				}
+				spacing: 10
 
 				RowLayout
 				{
-					Layout.preferredHeight: 55
+					Layout.minimumHeight: 60
 					Rectangle
 					{
 						color: "transparent"
@@ -400,7 +402,7 @@ Dialog {
 					Column
 					{
 						Layout.preferredWidth: 350
-						Layout.preferredHeight: 90
+						Layout.minimumHeight: 90
 						ExclusiveGroup {
 							id: rbbuttonList
 							onCurrentChanged: {
@@ -434,7 +436,6 @@ Dialog {
 							exclusiveGroup: rbbuttonList
 							height: 30
 							text: qsTr("Send Ether to Account")
-
 						}
 
 						DefaultRadioButton {
@@ -470,7 +471,7 @@ Dialog {
 
 					QAddressView
 					{
-						Layout.preferredHeight: 55
+						Layout.minimumHeight: 55
 						Layout.preferredWidth: 350
 						width: 350
 						id: recipientsAccount
@@ -569,7 +570,7 @@ Dialog {
 					function updateView()
 					{
 						paramScroll.visible = paramsModel.length > 0
-						paramScroll.Layout.preferredHeight = paramScroll.colHeight
+						paramScroll.Layout.minimumHeight = paramScroll.colHeight
 						if (paramsModel.length === 0)
 							paramScroll.height = 0
 					}
@@ -589,7 +590,7 @@ Dialog {
 					}
 
 					Ether {
-						Layout.preferredWidth: 350
+						Layout.minimumWidth: 350
 						id: valueField
 						edit: true
 						displayFormattedValue: true
@@ -599,7 +600,7 @@ Dialog {
 
 				Rectangle
 				{
-					Layout.preferredHeight: 30
+					Layout.minimumHeight: 30
 					Layout.fillWidth: true
 					color: "transparent"
 					Rectangle
@@ -611,27 +612,15 @@ Dialog {
 					}
 				}
 
-				Rectangle
-				{
-					height: 20
-					color: "transparent"
-					Layout.preferredWidth: 500
-					Rectangle
-					{
-
-						anchors.horizontalCenter: parent.horizontalCenter
-						DefaultLabel {
-							text: qsTr("Transaction fees")
-							anchors.horizontalCenter: parent.horizontalCenter
-							font.bold: true
-						}
-					}
-
+				DefaultLabel {
+					text: qsTr("Transaction fees")
+					anchors.horizontalCenter: parent.horizontalCenter
+					font.bold: true
 				}
 
 				RowLayout
 				{
-					Layout.preferredHeight: 45
+					Layout.minimumHeight: 45
 					Rectangle
 					{
 						Layout.preferredWidth: 100
@@ -722,7 +711,7 @@ Dialog {
 
 			RowLayout
 			{
-				Layout.preferredHeight: 45
+				Layout.minimumHeight: 45
 				Rectangle
 				{
 					Layout.preferredWidth: 100
