@@ -39,7 +39,7 @@ class Web3Server: public QObject, public dev::WebThreeStubServerBase
 	Q_OBJECT
 
 public:
-	Web3Server(std::shared_ptr<eth::AccountHolder> const& _ethAccounts, std::vector<dev::KeyPair> const& _shhAccounts, dev::eth::Interface* _client);
+	Web3Server(std::shared_ptr<eth::AccountHolder> const& _ethAccounts, dev::eth::Interface* _client);
 	virtual ~Web3Server();
 
 signals:
@@ -52,7 +52,6 @@ protected:
 
 private:
 	dev::eth::Interface* client() override { return m_client; }
-	std::shared_ptr<dev::shh::Interface> face() override;
 	dev::bzz::Interface* bzz() override;
 	dev::WebThreeNetworkFace* network() override;
 

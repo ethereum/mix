@@ -120,8 +120,8 @@ class EmptyNetwork : public dev::WebThreeNetworkFace
 
 }
 
-Web3Server::Web3Server(std::shared_ptr<eth::AccountHolder> const& _ethAccounts, std::vector<dev::KeyPair> const& _shhAccounts, dev::eth::Interface* _client):
-	WebThreeStubServerBase(_ethAccounts, _shhAccounts),
+Web3Server::Web3Server(std::shared_ptr<eth::AccountHolder> const& _ethAccounts, dev::eth::Interface* _client):
+	WebThreeStubServerBase(_ethAccounts),
 	m_client(_client),
 	m_network(new EmptyNetwork())
 {
@@ -129,11 +129,6 @@ Web3Server::Web3Server(std::shared_ptr<eth::AccountHolder> const& _ethAccounts, 
 
 Web3Server::~Web3Server()
 {
-}
-
-std::shared_ptr<dev::shh::Interface> Web3Server::face()
-{
-	BOOST_THROW_EXCEPTION(InterfaceNotSupported("dev::shh::Interface"));
 }
 
 dev::bzz::Interface* Web3Server::bzz()
