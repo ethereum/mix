@@ -18,6 +18,11 @@ Column
 	spacing: 0
 	property int colHeight
 
+	function setSpacing(sp)
+	{
+		root.spacing = sp
+	}
+
 	function clear()
 	{
 		value = {}
@@ -116,7 +121,6 @@ Column
 					else if (ptype.category === QSolidityType.Struct && !item.members)
 					{
 						var val = {}
-
 						for (var k in members[index].type.members)
 						{
 							var param = members[index].type.members[k]
@@ -129,7 +133,6 @@ Column
 						item.subType = modelData.type.name
 					else
 						item.value = getValue();
-
 
 					if (item.init)
 						item.init()

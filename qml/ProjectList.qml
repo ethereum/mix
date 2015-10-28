@@ -69,13 +69,6 @@ ScrollView
 			}
 		}
 
-		Rectangle
-		{
-			Layout.fillWidth: true
-			height: 3
-			color: projectFilesStyle.documentsList.background
-		}
-
 		Repeater {
 			model: [qsTr("Contracts"), qsTr("Javascript"), qsTr("Web Pages"), qsTr("Styles"), qsTr("Images"), qsTr("Misc")];
 			signal selected(string doc, string groupName)

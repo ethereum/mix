@@ -580,32 +580,21 @@ QVariantMap ClientModel::contractStorage(std::unordered_map<u256, u256> _storage
 	QVariantMap storage;
 	QVariantList storageDeclarationList;
 	QVariantMap storageValues;
-	map<QString, QVariableDeclaration*> storageDeclarations; //<name, decl>
-	for (auto st: _storage)
-		if (st.first < numeric_limits<unsigned>::max())
+
+	for (auto const& slot: _contract->storage())
+	{
+		for (auto const& stateVar: slot)
 		{
-			auto storageIter = _contract->storage().find(static_cast<unsigned>(st.first));
-			if (storageIter != _contract->storage().end())
-			{
-				QVariableDeclaration* storageDec = nullptr;
-				for (SolidityDeclaration const& codeDec : storageIter.value())
-				{
-					if (codeDec.type.name.startsWith("mapping"))
-						continue; //mapping type not yet managed
-					auto decIter = storageDeclarations.find(codeDec.name);
-					if (decIter != storageDeclarations.end())
-						storageDec = decIter->second;
-					else
-					{
-						storageDec = new QVariableDeclaration(0, codeDec.name.toStdString(), codeDec.type);
-						QQmlEngine::setObjectOwnership(storageDec, QQmlEngine::JavaScriptOwnership);
-						storageDeclarations[storageDec->name()] = storageDec;
-					}
-					storageDeclarationList.push_back(QVariant::fromValue(storageDec));
-					storageValues[storageDec->name()] = formatStorageValue(storageDec->type()->type(), _storage, codeDec.offset, codeDec.slot);
-				}
-			}
+			if (stateVar.type.name.startsWith("mapping"))
+				continue; //mapping type not yet managed
+
+			auto storageDec = new QVariableDeclaration(0, stateVar.name.toStdString(), stateVar.type);
+			QQmlEngine::setObjectOwnership(storageDec, QQmlEngine::JavaScriptOwnership);
+			storageDeclarationList.push_back(QVariant::fromValue(storageDec));
+			storageValues[storageDec->name()] = formatStorageValue(storageDec->type()->type(), _storage, stateVar.offset, stateVar.slot);
 		}
+	}
+
 	storage["variables"] = storageDeclarationList;
 	storage["values"] = storageValues;
 	return storage;
