@@ -60,7 +60,7 @@ Dialog {
 			{
 				id: explanation
 				Layout.preferredWidth: parent.width - 50
-				Layout.preferredHeight: 50
+				Layout.minimumHeight: 50
 				height: 50
 				color: "transparent"
 				DefaultLabel
@@ -84,7 +84,7 @@ Dialog {
 			{
 				ColumnLayout
 				{
-					Layout.preferredHeight: parent.height - 50
+					Layout.minimumHeight: parent.height - 50
 					Layout.preferredWidth: 200
 					DeploymentDialogSteps
 					{
@@ -135,7 +135,7 @@ Dialog {
 
 				ColumnLayout
 				{
-					Layout.preferredHeight: parent.height - 50
+					Layout.minimumHeight: parent.height - 50
 					Layout.preferredWidth: parent.width - 200
 					DeployContractStep
 					{
@@ -178,7 +178,7 @@ Dialog {
 			Rectangle
 			{
 				Layout.fillWidth: true
-				Layout.preferredHeight: 30
+				Layout.minimumHeight: 30
 				color: "transparent"
 
 				DefaultButton

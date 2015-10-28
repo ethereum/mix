@@ -75,7 +75,7 @@ Rectangle {
 		RowLayout
 		{
 			Layout.fillWidth: true
-			Layout.preferredHeight: 60
+			Layout.minimumHeight: 60
 			id: scenarioList
 
 			Rectangle
@@ -216,7 +216,7 @@ Rectangle {
 								{
 									Layout.fillWidth: true
 									spacing: 2
-									Layout.preferredHeight:
+									Layout.minimumHeight:
 									{
 										if (index > -1)
 											return 20 + trListModel.get(index)["parameters"].count * 20
@@ -237,7 +237,7 @@ Rectangle {
 									DefaultLabel
 									{
 										id: trLabel
-										Layout.preferredHeight: 20
+										Layout.minimumHeight: 20
 										anchors.left: parent.left
 										anchors.leftMargin: 10
 										text:
@@ -256,7 +256,7 @@ Rectangle {
 
 									Repeater
 									{
-										Layout.preferredHeight:
+										Layout.minimumHeight:
 										{
 											if (index > -1)
 												return trListModel.get(index)["parameters"].count * 20
@@ -267,7 +267,7 @@ Rectangle {
 										model: paramList
 										DefaultLabel
 										{
-											Layout.preferredHeight: 20
+											Layout.minimumHeight: 20
 											anchors.left: parent.left
 											anchors.leftMargin: 20
 											text: name + " = " + value
@@ -279,7 +279,7 @@ Rectangle {
 									{
 										anchors.bottom: parent.bottom
 										Layout.preferredWidth: chooseSceCol.width
-										Layout.preferredHeight: 1
+										Layout.minimumHeight: 1
 										color: "#ededed"
 										visible: true
 									}
@@ -294,7 +294,7 @@ Rectangle {
 		RowLayout
 		{
 			Layout.fillWidth: true
-			Layout.preferredHeight: 60
+			Layout.minimumHeight: 60
 			Rectangle
 			{
 				Layout.preferredWidth: chooseSceCol.width / 5

@@ -17,7 +17,7 @@ ColumnLayout
 	property int number
 	property int blockWidth: Layout.preferredWidth - statusWidth - horizontalMargin
 	property int horizontalMargin: 10
-	property int trHeight: 25
+	property int trHeight: 30
 	spacing: 1
 	property int openedTr: 0
 	property int blockIndex
@@ -32,39 +32,6 @@ ColumnLayout
 
 	property int scenarioIndex
 	signal txSelected(var txIndex, var callIndex)
-
-	function calculateHeight()
-	{
-		if (transactions && transactions.count > 0)
-		{
-			var h = trHeight
-			for (var k = 0; k < transactionRepeater.count; k++)
-			{
-				h += trHeight
-				if (transactionRepeater.itemAt(k))
-					h += transactionRepeater.itemAt(k).detailHeight()
-			}
-			if (blockChainRepeater.callsDisplayed)
-				for (var k = 0; k < transactions.count; k++)
-				{
-					var calls = blockChainPanel.calls[JSON.stringify([blockIndex, k])]
-					if (calls)
-					{
-						for (var k = 0; k < transactionRepeater.count; k++)
-						{
-							if (transactionRepeater.itemAt(k))
-							{
-								h += trHeight
-								h += transactionRepeater.itemAt(k).callsDetailHeight()
-							}
-						}
-					}
-				}
-			return h;
-		}
-		else
-			return trHeight
-	}
 
 	function editTx(txIndex)
 	{
@@ -93,17 +60,6 @@ ColumnLayout
 			transactionRepeater.itemAt(k).hideCalls()
 	}
 
-	function setHeight()
-	{
-		Layout.preferredHeight = calculateHeight()
-		height = calculateHeight()
-	}
-
-	onOpenedTrChanged:
-	{
-		setHeight()
-	}
-
 	Rectangle
 	{
 		id: top
@@ -117,51 +73,52 @@ ColumnLayout
 		anchors.bottomMargin: -5
 	}
 
+
 	RowLayout
 	{
-		Layout.preferredHeight: trHeight
 		Layout.preferredWidth: blockWidth
 		id: rowHeader
 		spacing: 0
+		Layout.minimumHeight: trHeight
+		anchors.left: parent.left
+		anchors.leftMargin: statusWidth
 		Rectangle
 		{
-			Layout.preferredWidth: blockWidth
-			Layout.preferredHeight: trHeight
+			anchors.fill: parent
 			color: status === "mined" ? txColor : halfOpacity
-			anchors.left: parent.left
-			anchors.leftMargin: statusWidth
-			DefaultLabel {
-				anchors.verticalCenter: parent.verticalCenter
-				anchors.left: parent.left
-				anchors.leftMargin: horizontalMargin
-				color: "#808080"
-				text:
-				{
-					if (number === -2)
-						return qsTr("GENESIS BLOCK")
-					else if (status === "mined")
-						return qsTr("BLOCK") + " " + number
-					else
-						return qsTr("PENDING TRANSACTIONS")
-				}
-			}
+		}
 
-			DefaultButton {
-				anchors.verticalCenter: parent.verticalCenter
-				anchors.right: parent.right
-				anchors.rightMargin: 10
-				visible: number === -2
-				height: 18
-				enabled: scenarioIndex !== -1
-				onClicked:
-				{
-					// load edit block panel
-					projectModel.stateListModel.editState(scenarioIndex)
-				}
-				text: qsTr("Edit Starting Parameters")
+		DefaultLabel {
+			anchors.verticalCenter: parent.verticalCenter
+			anchors.left: parent.left
+			anchors.leftMargin: horizontalMargin
+			color: "#808080"
+			text:
+			{
+				if (number === -2)
+					return qsTr("GENESIS BLOCK")
+				else if (status === "mined")
+					return qsTr("BLOCK") + " " + number
+				else
+					return qsTr("PENDING TRANSACTIONS")
 			}
 		}
+
+		DefaultButton {
+			anchors.verticalCenter: parent.verticalCenter
+			anchors.right: parent.right
+			anchors.rightMargin: 10
+			visible: number === -2
+			enabled: scenarioIndex !== -1
+			onClicked:
+			{
+				// load edit block panel
+				projectModel.stateListModel.editState(scenarioIndex)
+			}
+			text: qsTr("Edit Starting Parameters")
+		}
 	}
+
 
 	Repeater // List of transactions
 	{
@@ -174,20 +131,14 @@ ColumnLayout
 			property int txIndex: index
 			property bool selected: false
 			id: columnTx
-
 			function select()
 			{
 				tx.select()
-			}			
+			}
 
 			function selectCall(index)
 			{
 				callsRepeater.itemAt(index).highlight()
-			}
-
-			function detailHeight()
-			{
-				return tx.detailHeight()
 			}
 
 			Transaction
@@ -207,37 +158,17 @@ ColumnLayout
 				{
 					highlight()
 				}
-
-				onDetailVisibleChanged:
-				{
-					root.setHeight()
-				}
 			}
 
 			function displayCalls(calls)
 			{
 				for (var k in calls)
 					callsModel.append(calls[k])
-				root.Layout.preferredHeight = calculateHeight()
-				root.height = calculateHeight()
 			}
 
 			function hideCalls()
 			{
 				callsModel.clear()
-			}
-
-			function callsDetailHeight()
-			{
-				var h = 0
-				for (var k = 0; k < callsRepeater.count; k++)
-				{
-					if (callsRepeater.itemAt(k))
-					{
-						h += callsRepeater.itemAt(k).detailHeight()
-					}
-				}
-				return h
 			}
 
 			ListModel
@@ -249,18 +180,12 @@ ColumnLayout
 			{
 				id: callsRepeater
 				model: callsModel
-
 				Transaction
 				{
 					tx: callsModel.get(index)
 					txIndex: columnTx.txIndex
 					callIndex: index
 					isCall: true
-
-					onDetailVisibleChanged:
-					{
-						root.setHeight()
-					}
 				}
 			}
 		}

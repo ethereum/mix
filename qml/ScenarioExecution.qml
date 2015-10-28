@@ -55,7 +55,6 @@ Rectangle {
 			Layout.preferredWidth: parent.width
 			anchors.left: parent.left
 			anchors.leftMargin: 5
-			spacing: 10
 			ColumnLayout
 			{				
 				id: scenarioColumn
@@ -67,12 +66,11 @@ Rectangle {
 					anchors.topMargin: 5
 					anchors.horizontalCenter: parent.horizontalCenter
 					Image {
+						anchors.verticalCenter: parent.verticalCenter
 						source: loader.visible ? "qrc:/qml/img/opentriangleindicator_filesproject.png" : "qrc:/qml/img/closedtriangleindicator_filesproject.png"
-						width: 15
-						sourceSize.width: 12
 						id: imgArrow
 						anchors.right: parent.left
-						anchors.rightMargin: 2
+						anchors.rightMargin: 5
 						anchors.top: parent.top
 						MouseArea {
 							anchors.fill: parent
@@ -94,7 +92,7 @@ Rectangle {
 
 				ScenarioLoader
 				{
-					Layout.preferredHeight: 40
+					Layout.minimumHeight: 40
 					Layout.preferredWidth: parent.width
 					width: parent.width
 					visible: false
@@ -171,19 +169,18 @@ Rectangle {
 			{
 				id: watchers
 				bc: blockChain
-				Layout.fillWidth: true
-				Layout.preferredHeight: 110 // 110 / panel
+				Layout.preferredWidth: parent.width
 				onUpdated:
 				{
 					var count = Object.keys(currentState.contractsStorage).length
-					Layout.preferredHeight = (count + 1) * 110
+					Layout.minimumHeight = (count + 1) * 110
 				}
 			}
 
 			Rectangle
 			{
 				color: "transparent"
-				Layout.preferredHeight: 50
+				Layout.minimumHeight: 50
 				Layout.fillWidth: true
 			}
 		}
