@@ -34,16 +34,19 @@
 #include "MachineStates.h"
 #include "QEther.h"
 
+template <class... Is> class ModularServer;
+
+
 namespace dev
 {
 
+namespace rpc { class DBFace; }
 namespace eth { class FixedAccountHolder; }
 
 namespace mix
 {
 
 class Web3Server;
-class RpcConnector;
 class QEther;
 class QDebugData;
 class MixClient;
@@ -311,8 +314,8 @@ private:
 	std::atomic<bool> m_mining;
 	QFuture<void> m_runFuture;
 	std::unique_ptr<MixClient> m_client;
-	std::unique_ptr<RpcConnector> m_rpcConnector;
-	std::unique_ptr<Web3Server> m_web3Server;
+	unsigned m_rpcConnectorId;
+	std::unique_ptr<ModularServer<Web3Server, rpc::DBFace>> m_web3Server;
 	std::shared_ptr<eth::FixedAccountHolder> m_ethAccounts;
 	std::unordered_map<Address, eth::Account> m_accounts;
 	std::vector<KeyPair> m_accountsSecret;
