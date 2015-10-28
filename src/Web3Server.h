@@ -52,7 +52,6 @@ protected:
 
 private:
 	dev::eth::Interface* client() override { return m_client; }
-	dev::bzz::Interface* bzz() override;
 	dev::WebThreeNetworkFace* network() override;
 
 private:

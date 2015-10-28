@@ -131,11 +131,6 @@ Web3Server::~Web3Server()
 {
 }
 
-dev::bzz::Interface* Web3Server::bzz()
-{
-	BOOST_THROW_EXCEPTION(InterfaceNotSupported("dev::bzz::Interface"));
-}
-
 dev::WebThreeNetworkFace* Web3Server::network()
 {
 	return m_network.get();
