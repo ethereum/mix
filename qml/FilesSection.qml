@@ -197,9 +197,9 @@ ColumnLayout {
 									if (sectionName !== "Contracts" || isClean)
 									{
 										editStatusLabel.visible = !isClean
-										editErrorStatusLabel.visible = !isClean
+										if (sectionName === "Contracts")
+											editErrorStatusLabel.visible = !isClean
 									}
-
 								}
 							}
 						}
@@ -214,7 +214,6 @@ ColumnLayout {
 								if (sectionName !== "Contracts")
 									return
 								editErrorStatusLabel.visible = false
-								editStatusLabel.visible = true
 								nameText.text = name
 								//we have to check in the document if the modified contract is this one.
 								if (codeModel.contracts[name])

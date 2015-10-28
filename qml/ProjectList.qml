@@ -104,11 +104,36 @@ ScrollView
 				Connections {
 					id: projectConnection
 					target: codeModel
-					property var contractsLocation: ({})
+					property bool firstLoad: true
+					property bool inErrorAtStart: false
+
+					onCompilationError:
+					{
+						if (firstLoad)
+						{
+							firstLoad = false
+							if (modelData !== "Contracts")
+								return
+							inErrorAtStart = true
+							for (var k = 0; k < projectModel.listModel.count; k++)
+							{
+								var i = projectModel.listModel.get(k);
+								if (i.isContract)
+								{
+									sectionModel.append(i)
+								}
+							}
+						}
+					}
+
 					onCompilationComplete:
 					{
 						if (modelData !== "Contracts")
 							return
+
+						if (projectConnection.inErrorAtStart && projectConnection.firstLoad)
+							sectionModel.clear()
+						projectConnection.firstLoad = false
 
 						for (var name in codeModel.contracts)
 						{
@@ -147,8 +172,6 @@ ScrollView
 							}
 
 							//before, we delete duplicate (empty file) which lead to the same sol file.
-
-
 							if (!found)
 							{
 								var ctr = codeModel.contracts[name]
@@ -206,7 +229,7 @@ ScrollView
 									}
 								}
 							}
-						}
+						}						
 					}
 
 					onContractRenamed: {
@@ -248,7 +271,6 @@ ScrollView
 					}
 
 					onProjectClosed: {
-						projectConnection.contractsLocation = {}
 						sectionModel.clear();
 					}
 
