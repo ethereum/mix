@@ -35,6 +35,7 @@
 #include <libwebthree/WebThree.h>
 #include <libdevcore/FixedHash.h>
 #include <libweb3jsonrpc/MemoryDB.h>
+#include <libweb3jsonrpc/Web3.h>
 #include "DebuggingStateWrapper.h"
 #include "Exceptions.h"
 #include "QContractDefinition.h"
@@ -107,7 +108,7 @@ void ClientModel::init(QString _dbpath)
 
 	m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, std::vector<KeyPair>());
 	auto webthreeFace = new Web3Server(m_ethAccounts, m_client.get());
-	m_web3Server.reset(new ModularServer<Web3Server, rpc::DBFace>(webthreeFace, new rpc::MemoryDB()));
+	m_web3Server.reset(new ModularServer<Web3Server, rpc::DBFace, rpc::Web3Face>(webthreeFace, new rpc::MemoryDB(), new rpc::Web3()));
 	m_rpcConnectorId = m_web3Server->addConnector(new RpcConnector());
 	connect(webthreeFace, &Web3Server::newTransaction, this, [=]() {
 		onNewTransaction(RecordLogEntry::TxSource::Web3);
@@ -279,7 +280,7 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 	m_ethAccounts->setAccounts(m_accountsSecret);
 	
 	auto webthreeFace = new Web3Server(m_ethAccounts, m_client.get());
-	m_web3Server.reset(new ModularServer<Web3Server, rpc::DBFace>(webthreeFace, new rpc::MemoryDB()));
+	m_web3Server.reset(new ModularServer<Web3Server, rpc::DBFace, rpc::Web3Face>(webthreeFace, new rpc::MemoryDB(), new rpc::Web3()));
 	m_rpcConnectorId = m_web3Server->addConnector(new RpcConnector());
 	connect(webthreeFace, &Web3Server::newTransaction, this, [=]() {
 		onNewTransaction(RecordLogEntry::TxSource::Web3);
