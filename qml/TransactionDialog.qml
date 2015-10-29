@@ -14,8 +14,8 @@ import "."
 Dialog {
 	id: modalTransactionDialog
 	modality: Qt.ApplicationModal
-	width: 520
-	height: 440
+	width: 580
+	height: 480
 	visible: false
 	title:  editMode ? qsTr("Edit Transaction") : qsTr("Add Transaction")
 	property bool editMode
@@ -42,6 +42,24 @@ Dialog {
 
 
 	function open(index, blockIdx, item) {
+		if (mainApplication.systemPointSize >= appSettings.systemPointSize)
+		{
+			width = 580
+			height = 480
+			containerRect.implicitWidth = width
+			colTrContent.spacing = 10
+			colSender.spacing = 5
+		}
+		else
+		{
+			width = 580 + (11 * appSettings.systemPointSize)
+			height = 480 + (3 * appSettings.systemPointSize)
+			containerRect.implicitWidth = width
+			colTrContent.spacing = 10 + (Math.round(appSettings.systemPointSize / 4))
+			colSender.spacing = 5 + (Math.round(appSettings.systemPointSize / 2))
+		}
+		paramScroll.setSpacing(colTrContent.spacing)
+
 		transactionIndex = index
 		blockIndex = blockIdx
 		paramScroll.transactionIndex = index
@@ -62,21 +80,8 @@ Dialog {
 		trTypeCreate.checked = item.isContractCreation
 		trTypeSend.checked = !item.isFunctionCall
 		trTypeExecute.checked = item.isFunctionCall && !item.isContractCreation
-
 		load(item.isContractCreation, item.isFunctionCall, functionId, contractId)
-
 		estimatedGas.updateView()
-		if (mainApplication.systemPointSize >= appSettings.systemPointSize)
-		{
-			width = 520
-			containerRect.implicitWidth = 520
-		}
-		else
-		{
-			width = 520 + (11 * appSettings.systemPointSize)
-			containerRect.implicitWidth = width
-		}
-		console.log("jjj " + width)
 		visible = true;
 	}
 
@@ -240,6 +245,7 @@ Dialog {
 		if (!isContractCreation)
 		{
 			contractCreationComboBox.visible = false
+			colRecipient.visible = true
 			recipientsAccount.visible = true
 			recipientsAccount.accounts = senderComboBox.model;
 			amountLabel.text = qsTr("Amount")
@@ -250,7 +256,9 @@ Dialog {
 			recipientsAccount.load();
 			recipientsAccount.init();
 			if (contractId)
-				recipientsAccount.select(contractId);
+				recipientsAccount.select(contractId)
+			else
+				recipientsAccount.selectFirst()
 			if (functionId)
 				selectFunction(functionId);
 			else
@@ -261,7 +269,7 @@ Dialog {
 				functionRect.show()
 				loadFunctions(TransactionHelper.contractFromToken(recipientsAccount.currentValue()))
 				loadParameters();
-				paramScroll.updateView()
+				//paramScroll.updateView()
 			}
 			else
 			{
@@ -290,9 +298,9 @@ Dialog {
 			labelRecipient.text = qsTr("Contract")
 			amountLabel.text = qsTr("Endownment")
 			functionRect.hide()
+			colRecipient.visible = false
 			recipientsAccount.visible = false
 			loadCtorParameters(contractCreationComboBox.currentValue());
-			paramScroll.updateView()
 		}
 	}
 
@@ -306,17 +314,17 @@ Dialog {
 		{
 			anchors.top: parent.top
 			width: parent.width
-			anchors.fill: parent
 			height: parent.height - separator.height - validationRow.height
 			ColumnLayout {
+				id: colTrContent
 				Layout.preferredWidth: rowWidth
 				anchors.top: parent.top
 				anchors.left: parent.left
 				anchors.topMargin: 10
-				width: 500
+				width: 460
 				anchors.leftMargin:
 				{
-					return (containerRect.width - 500) /2
+					return (containerRect.width - width) /2
 				}
 				spacing: 10
 
@@ -334,52 +342,56 @@ Dialog {
 							text: qsTr("Sender Account")
 						}
 					}
-					DefaultCombobox {
-						anchors.top: parent.top
-						function select(secret)
-						{
-							for (var i in model)
-								if (model[i].secret === secret)
-								{
-									currentIndex = i;
-									break;
-								}
-						}
-						Layout.preferredWidth: 350
-						id: senderComboBox
-						currentIndex: 0
-						textRole: "name"
-						editable: false
+					ColumnLayout
+					{
+						id: colSender
+						spacing: 5
+						Layout.minimumHeight: 60
+						DefaultCombobox {
+							anchors.top: parent.top
+							function select(secret)
+							{
+								for (var i in model)
+									if (model[i].secret === secret)
+									{
+										currentIndex = i;
+										break;
+									}
+							}
+							Layout.preferredWidth: 350
+							id: senderComboBox
+							currentIndex: 0
+							textRole: "name"
+							editable: false
 
-						onCurrentIndexChanged:
-						{
-							update()
-						}
+							onCurrentIndexChanged:
+							{
+								update()
+							}
 
-						onModelChanged:
-						{
-							update()
-						}
+							onModelChanged:
+							{
+								update()
+							}
 
-						Component.onCompleted: {
-							update()
-						}
+							Component.onCompleted: {
+								update()
+							}
 
-						function update()
-						{
-							for (var i in model)
-								if (model[i].name === currentText)
-								{
-									addressCopyInput.originalText = model[i].address
-									break;
-								}
+							function update()
+							{
+								for (var i in model)
+									if (model[i].name === currentText)
+									{
+										addressCopyInput.originalText = model[i].address
+										break;
+									}
+							}
 						}
 
 						DisableInput
 						{
-							width: 350
-							anchors.top: parent.bottom
-							anchors.topMargin: 5
+							Layout.minimumWidth: 350
 							id: addressCopyInput
 						}
 					}
@@ -410,18 +422,21 @@ Dialog {
 								{
 									if (current.objectName === "trTypeSend")
 									{
+										colRecipient.visible = true
 										recipientsAccount.visible = true
 										contractCreationComboBox.visible = false
 										modalTransactionDialog.load(false, false)
 									}
 									else if (current.objectName === "trTypeCreate")
 									{
+										colRecipient.visible = false
 										contractCreationComboBox.visible = true
 										recipientsAccount.visible = false
 										modalTransactionDialog.load(true, true)
 									}
 									else if (current.objectName === "trTypeExecute")
 									{
+										colRecipient.visible = true
 										recipientsAccount.visible = true
 										contractCreationComboBox.visible = false
 										modalTransactionDialog.load(false, true)
@@ -460,7 +475,9 @@ Dialog {
 				{
 					Rectangle
 					{
+						color: "transparent"
 						Layout.preferredWidth: 100
+						Layout.fillHeight: true
 						DefaultLabel {
 							id: labelRecipient
 							anchors.verticalCenter: parent.verticalCenter
@@ -469,30 +486,30 @@ Dialog {
 						}
 					}
 
-					QAddressView
+					ColumnLayout
 					{
-						Layout.minimumHeight: 55
-						Layout.preferredWidth: 350
-						width: 350
-						id: recipientsAccount
-						displayInput: false
-						onIndexChanged:
+						id: colRecipient
+						QAddressView
 						{
-							if (rbbuttonList.current.objectName === "trTypeExecute")
+							Layout.preferredWidth: 350
+							id: recipientsAccount
+							displayInput: false
+							onIndexChanged:
 							{
-								loadFunctions(TransactionHelper.contractFromToken(currentValue()))
-								loadParameters();
-								paramScroll.updateView()
+								if (rbbuttonList.current.objectName === "trTypeExecute")
+								{
+									loadFunctions(TransactionHelper.contractFromToken(currentValue()))
+									loadParameters();
+									paramScroll.updateView()
+								}
+								var addr = getAddress()
+								addrRecipient.originalText = addr.indexOf("0x") === 0 ? addr.replace("0x", "") : addr
 							}
-							var addr = getAddress()
-							addrRecipient.originalText = addr.indexOf("0x") === 0 ? addr.replace("0x", "") : addr
 						}
 
 						DisableInput
 						{
 							Layout.preferredWidth: 350
-							anchors.top: parent.bottom
-							anchors.topMargin: 1
 							id: addrRecipient
 						}
 					}
@@ -600,7 +617,7 @@ Dialog {
 
 				Rectangle
 				{
-					Layout.minimumHeight: 30
+					Layout.minimumHeight: 1
 					Layout.fillWidth: true
 					color: "transparent"
 					Rectangle
@@ -631,82 +648,85 @@ Dialog {
 						}
 					}
 
-					Row
+					ColumnLayout
 					{
 						Layout.preferredWidth: 350
-						spacing: 5
-						DefaultTextField
+						spacing: 0
+						Row
 						{
-							property variant gasValue
-							onGasValueChanged: text = gasValue.value();
-							onTextChanged: gasValue.setValue(text);
-							implicitWidth: 200
-							enabled: !gasAutoCheck.checked
-							id: gasValueEdit;
-
-							DefaultLabel
+							spacing: 5
+							DefaultTextField
 							{
-								id: estimatedGas
-								anchors.top: parent.bottom
-								text: ""
-								Connections
-								{
-									target: functionComboBox
-									onCurrentIndexChanged:
-									{
-										estimatedGas.displayGas(TransactionHelper.contractFromToken(recipientsAccount.currentValue()), functionComboBox.currentText)
-									}
-								}
+								property variant gasValue
+								onGasValueChanged: text = gasValue.value();
+								onTextChanged: gasValue.setValue(text);
+								implicitWidth: 200
+								enabled: !gasAutoCheck.checked
+								id: gasValueEdit
+							}
 
-								function displayGas(contractName, functionName)
-								{
-									var gasCost = codeModel.gasCostBy(contractName, functionName);
-									if (gasCost && gasCost.length > 0)
+							CheckBox
+							{
+								anchors.verticalCenter: parent.verticalCenter
+								id: gasAutoCheck
+								checked: true
+								style: CheckBoxStyle {
+									label: DefaultLabel
 									{
-										var gas = codeModel.txGas + codeModel.callStipend + parseInt(gasCost[0].gas)
-										estimatedGas.text = qsTr("Estimated cost: ") + gasCost[0].gas + " gas"
-									}
-								}
-
-								function updateView()
-								{
-									if (rbbuttonList.current.objectName === "trTypeExecute")
-										estimatedGas.displayGas(TransactionHelper.contractFromToken(recipientsAccount.currentValue()), functionComboBox.currentText)
-									else if (rbbuttonList.current.objectName === "trTypeCreate")
-									{
-										var contractName = contractCreationComboBox.currentValue()
-										estimatedGas.displayGas(contractName, contractName)
-									}
-									else if (rbbuttonList.current.objectName === "trTypeSend")
-									{
-										var gas = codeModel.txGas + codeModel.callStipend
-										estimatedGas.text = qsTr("Estimated cost: ") + gas + " gas"
-									}
-								}
-
-								Connections
-								{
-									target: rbbuttonList
-									onCurrentChanged: {
-										estimatedGas.updateView()
-									}
+									text: qsTr("Auto");
 								}
 							}
 						}
+						}
 
-						CheckBox
+						DefaultLabel
 						{
-							anchors.verticalCenter: parent.verticalCenter
-							id: gasAutoCheck
-							checked: true
-							style: CheckBoxStyle {
-								label: DefaultLabel
+							id: estimatedGas
+							text: ""
+							Connections
+							{
+								target: functionComboBox
+								onCurrentIndexChanged:
 								{
-								text: qsTr("Auto");
+									estimatedGas.displayGas(TransactionHelper.contractFromToken(recipientsAccount.currentValue()), functionComboBox.currentText)
+								}
+							}
+
+							function displayGas(contractName, functionName)
+							{
+								var gasCost = codeModel.gasCostBy(contractName, functionName);
+								if (gasCost && gasCost.length > 0)
+								{
+									var gas = codeModel.txGas + codeModel.callStipend + parseInt(gasCost[0].gas)
+									estimatedGas.text = qsTr("Estimated cost: ") + gasCost[0].gas + " gas"
+								}
+							}
+
+							function updateView()
+							{
+								if (rbbuttonList.current.objectName === "trTypeExecute")
+									estimatedGas.displayGas(TransactionHelper.contractFromToken(recipientsAccount.currentValue()), functionComboBox.currentText)
+								else if (rbbuttonList.current.objectName === "trTypeCreate")
+								{
+									var contractName = contractCreationComboBox.currentValue()
+									estimatedGas.displayGas(contractName, contractName)
+								}
+								else if (rbbuttonList.current.objectName === "trTypeSend")
+								{
+									var gas = codeModel.txGas + codeModel.callStipend
+									estimatedGas.text = qsTr("Estimated cost: ") + gas + " gas"
+								}
+							}
+
+							Connections
+							{
+								target: rbbuttonList
+								onCurrentChanged: {
+									estimatedGas.updateView()
+								}
 							}
 						}
 					}
-				}
 			}
 
 			RowLayout
@@ -720,32 +740,38 @@ Dialog {
 						anchors.verticalCenter: parent.verticalCenter
 						anchors.right: parent.right
 						text: qsTr("Gas Price")
-
-						DefaultLabel {
-							id: gasPriceMarket
-							anchors.top: gasPriceLabel.bottom
-							anchors.topMargin: 5
-							anchors.left: parent.left
-							anchors.leftMargin: 50
-							Component.onCompleted:
-							{
-								NetworkDeployment.gasPrice(function(result)
-								{
-									gasPriceMarket.text = qsTr("Current market: ") + " " + QEtherHelper.createEther(result, QEther.Wei).format()
-								}, function (){});
-							}
-						}
 					}
 				}
 
-				Ether {
+				ColumnLayout
+				{
 					Layout.preferredWidth: 350
-					width: 350
-					id: gasPriceField
-					edit: true
-					displayFormattedValue: true
-					displayUnitSelection: true
+					spacing: 0
+					Ether {
+						Layout.preferredWidth: 350
+						width: 350
+						id: gasPriceField
+						edit: true
+						displayFormattedValue: true
+						displayUnitSelection: true
+					}
+
+					DefaultLabel {
+						id: gasPriceMarket
+						Component.onCompleted:
+						{
+							NetworkDeployment.gasPrice(function(result)
+							{
+								gasPriceMarket.text = qsTr("Current market: ") + " " + QEtherHelper.createEther(result, QEther.Wei).format()
+							}, function (){});
+						}
+					}
 				}
+			}
+
+			RowLayout
+			{
+				Layout.minimumHeight: 20
 			}
 		}
 	}
@@ -758,47 +784,53 @@ Dialog {
 		anchors.bottom: validationRow.top
 	}
 
-	Row
+	Rectangle
 	{
-		id: validationRow
 		anchors.bottom: parent.bottom
-		layoutDirection: Qt.RightToLeft
 		width: parent.width
-		anchors.right: parent.right
-		anchors.rightMargin: 10
-		spacing: 10
-		height: 40
-		DefaultButton {
-			anchors.verticalCenter: parent.verticalCenter
-			id: updateBtn
-			text: qsTr("Cancel");
-			onClicked: close();
-		}
+		height: 50
+		color: transactionDialogStyle.generic.backgroundColor
+		id: validationRow
+		Row
+		{
+			layoutDirection: Qt.RightToLeft
 
-		DefaultButton {
-			anchors.verticalCenter: parent.verticalCenter
-			text: editMode ? qsTr("Update") : qsTr("Ok")
-			onClicked: {
-				var invalid = InputValidator.validate(paramsModel, paramValues);
-				if (invalid.length === 0)
-				{
-					close();
-					accepted();
-				}
-				else
-				{
-					errorDialog.text = qsTr("Some parameters are invalid:\n");
-					for (var k in invalid)
-						errorDialog.text += invalid[k].message + "\n";
-					errorDialog.open();
+			anchors.right: parent.right
+			anchors.rightMargin: 10
+			spacing: 10
+			height: 50
+			DefaultButton {
+				anchors.verticalCenter: parent.verticalCenter
+				id: updateBtn
+				text: qsTr("Cancel");
+				onClicked: close();
+			}
+
+			DefaultButton {
+				anchors.verticalCenter: parent.verticalCenter
+				text: editMode ? qsTr("Update") : qsTr("Ok")
+				onClicked: {
+					var invalid = InputValidator.validate(paramsModel, paramValues);
+					if (invalid.length === 0)
+					{
+						close();
+						accepted();
+					}
+					else
+					{
+						errorDialog.text = qsTr("Some parameters are invalid:\n");
+						for (var k in invalid)
+							errorDialog.text += invalid[k].message + "\n";
+						errorDialog.open();
+					}
 				}
 			}
-		}
 
-		MessageDialog {
-			id: errorDialog
-			standardButtons: StandardButton.Ok
-			icon: StandardIcon.Critical
+			MessageDialog {
+				id: errorDialog
+				standardButtons: StandardButton.Ok
+				icon: StandardIcon.Critical
+			}
 		}
 	}
 }

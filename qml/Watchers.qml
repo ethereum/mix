@@ -29,6 +29,7 @@ ColumnLayout {
 	{
 		accounts.clear()
 		accounts.visible = false
+		storages.clear()
 	}
 
 	function addAccount(address, amount)

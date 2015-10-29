@@ -17,12 +17,43 @@ DebugInfoList
 		ScrollView
 		{
 			id: scrollVar
-			property alias members: typeLoader.members;
-			property alias value: typeLoader.value;
+			property alias members: typeLoader.members
+			property alias value: typeLoader.value
 			anchors.fill: parent
 			anchors.leftMargin: 10
 			StructView
 			{
+				function updateLayout()
+				{
+					if (mainApplication.systemPointSize >= appSettings.systemPointSize)
+					{
+						typeLoader.anchors.leftMargin = 1
+						typeLoader.anchors.topMargin = 1
+					}
+					else
+					{
+						typeLoader.anchors.leftMargin = 1 + (7 * appSettings.systemPointSize)
+						typeLoader.anchors.topMargin = 1 + appSettings.systemPointSize
+					}
+				}
+
+				Component.onCompleted:
+				{
+					updateLayout()
+				}
+
+				Connections
+				{
+					target: appSettings
+					onSystemPointSizeChanged:
+					{
+						typeLoader.updateLayout()
+					}
+				}
+				anchors.left: parent.left
+				anchors.leftMargin: 1
+				anchors.top: parent.top
+				anchors.topMargin: 1
 				id: typeLoader
 				members: []
 				value: {}
