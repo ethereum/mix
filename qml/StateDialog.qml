@@ -32,6 +32,16 @@ Dialog {
 	}
 
 	function open(index, item) {
+		if (mainApplication.systemPointSize >= appSettings.systemPointSize)
+		{
+			width = 630
+			height = 480
+		}
+		else
+		{
+			width = 630 + (11 * appSettings.systemPointSize)
+			height = 480 + (3 * appSettings.systemPointSize)
+		}
 		stateIndex = index
 		accountsModel.clear()
 		stateAccounts = []

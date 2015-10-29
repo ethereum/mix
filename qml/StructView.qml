@@ -15,7 +15,7 @@ Column
 	property bool readOnly
 	property variant parentDefinition
 	Layout.fillWidth: true
-	spacing: 0
+	spacing: 10
 	property int colHeight
 
 	function setSpacing(sp)
