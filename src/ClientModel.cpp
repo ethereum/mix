@@ -128,7 +128,7 @@ QString ClientModel::apiCall(QString const& _message)
 void ClientModel::mine()
 {
 	if (m_mining)
-		BOOST_THROW_EXCEPTION(ExecutionStateException());
+		return;
 	m_mining = true;
 	emit miningStarted();
 	emit miningStateChanged();

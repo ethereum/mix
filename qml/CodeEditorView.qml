@@ -83,7 +83,8 @@ Item {
 					breakpointsChanged(editor.document.documentId);
 			});
 			editor.onIsCleanChanged.connect(function() {
-				isCleanChanged(editor.isClean, editor.document.documentId);
+				if (!editor.document.isContract)
+					isCleanChanged(editor.isClean, editor.document.documentId);
 			});
 		}
 		editor.document = document;

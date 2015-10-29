@@ -206,6 +206,23 @@ ColumnLayout {
 
 						Connections
 						{
+							target: projectModel
+							onContractSaved:
+							{
+								for (var ctr in codeModel.contracts)
+								{
+									if (codeModel.contracts[ctr].documentId === documentId && codeModel.contracts[ctr].contract.name === name)
+									{
+										editStatusLabel.visible = false
+										codeConnection.resetHex()
+										break
+									}
+								}
+							}
+						}
+
+						Connections
+						{
 							id: codeConnection
 							target: codeModel
 							property string hex
@@ -217,11 +234,10 @@ ColumnLayout {
 								nameText.text = name
 								//we have to check in the document if the modified contract is this one.
 								if (codeModel.contracts[name])
-								{
+								{									
 									var isClean = hex === (codeModel.contracts[name].codeHex + name)
+									console.log(name + " isClean " + isClean + " " + (codeModel.contracts[name].codeHex + name));
 									editStatusLabel.visible = !isClean
-									if (isClean)
-										projectModel.saveDocument(codeModel.contracts[name].documentId)
 								}
 							}
 
@@ -237,10 +253,13 @@ ColumnLayout {
 								}
 							}
 
+							function resetHex() {
+								hex = codeModel.contracts[name].codeHex + name
+							}
+
 							Component.onCompleted:
 							{
-								if (codeModel.contracts[name])
-									hex = codeModel.contracts[name].codeHex + name
+								resetHex()
 							}
 						}
 					}

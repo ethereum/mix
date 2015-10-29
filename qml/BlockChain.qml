@@ -353,6 +353,8 @@ ColumnLayout {
 					return
 				if (ensureNotFuturetime.running || !model)
 					return
+
+				projectModel.saveContracts()
 				blockChainPanel.calls = {}
 				stopBlinking()
 				rebuilding()

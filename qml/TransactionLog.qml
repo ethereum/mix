@@ -42,10 +42,6 @@ Item {
 					transactionModel.clear();
 					callModel.clear();
 				}
-				onContractSaved: {
-					if (compilationStatus.compilationComplete && codeModel.hasContract && !clientModel.running)
-						projectModel.stateListModel.debugDefaultState();
-				}
 			}
 
 			StatesComboBox
