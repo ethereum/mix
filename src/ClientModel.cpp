@@ -107,10 +107,10 @@ void ClientModel::init(QString _dbpath)
 		m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString() + m_dbpath.toStdString()));
 
 	m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, std::vector<KeyPair>());
-	auto webthreeFace = new Web3Server(m_ethAccounts, m_client.get());
-	m_web3Server.reset(new ModularServer<Web3Server, rpc::DBFace, rpc::Web3Face>(webthreeFace, new rpc::MemoryDB(), new rpc::Web3()));
+	auto ethFace = new Web3Server(*m_client.get(), *m_ethAccounts.get());
+	m_web3Server.reset(new ModularServer<rpc::EthFace, rpc::DBFace, rpc::Web3Face>(ethFace, new rpc::MemoryDB(), new rpc::Web3()));
 	m_rpcConnectorId = m_web3Server->addConnector(new RpcConnector());
-	connect(webthreeFace, &Web3Server::newTransaction, this, [=]() {
+	connect(ethFace, &Web3Server::newTransaction, this, [=]() {
 		onNewTransaction(RecordLogEntry::TxSource::Web3);
 	}, Qt::DirectConnection);
 }
@@ -279,10 +279,10 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 
 	m_ethAccounts->setAccounts(m_accountsSecret);
 	
-	auto webthreeFace = new Web3Server(m_ethAccounts, m_client.get());
-	m_web3Server.reset(new ModularServer<Web3Server, rpc::DBFace, rpc::Web3Face>(webthreeFace, new rpc::MemoryDB(), new rpc::Web3()));
+	auto ethFace = new Web3Server(*m_client.get(), *m_ethAccounts.get());
+	m_web3Server.reset(new ModularServer<rpc::EthFace, rpc::DBFace, rpc::Web3Face>(ethFace, new rpc::MemoryDB(), new rpc::Web3()));
 	m_rpcConnectorId = m_web3Server->addConnector(new RpcConnector());
-	connect(webthreeFace, &Web3Server::newTransaction, this, [=]() {
+	connect(ethFace, &Web3Server::newTransaction, this, [=]() {
 		onNewTransaction(RecordLogEntry::TxSource::Web3);
 	}, Qt::DirectConnection);
 

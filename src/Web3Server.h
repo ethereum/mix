@@ -26,7 +26,7 @@
 #include <string>
 #include <QObject>
 #include <libweb3jsonrpc/AccountHolder.h>
-#include <libweb3jsonrpc/WebThreeStubServerBase.h>
+#include <libweb3jsonrpc/Eth.h>
 
 namespace dev
 {
@@ -34,12 +34,12 @@ namespace dev
 namespace mix
 {
 
-class Web3Server: public QObject, public dev::WebThreeStubServerBase
+class Web3Server: public QObject, public rpc::Eth
 {
 	Q_OBJECT
 
 public:
-	Web3Server(std::shared_ptr<eth::AccountHolder> const& _ethAccounts, dev::eth::Interface* _client);
+	Web3Server(eth::Interface& _client, eth::AccountHolder& _ethAccounts);
 	virtual ~Web3Server();
 
 signals:
@@ -49,17 +49,7 @@ protected:
 	virtual Json::Value eth_getFilterChanges(std::string const& _filterId) override;
 	virtual std::string eth_sendTransaction(Json::Value const& _json) override;
 	virtual std::string eth_call(Json::Value const& _json, std::string const& _blockNumber) override;
-
-private:
-	dev::eth::Interface* client() override { return m_client; }
-	dev::WebThreeNetworkFace* network() override;
-
-private:
-	dev::eth::Interface* m_client;
-	std::map<std::string, std::string> m_db;
-	std::unique_ptr<dev::WebThreeNetworkFace> m_network;
 };
 
 }
-
 }

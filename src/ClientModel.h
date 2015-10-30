@@ -42,6 +42,7 @@ namespace dev
 
 namespace rpc
 {
+class EthFace;
 class DBFace;
 class Web3Face;
 }
@@ -319,7 +320,7 @@ private:
 	QFuture<void> m_runFuture;
 	std::unique_ptr<MixClient> m_client;
 	unsigned m_rpcConnectorId;
-	std::unique_ptr<ModularServer<Web3Server, rpc::DBFace, rpc::Web3Face>> m_web3Server;
+	std::unique_ptr<ModularServer<rpc::EthFace, rpc::DBFace, rpc::Web3Face>> m_web3Server;
 	std::shared_ptr<eth::FixedAccountHolder> m_ethAccounts;
 	std::unordered_map<Address, eth::Account> m_accounts;
 	std::vector<KeyPair> m_accountsSecret;
