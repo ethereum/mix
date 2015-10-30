@@ -23,6 +23,12 @@ Column
 		root.spacing = sp
 	}
 
+	function set(_members, _values)
+	{
+		typeLoader.value = _values
+		typeLoader.members = _members
+	}
+
 	function clear()
 	{
 		value = {}

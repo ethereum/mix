@@ -207,6 +207,7 @@ function completeCtxInformation(state)
 	stack.listModel = state.debugStack;
 	storage.listModel = state.debugStorage;
 	memoryDump.listModel = state.debugMemory;
+
 	if (state.solidity) {
 		solLocals.setData(state.solidity.locals.variables, state.solidity.locals.values);
 		solStorage.setData(state.solidity.storage.variables, state.solidity.storage.values);

@@ -204,10 +204,21 @@ Item {
 			Layout.preferredWidth: parent.width
 			Layout.minimumHeight: 38
 			id: rowBtn
+
 			Connections
 			{
 				target: appSettings
 				onSystemPointSizeChanged:
+				{
+					updateLayout()
+				}
+
+				Component.onCompleted:
+				{
+					updateLayout()
+				}
+
+				function updateLayout()
 				{
 					if (mainApplication.systemPointSize >= appSettings.systemPointSize)
 					{
@@ -224,6 +235,7 @@ Item {
 			Row {
 				anchors.verticalCenter: parent.verticalCenter
 				anchors.leftMargin: 3
+				anchors.left: parent.left
 				spacing: 10
 				DefaultTextField
 				{

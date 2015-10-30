@@ -82,113 +82,130 @@ ColumnLayout {
 		keyPanel.width = width
 	}
 
-	RowLayout
+	Rectangle
 	{
+		color: "white"
+		border.width: 1
+		border.color: "#cccccc"
+		radius: 2
 		Layout.preferredWidth: parent.width
+		Layout.minimumHeight: minHeight
 		width: parent.width
-		id: keyPanel
-
-		ListModel
+		RowLayout
 		{
-			id: modelKeyValue
-		}
+			id: keyPanel
+			onHeightChanged:
+			{
+				parent.Layout.minimumHeight = height
+			}
 
-		Rectangle
-		{
-			anchors.fill: parent
-			color: "white"
-			border.width: 1
-			border.color: "#cccccc"
-			radius: 2
+			ListModel
+			{
+				id: modelKeyValue
+			}
 
 			Rectangle
 			{
-				id: slider
-				height: 5
-				width: parent.width
-				anchors.top: parent.bottom
-				color: "#cccccc"
-				MouseArea
-				{
-					anchors.fill: parent
-					drag.target: slider
-					drag.axis: Drag.YAxis
-					acceptedButtons: Qt.LeftButton
-					cursorShape: Qt.SplitVCursor
-					property int pos
-					onMouseYChanged:
-					{
-						if (pressed)
-						{
-							var newHeight = columnValues.Layout.minimumHeight + mouseY - pos
-							console.log(columnValues.Layout.minimumHeight  + " " + newHeight)
-							if (newHeight > minHeight && newHeight < 800)
-								columnValues.Layout.minimumHeight = newHeight
-						}
-					}
+				anchors.fill: parent
+				color: "white"
+				border.width: 1
+				border.color: "#cccccc"
+				radius: 2
+				visible: false
 
-					onPressed:
+			}
+
+			ScrollView
+			{
+				id: columnValues
+				horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+				Layout.preferredWidth: parent.width
+				width: parent.width
+				clip: true
+				anchors.left: parent.left
+
+				ColumnLayout
+				{
+					spacing: 0
+					id: colValue
+					anchors.top: parent.top
+					anchors.topMargin: 5
+
+					Repeater
 					{
-						pos = mouseY
+						id: repeaterKeyValue
+						model: modelKeyValue
+						Row
+						{
+							Layout.minimumHeight: 20
+							spacing: 5
+							anchors.left: colValue.left
+							anchors.leftMargin: 5
+							DefaultLabel
+							{
+								maximumLineCount: 1
+								text: {
+									if (index >= 0 && repeaterKeyValue.model.get(index).key !== undefined)
+										return repeaterKeyValue.model.get(index).key
+									else
+										return ""
+								}
+							}
+
+							DefaultLabel
+							{
+								text: "="
+							}
+
+							DefaultLabel
+							{
+								maximumLineCount: 1
+								text: {
+									if (index >= 0 && repeaterKeyValue.model.get(index).value !== undefined)
+										return repeaterKeyValue.model.get(index).value
+									else
+										return ""
+								}
+							}
+						}
 					}
 				}
 			}
+
 		}
+	}
 
-		ScrollView
+	Rectangle
+	{
+		id: slider
+		height: 5
+		Layout.preferredWidth: parent.width
+		anchors.bottom: parent.bottom
+		color: "#cccccc"
+		MouseArea
 		{
-			id: columnValues
-			horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
-			Layout.preferredWidth: parent.width
-			width: parent.width
-			clip: true
-			anchors.left: parent.left
-
-			ColumnLayout
+			anchors.fill: parent
+			drag.target: slider
+			drag.axis: Drag.YAxis
+			acceptedButtons: Qt.LeftButton
+			cursorShape: Qt.SplitVCursor
+			property int pos
+			onMouseYChanged:
 			{
-				spacing: 0
-				id: colValue
-				anchors.top: parent.top
-				anchors.topMargin: 5
-
-				Repeater
+				if (pressed)
 				{
-					id: repeaterKeyValue
-					model: modelKeyValue
-					Row
+					var newHeight = columnValues.Layout.minimumHeight + mouseY - pos
+					if (newHeight > minHeight && newHeight < 800)
 					{
-						Layout.minimumHeight: 20
-						spacing: 5
-						anchors.left: colValue.left
-						anchors.leftMargin: 5
-						DefaultLabel
-						{
-							maximumLineCount: 1
-							text: {
-								if (index >= 0 && repeaterKeyValue.model.get(index).key !== undefined)
-									return repeaterKeyValue.model.get(index).key
-								else
-									return ""
-							}
-						}
-
-						DefaultLabel
-						{
-							text: "="
-						}
-
-						DefaultLabel
-						{
-							maximumLineCount: 1
-							text: {
-								if (index >= 0 && repeaterKeyValue.model.get(index).value !== undefined)
-									return repeaterKeyValue.model.get(index).value
-								else
-									return ""
-							}
-						}
+						columnValues.Layout.minimumHeight = newHeight
+						keyPanel.height = newHeight
 					}
 				}
+			}
+
+			onPressed:
+			{
+				pos = mouseY
 			}
 		}
 	}

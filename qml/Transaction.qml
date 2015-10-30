@@ -180,11 +180,11 @@ ColumnLayout
 				Component.onCompleted: {
 					parent.Layout.minimumHeight = trHeight
 				}
-
+				width: parent.width
 				DefaultText
 				{
 					id: hash
-					width: parent.width - 30
+					Layout.preferredWidth: (parent.width / 2) - 50
 					anchors.verticalCenter: parent.verticalCenter
 					anchors.left: parent.left
 					anchors.leftMargin: horizontalMargin
@@ -201,16 +201,21 @@ ColumnLayout
 					}
 				}
 
-				DefaultLabel
+				Rectangle
 				{
-					anchors.verticalCenter: parent.verticalCenter
-					text: "→"
-					width: 20
+					Layout.preferredWidth: 60
+					DefaultLabel
+					{
+						anchors.horizontalCenter: parent.horizontalCenter
+						anchors.verticalCenter: parent.verticalCenter
+						text: "→"
+					}
 				}
 
 				DefaultText
 				{
 					anchors.verticalCenter: parent.verticalCenter
+					Layout.preferredWidth: (parent.width / 2) - 55
 					id: func
 					text: {
 						if (tx)

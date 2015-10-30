@@ -594,7 +594,6 @@ QVariantMap ClientModel::contractStorage(std::unordered_map<u256, u256> _storage
 				continue; //mapping type not yet managed
 
 			auto storageDec = new QVariableDeclaration(0, stateVar.name.toStdString(), stateVar.type);
-			QQmlEngine::setObjectOwnership(storageDec, QQmlEngine::JavaScriptOwnership);
 			storageDeclarationList.push_back(QVariant::fromValue(storageDec));
 			storageValues[storageDec->name()] = formatStorageValue(storageDec->type()->type(), _storage, stateVar.offset, stateVar.slot);
 		}
