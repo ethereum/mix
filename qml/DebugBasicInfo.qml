@@ -12,9 +12,36 @@ RowLayout {
 	}
 
 	Rectangle {
-		width: 120
+		Layout.minimumWidth: 120
 		height: parent.height
 		color: "#e5e5e5"
+		id: row
+		Component.onCompleted:
+		{
+			updateLayout()
+		}
+
+		function updateLayout()
+		{
+			if (mainApplication.systemPointSize >= appSettings.systemPointSize)
+			{
+				row.Layout.minimumWidth = 120
+			}
+			else
+			{
+				row.Layout.minimumWidth = 120 + (appSettings.systemPointSize * 6)
+			}
+		}
+
+		Connections
+		{
+			target: appSettings
+			onSystemPointSizeChanged:
+			{
+				row.updateLayout()
+			}
+		}
+
 		DefaultLabel
 		{
 			id: title

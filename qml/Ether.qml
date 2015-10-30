@@ -123,6 +123,7 @@ RowLayout {
 
 	DefaultCombobox
 	{
+		anchors.verticalCenter: parent.verticalCenter
 		Layout.minimumWidth: 100
 		id: units
 		visible: displayUnitSelection;

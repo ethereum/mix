@@ -30,7 +30,10 @@ Rectangle {
 	onVisibleChanged:
 	{
 		if (visible)
+		{
+			debugScrollArea.updateLayout()
 			forceActiveFocus();
+		}
 	}
 
 	onAssemblyModeChanged:
@@ -51,7 +54,6 @@ Rectangle {
 
 	function setTr(tr)
 	{
-
 	}
 
 	function displayCompilationErrorIfAny()
@@ -127,14 +129,38 @@ Rectangle {
 		id: debugScrollArea
 		anchors.fill: parent
 		spacing: 0
+		function updateLayout()
+		{
+			if (mainApplication.systemPointSize >= appSettings.systemPointSize)
+			{
+				rowHeader.Layout.preferredHeight = 20
+				labelTx.Layout.preferredHeight = 20
+			}
+			else
+			{
+				rowHeader.Layout.preferredHeight = 20 + appSettings.systemPointSize
+				labelTx.Layout.preferredHeight = 20 + appSettings.systemPointSize
+			}
+		}
+
+		Connections
+		{
+			target: appSettings
+			onSystemPointSizeChanged:
+			{
+				debugScrollArea.updateLayout()
+			}
+		}
+
 		RowLayout
 		{
 			Layout.preferredWidth: parent.width
 			Layout.minimumHeight: 20
 			Rectangle
 			{
+				id: rowHeader
 				Layout.preferredWidth: parent.width
-				Layout.minimumHeight: parent.height
+				Layout.preferredHeight: parent.height
 				color: "transparent"
 				DefaultText {
 					anchors.centerIn: parent
@@ -143,7 +169,6 @@ Rectangle {
 
 				DefaultButton {
 					anchors.right: parent.right
-					height: parent.height
 					Component.onCompleted:
 					{
 						updateLabel()
@@ -165,7 +190,6 @@ Rectangle {
 
 				DefaultButton {
 					anchors.left: parent.left
-					height: parent.height
 					text: qsTr("Scenario View")
 					onClicked:
 					{
@@ -182,8 +206,9 @@ Rectangle {
 			Layout.minimumHeight: 20
 			Rectangle
 			{
+				id: labelTx
 				Layout.preferredWidth: parent.width
-				Layout.minimumHeight: parent.height
+				Layout.preferredHeight: parent.height
 				color: "#accbf2"
 				DefaultText {
 					id: trName
@@ -195,13 +220,17 @@ Rectangle {
 
 		RowLayout
 		{
-			Layout.preferredWidth: parent.width
-			visible: mainContent.rightPane.bc.buildUseOptimizedCode
+			Layout.preferredWidth: debugScrollArea.width
+
 			DefaultLabel
 			{
 				anchors.horizontalCenter: parent.horizontalCenter
+				visible: mainContent.rightPane.bc.buildUseOptimizedCode
 				text: qsTr("The last rebuild uses Solidity optimized code. Please do not use optimize code when debugging a transaction.")
 				color: "orange"
+				width: debugScrollArea.width - 50
+				elide: Qt.ElideRight
+				maximumLineCount: 1
 			}
 		}
 
@@ -370,7 +399,7 @@ Rectangle {
 											radius: 12
 										}
 									}
-								}								
+								}
 							}
 						}
 					}
@@ -412,6 +441,40 @@ Rectangle {
 								width: parent.width - 10
 							}
 
+							rowDelegate:
+								Component
+								{
+									id: rowItems
+									Rectangle
+									{
+										Component.onCompleted:
+										{
+											rect.updateLayout()
+										}
+
+										id: rect
+										Connections
+										{
+											target: appSettings
+											onSystemPointSizeChanged:
+											{
+												rect.updateLayout()
+											}
+										}
+
+										function updateLayout()
+										{
+											if (mainApplication.systemPointSize >= appSettings.systemPointSize)
+												rect.height = 20
+											else
+												rect.height = 20 + appSettings.systemPointSize
+										}
+
+										height: 20
+										color: "transparent"
+									}
+								}
+
 						}
 
 						Component {
@@ -438,8 +501,6 @@ Rectangle {
 									id: wrapperItem
 									anchors.fill: parent
 									spacing: 5
-
-
 									DefaultText {
 										anchors.left: parent.left
 										anchors.leftMargin: 10
@@ -472,9 +533,9 @@ Rectangle {
 						color: "transparent"
 						ColumnLayout
 						{
-							width: parent.width
 							anchors.fill: parent
 							spacing: 0
+
 							DebugBasicInfo {
 								id: currentStep
 								titleStr: qsTr("Current Step")

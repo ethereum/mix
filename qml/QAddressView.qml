@@ -96,7 +96,6 @@ ColumnLayout
 				accountRef.append({ "itemid": accounts[k].name, "value": "0x" + accounts[k].address, "type": "address" });
 			}
 		}
-
 		editRoot.height = editRoot.getHeight()
 	}
 
@@ -109,14 +108,12 @@ ColumnLayout
 		else
 			displayInput = false
 
-		if (isArray() || !readOnly)
-			trCombobox.visible = true
-		else
-			trCombobox.visible = false
+		var ctrVisible = isArray() || !readOnly
 
-		if (!trCombobox.visible)
+		rowCombobox.visible = ctrVisible
+		trCombobox.visible = ctrVisible
+		if (!ctrVisible)
 		{
-			rowCombobox.visible = false
 			rowCombobox.height = 0
 			trCombobox.height = 0
 			textinput.anchors.top = textinput.parent.top
@@ -150,6 +147,11 @@ ColumnLayout
 				break;
 			}
 		}
+	}
+
+	function selectFirst()
+	{
+		trCombobox.currentIndex = 0
 	}
 
 	ListModel

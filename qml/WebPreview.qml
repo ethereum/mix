@@ -202,13 +202,29 @@ Item {
 			anchors.leftMargin: 4
 			color: webPreviewStyle.general.headerBackgroundColor
 			Layout.preferredWidth: parent.width
-			Layout.minimumHeight: 32
+			Layout.minimumHeight: 38
+			id: rowBtn
+			Connections
+			{
+				target: appSettings
+				onSystemPointSizeChanged:
+				{
+					if (mainApplication.systemPointSize >= appSettings.systemPointSize)
+					{
+						rowBtn.Layout.minimumHeight = 38
+						rowBtn.height = 38
+					}
+					else
+					{
+						rowBtn.Layout.minimumHeight = 38 + appSettings.systemPointSize
+						rowBtn.height = 38 + appSettings.systemPointSize
+					}
+				}
+			}
 			Row {
-				anchors.top: parent.top
-				anchors.fill: parent
+				anchors.verticalCenter: parent.verticalCenter
 				anchors.leftMargin: 3
 				spacing: 10
-
 				DefaultTextField
 				{
 					id: urlInput
@@ -236,7 +252,9 @@ Item {
 				ScenarioButton {
 					id: reloadFrontend
 					text: qsTr("Reload frontend")
-					height: 23
+					height: 30
+					width: 80
+					anchors.verticalCenter: parent.verticalCenter
 					roundLeft: true
 					roundRight: true
 					onClicked:
