@@ -390,14 +390,20 @@ QVariant ContractCallDataEncoder::decodeRawArray(SolidityType const& _type, byte
 
 QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot)
 {
-	if (_storage.find(_slot) == _storage.end())
-		return QVariant();
 	if (_type.array)
 		return formatStorageArray(_type, _storage, _offset, _slot);
 	else if (_type.members.size() > 0)
 		return formatStorageStruct(_type, _storage, _slot);
 	else
-		return decode(_type, toBigEndian(_storage.at(_slot)), _offset);
+	{
+		bytes data;
+		if (_storage.find(_slot) != _storage.end())
+			data = toBigEndian(_storage.at(_slot));
+		if (_type.type == QSolidityType::Type::Enum && data.empty())
+			return "0"; // if first enum, the retrieved storage does not contains the data.
+		else
+			return decode(_type, data, _offset);
+	}
 }
 
 QVariant ContractCallDataEncoder::formatStorageStruct(SolidityType const& _type, unordered_map<u256, u256> const& _storage, u256 _slot)
@@ -412,6 +418,8 @@ QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, 
 {
 	Q_UNUSED(_offset);
 	QVariantList array;
+	if (_storage.find(_slot) == _storage.end())
+		return array;
 	unsigned pos = 0;
 	u256 count = 0;
 	u256 contentIndex;

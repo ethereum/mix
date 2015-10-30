@@ -35,6 +35,8 @@ Rectangle
 					logsModel.remove(k);
 			}
 		}
+		if (visible)
+			settingConnect.updateFont()
 	}
 
 	anchors.fill: parent
@@ -226,6 +228,62 @@ Rectangle
 		}
 	}
 
+	Connections
+	{
+		id: settingConnect
+		target: appSettings
+		onSystemPointSizeChanged:
+		{
+			updateFont()
+		}
+
+		function updateFont()
+		{
+			if (mainApplication.systemPointSize >= appSettings.systemPointSize)
+			{
+				rectToolBtn.height = logStyle.generic.layout.headerHeight
+				rowAction.height = logStyle.generic.layout.headerHeight
+				javascriptButton.height = logStyle.generic.layout.headerButtonHeight
+				runButton.height = logStyle.generic.layout.headerButtonHeight
+				stateButton.height = logStyle.generic.layout.headerButtonHeight
+				deloyButton.height = logStyle.generic.layout.headerButtonHeight
+				showLabel.height = logStyle.generic.layout.headerButtonHeight
+				showText.width = 40
+				showLabel.width = 40
+				javascriptButton.width = 30
+				runButton.width = 40
+				stateButton.width = 40
+				deloyButton.width = 50
+				rectSearch.height = 25
+				javascriptButton.labelWidth = 15
+				runButton.labelWidth = 25
+				stateButton.labelWidth = 30
+				deloyButton.labelWidth = 40
+			}
+			else
+			{
+				rectToolBtn.height = logStyle.generic.layout.headerHeight + Math.round(appSettings.systemPointSize / 2)
+				rowAction.height = logStyle.generic.layout.headerHeight + Math.round(appSettings.systemPointSize / 2)
+				javascriptButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
+				runButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
+				stateButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
+				deloyButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
+				showLabel.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
+				showText.width = 40 + (2 * appSettings.systemPointSize)
+				showLabel.width = 40 + (2 * appSettings.systemPointSize)
+				javascriptButton.width = 40 + (2 * appSettings.systemPointSize)
+				runButton.width = 40 +(2 * appSettings.systemPointSize)
+				stateButton.width = 40 + (2 * appSettings.systemPointSize)
+				deloyButton.width = 50 + (2 * appSettings.systemPointSize)
+				rectSearch.height = 25 + Math.round(appSettings.systemPointSize / 2)
+				javascriptButton.labelWidth = 15 + 2 * appSettings.systemPointSize
+				runButton.labelWidth = 25 + 2 * appSettings.systemPointSize
+				stateButton.labelWidth = 30 + 2 * appSettings.systemPointSize
+				deloyButton.labelWidth = 40 + 2 * appSettings.systemPointSize
+			}
+		}
+	}
+
 	Rectangle
 	{
 		gradient: Gradient {
@@ -236,6 +294,7 @@ Rectangle
 		height: logStyle.generic.layout.headerHeight
 		width: logsPane.width
 		anchors.bottom: parent.bottom
+		id: rectToolBtn
 		Row
 		{
 			id: rowAction
@@ -246,11 +305,13 @@ Rectangle
 			Rectangle
 			{
 				color: "transparent"
-				height: parent.height
+				height: logStyle.generic.layout.headerButtonHeight
 				width: 40
+				id: showLabel
 				DefaultLabel
 				{
 					width: 40
+					id: showText
 					elide: Text.ElideRight
 					anchors.verticalCenter: parent.verticalCenter
 					color: logStyle.generic.layout.logLabelColor
@@ -279,6 +340,7 @@ Rectangle
 				checkable: true
 				height: logStyle.generic.layout.headerButtonHeight
 				width: 30
+				property int labelWidth: 15
 				anchors.verticalCenter: parent.verticalCenter
 				checked: true
 				onCheckedChanged: {
@@ -297,7 +359,7 @@ Rectangle
 							color: "transparent"
 							DefaultLabel {
 								id: labelJs
-								width: 15
+								width: javascriptButton.labelWidth
 								elide: Text.ElideRight
 								anchors.horizontalCenter: parent.horizontalCenter
 								font.family: logStyle.generic.layout.logLabelFont
@@ -332,6 +394,7 @@ Rectangle
 				id: runButton
 				checkable: true
 				height: logStyle.generic.layout.headerButtonHeight
+				property int labelWidth: 25
 				width: 40
 				anchors.verticalCenter: parent.verticalCenter
 				checked: true
@@ -351,7 +414,7 @@ Rectangle
 							color: "transparent"
 							DefaultLabel {
 								id: labelRun
-								width: 25
+								width: runButton.labelWidth
 								anchors.horizontalCenter: parent.horizontalCenter
 								elide: Text.ElideRight
 								font.family: logStyle.generic.layout.logLabelFont
@@ -385,6 +448,7 @@ Rectangle
 			ToolButton {
 				id: stateButton
 				checkable: true
+				property int labelWidth: 30
 				height: logStyle.generic.layout.headerButtonHeight
 				anchors.verticalCenter: parent.verticalCenter
 				width: 40
@@ -405,7 +469,7 @@ Rectangle
 							color: "transparent"
 							DefaultLabel {
 								id: labelState
-								width: 30
+								width: stateButton.labelWidth
 								anchors.horizontalCenter: parent.horizontalCenter
 								elide: Text.ElideRight
 								font.family: logStyle.generic.layout.logLabelFont
@@ -440,6 +504,7 @@ Rectangle
 				id: deloyButton
 				checkable: true
 				height: logStyle.generic.layout.headerButtonHeight
+				property int labelWidth: 40
 				width: 50
 				anchors.verticalCenter: parent.verticalCenter
 				checked: true
@@ -458,7 +523,7 @@ Rectangle
 							anchors.centerIn: parent
 							color: "transparent"
 							DefaultLabel {
-								width: 40
+								width: deloyButton.labelWidth
 								id: labelDeploy
 								anchors.horizontalCenter: parent.horizontalCenter
 								elide: Text.ElideRight
@@ -599,6 +664,7 @@ Rectangle
 				color: "white"
 				anchors.top: parent.top
 				anchors.topMargin: 3
+				id: rectSearch
 				Image
 				{
 					id: searchImg
@@ -612,6 +678,7 @@ Rectangle
 				DefaultTextField
 				{
 					id: searchBox
+					height: parent.height
 					z: 2
 					width: 100
 					anchors.left: searchImg.right

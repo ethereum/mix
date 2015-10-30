@@ -85,6 +85,16 @@ function saveCurrentDocument()
 	saveDocument(currentDocumentId)
 }
 
+function saveContracts()
+{
+	for (var i = 0; i < projectListModel.count; i++)
+	{
+		var d = projectListModel.get(i)
+		if (d.isContract)
+			saveDocument(d.documentId)
+	}
+}
+
 function saveAll() {
 	saveProject();
 }

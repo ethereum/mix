@@ -58,7 +58,6 @@ ColumnLayout
 
 		updatebtnWidth(w)
 		updatebtnWidth((rowBtn.width - 20) / 6 < btnWidth ? (rowBtn.width - 20) / 6 : btnWidth)
-		scenarioLabel.visible = rowBtn.width / 6 > btnWidth
 	}
 
 	function updatebtnWidth(w)
@@ -93,18 +92,6 @@ ColumnLayout
 			Layout.minimumHeight: 30
 			id: scenarioCont
 			anchors.top: parent.top
-			Rectangle
-			{
-				anchors.top: parent.bottom
-				anchors.topMargin: 10
-				width: parent.width
-				DefaultLabel
-				{
-					text: qsTr("Scenario")
-					id: scenarioLabel
-					anchors.centerIn: parent
-				}
-			}
 
 			Connections
 			{
@@ -191,7 +178,6 @@ ColumnLayout
 							anchors.verticalCenter: parent.verticalCenter
 							anchors.left: parent.left
 							anchors.leftMargin: -4
-							//anchors.top: parent.top
 							Component.onCompleted:
 							{
 								comboLabel.updateLabel()

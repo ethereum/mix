@@ -47,7 +47,6 @@ ColumnLayout {
 	}
 
 	RowLayout {
-		height: 25
 		id: header
 		Image {
 			source: "img/closedtriangleindicator.png"
@@ -78,6 +77,7 @@ ColumnLayout {
 			}
 		}
 	}
+
 	Rectangle
 	{
 		id: storageContainer
@@ -87,19 +87,18 @@ ColumnLayout {
 		Layout.fillHeight: true
 
 		function collapse() {
-			storedHeight = root.childrenRect.height;
-			storageImgArrow.source = "qrc:/qml/img/closedtriangleindicator.png";
+			storedHeight = root.childrenRect.height
+			storageImgArrow.source = "qrc:/qml/img/closedtriangleindicator.png"
 			if (storageContainer.parent.parent.height > 25)
-				storageContainer.parent.parent.height = 25;
-			collapsed = true;
+				storageContainer.parent.parent.height = 25
+			collapsed = true
 		}
 
 		function expand() {
-			storageImgArrow.source = "qrc:/qml/img/opentriangleindicator.png";
-			collapsed = false;
-			if (storedHeight <= 25)
-				storedHeight = 200;
-			storageContainer.parent.parent.height = storedHeight;
+			storageImgArrow.source = "qrc:/qml/img/opentriangleindicator.png"
+			collapsed = false
+			storedHeight = 200
+			storageContainer.parent.parent.height = storedHeight
 		}
 
 		Loader
@@ -111,7 +110,7 @@ ColumnLayout {
 			anchors.leftMargin: 3
 			width: parent.width - 3
 			height: parent.height - 6
-			onHeightChanged:  {
+			onHeightChanged: {
 				if (height <= 0 && collapsible)
 					storageContainer.collapse();
 				else if (height > 0 && collapsed)
@@ -119,6 +118,7 @@ ColumnLayout {
 			}
 			sourceComponent: componentDelegate ? componentDelegate : table
 		}
+
 		Component
 		{
 			id: table
@@ -157,7 +157,41 @@ ColumnLayout {
 
 				Component.onCompleted: {
 					tableView = view
+					rowDelegate = rowItems
 				}
+			}
+		}
+
+		Component
+		{
+			id: rowItems
+			Rectangle
+			{
+				Component.onCompleted:
+				{
+					rect.updateLayout()
+				}
+
+				id: rect
+				Connections
+				{
+					target: appSettings
+					onSystemPointSizeChanged:
+					{
+						rect.updateLayout()
+					}
+				}
+
+				function updateLayout()
+				{
+					if (mainApplication.systemPointSize >= appSettings.systemPointSize)
+						rect.height = 20
+					else
+						rect.height = 20 + appSettings.systemPointSize
+				}
+
+				height: 20
+				color: "transparent"
 			}
 		}
 	}

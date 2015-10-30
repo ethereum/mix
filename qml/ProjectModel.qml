@@ -87,6 +87,7 @@ Item {
 	function deployProject() { NetworkDeploymentCode.deployProject(false); }
 	function registerToUrlHint(url, gasPrice, callback) { NetworkDeploymentCode.registerToUrlHint(url, gasPrice, callback); }
 	function formatAppUrl() { NetworkDeploymentCode.formatAppUrl(url); }
+	function saveContracts() { ProjectModelCode.saveContracts(); }
 
 	function cleanDeploymentStatus()
 	{

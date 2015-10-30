@@ -143,19 +143,22 @@ highlightExecution = function(start, end, gasUsed) {
 	}
 }
 
-var basicHighlightMark;
+var basicHighlightMark = -1
 basicHighlight = function (start, end)
 {
-	if (basicHighlightMark)
+	if (basicHighlightMark != -1)
+	{
 		editor.removeLineClass(basicHighlightMark, "background","CodeMirror-basicHighlight")
+		basicHighlightMark = -1
+	}
 	var line = editor.posFromIndex(start)
 	basicHighlightMark = line.line
 	editor.addLineClass(line.line, "background","CodeMirror-basicHighlight")
 	setTimeout(function(){
-		if (basicHighlightMark)
+		if (basicHighlightMark != -1)
 			editor.removeLineClass(basicHighlightMark, "background","CodeMirror-basicHighlight")
-		basicHighlightMark = undefined
-	}, 800)
+		basicHighlightMark = -1
+	}, 500)
 }
 
 var changeId;
