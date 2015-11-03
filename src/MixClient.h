@@ -25,7 +25,7 @@
 
 #include <vector>
 #include <string>
-#include <libethcore/BasicAuthority.h>
+#include <libethcore/Sealer.h>
 #include <libethereum/ExtVM.h>
 #include <libethereum/ClientBase.h>
 #include <libethereum/Client.h>
@@ -38,33 +38,13 @@ namespace eth { class EnvInfo; }
 namespace mix
 {
 
-class NoProof
+class NoProof: eth::SealEngineBase
 {
-	class BlockHeaderRaw: public dev::eth::BlockInfo
-	{
-	public:
-		static const unsigned SealFields = 0;
-
-	protected:
-		BlockHeaderRaw() = default;
-		BlockHeaderRaw(BlockInfo const& _bi): BlockInfo(_bi) {}
-
-		void populateFromHeader(RLP const& _header, dev::eth::Strictness _s) { (void) _header; (void) _s; }
-		void populateFromParent(BlockHeaderRaw const& _parent) { (void)_parent; }
-		void streamRLPFields(RLPStream& _s) const { (void) _s; }
-	};
-
 public:
-
-	static std::string name() { return "NoProof"; }
-	static unsigned revision() { return 0; }
-	using BlockHeader = dev::eth::BlockHeaderPolished<BlockHeaderRaw>;
-
-private:
-	static AddressHash s_authorities;
+	std::string name() const override { return "NoProof"; }
 };
 
-class MixBlockChain: public dev::eth::FullBlockChain<NoProof>
+class MixBlockChain: public dev::eth::BlockChain
 {
 public:
 	MixBlockChain(std::string const& _path, h256 _stateRoot);

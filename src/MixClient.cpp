@@ -49,7 +49,7 @@ namespace
 }
 
 MixBlockChain::MixBlockChain(std::string const& _path, h256 _stateRoot):
-	FullBlockChain<NoProof>(createGenesisBlock(_stateRoot), std::unordered_map<Address, Account>(), _path, WithExisting::Kill)
+	BlockChain(new NoProof, createGenesisBlock(_stateRoot), std::unordered_map<Address, Account>(), _path, WithExisting::Kill)
 {
 }
 
