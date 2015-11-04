@@ -61,7 +61,6 @@ DebugInfoList
 				id: typeLoader
 				context: "variable"
 				anchors.fill: parent
-				//width: parent.width
 			}
 		}
 	}

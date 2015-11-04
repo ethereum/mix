@@ -75,6 +75,19 @@ ColumnLayout {
 			anchors.verticalCenter: parent.verticalCenter
 			color: "#414141"
 		}
+
+		CopyButton
+		{
+			getContent: function()
+			{
+				var data = {}
+				data.info = titleLabel.text
+				data.content = []
+				for (var k = 0; k < modelKeyValue.count; k++)
+					data.content.push({ key: modelKeyValue.get(k).key, value: modelKeyValue.get(k).value})
+				return JSON.stringify(data)
+			}
+		}
 	}
 
 	onWidthChanged:

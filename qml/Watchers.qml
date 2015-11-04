@@ -126,7 +126,7 @@ ColumnLayout {
 		model: storages
 		KeyValuePanel
 		{
-			Layout.preferredWidth: parent.width
+			Layout.preferredWidth: root.width
 			id: ctrsStorage
 			function computeData()
 			{

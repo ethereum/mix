@@ -40,7 +40,7 @@ Dialog {
 		else
 		{
 			width = 630 + (11 * appSettings.systemPointSize)
-			height = 480 + (3 * appSettings.systemPointSize)
+			height = 480 + (7 * appSettings.systemPointSize)
 		}
 		stateIndex = index
 		accountsModel.clear()

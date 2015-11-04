@@ -1049,7 +1049,6 @@ ColumnLayout {
 		{
 			blockChainPanel.forceActiveFocus()
 		}
-
 	}
 }
 

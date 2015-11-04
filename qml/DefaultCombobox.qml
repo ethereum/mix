@@ -30,13 +30,11 @@ ComboBox {
 				target: appSettings
 				onSystemPointSizeChanged:
 				{
-					var yt = labelCombo.font.pixelSize + 10
 					labelCombo.updateHeight()
 				}
 
 				Component.onCompleted:
 				{
-					var yt = labelCombo.font.pixelSize + 10
 					labelCombo.updateHeight()
 				}
 			}

@@ -189,6 +189,7 @@ ColumnLayout
 					anchors.left: parent.left
 					anchors.leftMargin: horizontalMargin
 					elide: Text.ElideRight
+					width: parent.width - 50
 					maximumLineCount: 1
 					clip: true
 					color: labelColor
@@ -314,7 +315,7 @@ ColumnLayout
 				{
 					var param = ""
 					for (var p = 0; p < tx.logs.get(k).param.count; p++)
-						param += " " + tx.logs.get(k).param.get(p).value + " "
+						param += " " + tx.logs.get(k).param.get(p).value
 					param = "(" + param + ")"
 					eventList.append({ "key": tx.logs.get(k).name, "value": param })
 				}
@@ -471,7 +472,7 @@ ColumnLayout
 						{
 							color: trDetailColor
 							text: key + "\t" + value
-							width: rowTransactionItem.width - 30
+							width: rowTransactionItem.width - 40
 							elide: Text.ElideRight
 							font.bold: true
 						}
@@ -514,7 +515,7 @@ ColumnLayout
 							{
 								color: trDetailColor
 								text: index >= 0 ? eventList.get(index).value : ""
-								width: rowTransactionItem.width - 30
+								width: rowTransactionItem.width - 70
 								elide: Text.ElideRight
 								font.bold: true
 							}
