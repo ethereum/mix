@@ -75,7 +75,7 @@ Dialog {
 
 		paramValues = item.parameters !== undefined ? item.parameters : {};
 		if (item.sender)
-			senderComboBox.select(item.sender);
+			senderComboBox.select(item.sender)
 
 		trTypeCreate.checked = item.isContractCreation
 		trTypeSend.checked = !item.isFunctionCall
@@ -83,6 +83,10 @@ Dialog {
 		load(item.isContractCreation, item.isFunctionCall, functionId, contractId)
 		estimatedGas.updateView()
 		visible = true;
+		senderComboBox.updateCombobox()
+		valueField.update()
+		gasPriceField.update()
+		contractCreationComboBox.updateCombobox()
 	}
 
 	function loadCtorParameters(contractId)
@@ -360,6 +364,7 @@ Dialog {
 							}
 							Layout.preferredWidth: 350
 							id: senderComboBox
+							rootItem: modalTransactionDialog
 							currentIndex: 0
 							textRole: "name"
 							editable: false
@@ -367,15 +372,18 @@ Dialog {
 							onCurrentIndexChanged:
 							{
 								update()
+								updateCombobox()
 							}
 
 							onModelChanged:
 							{
 								update()
+								updateCombobox()
 							}
 
 							Component.onCompleted: {
 								update()
+								updateCombobox()
 							}
 
 							function update()
@@ -521,6 +529,7 @@ Dialog {
 						}
 						Layout.preferredWidth: 350
 						currentIndex: -1
+						rootItem: modalTransactionDialog
 						textRole: "text"
 						editable: false
 						model: ListModel {
@@ -528,6 +537,7 @@ Dialog {
 						}
 						onCurrentIndexChanged: {
 							loadCtorParameters(currentValue());
+
 						}
 					}
 				}
@@ -565,6 +575,7 @@ Dialog {
 						Layout.preferredWidth: 350
 						currentIndex: -1
 						textRole: "text"
+						rootItem: modalTransactionDialog
 						editable: false
 						model: ListModel {
 							id: functionsModel
@@ -694,10 +705,12 @@ Dialog {
 
 							function displayGas(contractName, functionName)
 							{
+								estimatedGas.visible = false
 								var gasCost = codeModel.gasCostBy(contractName, functionName);
 								if (gasCost && gasCost.length > 0)
 								{
 									var gas = codeModel.txGas + codeModel.callStipend + parseInt(gasCost[0].gas)
+									estimatedGas.visible = true
 									estimatedGas.text = qsTr("Estimated cost: ") + gasCost[0].gas + " gas"
 								}
 							}
@@ -760,8 +773,10 @@ Dialog {
 						id: gasPriceMarket
 						Component.onCompleted:
 						{
+							gasPriceMarket.visible = false
 							NetworkDeployment.gasPrice(function(result)
 							{
+								gasPriceMarket.visible = true
 								gasPriceMarket.text = qsTr("Current market: ") + " " + QEtherHelper.createEther(result, QEther.Wei).format()
 							}, function (){});
 						}

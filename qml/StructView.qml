@@ -39,7 +39,7 @@ Column
 	Repeater
 	{
 		id: repeater
-		visible: members.length > 0
+		visible: members ? members.length > 0 : false
 		RowLayout
 		{
 			id: row
@@ -61,6 +61,9 @@ Column
 			{
 				Layout.preferredWidth: 150
 				id: labelVar
+				anchors.top: parent.top
+				height: 20
+				color: "transparent"
 				Row
 				{
 					anchors.right: parent.right
@@ -69,6 +72,7 @@ Column
 					{
 						id: nameLabel
 						text: modelData ? modelData.name : ""
+						anchors.top: parent.top
 					}
 
 					DefaultLabel
@@ -77,6 +81,7 @@ Column
 						text: modelData ? " (" + modelData.type.name + ")" : ""
 						font.italic: true
 						font.weight: Font.Light
+						anchors.top: parent.top
 					}
 				}
 			}

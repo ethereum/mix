@@ -145,19 +145,22 @@ ColumnLayout {
 						anchors.verticalCenter: parent.verticalCenter
 					}
 
-					DefaultImgButton
+					Button
 					{
 						tooltip: qsTr("Delete")
 						visible: !isContract
 						height: 25
 						width: 25
-
 						onClicked:
 						{
 							deleteConfirmation.open();
 						}
 						anchors.verticalCenter: parent.verticalCenter
-						iconSource: "qrc:/qml/img/delete-block-icon@2x.png"
+						Image {
+							height: 25
+							width: 25
+							source: "qrc:/qml/img/delete-block-icon@2x.png"
+						}
 					}
 				}
 

@@ -265,6 +265,7 @@ AbstractDialog {
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 4
 				DefaultCombobox {
+					rootItem: root
                     id: filterField
                     model: root.nameFilters
                     visible: !selectFolder

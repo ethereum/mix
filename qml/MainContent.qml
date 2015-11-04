@@ -114,6 +114,26 @@ Rectangle {
 			Layout.row: 0
 			Layout.fillWidth: true
 			Layout.minimumHeight: 40
+			Connections
+			{
+				target: appSettings
+				onSystemPointSizeChanged:
+				{
+					updateLayout()
+				}
+				Component.onCompleted:
+				{
+					updateLayout()
+				}
+				function updateLayout()
+				{
+					if (appSettings.systemPointSize < mainApplication.systemPointSize)
+						headerView.Layout.minimumHeight = 40
+					else
+						headerView.Layout.minimumHeight = 40 + appSettings.systemPointSize
+				}
+			}
+
 			id: headerView
 			Rectangle
 			{

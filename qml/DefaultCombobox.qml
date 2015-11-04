@@ -4,6 +4,13 @@ import QtQuick.Controls.Styles 1.3
 
 ComboBox {
 	id: combo
+	property variant rootItem
+	signal updateView()
+
+	function updateCombobox()
+	{
+		updateView()
+	}
 
 	style: ComboBoxStyle
 	{
@@ -18,8 +25,35 @@ ComboBox {
 
 			Connections
 			{
+				target: rootItem
+				onVisibleChanged:
+				{
+					if (rootItem && rootItem.visible)
+						labelCombo.updateHeight()
+				}
+			}
+
+			Connections
+			{
 				target: combo
 				onVisibleChanged:
+				{
+					labelCombo.updateHeight()
+				}
+				onModelChanged:
+				{
+					labelCombo.updateHeight()
+				}
+				onUpdateView:
+				{
+					labelCombo.updateHeight()
+
+				}
+				onCurrentTextChanged:
+				{
+					labelCombo.updateHeight()
+				}
+				onCurrentIndexChanged:
 				{
 					labelCombo.updateHeight()
 				}
@@ -41,7 +75,7 @@ ComboBox {
 
 			function updateHeight()
 			{
-				combo.height = labelCombo.font.pixelSize + 10
+				combo.height = appSettings.systemPointSize + 10
 			}
 		}
 	}

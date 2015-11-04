@@ -92,7 +92,7 @@ Item {
 
 			DefaultCombobox {
 				id: itemFilter
-
+				rootItem: parent
 				function getCurrentModel()
 				{
 					return currentIndex === 0 ? fullModel : currentIndex === 1 ? transactionModel : currentIndex === 2 ? callModel : fullModel;

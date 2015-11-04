@@ -154,6 +154,7 @@ Rectangle
 			{
 				id: accountsList
 				textRole: "id"
+				rootItem: root
 				Layout.fillWidth: true
 				model: accountsModel
 				onCurrentTextChanged:
