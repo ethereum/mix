@@ -205,6 +205,7 @@ ColumnLayout
 			id: btnAdd
 			text: qsTr("Add")
 			visible: false
+			height: trCombobox.height
 			onClicked:
 			{
 				var ar = JSON.parse(textinput.text)
@@ -217,7 +218,7 @@ ColumnLayout
 	Rectangle {
 		radius: 4
 		width: editRoot.width
-		height: 30
+		height: trCombobox.height
 		id: textInputRect
 		DefaultTextField {
 			id: textinput
