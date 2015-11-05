@@ -89,8 +89,8 @@ ColumnLayout {
 		function collapse() {
 			storedHeight = root.childrenRect.height
 			storageImgArrow.source = "qrc:/qml/img/closedtriangleindicator.png"
-			if (storageContainer.parent.parent.height > 25)
-				storageContainer.parent.parent.height = 25
+			if (storageContainer.parent.parent.height > 100)
+				storageContainer.parent.parent.height = 100
 			collapsed = true
 		}
 

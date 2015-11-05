@@ -463,7 +463,11 @@ QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, 
 		else
 		{
 			if (_storage.find(contentIndex) == _storage.end())
+			{
+				j++;
 				continue;
+			}
+
 
 			if (_type.type == SolidityType::Type::String || _type.type == SolidityType::Type::Bytes)
 			{
