@@ -47,7 +47,6 @@ ComboBox {
 				onUpdateView:
 				{
 					labelCombo.updateHeight()
-
 				}
 				onCurrentTextChanged:
 				{

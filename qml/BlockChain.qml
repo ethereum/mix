@@ -556,7 +556,6 @@ ColumnLayout {
 			}
 			onNewRecord:
 			{
-
 				if (_r.transactionIndex !== "Call")
 				{
 					var blockIndex =  parseInt(_r.transactionIndex.split(":")[0]) - 1

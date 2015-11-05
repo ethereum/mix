@@ -302,7 +302,8 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 	for (auto const& b: blocks)
 	{
 		QVariantList transactions = b.toMap().value("transactions").toList();
-		m_queueTransactions.push_back(transactions);
+		if (transactions.size() > 0)
+			m_queueTransactions.push_back(transactions);
 		trToExecute = transactions.size() > 0;
 	}
 	m_client->resetState(m_accounts, Secret(_scenario.value("miner").toMap().value("secret").toString().toStdString()));
@@ -1003,7 +1004,6 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 			break;
 		}
 	}
-
 
 	if (!creation)
 		for (auto const& ctr: m_contractAddresses)

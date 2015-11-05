@@ -239,7 +239,6 @@ ColumnLayout {
 								if (codeModel.contracts[name])
 								{									
 									var isClean = hex === (codeModel.contracts[name].codeHex + name)
-									console.log(name + " isClean " + isClean + " " + (codeModel.contracts[name].codeHex + name));
 									editStatusLabel.visible = !isClean
 								}
 							}

@@ -32,6 +32,7 @@ Dialog {
 	property bool useTransactionDefaultValue: false
 	property alias stateAccounts: senderComboBox.model
 	property bool saveStatus
+	property bool loaded: false
 	signal accepted
 	signal closed
 
@@ -40,8 +41,8 @@ Dialog {
 		id: transactionDialogStyle
 	}
 
-
 	function open(index, blockIdx, item) {
+		loaded = false
 		if (mainApplication.systemPointSize >= appSettings.systemPointSize)
 		{
 			width = 580
@@ -87,6 +88,7 @@ Dialog {
 		valueField.update()
 		gasPriceField.update()
 		contractCreationComboBox.updateCombobox()
+		loaded = true
 	}
 
 	function loadCtorParameters(contractId)
@@ -246,6 +248,12 @@ Dialog {
 
 	function load(isContractCreation, isFunctionCall, functionId, contractId)
 	{
+		if (loaded)
+		{
+			paramsModel = []
+			paramValues = {}
+		}
+
 		if (!isContractCreation)
 		{
 			contractCreationComboBox.visible = false
@@ -273,7 +281,6 @@ Dialog {
 				functionRect.show()
 				loadFunctions(TransactionHelper.contractFromToken(recipientsAccount.currentValue()))
 				loadParameters();
-				//paramScroll.updateView()
 			}
 			else
 			{
@@ -504,6 +511,8 @@ Dialog {
 							displayInput: false
 							onIndexChanged:
 							{
+								if (loaded)
+									paramValues = {}
 								if (rbbuttonList.current.objectName === "trTypeExecute")
 								{
 									loadFunctions(TransactionHelper.contractFromToken(currentValue()))
@@ -536,8 +545,9 @@ Dialog {
 							id: contractsModel
 						}
 						onCurrentIndexChanged: {
+							if (loaded)
+								paramValues = {}
 							loadCtorParameters(currentValue());
-
 						}
 					}
 				}

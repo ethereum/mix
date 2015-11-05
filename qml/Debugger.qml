@@ -155,7 +155,7 @@ Rectangle {
 		RowLayout
 		{
 			Layout.preferredWidth: parent.width
-			Layout.minimumHeight: 20
+			Layout.minimumHeight: 30
 			Rectangle
 			{
 				id: rowHeader
@@ -169,6 +169,7 @@ Rectangle {
 
 				DefaultButton {
 					anchors.right: parent.right
+					anchors.verticalCenter: parent.verticalCenter
 					Component.onCompleted:
 					{
 						updateLabel()
@@ -190,6 +191,7 @@ Rectangle {
 
 				DefaultButton {
 					anchors.left: parent.left
+					anchors.verticalCenter: parent.verticalCenter
 					text: qsTr("Scenario View")
 					onClicked:
 					{

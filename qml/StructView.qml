@@ -49,10 +49,11 @@ Column
 			{
 				if (members[index])
 				{
+					var scale = 10 * appSettings.systemPointSize / mainApplication.systemPointSize
 					if (QSolidityType.Address === members[index].type.category && members[index].type.array && context === "parameter")
-						height = 60
+						height = 50 + scale
 					else
-						height = 30 + (members[index].type.category === QSolidityType.Struct ? (30 * members[index].type.members.length) : 0)
+						height = 10 + scale + (members[index].type.category === QSolidityType.Struct ? (25 * members[index].type.members.length) : 0)
 					root.colHeight += height
 				}
 			}
@@ -62,7 +63,7 @@ Column
 				Layout.preferredWidth: 150
 				id: labelVar
 				anchors.top: parent.top
-				height: 20
+				Layout.preferredHeight: parent.height
 				color: "transparent"
 				Row
 				{
@@ -72,7 +73,7 @@ Column
 					{
 						id: nameLabel
 						text: modelData ? modelData.name : ""
-						anchors.top: parent.top
+						anchors.verticalCenter: parent.verticalCenter
 					}
 
 					DefaultLabel
@@ -81,7 +82,7 @@ Column
 						text: modelData ? " (" + modelData.type.name + ")" : ""
 						font.italic: true
 						font.weight: Font.Light
-						anchors.top: parent.top
+						anchors.verticalCenter: parent.verticalCenter
 					}
 				}
 			}
