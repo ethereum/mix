@@ -582,7 +582,7 @@ ColumnLayout {
 							blockModel.setTransaction(blockIndex, trIndex, trModel)
 							blockChainRepeater.select(blockIndex, trIndex, -1)
 							txExecuted(blockIndex, trIndex, -1)
-							return;
+							return
 						}
 					}
 					// tr is not in the list.
@@ -619,7 +619,6 @@ ColumnLayout {
 				itemTr.contractId = _r.contract
 				itemTr.isCall = _isCall
 				itemTr.gasAuto = true
-				itemTr.parameters = _r.parameters
 				itemTr.isContractCreation = itemTr.functionId === itemTr.contractId
 				itemTr.label = _r.label
 				itemTr.isFunctionCall = itemTr.functionId !== "" && itemTr.functionId !== "<none>"
@@ -629,6 +628,13 @@ ColumnLayout {
 				itemTr.recordIndex = _r.recordIndex
 				itemTr.logs = _r.logs
 				itemTr.returnParameters = _r.returnParameters
+				if (!itemTr.isContractCreation)
+					itemTr.parameters = _r.parameters
+				else if (transactionDialog.parameters)
+				{
+					itemTr.parameters = transactionDialog.parameters
+					transactionDialog.parameters = undefined
+				}
 				return itemTr
 			}
 
@@ -1023,10 +1029,12 @@ ColumnLayout {
 	TransactionDialog {
 		id: transactionDialog
 		property bool execute
+		property var parameters
 		onAccepted: {
 			var item = transactionDialog.getItem()
 			if (execute)
 			{
+				parameters = item.parameters
 				var lastBlock = model.blocks[model.blocks.length - 1];
 				if (lastBlock.status === "mined")
 				{
