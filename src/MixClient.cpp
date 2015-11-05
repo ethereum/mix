@@ -304,11 +304,11 @@ pair<h256, Address> MixClient::submitTransaction(eth::TransactionSkeleton const&
 	TransactionSkeleton ts = _ts;
 	ts.from = toAddress(_secret);
 	ts.nonce = m_postMine.transactionsFrom(ts.from);
-	if (ts.nonce == UndefinedU256)
+	if (ts.nonce == Invalid256)
 		ts.nonce = max<u256>(postMine().transactionsFrom(ts.from), m_tq.maxNonce(ts.from));
-	if (ts.gasPrice == UndefinedU256)
+	if (ts.gasPrice == Invalid256)
 		ts.gasPrice = gasBidPrice();
-	if (ts.gas == UndefinedU256)
+	if (ts.gas == Invalid256)
 		ts.gas = min<u256>(gasLimitRemaining() / 5, balanceAt(ts.from) / ts.gasPrice);
 	WriteGuard l(x_state);
 	eth::Transaction t(ts, _secret);
@@ -321,8 +321,8 @@ dev::eth::ExecutionResult MixClient::call(Address const& _from, u256 _value, Add
 	(void)_blockNumber;
 	Block block = asOf(eth::PendingBlock);
 	u256 n = block.transactionsFrom(_from);
-	u256 gas = _gas == UndefinedU256 ? gasLimitRemaining() : _gas;
-	u256 gasPrice = _gasPrice == UndefinedU256 ? gasBidPrice() : _gasPrice;
+	u256 gas = _gas == Invalid256 ? gasLimitRemaining() : _gas;
+	u256 gasPrice = _gasPrice == Invalid256 ? gasBidPrice() : _gasPrice;
 	Transaction t(_value, gasPrice, gas, _dest, _data, n);
 	t.forceSender(_from);
 	if (_ff == FudgeFactor::Lenient)
