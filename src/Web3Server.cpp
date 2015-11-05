@@ -120,10 +120,8 @@ class EmptyNetwork : public dev::WebThreeNetworkFace
 
 }
 
-Web3Server::Web3Server(std::shared_ptr<eth::AccountHolder> const& _ethAccounts, std::vector<dev::KeyPair> const& _shhAccounts, dev::eth::Interface* _client):
-	WebThreeStubServerBase(_ethAccounts, _shhAccounts),
-	m_client(_client),
-	m_network(new EmptyNetwork())
+Web3Server::Web3Server(eth::Interface& _client, eth::AccountHolder& _ethAccounts):
+	rpc::Eth(_client, _ethAccounts)
 {
 }
 
@@ -131,36 +129,21 @@ Web3Server::~Web3Server()
 {
 }
 
-std::shared_ptr<dev::shh::Interface> Web3Server::face()
-{
-	BOOST_THROW_EXCEPTION(InterfaceNotSupported("dev::shh::Interface"));
-}
-
-dev::bzz::Interface* Web3Server::bzz()
-{
-	BOOST_THROW_EXCEPTION(InterfaceNotSupported("dev::bzz::Interface"));
-}
-
-dev::WebThreeNetworkFace* Web3Server::network()
-{
-	return m_network.get();
-}
-
 Json::Value Web3Server::eth_getFilterChanges(std::string const& _filterId)
 {
-	return WebThreeStubServerBase::eth_getFilterChanges(_filterId);
+	return rpc::Eth::eth_getFilterChanges(_filterId);
 }
 
 std::string Web3Server::eth_sendTransaction(Json::Value const& _json)
 {
-	std::string ret = WebThreeStubServerBase::eth_sendTransaction(_json);
+	std::string ret = rpc::Eth::eth_sendTransaction(_json);
 	emit newTransaction();
 	return ret;
 }
 
 std::string Web3Server::eth_call(Json::Value const& _json, std::string const& _blockNumber)
 {
-	std::string ret = WebThreeStubServerBase::eth_call(_json, _blockNumber);
+	std::string ret = rpc::Eth::eth_call(_json, _blockNumber);
 	emit newTransaction();
 	return ret;
 }
