@@ -40,7 +40,7 @@ Dialog {
 		else
 		{
 			width = 630 + (11 * appSettings.systemPointSize)
-			height = 480 + (3 * appSettings.systemPointSize)
+			height = 480 + (7 * appSettings.systemPointSize)
 		}
 		stateIndex = index
 		accountsModel.clear()
@@ -432,18 +432,18 @@ Dialog {
 										id: addressCopy
 										Layout.preferredWidth: 150
 
-										DefaultImgButton {
+										Button {
 											height: 25
 											width: 25
 											anchors.verticalCenter: parent.verticalCenter
 											anchors.left: parent.right
 											anchors.leftMargin: 50
-											anchors.top: parent.top
-											anchors.topMargin: -1
 											tooltip: qsTr("Delete Account")
 											onClicked: deleteAccountMsg.open()
 											Image {
-												anchors.fill: parent
+												height: 25
+												width: 25
+												anchors.centerIn: parent
 												source: "qrc:/qml/img/delete-block-icon@2x.png"
 											}
 										}
@@ -487,6 +487,7 @@ Dialog {
 					id: comboMiner
 					textRole: "name"
 					Layout.fillWidth: true
+					rootItem: modalStateDialog
 				}
 			}
 		}

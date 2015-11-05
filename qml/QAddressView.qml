@@ -17,7 +17,7 @@ ColumnLayout
 	spacing: 0
 	id: editRoot
 	height: getHeight()
-	width: 320
+	width: 350
 
 	SourceSansProBold
 	{
@@ -169,6 +169,7 @@ ColumnLayout
 			property bool selected: false
 			id: trCombobox
 			model: ctrModel
+			rootItem: editRoot
 			width: editRoot.width
 			textRole: "itemid"
 			function update()
@@ -188,8 +189,9 @@ ColumnLayout
 					}
 				}
 				else if (textinput.text.indexOf("<") === 0)
-					textinput.text = "";
-				indexChanged();
+					textinput.text = ""
+				indexChanged()
+				updateCombobox()
 			}
 
 			onCurrentIndexChanged: {

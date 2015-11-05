@@ -38,12 +38,14 @@ RowLayout {
 			etherValueEdit.text = value.value;
 			readonlytxt.text = value.value
 			selectUnit(value.unit);
+			units.updateCombobox()
 		}
 	}
 
 	function selectUnit(unit)
 	{
 		units.currentIndex = unit;
+		units.updateCombobox()
 	}
 
 	function formatInput()
@@ -123,6 +125,7 @@ RowLayout {
 
 	DefaultCombobox
 	{
+		rootItem: etherEdition
 		anchors.verticalCenter: parent.verticalCenter
 		Layout.minimumWidth: 100
 		id: units
@@ -135,6 +138,12 @@ RowLayout {
 				formattedValue.text = value.format();
 				unitChanged()
 			}
+			updateCombobox()
+		}
+
+		onModelChanged:
+		{
+			updateCombobox()
 		}
 
 		model: ListModel {

@@ -17,10 +17,14 @@ DebugInfoList
 		ScrollView
 		{
 			id: scrollVar
-			property alias members: typeLoader.members
-			property alias value: typeLoader.value
 			anchors.fill: parent
 			anchors.leftMargin: 10
+
+			function set(_members, _values)
+			{
+				typeLoader.set(_members, _values)
+			}
+
 			StructView
 			{
 				function updateLayout()
@@ -55,19 +59,14 @@ DebugInfoList
 				anchors.top: parent.top
 				anchors.topMargin: 1
 				id: typeLoader
-				members: []
-				value: {}
 				context: "variable"
-				width: parent.width
+				anchors.fill: parent
 			}
 		}
 	}
 
 	function setData(members, values)  {
-		storage.item.value = {};
-		storage.item.members = [];
-		storage.item.value = values; //TODO: use a signal for this?
-		storage.item.members = members;
+		storage.item.set(members, values)
 		if (storage.collapsed && Object.keys(values).length > 0)
 			storage.show()
 	}

@@ -167,6 +167,28 @@ Rectangle {
 		width: 600
 		height: 25
 		color: "#fcfbfc"
+
+		Connections
+		{
+			target: appSettings
+			onSystemPointSizeChanged:
+			{
+				updateLayout()
+			}
+			Component.onCompleted:
+			{
+				updateLayout()
+			}
+			function updateLayout()
+			{
+				if (appSettings.systemPointSize < mainApplication.systemPointSize)
+					statusContainer.height = 25
+				else
+					statusContainer.height = 25 + appSettings.systemPointSize / 2
+				status.updateWidth()
+			}
+		}
+
 		DefaultText {
 			anchors.verticalCenter: parent.verticalCenter
 			anchors.horizontalCenter: parent.horizontalCenter
@@ -209,10 +231,18 @@ Rectangle {
 
 			function updateWidth()
 			{
-				if (text.length > 100)
+				if (text.length > 100 - (30 * appSettings.systemPointSize / mainApplication.systemPointSize))
+				{
 					width = parent.width - 10
+					status.anchors.left = statusContainer.left
+					status.anchors.leftMargin = 25
+				}
 				else
+				{
 					width = undefined
+					status.anchors.left = undefined
+					status.anchors.leftMargin = undefined
+				}
 			}
 		}
 
@@ -253,7 +283,7 @@ Rectangle {
 			height: parent.height
 			anchors.top: parent.top
 			anchors.left: status.right
-			anchors.leftMargin: 15
+			anchors.leftMargin: 30
 			id: goToLine
 			RowLayout
 			{
@@ -268,8 +298,8 @@ Rectangle {
 						anchors.centerIn: parent
 						id: goToLineBtn
 						text: ""
-						width: 30
-						height: 30
+						width: 25
+						height: 25
 						action: goToCompilationError
 						iconSource: "qrc:/qml/img/warningicon.png"
 					}

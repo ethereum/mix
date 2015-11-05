@@ -38,7 +38,7 @@ ColumnLayout
 		transactionDialog.stateAccounts = scenario.accounts
 		transactionDialog.execute = false
 		transactionDialog.editMode = true
-		transactionDialog.open(txIndex, blockIndex,  transactions.get(txIndex))
+		transactionDialog.open(txIndex, blockIndex, transactions.get(txIndex))
 	}
 
 	function select(txIndex, callIndex)

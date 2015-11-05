@@ -155,6 +155,7 @@ Rectangle {
 					Layout.fillWidth: true
 					model: projectModel.stateListModel
 					textRole: "title"
+					rootItem: root
 					onCurrentIndexChanged:
 					{
 						if (root.visible)

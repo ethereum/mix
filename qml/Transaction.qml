@@ -180,15 +180,16 @@ ColumnLayout
 				Component.onCompleted: {
 					parent.Layout.minimumHeight = trHeight
 				}
-
+				width: parent.width
 				DefaultText
 				{
 					id: hash
-					width: parent.width - 30
+					Layout.preferredWidth: (parent.width / 2) - 50
 					anchors.verticalCenter: parent.verticalCenter
 					anchors.left: parent.left
 					anchors.leftMargin: horizontalMargin
 					elide: Text.ElideRight
+					width: parent.width - 50
 					maximumLineCount: 1
 					clip: true
 					color: labelColor
@@ -201,16 +202,21 @@ ColumnLayout
 					}
 				}
 
-				DefaultLabel
+				Rectangle
 				{
-					anchors.verticalCenter: parent.verticalCenter
-					text: "→"
-					width: 20
+					Layout.preferredWidth: 60
+					DefaultLabel
+					{
+						anchors.horizontalCenter: parent.horizontalCenter
+						anchors.verticalCenter: parent.verticalCenter
+						text: "→"
+					}
 				}
 
 				DefaultText
 				{
 					anchors.verticalCenter: parent.verticalCenter
+					Layout.preferredWidth: (parent.width / 2) - 55
 					id: func
 					text: {
 						if (tx)
@@ -309,7 +315,7 @@ ColumnLayout
 				{
 					var param = ""
 					for (var p = 0; p < tx.logs.get(k).param.count; p++)
-						param += " " + tx.logs.get(k).param.get(p).value + " "
+						param += " " + tx.logs.get(k).param.get(p).value
 					param = "(" + param + ")"
 					eventList.append({ "key": tx.logs.get(k).name, "value": param })
 				}
@@ -466,7 +472,7 @@ ColumnLayout
 						{
 							color: trDetailColor
 							text: key + "\t" + value
-							width: rowTransactionItem.width - 30
+							width: rowTransactionItem.width - 40
 							elide: Text.ElideRight
 							font.bold: true
 						}
@@ -509,7 +515,7 @@ ColumnLayout
 							{
 								color: trDetailColor
 								text: index >= 0 ? eventList.get(index).value : ""
-								width: rowTransactionItem.width - 30
+								width: rowTransactionItem.width - 70
 								elide: Text.ElideRight
 								font.bold: true
 							}

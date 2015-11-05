@@ -23,6 +23,12 @@ Column
 		root.spacing = sp
 	}
 
+	function set(_members, _values)
+	{
+		typeLoader.value = _values
+		typeLoader.members = _members
+	}
+
 	function clear()
 	{
 		value = {}
@@ -33,7 +39,7 @@ Column
 	Repeater
 	{
 		id: repeater
-		visible: members.length > 0
+		visible: members ? members.length > 0 : false
 		RowLayout
 		{
 			id: row
@@ -43,10 +49,11 @@ Column
 			{
 				if (members[index])
 				{
+					var scale = 10 * appSettings.systemPointSize / mainApplication.systemPointSize
 					if (QSolidityType.Address === members[index].type.category && members[index].type.array && context === "parameter")
-						height = 60
+						height = 50 + scale
 					else
-						height = 30 + (members[index].type.category === QSolidityType.Struct ? (30 * members[index].type.members.length) : 0)
+						height = 10 + scale + (members[index].type.category === QSolidityType.Struct ? (25 * members[index].type.members.length) : 0)
 					root.colHeight += height
 				}
 			}
@@ -55,6 +62,9 @@ Column
 			{
 				Layout.preferredWidth: 150
 				id: labelVar
+				anchors.top: parent.top
+				Layout.preferredHeight: parent.height
+				color: "transparent"
 				Row
 				{
 					anchors.right: parent.right
@@ -63,6 +73,7 @@ Column
 					{
 						id: nameLabel
 						text: modelData ? modelData.name : ""
+						anchors.verticalCenter: parent.verticalCenter
 					}
 
 					DefaultLabel
@@ -71,6 +82,7 @@ Column
 						text: modelData ? " (" + modelData.type.name + ")" : ""
 						font.italic: true
 						font.weight: Font.Light
+						anchors.verticalCenter: parent.verticalCenter
 					}
 				}
 			}

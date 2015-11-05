@@ -32,6 +32,7 @@ Dialog {
 	property bool useTransactionDefaultValue: false
 	property alias stateAccounts: senderComboBox.model
 	property bool saveStatus
+	property bool loaded: false
 	signal accepted
 	signal closed
 
@@ -40,8 +41,8 @@ Dialog {
 		id: transactionDialogStyle
 	}
 
-
 	function open(index, blockIdx, item) {
+		loaded = false
 		if (mainApplication.systemPointSize >= appSettings.systemPointSize)
 		{
 			width = 580
@@ -75,7 +76,7 @@ Dialog {
 
 		paramValues = item.parameters !== undefined ? item.parameters : {};
 		if (item.sender)
-			senderComboBox.select(item.sender);
+			senderComboBox.select(item.sender)
 
 		trTypeCreate.checked = item.isContractCreation
 		trTypeSend.checked = !item.isFunctionCall
@@ -83,6 +84,11 @@ Dialog {
 		load(item.isContractCreation, item.isFunctionCall, functionId, contractId)
 		estimatedGas.updateView()
 		visible = true;
+		senderComboBox.updateCombobox()
+		valueField.update()
+		gasPriceField.update()
+		contractCreationComboBox.updateCombobox()
+		loaded = true
 	}
 
 	function loadCtorParameters(contractId)
@@ -242,6 +248,12 @@ Dialog {
 
 	function load(isContractCreation, isFunctionCall, functionId, contractId)
 	{
+		if (loaded)
+		{
+			paramsModel = []
+			paramValues = {}
+		}
+
 		if (!isContractCreation)
 		{
 			contractCreationComboBox.visible = false
@@ -269,7 +281,6 @@ Dialog {
 				functionRect.show()
 				loadFunctions(TransactionHelper.contractFromToken(recipientsAccount.currentValue()))
 				loadParameters();
-				//paramScroll.updateView()
 			}
 			else
 			{
@@ -360,6 +371,7 @@ Dialog {
 							}
 							Layout.preferredWidth: 350
 							id: senderComboBox
+							rootItem: modalTransactionDialog
 							currentIndex: 0
 							textRole: "name"
 							editable: false
@@ -367,15 +379,18 @@ Dialog {
 							onCurrentIndexChanged:
 							{
 								update()
+								updateCombobox()
 							}
 
 							onModelChanged:
 							{
 								update()
+								updateCombobox()
 							}
 
 							Component.onCompleted: {
 								update()
+								updateCombobox()
 							}
 
 							function update()
@@ -496,6 +511,8 @@ Dialog {
 							displayInput: false
 							onIndexChanged:
 							{
+								if (loaded)
+									paramValues = {}
 								if (rbbuttonList.current.objectName === "trTypeExecute")
 								{
 									loadFunctions(TransactionHelper.contractFromToken(currentValue()))
@@ -521,12 +538,15 @@ Dialog {
 						}
 						Layout.preferredWidth: 350
 						currentIndex: -1
+						rootItem: modalTransactionDialog
 						textRole: "text"
 						editable: false
 						model: ListModel {
 							id: contractsModel
 						}
 						onCurrentIndexChanged: {
+							if (loaded)
+								paramValues = {}
 							loadCtorParameters(currentValue());
 						}
 					}
@@ -565,6 +585,7 @@ Dialog {
 						Layout.preferredWidth: 350
 						currentIndex: -1
 						textRole: "text"
+						rootItem: modalTransactionDialog
 						editable: false
 						model: ListModel {
 							id: functionsModel
@@ -694,10 +715,12 @@ Dialog {
 
 							function displayGas(contractName, functionName)
 							{
+								estimatedGas.visible = false
 								var gasCost = codeModel.gasCostBy(contractName, functionName);
 								if (gasCost && gasCost.length > 0)
 								{
 									var gas = codeModel.txGas + codeModel.callStipend + parseInt(gasCost[0].gas)
+									estimatedGas.visible = true
 									estimatedGas.text = qsTr("Estimated cost: ") + gasCost[0].gas + " gas"
 								}
 							}
@@ -760,8 +783,10 @@ Dialog {
 						id: gasPriceMarket
 						Component.onCompleted:
 						{
+							gasPriceMarket.visible = false
 							NetworkDeployment.gasPrice(function(result)
 							{
+								gasPriceMarket.visible = true
 								gasPriceMarket.text = qsTr("Current market: ") + " " + QEtherHelper.createEther(result, QEther.Wei).format()
 							}, function (){});
 						}

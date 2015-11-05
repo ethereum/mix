@@ -62,7 +62,7 @@ ColumnLayout {
 
 	KeyValuePanel
 	{
-		width: parent.width
+		Layout.preferredWidth: parent.width
 		visible: false
 		id: accounts
 		title: qsTr("User Account")
@@ -86,7 +86,7 @@ ColumnLayout {
 	RowLayout
 	{
 		Layout.minimumHeight: 20
-		Layout.fillWidth: true
+		Layout.preferredWidth: parent.width
 		DefaultLabel
 		{
 			id: titleLabel
@@ -100,6 +100,7 @@ ColumnLayout {
 	RowLayout
 	{
 		id: searchBox
+		Layout.preferredWidth: parent.width
 		Image {
 			sourceSize.width: 20
 			sourceSize.height: 20
@@ -125,7 +126,7 @@ ColumnLayout {
 		model: storages
 		KeyValuePanel
 		{
-			width: root.width
+			Layout.preferredWidth: root.width
 			id: ctrsStorage
 			function computeData()
 			{

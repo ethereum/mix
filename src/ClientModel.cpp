@@ -303,7 +303,8 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 	for (auto const& b: blocks)
 	{
 		QVariantList transactions = b.toMap().value("transactions").toList();
-		m_queueTransactions.push_back(transactions);
+		if (transactions.size() > 0)
+			m_queueTransactions.push_back(transactions);
 		trToExecute = transactions.size() > 0;
 	}
 	m_client->resetState(m_accounts, Secret(_scenario.value("miner").toMap().value("secret").toString().toStdString()));
@@ -595,7 +596,6 @@ QVariantMap ClientModel::contractStorage(std::unordered_map<u256, u256> _storage
 				continue; //mapping type not yet managed
 
 			auto storageDec = new QVariableDeclaration(0, stateVar.name.toStdString(), stateVar.type);
-			QQmlEngine::setObjectOwnership(storageDec, QQmlEngine::JavaScriptOwnership);
 			storageDeclarationList.push_back(QVariant::fromValue(storageDec));
 			storageValues[storageDec->name()] = formatStorageValue(storageDec->type()->type(), _storage, stateVar.offset, stateVar.slot);
 		}
@@ -961,7 +961,6 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 			streamTopic << log.topics;
 			l.insert("topic", QString::fromStdString(streamTopic.str()));
 			auto const& sign = log.topics.front(); // first hash supposed to be the event signature. To check
-			auto dataIterator = log.data.begin();
 			int topicDataIndex = 1;
 			for (auto const& event: def->eventsList())
 			{
@@ -972,21 +971,20 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 					for (auto const& e: event->parametersList())
 					{
 						bytes data;
-						QString param;
+						QVariant param;
+						u256 pos = 0;
 						if (!e->isIndexed())
-						{
-							data = bytes(dataIterator, dataIterator + 32);
-							dataIterator = dataIterator + 32;
-						}
+							param = encoder.decodeType(e->type()->type(), log.data, pos);
 						else
 						{
 							data = log.topics.at(topicDataIndex).asBytes();
 							topicDataIndex++;
+							param = encoder.decodeType(e->type()->type(), data, pos);
 						}
-						param = encoder.decode(e, data);
+
 						QVariantMap p;
 						p.insert("indexed", e->isIndexed());
-						p.insert("value", param);
+						p.insert("value", param.toString());
 						p.insert("name", e->name());
 						paramsList.push_back(p);
 					}
@@ -1007,7 +1005,6 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 			break;
 		}
 	}
-
 
 	if (!creation)
 		for (auto const& ctr: m_contractAddresses)
