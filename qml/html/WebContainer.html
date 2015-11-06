@@ -5,10 +5,15 @@
 <script src="qrc:///qml/js/Printer.js"></script>
 <script src="qrc:///qml/js/ansi2html.js"></script>
 <script>
+var confLoaded = false
 loadPage = function(url) {
 	var preview = document.getElementById('preview');
 	preview.src = url;
-
+	if (web3 && !confLoaded && web3.eth.accounts.length > 0)
+	{
+	    web3.eth.defaultAccount = web3.eth.accounts[0]
+	    confLoaded = true
+	}
 };
 
 reloadPage = function() {
@@ -42,6 +47,7 @@ init = function(url) {
 	web3 = new Web3();
 	window.web3 = web3;
 	web3.setProvider(new web3.providers.HttpProvider(url));
+	console.log("lll " + JSON.stringify(web3.eth.accounts))
 };
 
 executeJavaScript = function(script) {
@@ -56,12 +62,6 @@ getContent = function() {
 	var doc = preview.contentDocument? preview.contentDocument: preview.contentWindow.document;
 	var body = doc.getElementsByTagName('body')[0];
 	return body.innerHTML;
-}
-
-setDefaultAccount = function()
-{
-    if (web3.eth.accounts.length > 0)
-	web3.eth.defaultAccount = web3.eth.accounts[0]
 }
 
 </script>

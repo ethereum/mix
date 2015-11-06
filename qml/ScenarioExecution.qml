@@ -59,34 +59,37 @@ Rectangle {
 			{				
 				id: scenarioColumn
 				width: parent.width
+				spacing: 8
 
-				DefaultLabel {
+				ScenarioButton
+				{
+
+					Image {
+						anchors.left: parent.left
+						source: "qrc:/qml/img/down.png"
+						fillMode: Image.PreserveAspectFit
+						anchors.leftMargin: -3
+						width: 20
+						anchors.verticalCenter: parent.verticalCenter
+					}
+
+					width: 150
+					Layout.minimumHeight: 30
 					text: qsTr("Manage Scenario")
+
+					roundRight: true
+					roundLeft: true
+					enabled: panelLoaded
 					anchors.top: parent.top
 					anchors.topMargin: 5
 					anchors.horizontalCenter: parent.horizontalCenter
-					Image {
-						anchors.verticalCenter: parent.verticalCenter
-						source: loader.visible ? "qrc:/qml/img/opentriangleindicator_filesproject.png" : "qrc:/qml/img/closedtriangleindicator_filesproject.png"
-						id: imgArrow
-						anchors.right: parent.left
-						anchors.rightMargin: 5
-						anchors.top: parent.top
-						MouseArea {
-							anchors.fill: parent
-							onClicked: {
-								loader.visible = !loader.visible
-							}
-							cursorShape: Qt.PointingHandCursor
-						}
-					}
-
-					MouseArea {
+					MouseArea
+					{
 						anchors.fill: parent
+						cursorShape: Qt.PointingHandCursor
 						onClicked: {
 							loader.visible = !loader.visible
 						}
-						cursorShape: Qt.PointingHandCursor
 					}
 				}
 

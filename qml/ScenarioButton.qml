@@ -113,6 +113,7 @@ Rectangle {
 		DefaultButton {
 			anchors.fill: parent
 			id: debugImg
+			text: sourceImg ? "" : buttonActionContainer.text
 			action: buttonAction
 			style: ButtonStyle {
 				background: Rectangle {
