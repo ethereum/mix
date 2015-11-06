@@ -129,6 +129,36 @@ Web3Server::~Web3Server()
 {
 }
 
+<<<<<<< HEAD
+=======
+std::shared_ptr<dev::shh::Interface> Web3Server::face()
+{
+	BOOST_THROW_EXCEPTION(InterfaceNotSupported("dev::shh::Interface"));
+}
+
+dev::bzz::Interface* Web3Server::bzz()
+{
+	BOOST_THROW_EXCEPTION(InterfaceNotSupported("dev::bzz::Interface"));
+}
+
+dev::NetworkFace* Web3Server::network()
+{
+	return m_network.get();
+}
+
+std::string Web3Server::get(std::string const& _name, std::string const& _key)
+{
+	std::string k(_name + "/" + _key);
+	return m_db[k];
+}
+
+void Web3Server::put(std::string const& _name, std::string const& _key, std::string const& _value)
+{
+	std::string k(_name + "/" + _key);
+	m_db[k] = _value;
+}
+
+>>>>>>> d7d27ee160b1d597756558e2643bc404c09d0b6b
 Json::Value Web3Server::eth_getFilterChanges(std::string const& _filterId)
 {
 	return rpc::Eth::eth_getFilterChanges(_filterId);

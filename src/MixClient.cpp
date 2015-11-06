@@ -304,6 +304,9 @@ pair<h256, Address> MixClient::submitTransaction(eth::TransactionSkeleton const&
 	TransactionSkeleton ts = _ts;
 	ts.from = toAddress(_secret);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d7d27ee160b1d597756558e2643bc404c09d0b6b
 	ts.nonce = postSeal().transactionsFrom(ts.from);
 	if (ts.nonce == Invalid256)
 		ts.nonce = max<u256>(postSeal().transactionsFrom(ts.from), m_tq.maxNonce(ts.from));
@@ -314,11 +317,14 @@ pair<h256, Address> MixClient::submitTransaction(eth::TransactionSkeleton const&
 	WriteGuard l(x_state);
 	eth::Transaction t(ts, _secret);
 	executeTransaction(t, postSeal(), false, _gasAuto, _secret);
+<<<<<<< HEAD
 =======
 	ts.nonce = m_postSeal.transactionsFrom(ts.from);
 	eth::Transaction t(ts, _secret);
 	executeTransaction(t, m_postSeal, false, _gasAuto, _secret);
 >>>>>>> 63ac62f... Renaming seal->mine.
+=======
+>>>>>>> d7d27ee160b1d597756558e2643bc404c09d0b6b
 	return make_pair(t.sha3(), toAddress(ts.from, ts.nonce));
 }
 
