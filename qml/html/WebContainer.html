@@ -47,7 +47,6 @@ init = function(url) {
 	web3 = new Web3();
 	window.web3 = web3;
 	web3.setProvider(new web3.providers.HttpProvider(url));
-	console.log("lll " + JSON.stringify(web3.eth.accounts))
 };
 
 executeJavaScript = function(script) {
