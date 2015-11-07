@@ -322,7 +322,7 @@ private:
 	unsigned m_rpcConnectorId;
 	std::unique_ptr<ModularServer<rpc::EthFace, rpc::DBFace, rpc::Web3Face>> m_web3Server;
 	std::shared_ptr<eth::FixedAccountHolder> m_ethAccounts;
-	std::unordered_map<Address, eth::Account> m_accounts;
+	eth::AccountMap m_accounts;
 	std::vector<KeyPair> m_accountsSecret;
 	QList<u256> m_gasCosts;
 	std::map<std::pair<QString, int>, Address> m_contractAddresses;

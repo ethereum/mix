@@ -38,18 +38,12 @@ namespace eth { class EnvInfo; }
 namespace mix
 {
 
-class NoProof: eth::SealEngineBase
-{
-public:
-	std::string name() const override { return "NoProof"; }
-};
-
 class MixBlockChain: public dev::eth::BlockChain
 {
 public:
-	MixBlockChain(std::string const& _path, h256 _stateRoot);
+	MixBlockChain(std::string const& _path, eth::AccountMap const& _pre);
 
-	static bytes createGenesisBlock(h256 _stateRoot);
+	static eth::ChainParams createParams(eth::AccountMap const& _pre);
 };
 
 class MixClient: public dev::eth::ClientBase
@@ -57,8 +51,9 @@ class MixClient: public dev::eth::ClientBase
 public:
 	MixClient(std::string const& _dbPath);
 	virtual ~MixClient();
+
 	/// Reset state to the empty state with given balance.
-	void resetState(std::unordered_map<dev::Address, dev::eth::Account> const& _accounts,  Secret const& _miner = Secret());
+	void resetState(dev::eth::AccountMap const& _pre, Secret const& _miner = Secret());
 	void mine();
 	ExecutionResult lastExecution() const;
 	ExecutionResult execution(unsigned _index) const;
@@ -72,13 +67,9 @@ public:
 	dev::eth::ExecutionResult call(Address const& _secret, u256 _value, Address _dest, bytes const& _data, u256 _gas, u256 _gasPrice, eth::BlockNumber _blockNumber, bool _gasAuto, eth::FudgeFactor _ff = eth::FudgeFactor::Strict);
 	ExecutionResult debugTransaction(dev::eth::Transaction const& _t, eth:: State const& _state, eth::EnvInfo const& _envInfo, bool _call);
 	void setAuthor(Address const& _us) override;
-	void startSealing() override;
-	void stopSealing() override;
+	void startSealing() override {}
+	void stopSealing() override {}
 	virtual void flushTransactions() override {}
-
-	bool isMining() const override;
-	u256 hashrate() const override;
-	eth::WorkingProgress miningProgress() const override;
 
 	/// @returns the last mined block information
 	using Interface::blockInfo; // to remove warning about hiding virtual function
