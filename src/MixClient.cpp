@@ -48,14 +48,6 @@ namespace
 {
 }
 
-class NoProof: public eth::SealEngineBase
-{
-public:
-	std::string name() const override { return "NoProof"; }
-};
-
-ETH_REGISTER_SEAL_ENGINE(NoProof);
-
 MixBlockChain::MixBlockChain(std::string const& _path, AccountMap const& _pre):
 	BlockChain(createParams(_pre), _path, WithExisting::Kill)
 {
@@ -286,7 +278,7 @@ void MixClient::mine()
 	WriteGuard l(x_state);
 	m_postSeal.commitToSeal(bc());
 
-	BlockInfo h(m_postSeal.info());
+	BlockHeader h(m_postSeal.info());
 	RLPStream header;
 	h.streamRLP(header);
 	m_postSeal.sealBlock(header.out());
@@ -372,10 +364,10 @@ dev::eth::ExecutionResult MixClient::create(Address const& _from, u256 _value, b
 	return lastExecution().result;
 }
 
-eth::BlockInfo MixClient::blockInfo() const
+eth::BlockHeader MixClient::blockInfo() const
 {
 	ReadGuard l(x_state);
-	return BlockInfo(bc().block());
+	return BlockHeader(bc().block());
 }
 
 void MixClient::setAuthor(Address const& _us)
