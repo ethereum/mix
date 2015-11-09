@@ -25,6 +25,8 @@ Column
 
 	function set(_members, _values)
 	{
+		typeLoader.members = []
+		typeLoader.value = {}
 		typeLoader.value = _values
 		typeLoader.members = _members
 	}
