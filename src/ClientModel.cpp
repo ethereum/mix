@@ -808,7 +808,7 @@ void ClientModel::callAddress(Address const& _contract, bytes const& _data, Tran
 
 RecordLogEntry* ClientModel::lastBlock() const
 {
-	eth::BlockInfo blockInfo = m_client->blockInfo();
+	eth::BlockHeader blockInfo = m_client->blockInfo();
 	stringstream strGas;
 	strGas << blockInfo.gasUsed();
 	stringstream strNumber;
