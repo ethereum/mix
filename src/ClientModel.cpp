@@ -274,7 +274,7 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 		if (!address)
 			continue;
 
-		m_accounts[address] = Account(qvariant_cast<QEther*>(account.value("balance"))->toU256Wei(), Account::NormalCreation);
+		m_accounts[address] = Account(0, qvariant_cast<QEther*>(account.value("balance"))->toU256Wei(), Account::NormalCreation);
 	}
 
 	m_ethAccounts->setAccounts(m_accountsSecret);
@@ -290,7 +290,7 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 	{
 		QVariantMap contract = c.toMap();
 		Address address = Address(fromHex(contract.value("address").toString().toStdString()));
-		Account account(qvariant_cast<QEther*>(contract.value("balance"))->toU256Wei(), Account::ContractConception);
+		Account account(0, qvariant_cast<QEther*>(contract.value("balance"))->toU256Wei(), Account::ContractConception);
 		bytes code = fromHex(contract.value("code").toString().toStdString());
 		account.setCode(std::move(code));
 		QVariantMap storageMap = contract.value("storage").toMap();

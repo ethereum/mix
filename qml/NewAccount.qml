@@ -51,6 +51,40 @@ Dialog {
 				addressText.Layout.preferredWidth = width - address.width - 50
 			}
 
+			Connections
+			{
+				target: appSettings
+				onSystemPointSizeChanged:
+				{
+					updateLayout()
+				}
+
+				Component.onCompleted:
+				{
+					updateLayout()
+				}
+
+				function updateLayout()
+				{
+					if (mainApplication.systemPointSize >= appSettings.systemPointSize)
+					{
+						newAddressWin.width = 400
+						newAddressWin.height = 150
+						address.Layout.preferredWidth = 70
+						balanceLabel.Layout.preferredWidth = 70
+						nickName.Layout.preferredWidth = 70
+					}
+					else
+					{
+						newAddressWin.width = 400 + 4 * appSettings.systemPointSize
+						newAddressWin.height = 150 + 4 * appSettings.systemPointSize
+						address.Layout.preferredWidth = 70 + 4 * appSettings.systemPointSize
+						balanceLabel.Layout.preferredWidth = 70 + 4 * appSettings.systemPointSize
+						nickName.Layout.preferredWidth = 70 + 4 * appSettings.systemPointSize
+					}
+				}
+			}
+
 			RowLayout
 			{
 				DefaultLabel
