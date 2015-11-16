@@ -276,12 +276,12 @@ std::unordered_map<u256, u256> MixClient::contractStorage(Address _contract)
 void MixClient::mine()
 {
 	WriteGuard l(x_state);
+	NoProof sealer;
 	m_postSeal.commitToSeal(bc());
-
-	BlockHeader h(m_postSeal.info());
-	RLPStream header;
-	h.streamRLP(header);
-	m_postSeal.sealBlock(header.out());
+	Notified<bytes> sealed;
+	sealer.onSealGenerated([&](bytes const& sealedHeader){ sealed = sealedHeader; });
+	sealer.generateSeal(m_postSeal.info());
+	m_postSeal.sealBlock(sealed);
 	bc().import(m_postSeal.blockData(), m_postSeal.state().db(), (ImportRequirements::Everything & ~ImportRequirements::ValidSeal) != 0);
 	m_postSeal.sync(bc());
 	m_preSeal = m_postSeal;
