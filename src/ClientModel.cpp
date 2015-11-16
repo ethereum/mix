@@ -818,6 +818,11 @@ RecordLogEntry* ClientModel::lastBlock() const
 	return record;
 }
 
+QString ClientModel::lastTransactionIndex() const
+{
+	return m_lastTransactionIndex;
+}
+
 RecordLogEntry* ClientModel::lastTransaction() const
 {
 	return m_lastTransaction;
@@ -1025,7 +1030,11 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 	RecordLogEntry* log = new RecordLogEntry(recordIndex, transactionIndex, contract, function, value, address, returned, tr.isCall(), RecordLogEntry::RecordType::Transaction,
 											 gasUsed, sender, label, inputParameters, returnParameters, logs, _source);
 	if (transactionIndex != QObject::tr("Call"))
+	{
 		m_lastTransaction = log;
+		m_lastTransactionIndex = transactionIndex;
+	}
+
 	QQmlEngine::setObjectOwnership(log, QQmlEngine::JavaScriptOwnership);
 
 	// retrieving all accounts balance
