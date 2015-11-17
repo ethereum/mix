@@ -330,7 +330,7 @@ Dialog {
 											width: parent.width
 											color: "transparent"
 											radius: 4
-											height: labelUser.height
+											height: labelUser.height + 5
 											anchors.verticalCenter: parent.verticalCenter
 											DefaultText
 											{
