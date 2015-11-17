@@ -41,7 +41,7 @@ Column {
 	}
 
 	function updateWidthTx(_tx, _state, _blockIndex, _txIndex, _callIndex)
-	{		
+	{
 		rowLabelContractAccount.visible = true
 		searchBox.visible = true
 		accounts.visible = true		
