@@ -66,7 +66,7 @@ Rectangle {
 
 					Image {
 						anchors.left: parent.left
-						source: "qrc:/qml/img/down.png"
+						source: loader.visible ? "qrc:/qml/img/down.png" : "qrc:/qml/img/right.png"
 						fillMode: Image.PreserveAspectFit
 						anchors.leftMargin: -3
 						width: 20
@@ -79,7 +79,7 @@ Rectangle {
 
 					roundRight: true
 					roundLeft: true
-					enabled: panelLoaded
+					enabled: true
 					anchors.top: parent.top
 					anchors.topMargin: 5
 					anchors.horizontalCenter: parent.horizontalCenter

@@ -378,7 +378,6 @@ ColumnLayout {
 							tr.saveStatus = true
 							block.transactions.push(tr);
 						}
-
 					}
 					if (block.transactions.length > 0)
 					{

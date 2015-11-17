@@ -823,11 +823,6 @@ QString ClientModel::lastTransactionIndex() const
 	return m_lastTransactionIndex;
 }
 
-RecordLogEntry* ClientModel::lastTransaction() const
-{
-	return m_lastTransaction;
-}
-
 void ClientModel::onStateReset()
 {
 	m_contractAddresses.clear();
