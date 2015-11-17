@@ -218,7 +218,7 @@ ColumnLayout
 				DefaultText
 				{
 					anchors.verticalCenter: parent.verticalCenter
-					Layout.preferredWidth: (parent.width / 2) - 80
+					Layout.preferredWidth: (parent.width / 2) - 85
 					id: func
 					text: {
 						if (tx)
