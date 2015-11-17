@@ -334,7 +334,6 @@ private:
 	mutable boost::shared_mutex x_queueTransactions;
 	QString m_dbpath;
 	ExecutionCtx m_executionCtx;
-	RecordLogEntry* m_lastTransaction;
 	QString m_lastTransactionIndex;
 };
 
