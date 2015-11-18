@@ -185,19 +185,23 @@ Dialog {
 						delegate: Item {
 							RowLayout {
 								height: 25
-								width: parent.width
 								anchors.verticalCenter: parent.verticalCenter
-								DefaultImgButton {
-									action: deleteContractAction
+								anchors.horizontalCenter: parent.horizontalCenter
+								width: parent.width - 20
+								Button {
+									height: 25
+									width: 25
 									anchors.verticalCenter: parent.verticalCenter
-									Image {
-										anchors.fill: parent
-										source: "qrc:/qml/img/delete-block-icon@2x.png"
-									}
 									tooltip: qsTr("Delete Contract")
 									onClicked: {
 										stateContracts.splice(styleData.row, 1)
 										contractsModel.remove(styleData.row)
+									}
+									Image {
+										height: 25
+										width: 25
+										anchors.centerIn: parent
+										source: "qrc:/qml/img/delete-block-icon@2x.png"
 									}
 								}
 
@@ -230,7 +234,7 @@ Dialog {
 					}
 					rowDelegate: Rectangle {
 						color: styleData.alternate ? "transparent" : "#f0f0f0"
-						height: 30
+						height: 60
 					}
 				}
 			}
