@@ -468,13 +468,19 @@ QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, 
 				continue;
 			}
 
-
 			if (_type.type == SolidityType::Type::String || _type.type == SolidityType::Type::Bytes)
 			{
 				bytes value = toBigEndian(_storage.at(contentIndex));
 				str += decode(_type, value, 0).toString();
 				j += 32;
 				contentIndex++;
+			}
+			else if (_type.type == SolidityType::Type::Struct)
+			{
+				array.append(formatStorageStruct(*_type.baseType, _storage, contentIndex));
+				auto lastMember = _type.members.back();
+				contentIndex = lastMember.slot;
+				offset = lastMember.offset - lastMember.type.size;
 			}
 			else
 			{
@@ -485,11 +491,11 @@ QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, 
 				rawParam = padded(rawParam, 32);
 				array.append(decode(*_type.baseType, rawParam, pos));
 				offset = offset - _type.baseType.get()->size;
-				if (offset < 0)
-				{
-					offset = 32 - _type.baseType.get()->size;
-					contentIndex++;
-				}
+			}
+			if (offset < 0)
+			{
+				offset = 32 - _type.baseType.get()->size;
+				contentIndex++;
 			}
 		}
 		j++;

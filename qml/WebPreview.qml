@@ -367,6 +367,10 @@ Item {
 
 		Splitter
 		{
+			onWidthChanged:
+			{
+				expressionPanel.updateView()
+			}
 			Layout.preferredWidth: parent.width
 			Layout.fillHeight: true
 			orientation: codeWebSplitter.orientation === Qt.Horizontal ? Qt.Vertical : Qt.Horizontal
