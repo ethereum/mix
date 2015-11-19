@@ -136,7 +136,7 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 	State execState = _state;
 	execState.addBalance(_t.sender(), _t.gas() * _t.gasPrice()); //give it enough balance for gas estimation
 	eth::ExecutionResult er;
-	Executive execution(execState, _envInfo);
+	Executive execution(execState, _envInfo, m_bc->sealEngine());
 	execution.setResultRecipient(er);
 
 	ExecutionResult d;

@@ -28,17 +28,17 @@ Item {
 		if (!initialized)
 			pendingPageUrl = url;
 		else {
-			pendingPageUrl = "";
-			updateContract();
+			pendingPageUrl = "";			
 			webView.runJavaScript("loadPage(\"" + url + "\")");
+			updateContract();
 		}
 	}
 
 	function reload() {
-		if (initialized) {
-			updateContract();
+		if (initialized) {			
 			//webView.runJavaScript("reloadPage()");
 			setPreviewUrl(urlInput.text);
+			updateContract();
 		}
 	}
 
@@ -50,13 +50,16 @@ Item {
 			var address = clientModel.contractAddresses[c];
 			var name = TransactionHelper.contractFromToken(c)
 			var contract = codeModel.contracts[name];
-			contracts[c] = {
-				name: contract.contract.name,
-				address: address,
-				interface: JSON.parse(contract.contractInterface),
-			};
+			if (contract)
+			{
+				contracts[c] = {
+					name: contract.contract.name,
+					address: address,
+					interface: JSON.parse(contract.contractInterface),
+				};
+			}
 		}
-		webView.runJavaScript("updateContracts(" + JSON.stringify(contracts) + ")");
+		webView.runJavaScript("updateContracts(" + JSON.stringify(contracts) + ")")
 	}
 
 	function reloadOnSave() {
@@ -93,6 +96,8 @@ Item {
 			webView.loadHtml(containerPage, httpServer.url + "/WebContainer.html")
 		}
 	}	
+
+
 
 	Connections {
 		target: projectModel
@@ -302,12 +307,16 @@ Item {
 						if (firstLoad)
 							reloadFrontend.reload()
 						else
-							reloadFrontend.startBlinking()
+							updateContract()
 						firstLoad = false
 					}
 					onSetupStarted:
 					{
 						buildingScenario = true
+					}
+					onNewRecord:
+					{
+						updateContract()
 					}
 				}
 
@@ -358,6 +367,10 @@ Item {
 
 		Splitter
 		{
+			onWidthChanged:
+			{
+				expressionPanel.updateView()
+			}
 			Layout.preferredWidth: parent.width
 			Layout.fillHeight: true
 			orientation: codeWebSplitter.orientation === Qt.Horizontal ? Qt.Vertical : Qt.Horizontal
