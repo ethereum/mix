@@ -53,7 +53,7 @@ eth_add_executable(${EXECUTABLE}
 	WIN_RESOURCES mix.rc
 )
 
-eth_use(${EXECUTABLE} REQUIRED Qt::Core Qt::Widgets Qt::WebEngine Eth::ethereum Web3::web3jsonrpc)
+eth_use(${EXECUTABLE} REQUIRED Qt::Core Qt::Widgets Qt::WebEngine Eth::ethereum Web3::web3jsonrpc Eth::ethashseal)
 eth_use(${EXECUTABLE} OPTIONAL Solidity)
 
 # eth_install_executable is defined in cmake/EthExecutableHelper.cmake
