@@ -67,26 +67,17 @@ ColumnLayout {
 	RowLayout
 	{
 		Layout.minimumHeight: 20
-		Layout.fillWidth: true
+		Layout.fillWidth: true		
+
 		DefaultLabel
 		{
 			id: titleLabel
 			anchors.left: parent.left
 			anchors.verticalCenter: parent.verticalCenter
 			color: "#414141"
-		}
-
-		CopyButton
-		{
-			getContent: function()
-			{
-				var data = {}
-				data.info = titleLabel.text
-				data.content = []
-				for (var k = 0; k < modelKeyValue.count; k++)
-					data.content.push({ key: modelKeyValue.get(k).key, value: modelKeyValue.get(k).value})
-				return JSON.stringify(data)
-			}
+			elide: Qt.ElideRight
+			Layout.preferredWidth: root.width - 10
+			maximumLineCount: 1
 		}
 	}
 
@@ -104,6 +95,22 @@ ColumnLayout {
 		Layout.preferredWidth: parent.width
 		Layout.minimumHeight: minHeight
 		width: parent.width
+		CopyButton
+		{
+			anchors.top: parent.top
+			anchors.topMargin: 1
+			anchors.right: parent.right
+			anchors.rightMargin: 1
+			getContent: function()
+			{
+				var data = {}
+				data.info = titleLabel.text
+				data.content = []
+				for (var k = 0; k < modelKeyValue.count; k++)
+					data.content.push({ key: modelKeyValue.get(k).key, value: modelKeyValue.get(k).value})
+				return JSON.stringify(data)
+			}
+		}
 		RowLayout
 		{
 			id: keyPanel
@@ -148,37 +155,26 @@ ColumnLayout {
 					{
 						id: repeaterKeyValue
 						model: modelKeyValue
-						Row
+
+						DefaultLabel
 						{
 							Layout.minimumHeight: 20
-							spacing: 5
 							anchors.left: colValue.left
 							anchors.leftMargin: 5
-							DefaultLabel
+							maximumLineCount: 1
+							Layout.preferredWidth: columnValues.width - 40
+							elide: Qt.ElideRight
+							text:
 							{
-								maximumLineCount: 1
-								text: {
-									if (index >= 0 && repeaterKeyValue.model.get(index).key !== undefined)
-										return repeaterKeyValue.model.get(index).key
-									else
-										return ""
-								}
-							}
-
-							DefaultLabel
-							{
-								text: "="
-							}
-
-							DefaultLabel
-							{
-								maximumLineCount: 1
-								text: {
-									if (index >= 0 && repeaterKeyValue.model.get(index).value !== undefined)
-										return repeaterKeyValue.model.get(index).value
-									else
-										return ""
-								}
+								var ret = ""
+								if (index >= 0 && repeaterKeyValue.model.get(index).key !== undefined)
+									ret = repeaterKeyValue.model.get(index).key
+								else
+									return ret
+								ret += " = "
+								if (index >= 0 && repeaterKeyValue.model.get(index).value !== undefined)
+									ret += repeaterKeyValue.model.get(index).value
+								return ret
 							}
 						}
 					}

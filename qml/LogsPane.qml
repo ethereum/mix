@@ -247,13 +247,10 @@ Rectangle
 				runButton.height = logStyle.generic.layout.headerButtonHeight
 				stateButton.height = logStyle.generic.layout.headerButtonHeight
 				deloyButton.height = logStyle.generic.layout.headerButtonHeight
-				showLabel.height = logStyle.generic.layout.headerButtonHeight
-				showText.width = 40
-				showLabel.width = 40
 				javascriptButton.width = 30
 				runButton.width = 40
 				stateButton.width = 50
-				deloyButton.width = 50
+				deloyButton.width = 60
 				rectSearch.height = 25
 				javascriptButton.labelWidth = 15
 				runButton.labelWidth = 25
@@ -268,13 +265,10 @@ Rectangle
 				runButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
 				stateButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
 				deloyButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
-				showLabel.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
-				showText.width = 40 + (3 * appSettings.systemPointSize)
-				showLabel.width = 40 + (3 * appSettings.systemPointSize)
 				javascriptButton.width = 30 + (2 * appSettings.systemPointSize)
 				runButton.width = 40 + (3 * appSettings.systemPointSize)
 				stateButton.width = 50 + (3 * appSettings.systemPointSize)
-				deloyButton.width = 50 + (3 * appSettings.systemPointSize)
+				deloyButton.width = 60 + (3 * appSettings.systemPointSize)
 				rectSearch.height = 25 + Math.round(appSettings.systemPointSize / 2)
 				javascriptButton.labelWidth = 15 + 2 * appSettings.systemPointSize
 				runButton.labelWidth = 25 + 3 * appSettings.systemPointSize
@@ -302,24 +296,6 @@ Rectangle
 			anchors.left: parent.left
 			spacing: logStyle.generic.layout.headerButtonSpacing
 			height: parent.height
-			Rectangle
-			{
-				color: "transparent"
-				height: logStyle.generic.layout.headerButtonHeight
-				width: 40
-				id: showLabel
-				DefaultLabel
-				{
-					width: 40
-					id: showText
-					elide: Text.ElideRight
-					anchors.verticalCenter: parent.verticalCenter
-					color: logStyle.generic.layout.logLabelColor
-					font.pixelSize: 12
-					font.family: logStyle.generic.layout.logLabelFont
-					text: qsTr("Show:")
-				}
-			}
 
 			Rectangle {
 				anchors.verticalCenter: parent.verticalCenter
@@ -499,7 +475,7 @@ Rectangle
 				checkable: true
 				height: logStyle.generic.layout.headerButtonHeight
 				property int labelWidth: 40
-				width: 50
+				width: 60
 				anchors.verticalCenter: parent.verticalCenter
 				checked: true
 				onCheckedChanged: {
