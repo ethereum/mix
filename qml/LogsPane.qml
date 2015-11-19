@@ -252,12 +252,12 @@ Rectangle
 				showLabel.width = 40
 				javascriptButton.width = 30
 				runButton.width = 40
-				stateButton.width = 40
+				stateButton.width = 50
 				deloyButton.width = 50
 				rectSearch.height = 25
 				javascriptButton.labelWidth = 15
 				runButton.labelWidth = 25
-				stateButton.labelWidth = 30
+				stateButton.labelWidth = 40
 				deloyButton.labelWidth = 40
 			}
 			else
@@ -269,17 +269,17 @@ Rectangle
 				stateButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
 				deloyButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
 				showLabel.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
-				showText.width = 40 + (2 * appSettings.systemPointSize)
-				showLabel.width = 40 + (2 * appSettings.systemPointSize)
-				javascriptButton.width = 40 + (2 * appSettings.systemPointSize)
-				runButton.width = 40 +(2 * appSettings.systemPointSize)
-				stateButton.width = 40 + (2 * appSettings.systemPointSize)
-				deloyButton.width = 50 + (2 * appSettings.systemPointSize)
+				showText.width = 40 + (3 * appSettings.systemPointSize)
+				showLabel.width = 40 + (3 * appSettings.systemPointSize)
+				javascriptButton.width = 30 + (2 * appSettings.systemPointSize)
+				runButton.width = 40 + (3 * appSettings.systemPointSize)
+				stateButton.width = 50 + (3 * appSettings.systemPointSize)
+				deloyButton.width = 50 + (3 * appSettings.systemPointSize)
 				rectSearch.height = 25 + Math.round(appSettings.systemPointSize / 2)
 				javascriptButton.labelWidth = 15 + 2 * appSettings.systemPointSize
-				runButton.labelWidth = 25 + 2 * appSettings.systemPointSize
-				stateButton.labelWidth = 30 + 2 * appSettings.systemPointSize
-				deloyButton.labelWidth = 40 + 2 * appSettings.systemPointSize
+				runButton.labelWidth = 25 + 3 * appSettings.systemPointSize
+				stateButton.labelWidth = 40 + 3 * appSettings.systemPointSize
+				deloyButton.labelWidth = 40 + 3 * appSettings.systemPointSize
 			}
 		}
 	}
@@ -353,15 +353,13 @@ Rectangle
 						Item {
 						Rectangle
 						{
-							width: labelJs.width
-							height: labelJs.height
-							anchors.centerIn: parent
+							width: javascriptButton.width - 5
+							height: javascriptButton.height - 7
 							color: "transparent"
 							DefaultLabel {
-								id: labelJs
-								width: javascriptButton.labelWidth
-								elide: Text.ElideRight
 								anchors.horizontalCenter: parent.horizontalCenter
+								anchors.verticalCenter: parent.verticalCenter
+								elide: Text.ElideRight
 								font.family: logStyle.generic.layout.logLabelFont
 								font.pixelSize: 12
 								color: logStyle.generic.layout.logLabelColor
@@ -408,14 +406,12 @@ Rectangle
 						Item {
 						Rectangle
 						{
-							width: labelRun.width
-							height: labelRun.height
-							anchors.centerIn: parent
+							width: runButton.width - 5
+							height: runButton.height - 7
 							color: "transparent"
 							DefaultLabel {
-								id: labelRun
-								width: runButton.labelWidth
 								anchors.horizontalCenter: parent.horizontalCenter
+								anchors.verticalCenter: parent.verticalCenter
 								elide: Text.ElideRight
 								font.family: logStyle.generic.layout.logLabelFont
 								font.pixelSize: 12
@@ -451,7 +447,7 @@ Rectangle
 				property int labelWidth: 30
 				height: logStyle.generic.layout.headerButtonHeight
 				anchors.verticalCenter: parent.verticalCenter
-				width: 40
+				width: 50
 				checked: true
 				onCheckedChanged: {
 					proxyModel.toogleFilter("state")
@@ -463,14 +459,12 @@ Rectangle
 						Item {
 						Rectangle
 						{
-							width: labelState.width
-							height: labelState.height
-							anchors.centerIn: parent
+							width: stateButton.width - 5
+							height: stateButton.height - 7
 							color: "transparent"
 							DefaultLabel {
-								id: labelState
-								width: stateButton.labelWidth
 								anchors.horizontalCenter: parent.horizontalCenter
+								anchors.verticalCenter: parent.verticalCenter
 								elide: Text.ElideRight
 								font.family: logStyle.generic.layout.logLabelFont
 								font.pixelSize: 12
@@ -518,19 +512,17 @@ Rectangle
 						Item {
 						Rectangle
 						{
-							width: labelDeploy.width
-							height: labelDeploy.height
-							anchors.centerIn: parent
+							width: deloyButton.width - 5
+							height: deloyButton.height - 7
 							color: "transparent"
 							DefaultLabel {
-								width: deloyButton.labelWidth
-								id: labelDeploy
 								anchors.horizontalCenter: parent.horizontalCenter
+								anchors.verticalCenter: parent.verticalCenter
 								elide: Text.ElideRight
 								font.family: logStyle.generic.layout.logLabelFont
 								font.pixelSize: 12
 								color: logStyle.generic.layout.logLabelColor
-								text: qsTr("Deploy.")
+								text: qsTr("Deploy")
 							}
 						}
 					}
@@ -564,95 +556,37 @@ Rectangle
 			spacing: 10
 			anchors.verticalCenter: parent.verticalCenter
 
-			Rectangle
+			DefaultImgButton
 			{
-				height: logStyle.generic.layout.headerButtonHeight
 				anchors.verticalCenter: parent.verticalCenter
-				color: "transparent"
-				width: 20
-				Button
-				{
-					id: clearButton
-					action: clearAction
-					anchors.fill: parent
-					anchors.verticalCenter: parent.verticalCenter
-					height: 25
-					style:
-						ButtonStyle {
-						background:
-							Rectangle {
-							height: logStyle.generic.layout.headerButtonHeight
-							implicitHeight: logStyle.generic.layout.headerButtonHeight
-							color: "transparent"
-						}
-					}
-				}
+				height: 22
+				width: 22
+				action: clearLogAction
+				iconSource: "qrc:/qml/img/cleariconactive.png"
+			}
 
-				Image {
-					id: clearImage
-					source: clearAction.enabled ? "qrc:/qml/img/cleariconactive.png" : "qrc:/qml/img/clearicon.png"
-					anchors.centerIn: parent
-					fillMode: Image.PreserveAspectFit
-					width: 20
-					height: 25
-				}
-
-				Action {
-					id: clearAction
-					enabled: logsModel.count > 0
-					tooltip: qsTr("Clear")
-					onTriggered: {
-						logsPane.clear()
-					}
+			Action {
+				id: clearLogAction
+				tooltip: qsTr("Clear")
+				onTriggered: {
+					logsPane.clear()
 				}
 			}
 
-			Rectangle
+			CopyButton
 			{
-				height: logStyle.generic.layout.headerButtonHeight
+				height: 22
+				width: 22
 				anchors.verticalCenter: parent.verticalCenter
-				color: "transparent"
-				width: 20
-				Button
+				getContent: function()
 				{
-					id: copyButton
-					action: copyAction
-					anchors.fill: parent
-					anchors.verticalCenter: parent.verticalCenter
-					height: 25
-					style:
-						ButtonStyle {
-						background:
-							Rectangle {
-							height: logStyle.generic.layout.headerButtonHeight
-							implicitHeight: logStyle.generic.layout.headerButtonHeight
-							color: "transparent"
-						}
+					var content = "";
+					for (var k = 0; k < logsModel.count; k++)
+					{
+						var log = logsModel.get(k);
+						content += log.type + "\t" + log.level + "\t" + log.date + "\t" + log.content + "\n";
 					}
-				}
-
-				Image {
-					id: copyImage
-					source: copyAction.enabled ? "qrc:/qml/img/copyiconactive.png" : "qrc:/qml/img/copyicon.png"
-					anchors.centerIn: parent
-					fillMode: Image.PreserveAspectFit
-					width: 20
-					height: 25
-				}
-
-				Action {
-					id: copyAction
-					enabled: logsModel.count > 0
-					tooltip: qsTr("Copy to Clipboard")
-					onTriggered: {
-						var content = "";
-						for (var k = 0; k < logsModel.count; k++)
-						{
-							var log = logsModel.get(k);
-							content += log.type + "\t" + log.level + "\t" + log.date + "\t" + log.content + "\n";
-						}
-						clipboard.text = content;
-					}
+					return content
 				}
 			}
 
@@ -673,6 +607,7 @@ Rectangle
 					width: 20
 					height: 25
 					z: 3
+					anchors.verticalCenter: parent.verticalCenter
 				}
 
 				DefaultTextField
@@ -686,20 +621,9 @@ Rectangle
 					font.family: logStyle.generic.layout.logLabelFont
 					font.pixelSize: 12
 					font.italic: true
-					text: qsTr(" - Search - ")
-					onFocusChanged:
-					{
-						if (!focus && text === "")
-							text = qsTr(" - Search - ");
-						else if (focus && text === qsTr(" - Search - "))
-							text = "";
-					}
 
 					onTextChanged: {
-						if (text === qsTr(" - Search - "))
-							proxyModel.search("");
-						else
-							proxyModel.search(text);
+						proxyModel.search(text);
 					}
 
 					style:
