@@ -200,8 +200,8 @@ public:
 	Q_PROPERTY(QVariantList gasCosts READ gasCosts NOTIFY gasCostsChanged)
 	/// @returns the last block
 	Q_PROPERTY(RecordLogEntry* lastBlock READ lastBlock CONSTANT)
-	/// @returns the last transaction
-	Q_PROPERTY(RecordLogEntry* lastTransaction READ lastTransaction CONSTANT)
+	/// @returns last transaction index
+	Q_PROPERTY(QString lastTransactionIndex READ lastTransactionIndex CONSTANT)
 	/// ethereum.js RPC request entry point
 	/// @param _message RPC request in Json format
 	/// @returns RPC response in Json format
@@ -294,7 +294,7 @@ signals:
 
 private:
 	RecordLogEntry* lastBlock() const;
-	RecordLogEntry* lastTransaction() const;
+	QString lastTransactionIndex() const;
 	QVariantMap contractAddresses() const;
 	QVariantList gasCosts() const;
 	void executeSequence(std::vector<TransactionSettings> const& _sequence);
@@ -322,7 +322,7 @@ private:
 	unsigned m_rpcConnectorId;
 	std::unique_ptr<ModularServer<rpc::EthFace, rpc::DBFace, rpc::Web3Face>> m_web3Server;
 	std::shared_ptr<eth::FixedAccountHolder> m_ethAccounts;
-	std::unordered_map<Address, eth::Account> m_accounts;
+	eth::AccountMap m_accounts;
 	std::vector<KeyPair> m_accountsSecret;
 	QList<u256> m_gasCosts;
 	std::map<std::pair<QString, int>, Address> m_contractAddresses;
@@ -334,7 +334,7 @@ private:
 	mutable boost::shared_mutex x_queueTransactions;
 	QString m_dbpath;
 	ExecutionCtx m_executionCtx;
-	RecordLogEntry* m_lastTransaction;
+	QString m_lastTransactionIndex;
 };
 
 }

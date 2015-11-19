@@ -57,6 +57,7 @@ ColumnLayout
 		id: rowContentTr
 		anchors.top: parent.top
 		Layout.preferredWidth: parent.width
+		Layout.preferredHeight: rowTr.height
 		spacing: 0
 		property bool selected: false
 		Connections
@@ -109,6 +110,7 @@ ColumnLayout
 			anchors.top: parent.top
 			anchors.left: parent.left
 			anchors.leftMargin: statusWidth
+			id: rowTr
 			Rectangle
 			{
 				id: trSaveStatus
@@ -216,7 +218,7 @@ ColumnLayout
 				DefaultText
 				{
 					anchors.verticalCenter: parent.verticalCenter
-					Layout.preferredWidth: (parent.width / 2) - 55
+					Layout.preferredWidth: (parent.width / 2) - 85
 					id: func
 					text: {
 						if (tx)

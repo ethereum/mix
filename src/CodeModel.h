@@ -183,11 +183,11 @@ private:
 class GasMapWrapper: public QObject
 {
 	Q_OBJECT
-
 	Q_PROPERTY(GasCostsMaps gasMaps MEMBER m_gasMaps CONSTANT)
 
 public:
 	GasMapWrapper(QObject* _parent = nullptr): QObject(_parent){}
+	~GasMapWrapper(){ m_gasMaps.clear(); }
 	void push(QString _source, int _start, int _end, QString _value, bool _isInfinite, GasMap::type _type, QString _contractName = "", QString _functionName = "");
 	bool contains(QString _key);
 	void insert(QString _source, QVariantList _variantList);
@@ -242,7 +242,7 @@ public:
 	/// Get funciton name by location
 	QString resolveFunctionName(dev::SourceLocation const& _location);
 	/// Gas estimation for compiled sources
-	void gasEstimation(solidity::CompilerStack const& _cs);
+	GasMapWrapper* gasEstimation(solidity::CompilerStack const& _cs);
 	/// Gas cost by doc id
 	Q_INVOKABLE QVariantList gasCostByDocumentId(QString const& _documentId) const;
 	/// Gas cost by @arg contractName @arg functionName
@@ -284,7 +284,7 @@ private:
 	void runCompilationJob(int _jobId);
 	void stop();
 	void releaseContracts();
-	void collectContracts(dev::solidity::CompilerStack const& _cs, std::vector<std::string> const& _sourceNames);
+	void collectContracts(dev::solidity::CompilerStack const& _cs, std::vector<std::string> const& _sourceNames, GasMapWrapper* _gas);
 	QVariantMap resolveCompilationErrorLocation(dev::solidity::CompilerStack const& _cs, dev::SourceLocation const& _location);
 
 	std::atomic<bool> m_compiling;

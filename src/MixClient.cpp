@@ -24,9 +24,9 @@
 #include <vector>
 #include <utility>
 #include <libdevcore/Exceptions.h>
-#include <libethcore/Params.h>
+#include <libethcore/ChainOperationParams.h>
 #include <libethcore/BasicAuthority.h>
-#include <libethereum/CanonBlockChain.h>
+#include <libethereum/BlockChain.h>
 #include <libethereum/Transaction.h>
 #include <libethereum/Executive.h>
 #include <libethereum/ExtVM.h>
@@ -48,34 +48,42 @@ namespace
 {
 }
 
-MixBlockChain::MixBlockChain(std::string const& _path, h256 _stateRoot):
-	FullBlockChain<NoProof>(createGenesisBlock(_stateRoot), std::unordered_map<Address, Account>(), _path, WithExisting::Kill)
+MixBlockChain::MixBlockChain(std::string const& _path, AccountMap const& _pre):
+	BlockChain(createParams(_pre), _path, WithExisting::Kill)
 {
 }
 
-bytes MixBlockChain::createGenesisBlock(h256 _stateRoot)
+ChainParams MixBlockChain::createParams(AccountMap const& _pre)
 {
-	RLPStream block(3);
-	block.appendList(13)
-			<< h256() << EmptyListSHA3 << h160() << _stateRoot << EmptyTrie << EmptyTrie
-			<< LogBloom() << c_mixGenesisDifficulty << 0 << 3141592 << 0 << ((unsigned)std::time(0) - 1)
-			<< std::string();
-	block.appendRaw(RLPEmptyList);
-	block.appendRaw(RLPEmptyList);
-	return block.out();
+	ChainParams ret;
+	ret.accountStartNonce = 0;
+	ret.author = Address();
+	ret.blockReward = 5000 * ether;
+	ret.difficulty = 0;
+	ret.gasLimit = 3141592;
+	ret.gasUsed = 0;
+	ret.genesisState = _pre;
+	ret.maximumExtraDataSize = 1024;
+	ret.parentHash = h256();
+	ret.sealEngineName = "NoProof";
+	ret.sealFields = 0;
+	ret.timestamp = 0;
+	return ret;
 }
 
 MixClient::MixClient(std::string const& _dbPath):
+	m_preSeal(Block::Null),
+	m_postSeal(Block::Null),
 	m_dbPath(_dbPath)
 {
-	resetState(std::unordered_map<Address, Account>());
+	resetState(AccountMap());
 }
 
 MixClient::~MixClient()
 {
 }
 
-void MixClient::resetState(std::unordered_map<Address, Account> const& _accounts,  Secret const& _miner)
+void MixClient::resetState(std::unordered_map<Address, Account> const& _accounts, Secret const& _miner)
 {
 	WriteGuard l(x_state);
 	Guard fl(x_filtersWatches);
@@ -88,17 +96,17 @@ void MixClient::resetState(std::unordered_map<Address, Account> const& _accounts
 	m_stateDB = OverlayDB();
 	SecureTrieDB<Address, MemoryDB> accountState(&m_stateDB);
 	accountState.init();
-
 	dev::eth::commit(_accounts, accountState);
-	h256 stateRoot = accountState.root();
+
 	m_bc.reset();
-	m_bc.reset(new MixBlockChain(m_dbPath, stateRoot));
-	Block b(m_stateDB, BaseState::PreExisting, KeyPair(_miner).address());
+	m_bc.reset(new MixBlockChain(m_dbPath, _accounts));
+	Block b(*m_bc, m_stateDB, BaseState::PreExisting, KeyPair(_miner).address());
 	b.sync(bc());
-	m_preMine = b;
-	m_postMine = b;
-	WriteGuard lx(x_executions);
-	m_executions.clear();
+	m_preSeal = b;
+	m_postSeal = b;
+
+	DEV_WRITE_GUARDED(x_executions)
+		m_executions.clear();
 }
 
 Transaction MixClient::replaceGas(Transaction const& _t, u256 const& _gas, Secret const& _secret)
@@ -128,7 +136,7 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 	State execState = _state;
 	execState.addBalance(_t.sender(), _t.gas() * _t.gasPrice()); //give it enough balance for gas estimation
 	eth::ExecutionResult er;
-	Executive execution(execState, _envInfo);
+	Executive execution(execState, _envInfo, m_bc->sealEngine());
 	execution.setResultRecipient(er);
 
 	ExecutionResult d;
@@ -138,7 +146,7 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 	d.inputParameters = _t.data();
 	d.executonIndex = m_executions.size();
 	if (!_call)
-		d.transactionIndex = m_postMine.pending().size();
+		d.transactionIndex = m_postSeal.pending().size();
 
 	try
 	{
@@ -232,7 +240,7 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 
 void MixClient::executeTransaction(Transaction const& _t, Block& _block, bool _call, bool _gasAuto, Secret const& _secret)
 {
-	Transaction t = _gasAuto ? replaceGas(_t, m_postMine.gasLimitRemaining()) : _t;
+	Transaction t = _gasAuto ? replaceGas(_t, m_postSeal.gasLimitRemaining()) : _t;
 
 	// do debugging run first
 	EnvInfo envInfo(bc().info(), bc().lastHashes());
@@ -262,21 +270,21 @@ void MixClient::executeTransaction(Transaction const& _t, Block& _block, bool _c
 
 std::unordered_map<u256, u256> MixClient::contractStorage(Address _contract)
 {
-	return m_preMine.state().storage(_contract);
+	return m_preSeal.state().storage(_contract);
 }
 
 void MixClient::mine()
 {
 	WriteGuard l(x_state);
-	m_postMine.commitToSeal(bc());
-
-	NoProof::BlockHeader h(m_postMine.info());
-	RLPStream header;
-	h.streamRLP(header);
-	m_postMine.sealBlock(header.out());
-	bc().import(m_postMine.blockData(), m_postMine.state().db(), (ImportRequirements::Everything & ~ImportRequirements::ValidSeal) != 0);
-	m_postMine.sync(bc());
-	m_preMine = m_postMine;
+	NoProof sealer;
+	m_postSeal.commitToSeal(bc());
+	Notified<bytes> sealed;
+	sealer.onSealGenerated([&](bytes const& sealedHeader){ sealed = sealedHeader; });
+	sealer.generateSeal(m_postSeal.info());
+	m_postSeal.sealBlock(sealed);
+	bc().import(m_postSeal.blockData(), m_postSeal.state().db(), (ImportRequirements::Everything & ~ImportRequirements::ValidSeal) != 0);
+	m_postSeal.sync(bc());
+	m_preSeal = m_postSeal;
 }
 
 ExecutionResult MixClient::lastExecution() const
@@ -294,7 +302,7 @@ ExecutionResult MixClient::execution(unsigned _index) const
 Block MixClient::asOf(h256 const& _block) const
 {
 	ReadGuard l(x_state);
-	Block ret(m_stateDB);
+	Block ret(*m_bc, m_stateDB);
 	ret.populateFromChain(bc(), _block);
 	return ret;
 }
@@ -303,16 +311,16 @@ pair<h256, Address> MixClient::submitTransaction(eth::TransactionSkeleton const&
 {
 	TransactionSkeleton ts = _ts;
 	ts.from = toAddress(_secret);
-	ts.nonce = m_postMine.transactionsFrom(ts.from);
+	ts.nonce = postSeal().transactionsFrom(ts.from);
 	if (ts.nonce == Invalid256)
-		ts.nonce = max<u256>(postMine().transactionsFrom(ts.from), m_tq.maxNonce(ts.from));
+		ts.nonce = max<u256>(postSeal().transactionsFrom(ts.from), m_tq.maxNonce(ts.from));
 	if (ts.gasPrice == Invalid256)
 		ts.gasPrice = gasBidPrice();
 	if (ts.gas == Invalid256)
 		ts.gas = min<u256>(gasLimitRemaining() / 5, balanceAt(ts.from) / ts.gasPrice);
 	WriteGuard l(x_state);
 	eth::Transaction t(ts, _secret);
-	executeTransaction(t, m_postMine, false, _gasAuto, _secret);
+	executeTransaction(t, m_postSeal, false, _gasAuto, _secret);
 	return make_pair(t.sha3(), toAddress(ts.from, ts.nonce));
 }
 
@@ -341,7 +349,7 @@ dev::eth::ExecutionResult MixClient::create(Address const& _from, u256 _value, b
 {
 	(void)_blockNumber;
 	u256 n;
-	Block temp;
+	Block temp(Block::Null);
 	{
 		ReadGuard lr(x_state);
 		temp = asOf(eth::PendingBlock);
@@ -356,41 +364,16 @@ dev::eth::ExecutionResult MixClient::create(Address const& _from, u256 _value, b
 	return lastExecution().result;
 }
 
-eth::BlockInfo MixClient::blockInfo() const
+eth::BlockHeader MixClient::blockInfo() const
 {
 	ReadGuard l(x_state);
-	return BlockInfo(bc().block());
+	return BlockHeader(bc().block());
 }
 
-void MixClient::setBeneficiary(Address const& _us)
+void MixClient::setAuthor(Address const& _us)
 {
 	WriteGuard l(x_state);
-	m_postMine.setBeneficiary(_us);
-}
-
-void MixClient::startMining()
-{
-	//no-op
-}
-
-void MixClient::stopMining()
-{
-	//no-op
-}
-
-bool MixClient::isMining() const
-{
-	return false;
-}
-
-u256 MixClient::hashrate() const
-{
-	return 0;
-}
-
-eth::WorkingProgress MixClient::miningProgress() const
-{
-	return eth::WorkingProgress();
+	m_postSeal.setAuthor(_us);
 }
 
 }

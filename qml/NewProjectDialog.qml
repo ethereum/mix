@@ -29,19 +29,19 @@ Item
 		id: newProjectWin
 		modality: Qt.ApplicationModal
 		title: qsTr("New Project");
-
-		width: 640
-		height: 120
+		width: 550
+		height: 130
 
 		visible: false
 
 		contentItem: Rectangle {
 			implicitHeight: newProjectWin.height
 			implicitWidth: newProjectWin.width
+
 			GridLayout
 			{
 				id: dialogContent
-				columns: 2
+				columns: 4
 				anchors.fill: parent
 				anchors.margins: 10
 				rowSpacing: 10
@@ -54,6 +54,7 @@ Item
 					id: titleField
 					focus: true
 					Layout.fillWidth: true
+					Layout.columnSpan : 3
 					Keys.onReturnPressed: {
 						if (okButton.enabled)
 							acceptAndClose();
@@ -64,6 +65,7 @@ Item
 					text: qsTr("Path")
 				}
 				RowLayout {
+					Layout.columnSpan : 3
 					DefaultTextField {
 						id: pathField
 						Layout.fillWidth: true
@@ -86,6 +88,7 @@ Item
 				{
 					anchors.bottom: parent.bottom
 					anchors.right: parent.right;
+					Layout.columnSpan : 3
 
 					DefaultButton {
 						id: okButton;

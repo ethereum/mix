@@ -11,7 +11,7 @@ import "js/TransactionHelper.js" as TransactionHelper
 import "js/QEtherHelper.js" as QEtherHelper
 import "."
 
-ColumnLayout {
+Column {
 	id: root
 	property variant tx
 	property variant currentState
@@ -23,11 +23,14 @@ ColumnLayout {
 
 	property string selectedTxColor: "#accbf2"
 	property string selectedBlockForeground: "#445e7f"
+	spacing: 5
 	signal updated()
 
 	function clear()
 	{
 		accounts.clear()
+		rowLabelContractAccount.visible = false
+		searchBox.visible = false
 		accounts.visible = false
 		storages.clear()
 	}
@@ -39,7 +42,9 @@ ColumnLayout {
 
 	function updateWidthTx(_tx, _state, _blockIndex, _txIndex, _callIndex)
 	{
-		accounts.visible = true
+		rowLabelContractAccount.visible = true
+		searchBox.visible = true
+		accounts.visible = true		
 		tx = _tx
 		blockIndex  = _blockIndex
 		txIndex = _txIndex
@@ -62,7 +67,7 @@ ColumnLayout {
 
 	KeyValuePanel
 	{
-		Layout.preferredWidth: parent.width
+		width: parent.width
 		visible: false
 		id: accounts
 		title: qsTr("User Account")
@@ -72,21 +77,24 @@ ColumnLayout {
 		{
 			model.clear()
 			var ret = []
+			var startingParams = projectModel.stateListModel.getState(mainContent.rightPane.bc.scenarioIndex)
+			var miner = startingParams.miner
 			if (currentState)
 				for (var k in currentState.accounts)
 				{
 					var label = blockChain.addAccountNickname(k, false)
-					if (label === k)
-						label = blockChain.addContractName(k) //try to resolve the contract name
-					model.append({ "key": label, "value": currentState.accounts[k] })
+					var value = currentState.accounts[k]
+					if (k === "0x" + miner.address)
+						value = value + " " + qsTr("(is mining)")
+					model.append({ "key": label, "value": value })
 				}
 		}
 	}
 
 	RowLayout
 	{
-		Layout.minimumHeight: 20
-		Layout.preferredWidth: parent.width
+		width: parent.width
+		id: rowLabelContractAccount
 		DefaultLabel
 		{
 			id: titleLabel
@@ -100,7 +108,7 @@ ColumnLayout {
 	RowLayout
 	{
 		id: searchBox
-		Layout.preferredWidth: parent.width
+		width: parent.width
 		Image {
 			sourceSize.width: 20
 			sourceSize.height: 20
@@ -126,7 +134,7 @@ ColumnLayout {
 		model: storages
 		KeyValuePanel
 		{
-			Layout.preferredWidth: root.width
+			width: root.width
 			id: ctrsStorage
 			function computeData()
 			{

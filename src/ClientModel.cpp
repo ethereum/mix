@@ -274,7 +274,7 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 		if (!address)
 			continue;
 
-		m_accounts[address] = Account(qvariant_cast<QEther*>(account.value("balance"))->toU256Wei(), Account::NormalCreation);
+		m_accounts[address] = Account(0, qvariant_cast<QEther*>(account.value("balance"))->toU256Wei(), Account::NormalCreation);
 	}
 
 	m_ethAccounts->setAccounts(m_accountsSecret);
@@ -290,7 +290,7 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 	{
 		QVariantMap contract = c.toMap();
 		Address address = Address(fromHex(contract.value("address").toString().toStdString()));
-		Account account(qvariant_cast<QEther*>(contract.value("balance"))->toU256Wei(), Account::ContractConception);
+		Account account(0, qvariant_cast<QEther*>(contract.value("balance"))->toU256Wei(), Account::ContractConception);
 		bytes code = fromHex(contract.value("code").toString().toStdString());
 		account.setCode(std::move(code));
 		QVariantMap storageMap = contract.value("storage").toMap();
@@ -315,7 +315,10 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 		processNextTransactions();
 	}
 	else
+	{
 		m_running = false;
+		setupFinished();
+	}
 }
 
 void ClientModel::setupExecutionChain()
@@ -808,7 +811,7 @@ void ClientModel::callAddress(Address const& _contract, bytes const& _data, Tran
 
 RecordLogEntry* ClientModel::lastBlock() const
 {
-	eth::BlockInfo blockInfo = m_client->blockInfo();
+	eth::BlockHeader blockInfo = m_client->blockInfo();
 	stringstream strGas;
 	strGas << blockInfo.gasUsed();
 	stringstream strNumber;
@@ -818,9 +821,9 @@ RecordLogEntry* ClientModel::lastBlock() const
 	return record;
 }
 
-RecordLogEntry* ClientModel::lastTransaction() const
+QString ClientModel::lastTransactionIndex() const
 {
-	return m_lastTransaction;
+	return m_lastTransactionIndex;
 }
 
 void ClientModel::onStateReset()
@@ -1025,7 +1028,8 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 	RecordLogEntry* log = new RecordLogEntry(recordIndex, transactionIndex, contract, function, value, address, returned, tr.isCall(), RecordLogEntry::RecordType::Transaction,
 											 gasUsed, sender, label, inputParameters, returnParameters, logs, _source);
 	if (transactionIndex != QObject::tr("Call"))
-		m_lastTransaction = log;
+		m_lastTransactionIndex = transactionIndex;
+
 	QQmlEngine::setObjectOwnership(log, QQmlEngine::JavaScriptOwnership);
 
 	// retrieving all accounts balance

@@ -378,7 +378,6 @@ ColumnLayout {
 							tr.saveStatus = true
 							block.transactions.push(tr);
 						}
-
 					}
 					if (block.transactions.length > 0)
 					{
@@ -593,8 +592,8 @@ ColumnLayout {
 				}
 				else
 				{
-					var blockIndex =  parseInt(clientModel.lastTransaction.transactionIndex.split(":")[0]) - 1
-					var trIndex = parseInt(clientModel.lastTransaction.transactionIndex.split(":")[1])
+					var blockIndex =  parseInt(clientModel.lastTransactionIndex.split(":")[0]) - 1
+					var trIndex = parseInt(clientModel.lastTransactionIndex.split(":")[1])
 					var i = [blockIndex, trIndex]
 					if (!blockChainPanel.calls[JSON.stringify(i)])
 						blockChainPanel.calls[JSON.stringify(i)] = []
