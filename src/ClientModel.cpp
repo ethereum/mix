@@ -315,7 +315,10 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 		processNextTransactions();
 	}
 	else
+	{
 		m_running = false;
+		setupFinished();
+	}
 }
 
 void ClientModel::setupExecutionChain()

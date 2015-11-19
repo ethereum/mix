@@ -44,7 +44,7 @@ Column {
 	{
 		rowLabelContractAccount.visible = true
 		searchBox.visible = true
-		accounts.visible = true
+		accounts.visible = true		
 		tx = _tx
 		blockIndex  = _blockIndex
 		txIndex = _txIndex
@@ -77,13 +77,16 @@ Column {
 		{
 			model.clear()
 			var ret = []
+			var startingParams = projectModel.stateListModel.getState(mainContent.rightPane.bc.scenarioIndex)
+			var miner = startingParams.miner
 			if (currentState)
 				for (var k in currentState.accounts)
 				{
 					var label = blockChain.addAccountNickname(k, false)
-					if (label === k)
-						label = blockChain.addContractName(k) //try to resolve the contract name
-					model.append({ "key": label, "value": currentState.accounts[k] })
+					var value = currentState.accounts[k]
+					if (k === "0x" + miner.address)
+						value = value + " " + qsTr("(is mining)")
+					model.append({ "key": label, "value": value })
 				}
 		}
 	}

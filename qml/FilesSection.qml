@@ -256,7 +256,8 @@ ColumnLayout {
 							}
 
 							function resetHex() {
-								hex = codeModel.contracts[name].codeHex + name
+								if (codeModel.contracts[name])
+									hex = codeModel.contracts[name].codeHex + name
 							}
 
 							Component.onCompleted:
