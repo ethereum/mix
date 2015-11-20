@@ -143,7 +143,7 @@ ColumnLayout {
 				width: parent.width
 				clip: true
 				anchors.left: parent.left
-						flickableItem.interactive: false
+				flickableItem.interactive: false
 
 				ColumnLayout
 				{
