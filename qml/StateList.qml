@@ -9,7 +9,7 @@ import "."
 Dialog {
 	id: stateListContainer
 	modality: Qt.WindowModal
-	width: 400
+	width: 480
 	height: 480
 	visible: false
 	onVisibleChanged:
@@ -17,12 +17,12 @@ Dialog {
 		if (visible)
 			if (mainApplication.systemPointSize >= appSettings.systemPointSize)
 			{
-				width = 400
+				width = 480
 				height = 480
 			}
 			else
 			{
-				width = 400 + (11 * appSettings.systemPointSize)
+				width = 480 + (11 * appSettings.systemPointSize)
 				height = 480 + (3 * appSettings.systemPointSize)
 			}
 	}
