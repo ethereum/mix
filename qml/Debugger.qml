@@ -243,6 +243,7 @@ Rectangle {
 			id: machineStates
 			Layout.fillWidth: true
 			Layout.fillHeight: true
+
 			function updateHeight() {
 				var h = buttonRow.childrenRect.height;
 				if (assemblyMode)

@@ -326,6 +326,7 @@ Dialog {
 			anchors.top: parent.top
 			width: parent.width
 			height: parent.height - separator.height - validationRow.height
+
 			ColumnLayout {
 				id: colTrContent
 				Layout.preferredWidth: rowWidth
