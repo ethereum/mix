@@ -58,6 +58,7 @@ Rectangle
 			height: parent.height
 			width: parent.width
 			horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+			flickableItem.interactive: false
 			Column
 			{
 				id: logsRect

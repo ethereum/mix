@@ -300,6 +300,7 @@ Rectangle
 				ScrollView
 				{
 					anchors.fill: parent
+					flickableItem.interactive: false
 					Rectangle
 					{
 						anchors.fill: parent

@@ -42,6 +42,7 @@ Dialog {
 				model: projectModel.stateListModel
 				itemDelegate: renderDelegate
 				headerDelegate: null
+				flickableItem.interactive: false
 				frameVisible: false
 				TableViewColumn {
 					role: "title"

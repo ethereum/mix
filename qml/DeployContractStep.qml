@@ -198,6 +198,7 @@ Rectangle {
 					{
 						anchors.fill: parent
 						horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+						flickableItem.interactive: false
 						ColumnLayout
 						{
 							spacing: 5
