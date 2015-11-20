@@ -695,6 +695,7 @@ ColumnLayout {
 			anchors.fill: parent
 			anchors.topMargin: 4
 			anchors.bottomMargin: 4
+			flickableItem.interactive: false
 
 			ColumnLayout
 			{

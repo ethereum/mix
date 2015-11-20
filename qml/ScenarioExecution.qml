@@ -48,6 +48,7 @@ Rectangle {
 		onWidthChanged: {
 			columnExe.width = width - 10
 		}
+		flickableItem.interactive: false
 
 		ColumnLayout
 		{
