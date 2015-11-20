@@ -270,8 +270,10 @@ ColumnLayout {
 	RowLayout
 	{
 		Layout.minimumHeight: 40
-		anchors.horizontalCenter: parent.horizontalCenter
+		anchors.left: parent.left
+		anchors.leftMargin: 5
 		anchors.top: parent.top
+		anchors.topMargin: -4
 		spacing: 1
 		id: rowBtns
 		Settings
