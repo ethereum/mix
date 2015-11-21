@@ -231,7 +231,8 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 	d.machineStates = machineStates;
 	d.executionCode = std::move(codes);
 	d.transactionData = std::move(data);
-	d.gasUsed = er.gasUsed + er.gasRefunded + c_callStipend;
+	EVMSchedule schedule; // TODO: make relevant to supposed context.
+	d.gasUsed = er.gasUsed + er.gasRefunded + schedule.callStipend;
 	if (_t.isCreation())
 		d.contractAddress = right160(sha3(rlpList(_t.sender(), _t.nonce())));
 	return d;
@@ -254,7 +255,8 @@ void MixClient::executeTransaction(Transaction const& _t, Block& _block, bool _c
 		eth::ExecutionResult const& er = _block.execute(envInfo.lastHashes(), t);
 		if (t.isCreation() && _block.state().code(d.contractAddress).empty())
 			BOOST_THROW_EXCEPTION(OutOfGas() << errinfo_comment("Not enough gas for contract deployment"));
-		d.gasUsed = er.gasUsed + er.gasRefunded + er.gasForDeposit + c_callStipend;
+		EVMSchedule schedule;	// TODO: make relevant to supposed context.
+		d.gasUsed = er.gasUsed + er.gasRefunded + er.gasForDeposit + schedule.callStipend;
 		LocalisedLogEntries logs;
 		TransactionReceipt const& tr = _block.receipt(_block.pending().size() - 1);
 

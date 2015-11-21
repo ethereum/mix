@@ -31,7 +31,7 @@
 #include <QMetaEnum>
 #include <libdevcore/Common.h>
 #include <libdevcore/Guards.h>
-#include <libevmcore/Params.h>
+#include <libethcore/ChainOperationParams.h>
 #include <libevmasm/Assembly.h>
 #include <libdevcore/SHA3.h>
 #include "SolidityType.h"
@@ -251,8 +251,8 @@ public:
 	Q_INVOKABLE void setOptimizeCode(bool _value);
 	/// sha3
 	Q_INVOKABLE QString sha3(QString _source) { return QString::fromStdString(dev::sha3(_source.toStdString()).hex()); }
-	int txGas() { return static_cast<int>(dev::eth::c_txGas); }
-	int callStipend() { return static_cast<int>(dev::eth::c_callStipend); }
+	int txGas() { return static_cast<int>(m_schedule.txGas); }
+	int callStipend() { return static_cast<int>(m_schedule.callStipend); }
 	/// Return the location of the given contract
 	Q_INVOKABLE QVariantMap locationOf(QString _contract);
 
@@ -300,6 +300,8 @@ private:
 	dev::Mutex x_pendingContracts;
 	std::map<QString, QString> m_pendingContracts; //name to source
 	bool m_optimizeCode = false;
+
+	dev::eth::EVMSchedule m_schedule;	///< schedule under which we're working. TODO: make relevant to supposed context.
 	friend class BackgroundWorker;
 };
 
