@@ -336,7 +336,7 @@ dev::eth::ExecutionResult MixClient::call(Address const& _from, u256 _value, Add
 	Transaction t(_value, gasPrice, gas, _dest, _data, n);
 	t.forceSender(_from);
 	if (_ff == FudgeFactor::Lenient)
-		block.mutableState().addBalance(_from, (u256)(t.gasRequired() * t.gasPrice() + t.value()));
+		block.mutableState().addBalance(_from, (u256)(t.gasRequired(EVMSchedule()) * t.gasPrice() + t.value()));
 	WriteGuard lw(x_state); //TODO: lock is required only for last execution state
 	executeTransaction(t, block, true, _gasAuto);
 	return lastExecution().result;
@@ -360,7 +360,7 @@ dev::eth::ExecutionResult MixClient::create(Address const& _from, u256 _value, b
 	Transaction t(_value, _gasPrice, _gas, _data, n);
 	t.forceSender(_from);
 	if (_ff == FudgeFactor::Lenient)
-		temp.mutableState().addBalance(_from, (u256)(t.gasRequired() * t.gasPrice() + t.value()));
+		temp.mutableState().addBalance(_from, (u256)(t.gasRequired(EVMSchedule()) * t.gasPrice() + t.value()));
 	WriteGuard lw(x_state); //TODO: lock is required only for last execution state
 	executeTransaction(t, temp, true, false);
 	return lastExecution().result;
