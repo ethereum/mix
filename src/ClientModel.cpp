@@ -770,7 +770,8 @@ QVariant ClientModel::formatValue(SolidityType const& _type, bytes const& _value
 QVariant ClientModel::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned const& _offset, u256 const& _slot)
 {
 	ContractCallDataEncoder decoder;
-	return decoder.formatStorageValue(_type, _storage, _offset, _slot);
+	u256 endSlot;
+	return decoder.formatStorageValue(_type, _storage, _offset, _slot, endSlot);
 }
 
 void ClientModel::emptyRecord()
