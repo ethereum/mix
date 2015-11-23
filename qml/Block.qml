@@ -70,9 +70,8 @@ ColumnLayout
 		radius: 15
 		anchors.left: parent.left
 		anchors.leftMargin: statusWidth
-		anchors.bottomMargin: -5
+		anchors.bottomMargin: -9
 	}
-
 
 	RowLayout
 	{

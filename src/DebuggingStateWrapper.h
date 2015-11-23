@@ -69,7 +69,7 @@ class QSolState: public QObject
 
 public:
 	QSolState(QObject* _parent, QVariantMap&& _storage, QVariantList&& _callStack, QVariantMap&& _locals, int _start, int _end, QString _sourceName):
-		QObject(_parent), m_storage(std::move(_storage)), m_callStack(std::move(_callStack)), m_locals(std::move(_locals)), m_start(_start), m_end(_end), m_sourceName(_sourceName)
+		QObject(_parent), m_storage(_storage), m_callStack(_callStack), m_locals(_locals), m_start(_start), m_end(_end), m_sourceName(_sourceName)
 	{ }
 
 private:

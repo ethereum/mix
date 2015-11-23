@@ -48,6 +48,7 @@ Rectangle {
 		onWidthChanged: {
 			columnExe.width = width - 10
 		}
+		flickableItem.interactive: false
 
 		ColumnLayout
 		{
@@ -68,21 +69,23 @@ Rectangle {
 						anchors.left: parent.left
 						source: loader.visible ? "qrc:/qml/img/down.png" : "qrc:/qml/img/right.png"
 						fillMode: Image.PreserveAspectFit
-						anchors.leftMargin: -3
-						width: 20
+						width: 10
 						anchors.verticalCenter: parent.verticalCenter
 					}
 
-					width: 150
-					Layout.minimumHeight: 30
+					width: 10
+					Layout.minimumHeight: 10
+					Layout.preferredHeight: 12
 					text: qsTr("Manage Scenario")
+					sourceImg: qsTr("Manage Scenario")
 
 					roundRight: true
 					roundLeft: true
 					enabled: true
 					anchors.top: parent.top
 					anchors.topMargin: 5
-					anchors.horizontalCenter: parent.horizontalCenter
+					anchors.left: parent.left
+					anchors.leftMargin: 5
 					MouseArea
 					{
 						anchors.fill: parent
@@ -100,6 +103,8 @@ Rectangle {
 					width: parent.width
 					visible: false
 					id: loader
+					anchors.left: parent.left
+					anchors.leftMargin: 5
 				}
 
 				Connections
@@ -130,6 +135,7 @@ Rectangle {
 				{
 					id: blockChain
 					Layout.preferredWidth: parent.width
+					anchors.left: parent.left
 				}
 
 				Connections

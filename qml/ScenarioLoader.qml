@@ -51,11 +51,6 @@ ColumnLayout
 		else
 			w = 100
 
-		if (_width < 570)
-			btnRowContainer.anchors.horizontalCenter = undefined
-		else
-			btnRowContainer.anchors.horizontalCenter = btnRowContainer.parent.horizontalCenter
-
 		updatebtnWidth(w)
 		updatebtnWidth((rowBtn.width - 20) / 6 < btnWidth ? (rowBtn.width - 20) / 6 : btnWidth)
 	}
@@ -78,7 +73,6 @@ ColumnLayout
 
 	RowLayout
 	{
-		anchors.horizontalCenter: parent.horizontalCenter
 		spacing: 0
 		anchors.top: parent.top
 		anchors.topMargin: 7
@@ -115,7 +109,6 @@ ColumnLayout
 			{
 				id: scenarioList
 				anchors.left: parent.left
-				anchors.leftMargin: 3
 				model: projectModel.stateListModel
 				anchors.top: parent.top
 				textRole: "title"

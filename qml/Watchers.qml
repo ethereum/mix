@@ -23,7 +23,6 @@ Column {
 
 	property string selectedTxColor: "#accbf2"
 	property string selectedBlockForeground: "#445e7f"
-	spacing: 5
 	signal updated()
 
 	function clear()

@@ -19,6 +19,7 @@ DebugInfoList
 			id: scrollVar
 			anchors.fill: parent
 			anchors.leftMargin: 10
+			flickableItem.interactive: false
 
 			function set(_members, _values)
 			{

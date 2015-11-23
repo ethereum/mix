@@ -253,10 +253,20 @@ Dialog {
 					{
 						Layout.alignment: Qt.AlignRight
 						spacing: 5
-						DefaultImgButton
+						DefaultButton
 						{
 							id: addAccount
-							iconSource: "qrc:/qml/img/edit_combox.png"
+							Image
+							{
+								width: 20
+								height: 20
+								anchors.centerIn: parent
+								source: "qrc:/qml/img/edit_combox.png"
+							}
+							width: 35
+							height: 28
+							anchors.verticalCenter: parent.verticalCenter
+
 							tooltip: qsTr("Add new account")
 							onClicked:
 							{
@@ -437,16 +447,14 @@ Dialog {
 										Layout.preferredWidth: 150
 
 										Button {
-											height: 25
-											width: 25
+											width: 40
 											anchors.verticalCenter: parent.verticalCenter
 											anchors.left: parent.right
 											anchors.leftMargin: 50
 											tooltip: qsTr("Delete Account")
 											onClicked: deleteAccountMsg.open()
 											Image {
-												height: 25
-												width: 25
+												width: 28
 												anchors.centerIn: parent
 												source: "qrc:/qml/img/delete-block-icon@2x.png"
 											}
@@ -503,18 +511,16 @@ Dialog {
 			width: parent.width
 			anchors.right: parent.right
 			spacing: 10
-			height: 30
+			height: 40
 
 			DefaultButton {
 				anchors.top: parent.top
-				anchors.topMargin: 7
 				text: qsTr("Cancel")
 				onClicked: close()
 			}
 
 			DefaultButton {
 				anchors.top: parent.top
-				anchors.topMargin: 7
 				text: qsTr("OK")
 				onClicked: {
 					close()
