@@ -213,6 +213,7 @@ public:
 	Q_PROPERTY(bool optimizeCode MEMBER m_optimizeCode WRITE setOptimizeCode)
 	Q_PROPERTY(int callStipend READ callStipend)
 	Q_PROPERTY(int txGas READ txGas)
+	Q_PROPERTY(int txCreateGas READ txCreateGas)
 
 	/// @returns latest compilation results for contracts
 	QVariantMap contracts() const;
@@ -252,6 +253,7 @@ public:
 	/// sha3
 	Q_INVOKABLE QString sha3(QString _source) { return QString::fromStdString(dev::sha3(_source.toStdString()).hex()); }
 	int txGas() { return static_cast<int>(m_schedule.txGas); }
+	int txCreateGas() { return static_cast<int>(m_schedule.txCreateGas); }
 	int callStipend() { return static_cast<int>(m_schedule.callStipend); }
 	/// Return the location of the given contract
 	Q_INVOKABLE QVariantMap locationOf(QString _contract);
