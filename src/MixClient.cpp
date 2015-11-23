@@ -231,7 +231,8 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 	d.machineStates = machineStates;
 	d.executionCode = std::move(codes);
 	d.transactionData = std::move(data);
-	d.gasUsed = er.gasUsed + er.gasRefunded + c_callStipend;
+	EVMSchedule schedule; // TODO: make relevant to supposed context.
+	d.gasUsed = er.gasUsed + er.gasRefunded + schedule.callStipend;
 	if (_t.isCreation())
 		d.contractAddress = right160(sha3(rlpList(_t.sender(), _t.nonce())));
 	return d;
@@ -254,7 +255,8 @@ void MixClient::executeTransaction(Transaction const& _t, Block& _block, bool _c
 		eth::ExecutionResult const& er = _block.execute(envInfo.lastHashes(), t);
 		if (t.isCreation() && _block.state().code(d.contractAddress).empty())
 			BOOST_THROW_EXCEPTION(OutOfGas() << errinfo_comment("Not enough gas for contract deployment"));
-		d.gasUsed = er.gasUsed + er.gasRefunded + er.gasForDeposit + c_callStipend;
+		EVMSchedule schedule;	// TODO: make relevant to supposed context.
+		d.gasUsed = er.gasUsed + er.gasRefunded + er.gasForDeposit + schedule.callStipend;
 		LocalisedLogEntries logs;
 		TransactionReceipt const& tr = _block.receipt(_block.pending().size() - 1);
 
@@ -334,7 +336,7 @@ dev::eth::ExecutionResult MixClient::call(Address const& _from, u256 _value, Add
 	Transaction t(_value, gasPrice, gas, _dest, _data, n);
 	t.forceSender(_from);
 	if (_ff == FudgeFactor::Lenient)
-		block.mutableState().addBalance(_from, (u256)(t.gasRequired() * t.gasPrice() + t.value()));
+		block.mutableState().addBalance(_from, (u256)(t.gasRequired(EVMSchedule()) * t.gasPrice() + t.value()));
 	WriteGuard lw(x_state); //TODO: lock is required only for last execution state
 	executeTransaction(t, block, true, _gasAuto);
 	return lastExecution().result;
@@ -358,7 +360,7 @@ dev::eth::ExecutionResult MixClient::create(Address const& _from, u256 _value, b
 	Transaction t(_value, _gasPrice, _gas, _data, n);
 	t.forceSender(_from);
 	if (_ff == FudgeFactor::Lenient)
-		temp.mutableState().addBalance(_from, (u256)(t.gasRequired() * t.gasPrice() + t.value()));
+		temp.mutableState().addBalance(_from, (u256)(t.gasRequired(EVMSchedule()) * t.gasPrice() + t.value()));
 	WriteGuard lw(x_state); //TODO: lock is required only for last execution state
 	executeTransaction(t, temp, true, false);
 	return lastExecution().result;
