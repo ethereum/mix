@@ -48,8 +48,6 @@ Rectangle {
 			memoryDump.updateView()
 			callDataDump.updateView()
 		}
-		else
-			solCallStack.updateView()
 	}
 
 	function setTr(tr)
@@ -79,9 +77,6 @@ Rectangle {
 			trName.text = data.label
 			debugScrollArea.visible = true;
 			machineStates.visible = true;
-			solCallStack.collapse()
-			solLocals.collapse()
-			solStorage.collapse()
 			callStack.collapse()
 			storage.collapse()
 			memoryDump.collapse()
@@ -120,9 +115,6 @@ Rectangle {
 		property alias storageHeightSettings: storageRect.height
 		property alias memoryDumpHeightSettings: memoryRect.height
 		property alias callDataHeightSettings: callDataRect.height
-		property alias solCallStackHeightSettings: solStackRect.height
-		property alias solStorageHeightSettings: solStorageRect.height
-		property alias solLocalsHeightSettings: solLocalsRect.height
 	}
 
 	ColumnLayout {
@@ -248,7 +240,7 @@ Rectangle {
 				if (assemblyMode)
 					h += assemblyCodeRow.childrenRect.height + callStackRect.childrenRect.height + storageRect.childrenRect.height + memoryRect.childrenRect.height + callDataRect.childrenRect.height;
 				else
-					h += solStackRect.childrenRect.height + solLocalsRect.childrenRect.height + solStorageRect.childrenRect.height;
+					h += solVar.childrenRect.height
 				statesLayout.height = h + 120;
 			}
 
@@ -624,56 +616,76 @@ Rectangle {
 					}
 				}
 
+			Column
+			{
+				Layout.fillHeight: true
+				Layout.fillWidth: true
+				visible: !assemblyMode
+				id: solVar
+				KeyValuePanel
+				{
+					title: qsTr("Call Stack")
+					id: solCallStack
+					width: splitInfoList.width
+					hideEqualSign: true
+					function setData(values)  {
+						_data = values
+						computeData()
+					}
+
+					function computeData()
+					{
+						console.log(JSON.stringify(_data))
+						model.clear()
+						for (var k in _data)
+							model.append({ "key": k, "value": JSON.stringify(_data[k]) })
+					}
+				}
+
+
+				KeyValuePanel
+				{
+					title: qsTr("Locals")
+					id: solLocals
+					width: splitInfoList.width
+					function setData(members, values)  {
+						_data = values
+						computeData()
+					}
+
+					function computeData()
+					{
+						model.clear()
+						for (var k in _data)
+							model.append({ "key": k, "value": JSON.stringify(_data[k]) })
+					}
+				}
+
+				KeyValuePanel
+				{
+					title: qsTr("Members")
+					id: solStorage
+					width: splitInfoList.width
+					function setData(members, values)  {
+						_data = values
+						computeData()
+					}
+
+					function computeData()
+					{
+						model.clear()
+						for (var k in _data)
+							model.append({ "key": k, "value": JSON.stringify(_data[k]) })
+					}
+				}
+			}
+
 				SplitView
 				{
 					id: splitInfoList
 					Layout.fillHeight: true
 					Layout.fillWidth: true
 					orientation: Qt.Vertical
-
-					Rectangle
-					{
-						id: solStackRect;
-						color: "transparent"
-						Layout.minimumHeight: 25
-						Layout.maximumHeight: 800
-						onHeightChanged: machineStates.updateHeight();
-						visible: !assemblyMode
-						CallStack {
-							anchors.fill: parent
-							id: solCallStack
-						}
-					}
-
-					Rectangle
-					{
-						id: solLocalsRect;
-						color: "transparent"
-						Layout.minimumHeight: 25
-						Layout.maximumHeight: 800
-						onHeightChanged: machineStates.updateHeight();
-						visible: !assemblyMode
-						VariablesView {
-							title : qsTr("Locals")
-							anchors.fill: parent
-							id: solLocals
-						}
-					}
-
-					Rectangle
-					{
-						id: solStorageRect;
-						color: "transparent"
-						Layout.minimumHeight: 25
-						Layout.maximumHeight: 800
-						onHeightChanged: machineStates.updateHeight();
-						visible: !assemblyMode
-						VariablesView {
-							title : qsTr("Members")
-							anchors.fill: parent
-							id: solStorage
-						}
-					}
 
 					Rectangle
 					{

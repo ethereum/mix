@@ -747,21 +747,32 @@ QVariant ClientModel::formatValue(SolidityType const& _type, u256 const& _value)
 
 QVariant ClientModel::formatValue(SolidityType const& _type, bytes const& _value, u256& _offset)
 {
-	ContractCallDataEncoder decoder;
-	u256 pos = _offset;
 	QVariant res;
 	if (_type.array)
 		res = decoder.decodeRawArray(_type, _value, _offset);
 	else if (_type.members.size() > 0)
 	{
-		QVariantList list;
-		for (auto const& m: _type.members)
-			list.append(formatValue(m.type, _value, _offset));
+		QVariantMap list;
+		for (unsigned k = 0; k < _type.members.size(); ++k)
+		{
+			auto m = _type.members.at(k);
+			if (m.type.array)
+			{
+				bytesConstRef value(_value.data() + static_cast<size_t>(_offset), 32);
+				bytes rawParam(32);
+				value.populate(&rawParam);
+				u256 arrayOffset = u256(decoder.decodeInt(rawParam));
+				list.insert(m.name, decoder.decodeRawArray(m.type, _value, arrayOffset));
+				_offset += 32;
+			}
+			else
+				list.insert(m.name, formatValue(m.type, _value, _offset));
+		}
 		return list;
 	}
 	else
 	{
-		res = decoder.decodeType(_type, _value, pos);
+		res = decoder.decodeType(_type, _value, _offset);
 		_offset += 32;
 	}
 	return res;

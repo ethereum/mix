@@ -210,8 +210,8 @@ function completeCtxInformation(state)
 
 	if (state.solidity) {
 		solLocals.setData(state.solidity.locals.variables, state.solidity.locals.values);
-		solStorage.setData(state.solidity.storage.variables, state.solidity.storage.values);
-		solCallStack.listModel = state.solidity.callStack;
+		solStorage.setData(state.solidity.storage.variables, state.solidity.storage.values);		
+		solCallStack.setData(state.solidity.callStack)
 	} else {
 		solLocals.setData([], {});
 		solStorage.setData([], {});
