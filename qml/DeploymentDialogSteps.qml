@@ -356,6 +356,7 @@ Rectangle {
 		{
 			Layout.fillHeight: true
 			Layout.fillWidth: true
+			flickableItem.interactive: false
 			DefaultText
 			{
 				anchors.left: parent.left

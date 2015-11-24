@@ -11,6 +11,7 @@ ScrollView
 	id: filesCol
 	property bool renameMode: false
 	property alias sections: sectionRepeater
+	flickableItem.interactive: false
 	ColumnLayout
 	{
 		ProjectFilesStyle
