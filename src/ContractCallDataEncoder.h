@@ -81,6 +81,8 @@ public:
 	QVariant decodeRawArray(SolidityType const& _type, bytes const& _value, u256& pos);
 	/// Decode struct stored in storage
 	QVariant formatStorageStruct(SolidityType const& _type, std::unordered_map<u256, u256> const& _storage, u256 _slot, u256& _endSlot);
+	/// Decode value stored in memory
+	QVariant formatMemoryValue(SolidityType const& _type, bytes const& _value, u256& _offset);
 
 private:
 	unsigned encodeSingleItem(QString const& _data, SolidityType const& _type, bytes& _dest);

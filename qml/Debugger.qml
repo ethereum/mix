@@ -377,7 +377,11 @@ Rectangle {
 									anchors.fill: parent
 									tickmarksEnabled: true
 									stepSize: 1.0
-									onValueChanged: Debugger.jumpTo(value);
+									onValueChanged:
+									{
+										Debugger.jumpTo(value)
+									}
+
 									style: SliderStyle {
 										groove: Rectangle {
 											implicitHeight: 3
@@ -636,7 +640,6 @@ Rectangle {
 
 					function computeData()
 					{
-						console.log(JSON.stringify(_data))
 						model.clear()
 						for (var k in _data)
 							model.append({ "key": k, "value": JSON.stringify(_data[k]) })

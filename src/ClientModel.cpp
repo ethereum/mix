@@ -708,12 +708,17 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t, QString 
 					{
 						u256 pos = s.stack[l.first];
 						u256 offset = pos;
-						localValues[l.second->name()] = formatValue(l.second->type()->type(), s.memory, offset);
+						localValues[l.second->name()] = formatMemoryValue(l.second->type()->type(), s.memory, offset);
 					}
 					else if (loc == DataLocation::Storage)
 						localValues[l.second->name()] = formatStorageValue(l.second->type()->type(), s.storage, localDecl[l.second->name()].offset, localDecl[l.second->name()].slot);
 					else
-						localValues[l.second->name()] = formatValue(l.second->type()->type(), s.stack[l.first]);
+					{
+						ContractCallDataEncoder decoder;
+						u256 pos = 0;
+						bytes val = toBigEndian(s.stack[l.first]);
+						localValues[l.second->name()] = decoder.decodeType(l.second->type()->type(), val, pos);
+					}
 				}
 			locals["variables"] = localDeclarations;
 			locals["values"] = localValues;
@@ -738,44 +743,10 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t, QString 
 	debugDataReady(debugData);
 }
 
-QVariant ClientModel::formatValue(SolidityType const& _type, u256 const& _value)
+QVariant ClientModel::formatMemoryValue(SolidityType const& _type, bytes const& _value, u256& _offset)
 {
-	bytes val = toBigEndian(_value);
-	u256 pos = 0;
-	return formatValue(_type, val, pos);
-}
-
-QVariant ClientModel::formatValue(SolidityType const& _type, bytes const& _value, u256& _offset)
-{
-	QVariant res;
-	if (_type.array)
-		res = decoder.decodeRawArray(_type, _value, _offset);
-	else if (_type.members.size() > 0)
-	{
-		QVariantMap list;
-		for (unsigned k = 0; k < _type.members.size(); ++k)
-		{
-			auto m = _type.members.at(k);
-			if (m.type.array)
-			{
-				bytesConstRef value(_value.data() + static_cast<size_t>(_offset), 32);
-				bytes rawParam(32);
-				value.populate(&rawParam);
-				u256 arrayOffset = u256(decoder.decodeInt(rawParam));
-				list.insert(m.name, decoder.decodeRawArray(m.type, _value, arrayOffset));
-				_offset += 32;
-			}
-			else
-				list.insert(m.name, formatValue(m.type, _value, _offset));
-		}
-		return list;
-	}
-	else
-	{
-		res = decoder.decodeType(_type, _value, _offset);
-		_offset += 32;
-	}
-	return res;
+	ContractCallDataEncoder decoder;
+	return decoder.formatMemoryValue(_type, _value, _offset);
 }
 
 QVariant ClientModel::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned const& _offset, u256 const& _slot)
@@ -828,7 +799,7 @@ RecordLogEntry* ClientModel::lastBlock() const
 	strGas << blockInfo.gasUsed();
 	stringstream strNumber;
 	strNumber << blockInfo.number();
-	RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList(), RecordLogEntry::TxSource::MixGui);
+	RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList(), RecordLogEntry::TxSource::MixGui, false);
 	QQmlEngine::setObjectOwnership(record, QQmlEngine::JavaScriptOwnership);
 	return record;
 }
@@ -1038,7 +1009,7 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 		label = address;
 
 	RecordLogEntry* log = new RecordLogEntry(recordIndex, transactionIndex, contract, function, value, address, returned, tr.isCall(), RecordLogEntry::RecordType::Transaction,
-											 gasUsed, sender, label, inputParameters, returnParameters, logs, _source);
+											 gasUsed, sender, label, inputParameters, returnParameters, logs, _source, tr.excepted == TransactionException::OutOfGasBase);
 	if (transactionIndex != QObject::tr("Call"))
 		m_lastTransactionIndex = transactionIndex;
 

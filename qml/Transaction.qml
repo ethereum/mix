@@ -211,7 +211,16 @@ ColumnLayout
 					{
 						anchors.horizontalCenter: parent.horizontalCenter
 						anchors.verticalCenter: parent.verticalCenter
-						text: "→"
+						text:  {
+							if (!tx.outOfGas)
+								return "→"
+							else
+							{
+								color = "red"
+								font.italic = true
+								return "out of gas"
+							}
+						}
 					}
 				}
 

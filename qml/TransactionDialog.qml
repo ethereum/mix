@@ -722,7 +722,10 @@ Dialog {
 								{
 									var gas = codeModel.txGas + codeModel.callStipend + parseInt(gasCost[0].gas)
 									estimatedGas.visible = true
-									estimatedGas.text = qsTr("Estimated cost: ") + gasCost[0].gas + " gas"
+									if (gasCost[0].isInfinite)
+										estimatedGas.text = qsTr("Estimated cost: ") + qsTr(" -- ")
+									else
+										estimatedGas.text = qsTr("Estimated cost: ") + gasCost[0].gas + " gas"
 								}
 							}
 

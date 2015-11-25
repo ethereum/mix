@@ -572,6 +572,7 @@ ColumnLayout {
 							tr.logs = _r.logs
 							tr.isCall = false
 							tr.sender = _r.sender
+							tr.outOfGas = _r.outOfGas
 							tr.returnParameters = _r.returnParameters
 							var trModel = blockModel.getTransaction(blockIndex, trIndex)
 							trModel.returned = _r.returned
@@ -579,6 +580,7 @@ ColumnLayout {
 							trModel.logs = _r.logs
 							trModel.sender = _r.sender
 							trModel.returnParameters = _r.returnParameters
+							trModel.outOfGas = _r.outOfGas
 							blockModel.setTransaction(blockIndex, trIndex, trModel)
 							blockChainRepeater.select(blockIndex, trIndex, -1)
 							txExecuted(blockIndex, trIndex, -1)
@@ -628,6 +630,7 @@ ColumnLayout {
 				itemTr.recordIndex = _r.recordIndex
 				itemTr.logs = _r.logs
 				itemTr.returnParameters = _r.returnParameters
+				itemTr.outOfGas = _r.outOfGas
 				if (!itemTr.isContractCreation)
 					itemTr.parameters = _r.parameters
 				else if (transactionDialog.parameters)
