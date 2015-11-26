@@ -190,6 +190,7 @@ var annotations = [];
 var compilationCompleteBool = true;
 compilationError = function(currentSourceName, location, error, secondaryErrors)
 {
+	displayGasEstimation(false)
 	compilationCompleteBool = false;
 	if (compilationCompleteBool)
 		return;
@@ -308,7 +309,7 @@ displayGasEstimation = function(show)
 					editor.addWidget(endChar, marker, false, "over");
 					gasMarkText.push({ line: line.line, widget: marker });
 				}
-				gasMarkRef[className] = { line: line.line, value: gasCosts[i] };
+				gasMarkRef[className] = { ch: line.ch, line: line.line, value: gasCosts[i] };
 			}
 		}
 		CodeMirror.on(editor.getWrapperElement(), "mouseover", listenMouseOver);
@@ -349,12 +350,17 @@ function listenMouseOver(e)
 				gasAnnotation.clear();
 			var cl = getGasCostClass(node);
 			var gasTitle = gasMarkRef[cl].value.isInfinite ? "infinite" : gasMarkRef[cl].value.gas;
-			gasTitle = " execution cost: " + gasTitle + " gas";
-			gasAnnotation = editor.addLineWidget(gasMarkRef[cl].line + 1, makeGasCostMarker(gasTitle), { coverGutter: false, above: true });
+			var l = editor.getLine(gasMarkRef[cl].line);
+			var endChar = { line: gasMarkRef[cl].line, ch: gasMarkRef[cl].ch + l.length + 10 };
+			var marker = document.createElement("div");
+			marker.innerHTML = gasTitle + " gas";
+			marker.className = "CodeMirror-gasCost";
+			editor.addWidget(endChar, marker, false, "over");
+			gasAnnotation = marker
 		}
 		else if (gasAnnotation)
 		{
-			gasAnnotation.clear();
+			gasAnnotation.remove();
 			gasAnnotation = null;
 		}
 	}
