@@ -411,6 +411,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 				if (!transaction.isFunctionCall)
 				{
 					callAddress(Address(address.toStdString()), bytes(), transaction);
+					m_gasCosts.append(m_client->lastExecution().gasUsed);
 					onNewTransaction(RecordLogEntry::TxSource::MixGui);
 					continue;
 				}

@@ -5,6 +5,8 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.0
 import QtQuick.Controls.Styles 1.3
 import org.ethereum.qml.QEther 1.0
+import org.ethereum.qml.CodeModel 1.0
+import org.ethereum.qml.ClientModel 1.0
 import "js/TransactionHelper.js" as TransactionHelper
 import "js/InputValidator.js" as InputValidator
 import "js/NetworkDeployment.js" as NetworkDeployment
@@ -43,6 +45,7 @@ Dialog {
 
 	function open(index, blockIdx, item) {
 		loaded = false
+		gasEstimationClient.reset()
 		if (mainApplication.systemPointSize >= appSettings.systemPointSize)
 		{
 			width = 580
@@ -522,6 +525,7 @@ Dialog {
 								}
 								var addr = getAddress()
 								addrRecipient.originalText = addr.indexOf("0x") === 0 ? addr.replace("0x", "") : addr
+								gasEstimationClient.executeTempTx()
 							}
 						}
 
@@ -549,6 +553,7 @@ Dialog {
 							if (loaded)
 								paramValues = {}
 							loadCtorParameters(currentValue());
+							gasEstimationClient.executeTempTx()
 						}
 					}
 				}
@@ -612,6 +617,10 @@ Dialog {
 						paramScroll.Layout.minimumHeight = paramScroll.colHeight
 						if (paramsModel.length === 0)
 							paramScroll.height = 0
+					}
+					onValuesChanged:
+					{
+						gasEstimationClient.executeTempTx()
 					}
 				}
 
@@ -710,33 +719,18 @@ Dialog {
 								target: functionComboBox
 								onCurrentIndexChanged:
 								{
-									estimatedGas.displayGas(TransactionHelper.contractFromToken(recipientsAccount.currentValue()), functionComboBox.currentText)
-								}
-							}
-
-							function displayGas(contractName, functionName)
-							{
-								estimatedGas.visible = false
-								var gasCost = codeModel.gasCostBy(contractName, functionName);
-								if (gasCost && gasCost.length > 0)
-								{
-									var gas = codeModel.txGas + codeModel.callStipend + parseInt(gasCost[0].gas)
-									estimatedGas.visible = true
-									if (gasCost[0].isInfinite)
-										estimatedGas.text = qsTr("Estimated cost: ") + qsTr(" -- ")
-									else
-										estimatedGas.text = qsTr("Estimated cost: ") + gasCost[0].gas + " gas"
+									gasEstimationClient.executeTempTx()
 								}
 							}
 
 							function updateView()
 							{
 								if (rbbuttonList.current.objectName === "trTypeExecute")
-									estimatedGas.displayGas(TransactionHelper.contractFromToken(recipientsAccount.currentValue()), functionComboBox.currentText)
+									gasEstimationClient.executeTempTx()
 								else if (rbbuttonList.current.objectName === "trTypeCreate")
 								{
 									var contractName = contractCreationComboBox.currentValue()
-									estimatedGas.displayGas(contractName, contractName)
+									gasEstimationClient.executeTempTx()
 								}
 								else if (rbbuttonList.current.objectName === "trTypeSend")
 								{
@@ -862,5 +856,77 @@ Dialog {
 			}
 		}
 	}
+
+	CodeModel {
+		id: gasEstimationCode
+	}
+
+	property variant clientEstimation
+	ClientModel
+	{
+		id: gasEstimationClient
+		codeModel: gasEstimationCode
+		property bool scenarioLoaded: false
+		property bool txRequested: false
+		property int txLength: 0
+		property int currentTx: 0
+		Component.onCompleted:
+		{
+			gasEstimationClient.init("/gasEstimationTx")
+		}
+
+		onNewRecord:
+		{
+			currentTx++
+			if (txRequested && currentTx > txLength)
+			{
+				var gas = gasEstimationClient.gasCosts[gasEstimationClient.gasCosts.length - 1]
+				estimatedGas.text = qsTr("Estimated cost: ") + gas + " gas"
+				txRequested = false
+				currentTx = 0
+			}
+		}
+
+		onSetupFinished:
+		{
+			scenarioLoaded = true
+			var item = getItem()
+			gasEstimationClient.executeTr(item);
+			txRequested = true
+		}
+
+		function reset()
+		{
+			scenarioLoaded = false
+			for (var si = 0; si < projectModel.listModel.count; si++)
+			{
+				var document = projectModel.listModel.get(si);
+				if (document.isContract)
+					gasEstimationCode.registerCodeChange(document.documentId, fileIo.readFile(document.path));
+			}
+			var scenario = projectModel.stateListModel.getState(mainContent.rightPane.bcLoader.selectedScenarioIndex)
+		}
+
+		function setupContext()
+		{
+			if (!gasEstimationClient.running)
+			{
+				estimatedGas.text = qsTr("calculating gas estimation...")
+				var scenario = projectModel.stateListModel.getState(mainContent.rightPane.bcLoader.selectedScenarioIndex)
+				txLength = 0
+				currentTx = 0
+				for (var i in scenario.blocks)
+					txLength += scenario.blocks[i].transactions.length
+				gasEstimationClient.setupScenario(scenario)
+			}
+		}
+
+		function executeTempTx()
+		{
+			if (!gasEstimationClient.running)
+				setupContext()
+		}
+	}
 }
 }
+

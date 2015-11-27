@@ -17,6 +17,7 @@ Column
 	Layout.fillWidth: true
 	spacing: 10
 	property int colHeight
+	signal valuesChanged()
 
 	function setSpacing(sp)
 	{
@@ -153,6 +154,7 @@ Column
 
 					item.onValueChanged.connect(function() {
 						syncValue(vals, pname)
+						root.valuesChanged()
 					});
 
 					var newWidth = nameLabel.width + typeLabel.width + item.width + 108;
