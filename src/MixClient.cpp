@@ -21,6 +21,7 @@
  */
 
 #include <boost/filesystem.hpp>
+#include <QDebug>
 #include "MixClient.h"
 #include <vector>
 #include <utility>

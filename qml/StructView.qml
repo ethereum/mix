@@ -145,7 +145,10 @@ Column
 						item.members = members[index].type.members
 					}
 					else if (ptype.category === QSolidityType.Bool)
+					{
 						item.subType = modelData.type.name
+						item.value = getValue();
+					}
 					else
 						item.value = getValue();
 

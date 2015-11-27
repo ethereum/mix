@@ -35,6 +35,7 @@ Dialog {
 	property alias stateAccounts: senderComboBox.model
 	property bool saveStatus
 	property bool loaded: false
+	property bool enableGasEstimation: false
 	signal accepted
 	signal closed
 
@@ -90,7 +91,7 @@ Dialog {
 		senderComboBox.updateCombobox()
 		valueField.update()
 		gasPriceField.update()
-		contractCreationComboBox.updateCombobox()
+		contractCreationComboBox.updateCombobox()		
 		loaded = true
 	}
 
@@ -872,7 +873,8 @@ Dialog {
 		property int currentTx: 0
 		Component.onCompleted:
 		{
-			gasEstimationClient.init("/gasEstimationTx")
+			if (enableGasEstimation)
+				gasEstimationClient.init("/gasEstimationTx")
 		}
 
 		onNewRecord:
@@ -898,21 +900,24 @@ Dialog {
 
 		function reset()
 		{
-			scenarioLoaded = false
-			for (var si = 0; si < projectModel.listModel.count; si++)
+			if (enableGasEstimation)
 			{
-				var document = projectModel.listModel.get(si);
-				if (document.isContract)
-					gasEstimationCode.registerCodeChange(document.documentId, fileIo.readFile(document.path));
+				scenarioLoaded = false
+				for (var si = 0; si < projectModel.listModel.count; si++)
+				{
+					var document = projectModel.listModel.get(si);
+					if (document.isContract)
+						gasEstimationCode.registerCodeChange(document.documentId, fileIo.readFile(document.path));
+				}
+				var scenario = projectModel.stateListModel.getState(mainContent.rightPane.bcLoader.selectedScenarioIndex)
 			}
-			var scenario = projectModel.stateListModel.getState(mainContent.rightPane.bcLoader.selectedScenarioIndex)
 		}
 
 		function setupContext()
 		{
-			if (!gasEstimationClient.running)
+			if (!gasEstimationClient.running && enableGasEstimation)
 			{
-				estimatedGas.text = qsTr("calculating gas estimation...")
+				estimatedGas.text = qsTr("Computing gas estimation...")
 				var scenario = projectModel.stateListModel.getState(mainContent.rightPane.bcLoader.selectedScenarioIndex)
 				txLength = 0
 				currentTx = 0
@@ -924,7 +929,7 @@ Dialog {
 
 		function executeTempTx()
 		{
-			if (!gasEstimationClient.running)
+			if (enableGasEstimation)
 				setupContext()
 		}
 	}
