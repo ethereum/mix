@@ -81,7 +81,7 @@ private:
 	virtual bool visit(VariableDeclaration const& _node) override
 	{
 		SolidityDeclaration decl;
-		decl.type = CodeModel::nodeType(_node.type(nullptr).get());
+		decl.type = CodeModel::nodeType(_node.type().get());
 		decl.name = QString::fromStdString(_node.name());
 		decl.slot = 0;
 		decl.offset = 0;
@@ -133,7 +133,7 @@ QHash<unsigned, SolidityDeclarations> collectStorage(dev::solidity::ContractDefi
 		dev::solidity::VariableDeclaration const* declaration = std::get<0>(v);
 		dev::u256 slot = std::get<1>(v);
 		unsigned offset = std::get<2>(v);
-		result[static_cast<unsigned>(slot)].push_back(SolidityDeclaration { QString::fromStdString(declaration->name()), CodeModel::nodeType(declaration->type(nullptr).get()), slot, offset });
+		result[static_cast<unsigned>(slot)].push_back(SolidityDeclaration { QString::fromStdString(declaration->name()), CodeModel::nodeType(declaration->type().get()), slot, offset });
 	}
 	return result;
 }
@@ -624,7 +624,7 @@ SolidityType CodeModel::nodeType(dev::solidity::Type const* _type)
 	{
 		r.type = SolidityType::Type::Struct;
 		StructType const* s = dynamic_cast<StructType const*>(_type);
-		for(auto const& structMember: s->members())
+		for(auto const& structMember: s->members(nullptr))
 		{
 			auto slotAndOffset = s->storageOffsetsOfMember(structMember.name);
 			r.members.push_back(SolidityDeclaration { QString::fromStdString(structMember.name), nodeType(structMember.type.get()), slotAndOffset.first, slotAndOffset.second });
