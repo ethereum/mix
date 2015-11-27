@@ -800,7 +800,7 @@ RecordLogEntry* ClientModel::lastBlock() const
 	strGas << blockInfo.gasUsed();
 	stringstream strNumber;
 	strNumber << blockInfo.number();
-	RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList(), RecordLogEntry::TxSource::MixGui, false);
+	RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList(), RecordLogEntry::TxSource::MixGui, RecordLogEntry::TransactionException::None);
 	QQmlEngine::setObjectOwnership(record, QQmlEngine::JavaScriptOwnership);
 	return record;
 }
@@ -824,29 +824,50 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 {
 	ExecutionResult const& tr = m_client->lastExecution();
 
+	RecordLogEntry::TransactionException exception = RecordLogEntry::TransactionException::None;
 	switch (tr.excepted)
 	{
 	case TransactionException::None:
 		break;
 	case TransactionException::NotEnoughCash:
+	{
+		exception = RecordLogEntry::TransactionException::NotEnoughCash;
 		emit runFailed("Insufficient balance");
 		break;
+	}
 	case TransactionException::OutOfGasIntrinsic:
 	case TransactionException::OutOfGasBase:
 	case TransactionException::OutOfGas:
+	{
+		exception = RecordLogEntry::TransactionException::OutOfGas;
 		emit runFailed("Not enough gas");
 		break;
+	}
 	case TransactionException::BlockGasLimitReached:
+	{
+		exception = RecordLogEntry::TransactionException::BlockGasLimitReached;
 		emit runFailed("Block gas limit reached");
 		break;
+	}
 	case TransactionException::BadJumpDestination:
+	{
+		exception = RecordLogEntry::TransactionException::BadJumpDestination;
 		emit runFailed("Solidity exception (bad jump)");
 		break;
+	}
 	case TransactionException::OutOfStack:
+	{
+		exception = RecordLogEntry::TransactionException::OutOfStack;
 		emit runFailed("Out of stack");
 		break;
+	}
+
 	case TransactionException::StackUnderflow:
+	{
+		exception = RecordLogEntry::TransactionException::StackUnderflow;
 		emit runFailed("Stack underflow");
+		break;
+	}
 		//these should not happen in mix
 	case TransactionException::Unknown:
 	case TransactionException::BadInstruction:
@@ -854,8 +875,12 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 	case TransactionException::InvalidNonce:
 	case TransactionException::InvalidFormat:
 	case TransactionException::BadRLP:
+	{
+		exception = RecordLogEntry::TransactionException::Unknown;
 		emit runFailed("Internal execution error");
 		break;
+	}
+
 	}
 
 
@@ -1010,7 +1035,7 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 		label = address;
 
 	RecordLogEntry* log = new RecordLogEntry(recordIndex, transactionIndex, contract, function, value, address, returned, tr.isCall(), RecordLogEntry::RecordType::Transaction,
-											 gasUsed, sender, label, inputParameters, returnParameters, logs, _source, tr.excepted == TransactionException::OutOfGasBase);
+											 gasUsed, sender, label, inputParameters, returnParameters, logs, _source, exception);
 	if (transactionIndex != QObject::tr("Call"))
 		m_lastTransactionIndex = transactionIndex;
 

@@ -891,6 +891,7 @@ Dialog {
 		{
 			scenarioLoaded = true
 			var item = getItem()
+			item.gasAuto = true
 			gasEstimationClient.executeTr(item);
 			txRequested = true
 		}
