@@ -34,21 +34,21 @@ QFunctionDefinition::QFunctionDefinition(QObject* _parent, dev::solidity::Functi
 	init(_f);
 }
 
-QFunctionDefinition::QFunctionDefinition(QObject* _parent, ASTPointer<FunctionDefinition> const& _f): QBasicNodeDefinition(_parent, _f.get()), m_hash(dev::sha3(_f->externalSignature())),
-	m_fullHash(dev::sha3(_f->externalSignature()))
+QFunctionDefinition::QFunctionDefinition(QObject* _parent, FunctionDefinition const& _f): QBasicNodeDefinition(_parent, &_f), m_hash(dev::sha3(_f.externalSignature())),
+	m_fullHash(dev::sha3(_f.externalSignature()))
 {
-	for (unsigned i = 0; i < _f->parameters().size(); ++i)
-		m_parameters.append(new QVariableDeclaration(parent(), _f->parameters().at(i)));
+	for (unsigned i = 0; i < _f.parameters().size(); ++i)
+		m_parameters.append(new QVariableDeclaration(parent(), _f.parameters().at(i)));
 
-	for (unsigned i = 0; i < _f->returnParameters().size(); ++i)
-		m_returnParameters.append(new QVariableDeclaration(parent(), _f->returnParameters().at(i)));
+	for (unsigned i = 0; i < _f.returnParameters().size(); ++i)
+		m_returnParameters.append(new QVariableDeclaration(parent(), _f.returnParameters().at(i)));
 }
 
-QFunctionDefinition::QFunctionDefinition(QObject* _parent, const solidity::EventDefinition* const _e): QBasicNodeDefinition(_parent, _e)
+QFunctionDefinition::QFunctionDefinition(QObject* _parent, dev::solidity::EventDefinition const& _e): QBasicNodeDefinition(_parent, &_e)
 {
-	for (unsigned i = 0; i < _e->parameters().size(); ++i)
-		m_parameters.append(new QVariableDeclaration(parent(), _e->parameters().at(i)));
-	FunctionTypePointer _f = std::make_shared<FunctionType>(*_e);
+	for (unsigned i = 0; i < _e.parameters().size(); ++i)
+		m_parameters.append(new QVariableDeclaration(parent(), _e.parameters().at(i)));
+	FunctionTypePointer _f = std::make_shared<FunctionType>(_e);
 	m_hash = (FixedHash<4>)dev::sha3(_f->externalSignature());
 	m_fullHash = dev::sha3(_f->externalSignature());
 }

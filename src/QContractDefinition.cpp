@@ -43,7 +43,7 @@ QContractDefinition::QContractDefinition(QObject* _parent, dev::solidity::Contra
 		m_functions.append(new QFunctionDefinition(parent, it.second));
 
 	for (auto const& it: _contract->events())
-		m_events.append(new QFunctionDefinition(parent, it));
+		m_events.append(new QFunctionDefinition(parent, *it));
 
 }
 

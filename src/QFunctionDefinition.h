@@ -41,8 +41,8 @@ public:
 	QFunctionDefinition(){}
 	QFunctionDefinition(QObject* _parent): QBasicNodeDefinition(_parent) {}
 	QFunctionDefinition(QObject* _parent, solidity::FunctionTypePointer const& _f);
-	QFunctionDefinition(QObject* _parent, const solidity::EventDefinition* const _f);
-	QFunctionDefinition(QObject* _parent, solidity::ASTPointer<solidity::FunctionDefinition> const& _f);
+	QFunctionDefinition(QObject* _parent, solidity::EventDefinition const& _f);
+	QFunctionDefinition(QObject* _parent, solidity::FunctionDefinition const& _f);
 	/// Init members
 	void init(dev::solidity::FunctionTypePointer _f);
 	/// Get all input parameters of this function.
