@@ -211,10 +211,15 @@ ColumnLayout
 					{
 						anchors.horizontalCenter: parent.horizontalCenter
 						anchors.verticalCenter: parent.verticalCenter
+						color: labelColor
 						text:  {
 
 							if (!tx || tx.exception === "None")
+							{
+								color = labelColor
 								return "→"
+
+							}
 							else
 							{
 								color = "red"
