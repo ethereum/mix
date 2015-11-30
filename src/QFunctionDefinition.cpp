@@ -44,7 +44,7 @@ QFunctionDefinition::QFunctionDefinition(QObject* _parent, ASTPointer<FunctionDe
 		m_returnParameters.append(new QVariableDeclaration(parent(), _f->returnParameters().at(i)));
 }
 
-QFunctionDefinition::QFunctionDefinition(QObject* _parent, ASTPointer<dev::solidity::EventDefinition> const& _e): QBasicNodeDefinition(_parent, _e.get())
+QFunctionDefinition::QFunctionDefinition(QObject* _parent, const solidity::EventDefinition* const _e): QBasicNodeDefinition(_parent, _e)
 {
 	for (unsigned i = 0; i < _e->parameters().size(); ++i)
 		m_parameters.append(new QVariableDeclaration(parent(), _e->parameters().at(i)));
