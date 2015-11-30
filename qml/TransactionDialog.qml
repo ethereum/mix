@@ -35,7 +35,7 @@ Dialog {
 	property alias stateAccounts: senderComboBox.model
 	property bool saveStatus
 	property bool loaded: false
-	property bool enableGasEstimation: false
+	property bool enableGasEstimation: true
 	signal accepted
 	signal closed
 
