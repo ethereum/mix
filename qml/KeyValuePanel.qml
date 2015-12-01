@@ -23,6 +23,7 @@ ColumnLayout {
 	property bool hideEqualSign
 	property var jValue: ({})
 	property bool prettyJSON
+	property var jsonValues
 	spacing: 0
 
 	function add(key, value)
@@ -90,7 +91,9 @@ ColumnLayout {
 
 	function updateToJSON()
 	{
-		resultTextArea.text = Debugger.prettyJSON(jValue)
+		resultTextArea.text = ""
+		resultTextArea.text = Debugger.prettyJSON(jValue) + resultTextArea.text
+		jsonValues = JSON.stringify(jValue)
 		resultTextArea.visible = true
 		colValue.visible = false
 	}
@@ -150,9 +153,7 @@ ColumnLayout {
 			{
 				var data = {}
 				data.info = titleLabel.text
-				data.content = []
-				for (var k = 0; k < modelKeyValue.count; k++)
-					data.content.push({ key: modelKeyValue.get(k).key, value: modelKeyValue.get(k).value})
+				data.content = JSON.parse(jsonValues)
 				return JSON.stringify(data)
 			}
 
