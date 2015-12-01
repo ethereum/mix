@@ -9,6 +9,8 @@ function isScientificNumber(_value)
 
 function isNumber(_value)
 {
+	if (!_value)
+		return false
 	if (!isNaN(_value))
 		_value = _value.toString();
 	var nbRegEx = new RegExp('^[0-9]+$');
