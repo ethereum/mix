@@ -20,9 +20,12 @@
  * Ethereum IDE client.
  */
 
+#include <boost/filesystem.hpp>
+#include <QDebug>
 #include "MixClient.h"
 #include <vector>
 #include <utility>
+#include <QtGlobal>
 #include <libdevcore/Exceptions.h>
 #include <libethcore/ChainOperationParams.h>
 #include <libethcore/BasicAuthority.h>
@@ -93,14 +96,20 @@ void MixClient::resetState(std::unordered_map<Address, Account> const& _accounts
 		i.second.clear();
 	m_watches.clear();
 
+	boost::filesystem::remove_all(m_dbPath);
+
+	m_bc.reset();
+	m_bc.reset(new MixBlockChain(m_dbPath + "/bc", _accounts));
+
+	m_preSeal = Block(Block::NullType::Null);
+	m_postSeal = Block(Block::NullType::Null);
 	m_stateDB = OverlayDB();
+	m_stateDB = State::openDB(m_dbPath + "/state", m_bc->genesisHash(), WithExisting::Kill);
 	SecureTrieDB<Address, MemoryDB> accountState(&m_stateDB);
 	accountState.init();
 	dev::eth::commit(_accounts, accountState);
 
-	m_bc.reset();
-	m_bc.reset(new MixBlockChain(m_dbPath, _accounts));
-	Block b(*m_bc, m_stateDB, BaseState::PreExisting, KeyPair(_miner).address());
+	Block b(*m_bc, m_stateDB, BaseState::Empty, KeyPair(_miner).address());
 	b.sync(bc());
 	m_preSeal = b;
 	m_postSeal = b;

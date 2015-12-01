@@ -20,6 +20,7 @@ ColumnLayout {
 	property alias model: modelKeyValue
 	property int minHeight: 100
 	property int maxHeight: 250
+	property bool hideEqualSign
 	spacing: 0
 
 	function add(key, value)
@@ -132,7 +133,6 @@ ColumnLayout {
 				border.color: "#cccccc"
 				radius: 2
 				visible: false
-
 			}
 
 			ScrollView
@@ -172,7 +172,10 @@ ColumnLayout {
 									ret = repeaterKeyValue.model.get(index).key
 								else
 									return ret
-								ret += " = "
+								if (!hideEqualSign)
+									ret += " = "
+								else
+									ret += "   "
 								if (index >= 0 && repeaterKeyValue.model.get(index).value !== undefined)
 									ret += repeaterKeyValue.model.get(index).value
 								return ret

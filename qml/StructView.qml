@@ -17,6 +17,7 @@ Column
 	Layout.fillWidth: true
 	spacing: 10
 	property int colHeight
+	signal valuesChanged()
 
 	function setSpacing(sp)
 	{
@@ -144,7 +145,10 @@ Column
 						item.members = members[index].type.members
 					}
 					else if (ptype.category === QSolidityType.Bool)
+					{
 						item.subType = modelData.type.name
+						item.value = getValue();
+					}
 					else
 						item.value = getValue();
 
@@ -153,6 +157,7 @@ Column
 
 					item.onValueChanged.connect(function() {
 						syncValue(vals, pname)
+						root.valuesChanged()
 					});
 
 					var newWidth = nameLabel.width + typeLabel.width + item.width + 108;

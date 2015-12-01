@@ -604,6 +604,7 @@ SolidityType CodeModel::nodeType(dev::solidity::Type const* _type)
 		{
 			SolidityType elementType = nodeType(array->baseType().get());
 			elementType.name = r.name;
+			elementType.dataLocation = r.dataLocation;
 			r = elementType;
 		}
 		r.count = static_cast<unsigned>(array->length());

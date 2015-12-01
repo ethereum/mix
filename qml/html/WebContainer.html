@@ -21,14 +21,17 @@ reloadPage = function() {
 	preview.contentWindow.location.reload();
 };
 
+resetWeb3 = function() {
+    if (window.web3)
+	window.web3.reset();
+}
+
 updateContracts = function(contracts) {
 	if (window.web3) {
-		window.web3.reset();
 		window.contracts = {};
 		window.frames["preview"].contracts = {}
 		window.ctrAddresses = {};
 		window.frames["preview"].ctrAddresses = {}
-		window.BigNumber = require('bignumber.js');
 		for (var c in contracts) {
 			var contract = window.web3.eth.contract(contracts[c].interface).at(contracts[c].address);
 			window.contracts[c] = {
@@ -54,10 +57,12 @@ updateContracts = function(contracts) {
 };
 
 init = function(url) {
+	window.BigNumber = require('bignumber.js');
 	var Web3 = require('web3');
 	web3 = new Web3();
 	window.web3 = web3;
 	web3.setProvider(new web3.providers.HttpProvider(url));
+	window.web3.reset();
 };
 
 executeJavaScript = function(script) {

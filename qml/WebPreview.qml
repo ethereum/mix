@@ -312,6 +312,7 @@ Item {
 					}
 					onSetupStarted:
 					{
+						webView.runJavaScript("resetWeb3()")
 						buildingScenario = true
 					}
 					onNewRecord:

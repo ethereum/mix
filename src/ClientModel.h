@@ -25,6 +25,7 @@
 
 #include <atomic>
 #include <map>
+#include <QMetaEnum>
 #include <QString>
 #include <QQmlListProperty>
 #include <QVariantMap>
@@ -98,6 +99,7 @@ struct TransactionSettings
 class RecordLogEntry: public QObject
 {
 	Q_OBJECT
+	Q_ENUMS(TransactionException)
 	Q_ENUMS(TxSource)
 	Q_ENUMS(RecordType)
 	/// Recording index
@@ -132,6 +134,8 @@ class RecordLogEntry: public QObject
 	Q_PROPERTY(QVariantList logs MEMBER m_logs CONSTANT)
 	/// logs
 	Q_PROPERTY(TxSource source MEMBER m_source CONSTANT)
+	/// exception
+	Q_PROPERTY(QString exception MEMBER m_strException CONSTANT)
 
 public:
 	enum RecordType
@@ -146,13 +150,35 @@ public:
 		MixGui
 	};
 
+	enum TransactionException
+	{
+		None,
+		Unknown,
+		BadRLP,
+		InvalidFormat,
+		OutOfGasIntrinsic,		///< Too little gas to pay for the base transaction cost.
+		InvalidSignature,
+		InvalidNonce,
+		NotEnoughCash,
+		OutOfGasBase,			///< Too little gas to pay for the base transaction cost.
+		BlockGasLimitReached,
+		BadInstruction,
+		BadJumpDestination,
+		OutOfGas,				///< Ran out of gas executing code of the transaction.
+		OutOfStack,				///< Ran out of stack executing code of the transaction.
+		StackUnderflow
+	};
 
 	RecordLogEntry():
 		m_recordIndex(0), m_call(false), m_type(RecordType::Transaction) {}
 	RecordLogEntry(unsigned _recordIndex, QString _transactionIndex, QString _contract, QString _function, QString _value, QString _address, QString _returned, bool _call, RecordType _type, QString _gasUsed,
-				   QString _sender, QString _label, QVariantMap _inputParameters, QVariantMap _returnParameters, QVariantList _logs, TxSource _source):
+				   QString _sender, QString _label, QVariantMap _inputParameters, QVariantMap _returnParameters, QVariantList _logs, TxSource _source, TransactionException _exception):
 		m_recordIndex(_recordIndex), m_transactionIndex(_transactionIndex), m_contract(_contract), m_function(_function), m_value(_value), m_address(_address), m_returned(_returned), m_call(_call), m_type(_type), m_gasUsed(_gasUsed),
-		m_sender(_sender), m_label(_label), m_inputParameters(_inputParameters), m_returnParameters(_returnParameters), m_logs(_logs), m_source(_source) {}
+		m_sender(_sender), m_label(_label), m_inputParameters(_inputParameters), m_returnParameters(_returnParameters), m_logs(_logs), m_source(_source), m_exception(_exception)
+	{
+		QMetaEnum ex = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("TransactionException"));
+		m_strException = QString(ex.valueToKey(m_exception));
+	}
 
 private:
 	unsigned m_recordIndex;
@@ -171,6 +197,8 @@ private:
 	QVariantMap m_returnParameters;
 	QVariantList m_logs;
 	TxSource m_source;
+	TransactionException m_exception;
+	QString m_strException;
 };
 
 /**
@@ -302,13 +330,12 @@ private:
 	void callAddress(Address const& _contract, bytes const& _data, TransactionSettings const& _tr);
 	void onNewTransaction(RecordLogEntry::TxSource _source);
 	void showDebuggerForTransaction(ExecutionResult const& _t, QString const& _label = "");
-	QVariant formatValue(SolidityType const& _type, dev::u256 const& _value);
-	QVariant formatValue(SolidityType const& _type, dev::bytes const& _value, u256& _offset);
 	QString resolveToken(std::pair<QString, int> const& _value);
 	std::pair<QString, int> retrieveToken(QString const& _value);
 	std::pair<QString, int> resolvePair(QString const& _contractId);
 	QString serializeToken(std::pair<QString, int> const& _value) const;
 	QVariant formatStorageValue(SolidityType const& _type, std::unordered_map<dev::u256, dev::u256> const& _storage, unsigned const& _offset, dev::u256 const& _slot);
+	QVariant formatMemoryValue(SolidityType const& _type, bytes const& _value, u256& _offset);
 	void processNextTransactions();
 	void finalizeBlock();
 	void stopExecution();

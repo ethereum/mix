@@ -255,43 +255,57 @@ QString ContractCallDataEncoder::toChar(dev::bytes const& _b)
 	return  str;
 }
 
-QJsonValue ContractCallDataEncoder::decodeArrayContent(SolidityType const& _type, bytes const& _value, u256& pos)
+QJsonValue ContractCallDataEncoder::decodeArrayContent(SolidityType const& _type, bytes const& _value, u256& _pos)
 {
 	if (_type.baseType->array)
 	{
-		QJsonArray sub = decodeArray(*_type.baseType, _value, pos);
+		QJsonArray sub;
+		if (_type.dataLocation == solidity::DataLocation::Memory)
+		{
+			//pointer to content always store here in case of Memory
+			bytesConstRef value(_value.data() + static_cast<size_t>(_pos), 32);
+			bytes rawParam(32);
+			value.populate(&rawParam);
+			u256 pos = u256(decodeInt(rawParam));
+			_pos += 32;
+			sub = decodeArray(*_type.baseType, _value, pos);
+		}
+		else
+			sub = decodeArray(*_type.baseType, _value, _pos);
 		return sub;
 	}
 	else
 	{
-		bytesConstRef value(_value.data() + static_cast<size_t>(pos), 32);
+		bytesConstRef value(_value.data() + static_cast<size_t>(_pos), 32);
 		bytes rawParam(32);
 		value.populate(&rawParam);
 		QVariant i = decode(*_type.baseType, rawParam);
-		pos = pos + 32;
+		_pos += 32;
 		return i.toString();
 	}
 }
 
-QJsonArray ContractCallDataEncoder::decodeArray(SolidityType const& _type, bytes const& _value, u256& pos)
+QJsonArray ContractCallDataEncoder::decodeArray(SolidityType const& _type, bytes const& _value, u256& _pos)
 {
 	QJsonArray array;
-	if (_value.size() < pos)
+	if (_value.size() < _pos)
 		return array;
+
 	bytesConstRef value(&_value);
 	u256 count = 0;
-	u256 offset = pos;
-	u256 valuePosition = pos;
+	u256 offset = _pos;
+	u256 valuePosition = _pos;
+
 	if (!_type.dynamicSize)
 		count = _type.count;
 	else
 	{
-		bytesConstRef value(_value.data() + static_cast<size_t>(pos), 32); // offset
+		bytesConstRef value(_value.data() + static_cast<size_t>(_pos), 32); // offset
 		bytes rawParam(32);
 		value.populate(&rawParam);
 		offset = u256(decodeInt(rawParam));
 		valuePosition = offset + 32;
-		pos += 32;
+		_pos += 32;
 		value = bytesConstRef(_value.data() + static_cast<size_t>(offset), 32); // count
 		value.populate(&rawParam);
 		count = u256(decodeInt(rawParam));
@@ -313,7 +327,7 @@ QJsonArray ContractCallDataEncoder::decodeArray(SolidityType const& _type, bytes
 			if (_type.dynamicSize)
 				array.append(decodeArrayContent(_type, _value, valuePosition));
 			else
-				array.append(decodeArrayContent(_type, _value, pos));
+				array.append(decodeArrayContent(_type, _value, _pos));
 		}
 	}
 	return array;
@@ -391,12 +405,44 @@ QVariant ContractCallDataEncoder::decodeRawArray(SolidityType const& _type, byte
 	return array.toVariantList();
 }
 
-QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot)
+QVariant ContractCallDataEncoder::formatMemoryValue(SolidityType const& _type, bytes const& _value, u256& _offset)
 {
+	ContractCallDataEncoder decoder;
+	QVariant res;
 	if (_type.array)
-		return formatStorageArray(_type, _storage, _offset, _slot);
+		res = decoder.decodeRawArray(_type, _value, _offset);
 	else if (_type.members.size() > 0)
-		return formatStorageStruct(_type, _storage, _slot);
+	{
+		QVariantMap list;
+		for (unsigned k = 0; k < _type.members.size(); ++k)
+		{
+			auto m = _type.members.at(k);
+			if (m.type.array)
+			{
+				bytesConstRef value(_value.data() + static_cast<size_t>(_offset), 32);
+				bytes rawParam(32);
+				value.populate(&rawParam);
+				u256 arrayOffset = u256(decoder.decodeInt(rawParam));
+				list.insert(m.name, decoder.decodeRawArray(m.type, _value, arrayOffset));
+				_offset += 32;
+			}
+			else
+				list.insert(m.name, formatMemoryValue(m.type, _value, _offset));
+		}
+		return list;
+	}
+	else
+		res = decoder.decodeType(_type, _value, _offset);
+	return res;
+}
+
+QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot, u256& _endSlot)
+{
+	_endSlot = _slot;
+	if (_type.array)
+		return formatStorageArray(_type, _storage, _offset, _slot, _endSlot);
+	else if (_type.members.size() > 0)
+		return formatStorageStruct(_type, _storage, _slot, _endSlot);
 	else
 	{
 		bytes data;
@@ -405,30 +451,43 @@ QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, 
 		if (_type.type == QSolidityType::Type::Enum && data.empty())
 			return "0"; // if first enum, the retrieved storage does not contains the data.
 		else
-			return decode(_type, data, _offset);
+		{
+			QVariant ret;
+			if (_storage.find(_slot) != _storage.end())
+			{
+				bytes value = toBigEndian(_storage.at(_slot));
+				int offset = 32 - _type.size - _offset;
+				bytesConstRef valueParam(value.data() + offset, _type.size);
+				bytes rawParam(_type.size);
+				valueParam.populate(&rawParam);
+				rawParam = padded(rawParam, 32);
+				ret = decode(_type, rawParam, 0);
+			}
+			return ret;
+		}
 	}
 }
 
-QVariant ContractCallDataEncoder::formatStorageStruct(SolidityType const& _type, unordered_map<u256, u256> const& _storage, u256 _slot)
+QVariant ContractCallDataEncoder::formatStorageStruct(SolidityType const& _type, unordered_map<u256, u256> const& _storage, u256 _slot, u256& _endSlot)
 {
 	QVariantMap ret;
 	for (auto const& type: _type.members)
-		ret.insert(type.name, formatStorageValue(type.type, _storage, type.offset, _slot + type.slot));
+		ret.insert(type.name, formatStorageValue(type.type, _storage, type.offset, _slot + type.slot, _endSlot));
 	return ret;
 }
 
-QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot)
+QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot, u256& _endSlot)
 {
 	Q_UNUSED(_offset);
 	QVariantList array;
-	QString str;
-	if (_storage.find(_slot) == _storage.end())
-		return array;
+	QString str;	
 	unsigned pos = 0;
 	u256 count = 0;
 	u256 contentIndex;
 	if (_type.dynamicSize)
 	{
+		if (_storage.find(_slot) == _storage.end())
+			return array;
 		count = _storage.at(_slot);
 		bytes slot = toBigEndian(count);
 		bytes rawLength = bytes(slot.end() - 1, slot.end());
@@ -439,11 +498,7 @@ QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, 
 			return decode(_type, content, 0);
 		}
 		else
-		{
 			contentIndex = u256("0x" + dev::sha3(toBigEndian(_slot)).hex());
-			if (_type.type == QSolidityType::Type::String || _type.type == QSolidityType::Type::Bytes)
-				count = (count - 1) / 2;
-		}
 	}
 	else
 	{
@@ -457,19 +512,21 @@ QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, 
 	{
 		if (_type.baseType.get()->array)
 		{
-			array.append(formatStorageArray(*_type.baseType, _storage, offset, contentIndex));
+			array.append(formatStorageArray(*_type.baseType, _storage, offset, contentIndex, _endSlot));
+			contentIndex = _endSlot;
 			contentIndex++;
 		}
 		else
-		{
-			if (_storage.find(contentIndex) == _storage.end())
-			{
-				j++;
-				continue;
-			}
-
+		{			
 			if (_type.type == SolidityType::Type::String || _type.type == SolidityType::Type::Bytes)
 			{
+				if (_storage.find(contentIndex) == _storage.end())
+				{
+					j++;
+					contentIndex++;
+					continue;
+				}
+
 				bytes value = toBigEndian(_storage.at(contentIndex));
 				str += decode(_type, value, 0).toString();
 				j += 32;
@@ -477,13 +534,19 @@ QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, 
 			}
 			else if (_type.type == SolidityType::Type::Struct)
 			{
-				array.append(formatStorageStruct(*_type.baseType, _storage, contentIndex));
-				auto lastMember = _type.members.back();
-				contentIndex = lastMember.slot;
-				offset = lastMember.offset - lastMember.type.size;
+				array.append(formatStorageStruct(_type, _storage, contentIndex, _endSlot));
+				contentIndex = _endSlot;
+				contentIndex++;
 			}
 			else
 			{
+				if (_storage.find(contentIndex) == _storage.end())
+				{
+					j++;
+					contentIndex++;
+					continue;
+				}
+
 				bytes value = toBigEndian(_storage.at(contentIndex));
 				bytesConstRef valueParam(value.data() + offset, _type.size);
 				bytes rawParam(_type.size);
@@ -491,21 +554,22 @@ QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, 
 				rawParam = padded(rawParam, 32);
 				array.append(decode(*_type.baseType, rawParam, pos));
 				offset = offset - _type.baseType.get()->size;
-			}
-			if (offset < 0)
-			{
-				offset = 32 - _type.baseType.get()->size;
-				contentIndex++;
+				if (offset < 0)
+				{
+					offset = 32 - _type.baseType.get()->size;
+					_endSlot = contentIndex;
+					contentIndex++;
+				}
 			}
 		}
 		j++;
 	}
+
 	if (_type.type == SolidityType::Type::String || _type.type == SolidityType::Type::Bytes)
 		return str;
 	else
 		return array;
 }
-
 
 QString ContractCallDataEncoder::decodeEnum(bytes _value)
 {
