@@ -21,20 +21,33 @@ ColumnLayout {
 	property int minHeight: 100
 	property int maxHeight: 250
 	property bool hideEqualSign
+	property var jValue: ({})
+	property bool prettyJSON
 	spacing: 0
 
 	function add(key, value)
 	{
-		modelKeyValue.append({ "key": key, "value": toScientificNumber(value) })
+		value = toScientificNumber(value)
+		try
+		{
+			value = JSON.parse(value)
+		}
+		catch (e)
+		{}
+		modelKeyValue.append({ "key": key, "value": value })
+		jValue[key] = value
 	}
 
 	function clear()
 	{
 		modelKeyValue.clear()
+		jValue = {}
+		resultTextArea.text = ""
 	}
 
 	function init()
 	{
+		jValue = {}
 		modelKeyValue.clear()
 		if (typeof(computeData) !== "undefined" && computeData instanceof Function)
 			computeData()
@@ -44,9 +57,21 @@ ColumnLayout {
 			{
 				var keys = Object.keys(_data[role])
 				for (var k in keys)
-					modelKeyValue.append({ "key": keys[k] === "" ? qsTr("anonymous") : keys[k], "value": toScientificNumber(_data[role][keys[k]]) })
+				{
+					var key = keys[k] === "" ? qsTr("anonymous") : keys[k]
+					var value = toScientificNumber(_data[role][keys[k]])
+					try
+					{
+						value = JSON.parse(value)
+					}
+					catch (e)
+					{}
+					modelKeyValue.append({ "key": key, "value": value })
+				}
 			}
 		}
+		for (var k = 0; k < modelKeyValue.count; k++)
+			jValue[modelKeyValue.get(k).key] = modelKeyValue.get(k).value
 	}
 
 	function toScientificNumber(value)
@@ -55,14 +80,19 @@ ColumnLayout {
 		{
 			value = ScientificNumber.normalize(value)
 			if (ScientificNumber.shouldConvertToScientific(value.replace(/"/g, "")))
-			{
 				return ScientificNumber.toScientificNumber(value.replace(/"/g, "")) + " (" + value + ")"
-			}
 			else
 				return value
 		}
 		else
 			return value
+	}
+
+	function updateToJSON()
+	{
+		resultTextArea.text = Debugger.prettyJSON(jValue)
+		resultTextArea.visible = true
+		colValue.visible = false
 	}
 
 	RowLayout
@@ -96,6 +126,7 @@ ColumnLayout {
 		Layout.preferredWidth: parent.width
 		Layout.minimumHeight: minHeight
 		width: parent.width
+
 		CopyButton
 		{
 			anchors.top: parent.top
@@ -104,12 +135,7 @@ ColumnLayout {
 			anchors.rightMargin: 1
 			getContent: function()
 			{
-				var data = {}
-				data.info = titleLabel.text
-				data.content = []
-				for (var k = 0; k < modelKeyValue.count; k++)
-					data.content.push({ key: modelKeyValue.get(k).key, value: modelKeyValue.get(k).value})
-				return JSON.stringify(data)
+				return keyPanel.retrieveContent()
 			}
 		}
 		RowLayout
@@ -118,6 +144,16 @@ ColumnLayout {
 			onHeightChanged:
 			{
 				parent.Layout.minimumHeight = height
+			}
+
+			function retrieveContent()
+			{
+				var data = {}
+				data.info = titleLabel.text
+				data.content = []
+				for (var k = 0; k < modelKeyValue.count; k++)
+					data.content.push({ key: modelKeyValue.get(k).key, value: modelKeyValue.get(k).value})
+				return JSON.stringify(data)
 			}
 
 			ListModel
@@ -144,6 +180,29 @@ ColumnLayout {
 				clip: true
 				anchors.left: parent.left
 				flickableItem.interactive: false
+
+				DefaultTextArea {
+					anchors.fill: parent
+					anchors.top: parent.top
+					readOnly: true
+					visible: false
+					id: resultTextArea
+					wrapMode: Text.Wrap
+					textFormat: Text.RichText
+					verticalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+
+					CopyButton
+					{
+						anchors.top: parent.top
+						anchors.topMargin: 1
+						anchors.right: parent.right
+						anchors.rightMargin: 1
+						getContent: function()
+						{
+							return keyPanel.retrieveContent()
+						}
+					}
+				}
 
 				ColumnLayout
 				{

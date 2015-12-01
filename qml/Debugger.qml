@@ -652,16 +652,19 @@ Rectangle {
 					title: qsTr("Locals")
 					id: solLocals
 					width: splitInfoList.width
-					function setData(members, values)  {
-						_data = values
-						computeData()
+					prettyJSON: true
+					property var locals
+					function setData(_members, _values)  {
+						locals = _values
+						init()
 					}
 
 					function computeData()
 					{
-						model.clear()
-						for (var k in _data)
-							model.append({ "key": k, "value": JSON.stringify(_data[k]) })
+						solLocals.clear()
+						for (var k in locals)
+							solLocals.add(k, JSON.stringify(locals[k]))
+						solLocals.updateToJSON()
 					}
 				}
 
@@ -670,16 +673,19 @@ Rectangle {
 					title: qsTr("Members")
 					id: solStorage
 					width: splitInfoList.width
-					function setData(members, values)  {
-						_data = values
-						computeData()
+					prettyJSON: true
+					property var members
+					function setData(_members, _values)  {
+						members = _values
+						init()
 					}
 
 					function computeData()
 					{
-						model.clear()
-						for (var k in _data)
-							model.append({ "key": k, "value": JSON.stringify(_data[k]) })
+						solStorage.clear()
+						for (var k in members)
+							solStorage.add(k, JSON.stringify(members[k]))
+						solStorage.updateToJSON()
 					}
 				}
 			}

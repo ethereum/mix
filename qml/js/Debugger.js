@@ -1,3 +1,5 @@
+Qt.include("Printer.js")
+Qt.include("ansi2html.js")
 //debugData => contain all debug states.
 //statesList => ListView
 
@@ -332,3 +334,10 @@ function jumpTo(value)
 {
 	select(value);
 }
+
+function prettyJSON(obj)
+{
+	var printed = prettyPrint(obj);
+	return ansi2html(printed);
+}
+
