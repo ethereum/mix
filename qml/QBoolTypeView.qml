@@ -36,7 +36,7 @@ Item
 				setValue = parseInt(defaultValue);
 			else
 				setValue = parseInt(value);
-			boolCombo.checked = setValue === "1" ? true: false
+			boolCombo.checked = setValue === 1 ? true: false
 			boolCombo.enabled = !readOnly;
 		}
 		else

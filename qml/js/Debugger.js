@@ -1,3 +1,5 @@
+Qt.include("Printer.js")
+Qt.include("ansi2html.js")
 //debugData => contain all debug states.
 //statesList => ListView
 
@@ -210,8 +212,8 @@ function completeCtxInformation(state)
 
 	if (state.solidity) {
 		solLocals.setData(state.solidity.locals.variables, state.solidity.locals.values);
-		solStorage.setData(state.solidity.storage.variables, state.solidity.storage.values);
-		solCallStack.listModel = state.solidity.callStack;
+		solStorage.setData(state.solidity.storage.variables, state.solidity.storage.values);		
+		solCallStack.setData(state.solidity.callStack)
 	} else {
 		solLocals.setData([], {});
 		solStorage.setData([], {});
@@ -332,3 +334,10 @@ function jumpTo(value)
 {
 	select(value);
 }
+
+function prettyJSON(obj)
+{
+	var printed = prettyPrint(obj);
+	return ansi2html(printed);
+}
+

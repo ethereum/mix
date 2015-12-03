@@ -184,7 +184,7 @@ Item {
 
 		function displayErrorAnnotations(detail, location, secondaryErrors)
 		{
-			editorBrowser.runJavaScript("compilationError('" + sourceName + "', '" + JSON.stringify(location) + "', '" + detail + "', '" + JSON.stringify(secondaryErrors) + "')", function(result){});
+			editorBrowser.runJavaScript("compilationError('" + sourceName + "', '" + JSON.stringify(location).replace(/'/g, ' ') + "', '" + detail.replace(/'/g, ' ') + "', '" + JSON.stringify(secondaryErrors).replace(/'/g, ' ') + "')", function(result){});
 		}
 
 		Timer

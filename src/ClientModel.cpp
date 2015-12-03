@@ -411,6 +411,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 				if (!transaction.isFunctionCall)
 				{
 					callAddress(Address(address.toStdString()), bytes(), transaction);
+					m_gasCosts.append(m_client->lastExecution().gasUsed);
 					onNewTransaction(RecordLogEntry::TxSource::MixGui);
 					continue;
 				}
@@ -708,12 +709,17 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t, QString 
 					{
 						u256 pos = s.stack[l.first];
 						u256 offset = pos;
-						localValues[l.second->name()] = formatValue(l.second->type()->type(), s.memory, offset);
+						localValues[l.second->name()] = formatMemoryValue(l.second->type()->type(), s.memory, offset);
 					}
 					else if (loc == DataLocation::Storage)
 						localValues[l.second->name()] = formatStorageValue(l.second->type()->type(), s.storage, localDecl[l.second->name()].offset, localDecl[l.second->name()].slot);
 					else
-						localValues[l.second->name()] = formatValue(l.second->type()->type(), s.stack[l.first]);
+					{
+						ContractCallDataEncoder decoder;
+						u256 pos = 0;
+						bytes val = toBigEndian(s.stack[l.first]);
+						localValues[l.second->name()] = decoder.decodeType(l.second->type()->type(), val, pos);
+					}
 				}
 			locals["variables"] = localDeclarations;
 			locals["values"] = localValues;
@@ -738,39 +744,17 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t, QString 
 	debugDataReady(debugData);
 }
 
-QVariant ClientModel::formatValue(SolidityType const& _type, u256 const& _value)
-{
-	bytes val = toBigEndian(_value);
-	u256 pos = 0;
-	return formatValue(_type, val, pos);
-}
-
-QVariant ClientModel::formatValue(SolidityType const& _type, bytes const& _value, u256& _offset)
+QVariant ClientModel::formatMemoryValue(SolidityType const& _type, bytes const& _value, u256& _offset)
 {
 	ContractCallDataEncoder decoder;
-	u256 pos = _offset;
-	QVariant res;
-	if (_type.array)
-		res = decoder.decodeRawArray(_type, _value, _offset);
-	else if (_type.members.size() > 0)
-	{
-		QVariantList list;
-		for (auto const& m: _type.members)
-			list.append(formatValue(m.type, _value, _offset));
-		return list;
-	}
-	else
-	{
-		res = decoder.decodeType(_type, _value, pos);
-		_offset += 32;
-	}
-	return res;
+	return decoder.formatMemoryValue(_type, _value, _offset);
 }
 
 QVariant ClientModel::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned const& _offset, u256 const& _slot)
 {
 	ContractCallDataEncoder decoder;
-	return decoder.formatStorageValue(_type, _storage, _offset, _slot);
+	u256 endSlot;
+	return decoder.formatStorageValue(_type, _storage, _offset, _slot, endSlot);
 }
 
 void ClientModel::emptyRecord()
@@ -816,7 +800,7 @@ RecordLogEntry* ClientModel::lastBlock() const
 	strGas << blockInfo.gasUsed();
 	stringstream strNumber;
 	strNumber << blockInfo.number();
-	RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList(), RecordLogEntry::TxSource::MixGui);
+	RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList(), RecordLogEntry::TxSource::MixGui, RecordLogEntry::TransactionException::None);
 	QQmlEngine::setObjectOwnership(record, QQmlEngine::JavaScriptOwnership);
 	return record;
 }
@@ -840,29 +824,50 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 {
 	ExecutionResult const& tr = m_client->lastExecution();
 
+	RecordLogEntry::TransactionException exception = RecordLogEntry::TransactionException::None;
 	switch (tr.excepted)
 	{
 	case TransactionException::None:
 		break;
 	case TransactionException::NotEnoughCash:
+	{
+		exception = RecordLogEntry::TransactionException::NotEnoughCash;
 		emit runFailed("Insufficient balance");
 		break;
+	}
 	case TransactionException::OutOfGasIntrinsic:
 	case TransactionException::OutOfGasBase:
 	case TransactionException::OutOfGas:
+	{
+		exception = RecordLogEntry::TransactionException::OutOfGas;
 		emit runFailed("Not enough gas");
 		break;
+	}
 	case TransactionException::BlockGasLimitReached:
+	{
+		exception = RecordLogEntry::TransactionException::BlockGasLimitReached;
 		emit runFailed("Block gas limit reached");
 		break;
+	}
 	case TransactionException::BadJumpDestination:
+	{
+		exception = RecordLogEntry::TransactionException::BadJumpDestination;
 		emit runFailed("Solidity exception (bad jump)");
 		break;
+	}
 	case TransactionException::OutOfStack:
+	{
+		exception = RecordLogEntry::TransactionException::OutOfStack;
 		emit runFailed("Out of stack");
 		break;
+	}
+
 	case TransactionException::StackUnderflow:
+	{
+		exception = RecordLogEntry::TransactionException::StackUnderflow;
 		emit runFailed("Stack underflow");
+		break;
+	}
 		//these should not happen in mix
 	case TransactionException::Unknown:
 	case TransactionException::BadInstruction:
@@ -870,8 +875,12 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 	case TransactionException::InvalidNonce:
 	case TransactionException::InvalidFormat:
 	case TransactionException::BadRLP:
+	{
+		exception = RecordLogEntry::TransactionException::Unknown;
 		emit runFailed("Internal execution error");
 		break;
+	}
+
 	}
 
 
@@ -1026,7 +1035,7 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 		label = address;
 
 	RecordLogEntry* log = new RecordLogEntry(recordIndex, transactionIndex, contract, function, value, address, returned, tr.isCall(), RecordLogEntry::RecordType::Transaction,
-											 gasUsed, sender, label, inputParameters, returnParameters, logs, _source);
+											 gasUsed, sender, label, inputParameters, returnParameters, logs, _source, exception);
 	if (transactionIndex != QObject::tr("Call"))
 		m_lastTransactionIndex = transactionIndex;
 

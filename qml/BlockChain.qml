@@ -572,6 +572,7 @@ ColumnLayout {
 							tr.logs = _r.logs
 							tr.isCall = false
 							tr.sender = _r.sender
+							tr.exception = _r.exception
 							tr.returnParameters = _r.returnParameters
 							var trModel = blockModel.getTransaction(blockIndex, trIndex)
 							trModel.returned = _r.returned
@@ -579,6 +580,7 @@ ColumnLayout {
 							trModel.logs = _r.logs
 							trModel.sender = _r.sender
 							trModel.returnParameters = _r.returnParameters
+							trModel.exception = _r.exception
 							blockModel.setTransaction(blockIndex, trIndex, trModel)
 							blockChainRepeater.select(blockIndex, trIndex, -1)
 							txExecuted(blockIndex, trIndex, -1)
@@ -618,7 +620,8 @@ ColumnLayout {
 				itemTr.functionId = _r.function
 				itemTr.contractId = _r.contract
 				itemTr.isCall = _isCall
-				itemTr.gasAuto = true
+				itemTr.gasAuto = false
+				itemTr.gas =  QEtherHelper.createBigInt(_r.gasUsed)
 				itemTr.isContractCreation = itemTr.functionId === itemTr.contractId
 				itemTr.label = _r.label
 				itemTr.isFunctionCall = itemTr.functionId !== "" && itemTr.functionId !== "<none>"
@@ -628,6 +631,7 @@ ColumnLayout {
 				itemTr.recordIndex = _r.recordIndex
 				itemTr.logs = _r.logs
 				itemTr.returnParameters = _r.returnParameters
+				itemTr.exception = _r.exception
 				if (!itemTr.isContractCreation)
 					itemTr.parameters = _r.parameters
 				else if (transactionDialog.parameters)

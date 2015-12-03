@@ -54,8 +54,6 @@ Column {
 		searchBox.visible = currentState && currentState.contractsStorage && Object.keys(currentState.contractsStorage).length > 0
 		for (var k in currentState.contractsStorage)
 			storages.append({ "key": k, "value": currentState.contractsStorage[k].values })
-		for (var k = 0; k < storages.count; k++)
-			stoRepeater.itemAt(k).init()
 		updated()
 	}
 
@@ -85,7 +83,7 @@ Column {
 					var value = currentState.accounts[k]
 					if (k === "0x" + miner.address)
 						value = value + " " + qsTr("(is mining)")
-					model.append({ "key": label, "value": value })
+					accounts.add(label, value)
 				}
 		}
 	}
@@ -135,12 +133,19 @@ Column {
 		{
 			width: root.width
 			id: ctrsStorage
+			prettyJSON: true
+			Component.onCompleted:
+			{
+				init()
+			}
+
 			function computeData()
 			{
 				title = storages.get(index).key
-				ctrsStorage.model.clear()
+				ctrsStorage.clear()
 				for (var k in storages.get(index).value)
 					ctrsStorage.add(k, JSON.stringify(storages.get(index).value[k]))
+				ctrsStorage.updateToJSON()
 			}
 		}
 	}

@@ -211,7 +211,22 @@ ColumnLayout
 					{
 						anchors.horizontalCenter: parent.horizontalCenter
 						anchors.verticalCenter: parent.verticalCenter
-						text: "→"
+						color: labelColor
+						text:  {
+
+							if (!tx || tx.exception === "None")
+							{
+								color = labelColor
+								return "→"
+
+							}
+							else
+							{
+								color = "red"
+								font.italic = true
+								return tx.exception
+							}
+						}
 					}
 				}
 
@@ -407,6 +422,26 @@ ColumnLayout
 				DefaultLabel
 				{
 					text:  tx ? tx.value.format() : ""
+					width: rowTransactionItem.width - 30
+					elide: Text.ElideRight
+					color: trDetailColor
+					font.bold: true
+				}
+			}
+
+			RowLayout
+			{
+				id: gasUsedDetail
+				anchors.left: parent.left
+				anchors.leftMargin: 5
+				DefaultLabel
+				{
+					text: qsTr("Gas Used: ")
+					color: trDetailColor
+				}
+				DefaultLabel
+				{
+					text:  tx ? tx.gas.value() : ""
 					width: rowTransactionItem.width - 30
 					elide: Text.ElideRight
 					color: trDetailColor
