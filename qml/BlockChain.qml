@@ -31,6 +31,7 @@ ColumnLayout {
 	property bool firstLoad: true
 	property bool buildUseOptimizedCode: false
 	property bool built: false
+	property int btnWidth: 60
 
 	Keys.onUpPressed:
 	{
@@ -304,7 +305,7 @@ ColumnLayout {
 		ScenarioButton {
 			id: rebuild
 			text: qsTr("Rebuild Scenario")
-			width: 80
+			width: btnWidth
 			Layout.minimumHeight: 30
 			roundLeft: true
 			roundRight: false
@@ -479,7 +480,7 @@ ColumnLayout {
 					transactionDialog.open(model.blocks[model.blocks.length - 1].transactions.length, model.blocks.length - 1, item)
 				}
 			}
-			width: 80
+			width: btnWidth
 			Layout.minimumHeight: 30
 			buttonShortcut: ""
 			sourceImg: "qrc:/qml/img/sendtransactionicon@2x.png"
@@ -528,7 +529,7 @@ ColumnLayout {
 				model.blocks.push(block)
 				blockModel.appendBlock(block)
 			}
-			width: 80
+			width: btnWidth
 			Layout.minimumHeight: 30
 
 			buttonShortcut: ""
@@ -659,7 +660,7 @@ ColumnLayout {
 				newAddressWin.accounts = model.accounts
 				newAddressWin.open()
 			}
-			width: 80
+			width: btnWidth
 			Layout.minimumHeight: 30
 			buttonShortcut: ""
 			sourceImg: "qrc:/qml/img/newaccounticon@2x.png"

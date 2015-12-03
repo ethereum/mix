@@ -23,8 +23,8 @@ ColumnLayout
 	signal closed()
 	property alias selectedScenarioIndex: scenarioList.currentIndex
 	property bool panelLoaded: false
-	property int btnWidth: 77
-	spacing: 0
+	property int btnWidth: 60
+
 	function init()
 	{
 		scenarioList.model = projectModel.stateListModel
@@ -80,6 +80,7 @@ ColumnLayout
 		property int comboboxWidth: 100
 		property int minimalWidth: 100 * 6 + btnRowContainer.comboboxWidth
 		Layout.minimumHeight: 30
+
 		Item
 		{
 			Layout.preferredWidth: parent.comboboxWidth
