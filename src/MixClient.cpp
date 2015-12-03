@@ -21,7 +21,7 @@
  */
 
 #include <boost/filesystem.hpp>
-#include <QDebug>
+#include <QDir>
 #include "MixClient.h"
 #include <vector>
 #include <utility>
@@ -96,7 +96,8 @@ void MixClient::resetState(std::unordered_map<Address, Account> const& _accounts
 		i.second.clear();
 	m_watches.clear();
 
-	boost::filesystem::remove_all(m_dbPath);
+	QDir dir(QString::fromStdString(m_dbPath));
+	dir.removeRecursively();
 
 	m_bc.reset();
 	m_bc.reset(new MixBlockChain(m_dbPath + "/bc", _accounts));
