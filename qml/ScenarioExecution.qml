@@ -46,16 +46,18 @@ Rectangle {
 	{
 		anchors.fill: parent
 		onWidthChanged: {
-			columnExe.width = width - 10
+			columnExe.width = width - 30
 		}
 		flickableItem.interactive: false
+		id: scenarioScrollView
 
 		ColumnLayout
 		{
 			id: columnExe
 			Layout.preferredWidth: parent.width
 			anchors.left: parent.left
-			anchors.leftMargin: 5
+			anchors.leftMargin: 14
+
 			ColumnLayout
 			{				
 				id: scenarioColumn
