@@ -305,26 +305,27 @@ void CodeModel::runCompilationJob(int _jobId)
 				sourceNames.push_back(c.first.toStdString());
 			}
 		}
-		if (!cs.compile(m_optimizeCode))
+		cs.compile(m_optimizeCode);
+		if (!cs.errors().empty())
 		{
-			for (auto const& exception: cs.errors())
+			for (auto const& error: cs.errors())
 			{
 				// This code is duplicated below for a transition period until we switch away from
 				// exceptions for error reporting.
-				std::stringstream error;
-				solidity::SourceReferenceFormatter::printExceptionInformation(error, *exception, "Error", cs);
-				QString message = QString::fromStdString(error.str());
+				std::stringstream errorStr;
+				solidity::SourceReferenceFormatter::printExceptionInformation(errorStr, *error, (error->type() == solidity::Error::Type::Warning) ? "Warning" : "Error", cs);
+				QString message = QString::fromStdString(errorStr.str());
 				QVariantMap firstLocation;
 				QVariantList secondLocations;
-				if (SourceLocation const* first = boost::get_error_info<solidity::errinfo_sourceLocation>(*exception))
+				if (SourceLocation const* first = boost::get_error_info<solidity::errinfo_sourceLocation>(*error))
 					firstLocation = resolveCompilationErrorLocation(cs, *first);
-				if (SecondarySourceLocation const* second = boost::get_error_info<solidity::errinfo_secondarySourceLocation>(*exception))
+				if (SecondarySourceLocation const* second = boost::get_error_info<solidity::errinfo_secondarySourceLocation>(*error))
 				{
 					for (auto const& c: second->infos)
 						secondLocations.push_back(resolveCompilationErrorLocation(cs, c.second));
 				}
 				compilationError(message, firstLocation, secondLocations);
-				break; // @TODO provide a way to display multiple errors.
+				//break; // @TODO provide a way to display multiple errors.
 			}
 		}
 		else
@@ -332,6 +333,7 @@ void CodeModel::runCompilationJob(int _jobId)
 	}
 	catch (dev::Exception const& _exception)
 	{
+		// TODO REMOVE
 		// This code is duplicated above for a transition period until we switch away from
 		// exceptions for error reporting.
 		std::stringstream error;
