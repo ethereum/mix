@@ -9,18 +9,30 @@ Rectangle {
 	property string text
 	property string buttonShortcut
 	property string sourceImg
-	property string fillColor
 	property alias roundLeft: left.visible
 	property alias roundRight: right.visible
 	property alias direction: blinkTimer.direction
 	property alias index: blinkTimer.index
-	property string color
+	property string color: "white"
+	property string disabledColor: "#e7e7e7"
 	property alias isBlinking: blinkTimer.running
 	property alias displayLabel: labelCont.visible
 	signal clicked
+	property bool canDisable: true
+	onEnabledChanged:
+	{
+		if (canDisable)
+		{
+			if (enabled)
+				updateColor(color)
+			else
+				updateColor(disabledColor)
+		}
+	}
 
 	function startBlinking()
 	{
+		canDisable = false
 		if (!blinkTimer.running)
 			blinkTimer.start()
 	}
@@ -28,6 +40,7 @@ Rectangle {
 	function stopBlinking()
 	{
 		blinkTimer.stop()
+		canDisable = true
 	}
 
 	function setBlinking(_index, _direction, _color)
