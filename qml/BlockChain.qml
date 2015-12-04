@@ -125,7 +125,6 @@ ColumnLayout {
 
 	onWidthChanged:
 	{
-		var minWidth = scenarioMinWidth - 20 // margin
 		fromWidth = width / 2
 		toWidth = width / 2
 		previousWidth = width
@@ -302,6 +301,20 @@ ColumnLayout {
 			}
 		}
 
+		Connections
+		{
+			id: compilationResultChecker
+			target:codeModel
+			property bool rebuildEnable: true
+			onCompilationError:
+			{
+				rebuildEnable = false;
+			}
+			onCompilationComplete:
+			{
+				rebuildEnable = true;
+			}
+		}
 		ScenarioButton {
 			id: rebuild
 			text: qsTr("Rebuild Scenario")
@@ -309,7 +322,7 @@ ColumnLayout {
 			Layout.minimumHeight: 30
 			roundLeft: true
 			roundRight: false
-			enabled: scenarioIndex !== -1
+			enabled: (scenarioIndex !== -1) && (compilationResultChecker.rebuildEnable)
 			property variant contractsHex: ({})
 			property variant txSha3: ({})
 			property variant accountsSha3
