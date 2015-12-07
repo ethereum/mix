@@ -18,7 +18,6 @@ Rectangle {
 	property alias isBlinking: blinkTimer.running
 	property alias displayLabel: labelCont.visible
 	signal clicked
-	property bool canDisable: true
 	onEnabledChanged:
 	{
 		if (canDisable)
@@ -32,7 +31,6 @@ Rectangle {
 
 	function startBlinking()
 	{
-		canDisable = false
 		if (!blinkTimer.running)
 			blinkTimer.start()
 	}
@@ -40,7 +38,6 @@ Rectangle {
 	function stopBlinking()
 	{
 		blinkTimer.stop()
-		canDisable = true
 	}
 
 	function setBlinking(_index, _direction, _color)
@@ -87,6 +84,8 @@ Rectangle {
 			property int index: 0
 			property int direction: 1
 			onTriggered: {
+				if (!buttonActionContainer.enabled)
+					return
 				index = index + direction
 				color = parent.colorGradient[index]
 				updateColor(color)
