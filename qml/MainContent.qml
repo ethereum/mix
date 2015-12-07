@@ -11,6 +11,7 @@ import "."
 Rectangle {
 	objectName: "mainContent"
 	signal keyPressed(variant event)
+	signal webPreviewOrientationChanged()
 	focus: true
 	Keys.enabled: true
 	Keys.onPressed:
@@ -31,7 +32,8 @@ Rectangle {
 	property alias codeEditor: codeEditor
 	property bool webViewHorizontal: codeWebSplitter.orientation === Qt.Vertical //vertical splitter positions elements vertically, splits screen horizontally
 	property bool displayCalls
-	property int scenarioMinWidth: 370
+	property int scenarioMinWidth: 485
+	property int scenarioMaxWidth: parent.width * 0.6
 
 	Connections {
 		target: debugPanel
@@ -80,6 +82,7 @@ Rectangle {
 
 	function toggleWebPreviewOrientation() {
 		codeWebSplitter.orientation = (codeWebSplitter.orientation === Qt.Vertical ? Qt.Horizontal : Qt.Vertical);
+		webPreviewOrientationChanged()
 	}
 
 	//TODO: move this to debugger.js after refactoring, introduce events
@@ -224,6 +227,7 @@ Rectangle {
 					Keys.onEscapePressed: visible = false
 					width: scenarioMinWidth
 					Layout.minimumWidth: scenarioMinWidth
+					Layout.maximumWidth: scenarioMaxWidth
 					anchors.right: parent.right
 				}
 
@@ -235,6 +239,7 @@ Rectangle {
 					Keys.onEscapePressed: visible = false
 					width: scenarioMinWidth + 500
 					Layout.minimumWidth: scenarioMinWidth
+					Layout.maximumWidth: scenarioMaxWidth
 					anchors.right: parent.right
 					function close()
 					{

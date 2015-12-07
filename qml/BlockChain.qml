@@ -31,6 +31,7 @@ ColumnLayout {
 	property bool firstLoad: true
 	property bool buildUseOptimizedCode: false
 	property bool built: false
+	property int btnWidth: 60
 
 	Keys.onUpPressed:
 	{
@@ -124,7 +125,6 @@ ColumnLayout {
 
 	onWidthChanged:
 	{
-		var minWidth = scenarioMinWidth - 20 // margin
 		fromWidth = width / 2
 		toWidth = width / 2
 		previousWidth = width
@@ -301,14 +301,28 @@ ColumnLayout {
 			}
 		}
 
+		Connections
+		{
+			id: compilationResultChecker
+			target:codeModel
+			property bool rebuildEnable: true
+			onCompilationError:
+			{
+				rebuildEnable = false;
+			}
+			onCompilationComplete:
+			{
+				rebuildEnable = true;
+			}
+		}
 		ScenarioButton {
 			id: rebuild
 			text: qsTr("Rebuild Scenario")
-			width: 80
+			width: btnWidth
 			Layout.minimumHeight: 30
 			roundLeft: true
 			roundRight: false
-			enabled: scenarioIndex !== -1
+			enabled: (scenarioIndex !== -1) && (compilationResultChecker.rebuildEnable)
 			property variant contractsHex: ({})
 			property variant txSha3: ({})
 			property variant accountsSha3
@@ -479,7 +493,7 @@ ColumnLayout {
 					transactionDialog.open(model.blocks[model.blocks.length - 1].transactions.length, model.blocks.length - 1, item)
 				}
 			}
-			width: 80
+			width: btnWidth
 			Layout.minimumHeight: 30
 			buttonShortcut: ""
 			sourceImg: "qrc:/qml/img/sendtransactionicon@2x.png"
@@ -528,7 +542,7 @@ ColumnLayout {
 				model.blocks.push(block)
 				blockModel.appendBlock(block)
 			}
-			width: 80
+			width: btnWidth
 			Layout.minimumHeight: 30
 
 			buttonShortcut: ""
@@ -659,7 +673,7 @@ ColumnLayout {
 				newAddressWin.accounts = model.accounts
 				newAddressWin.open()
 			}
-			width: 80
+			width: btnWidth
 			Layout.minimumHeight: 30
 			buttonShortcut: ""
 			sourceImg: "qrc:/qml/img/newaccounticon@2x.png"

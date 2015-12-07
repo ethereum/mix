@@ -5,6 +5,7 @@ import QtQuick.Controls 1.0
 import QtQuick.Controls.Styles 1.1
 import QtWebEngine 1.0
 import QtWebEngine.experimental 1.0
+import Qt.labs.settings 1.0
 import HttpServer 1.0
 import "js/TransactionHelper.js" as TransactionHelper
 import "js/QEtherHelper.js" as QEtherHelper
@@ -342,6 +343,14 @@ Item {
 					action: expressionAction
 					iconSource: "qrc:/qml/img/console.png"
 					tooltip: qsTr("JS console")
+					Settings {
+						id: jsButtonSettings
+						property bool jsConsoleVisibility: expressionPanel.visible
+					}
+					Connections {
+						target: mainContent
+						onWebPreviewOrientationChanged: { expressionPanel.updateView() }
+					}
 				}
 
 				Action {
@@ -402,8 +411,11 @@ Item {
 				Layout.minimumHeight: 350
 				spacing: 0
 				Component.onCompleted: {
+					visible = jsButtonSettings.jsConsoleVisibility
 					updateView()
 				}
+				onVisibleChanged: { if (visible) updateView() }
+
 
 				function addExpression()
 				{
@@ -519,7 +531,7 @@ Item {
 					Image {
 						anchors.top: parent.top
 						anchors.topMargin: 1
-						anchors.rightMargin: 1
+						anchors.rightMargin: 10
 						anchors.right: parent.right
 						source: "qrc:/qml/img/javascript_logo.png"
 						height: 25
