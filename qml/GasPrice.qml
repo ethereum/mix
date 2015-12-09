@@ -89,6 +89,7 @@ ColumnLayout
 			displayFormattedValue: false
 			edit: true
 			readOnly: true
+			Layout.preferredWidth: 200
 			function toHexWei()
 			{
 				return "0x" + gasPriceInput.value.toWei().hexValue()

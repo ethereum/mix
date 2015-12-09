@@ -31,15 +31,11 @@ Rectangle {
 	function init()
 	{
 		visible = true
+		if (worker.currentAccount === "" && worker.accounts.length > 0)
+			worker.currentAccount = worker.accounts[0].id
+		worker.renewCtx()
 		contractList.currentIndex = 0
 		contractList.change()
-
-		if (worker.currentAccount === "" && worker.accounts.length > 0)
-		{
-			worker.currentAccount = worker.accounts[0].id
-			accountsList.currentIndex = 0
-		}
-		worker.renewCtx()
 		selectedScenarioIndex = 0
 	}
 
