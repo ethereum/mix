@@ -305,7 +305,8 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 		QVariantList transactions = b.toMap().value("transactions").toList();
 		if (transactions.size() > 0)
 			m_queueTransactions.push_back(transactions);
-		trToExecute = transactions.size() > 0;
+		if (transactions.size() > 0)
+			trToExecute = true;
 	}
 	m_client->resetState(m_accounts, Secret(_scenario.value("miner").toMap().value("secret").toString().toStdString()));
 	if (m_queueTransactions.count() > 0 && trToExecute)
@@ -402,8 +403,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 	m_runFuture = QtConcurrent::run([=]()
 	{
 		try
-		{
-			m_gasCosts.clear();
+		{			
 			for (TransactionSettings const& transaction: _sequence)
 			{
 				std::pair<QString, int> ctrInstance = resolvePair(transaction.contractId);
@@ -817,6 +817,7 @@ void ClientModel::onStateReset()
 	m_stdContractAddresses.clear();
 	m_stdContractNames.clear();
 	m_queueTransactions.clear();
+	m_gasCosts.clear();
 	emit stateCleared();
 }
 

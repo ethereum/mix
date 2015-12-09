@@ -40,7 +40,7 @@ var htmlTemplate = "<!doctype>\n" +
 		"</script>\n" +
 		"</head>\n" +
 		"<body bgcolor='#E6E6FA'>\n" +
-		"\t<h1>Sample Ratings</h1>\n" +
+		"\t<h4>Sample Ratings</h4>\n" +
 		"<div>\n" +
 		"Store:\n" +
 		"\t<input type='number' id='key'>\n" +

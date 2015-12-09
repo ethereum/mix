@@ -96,7 +96,14 @@ Rectangle {
 		{
 			anchors.top: parent.top
 			Layout.preferredWidth: 300
-			text: qsTr("Register the internet and Ethereum URL of your dapp on the main name registrar to make it easily accesible to users")
+			text: qsTr("Register the internet and Ethereum URL of your dapp on name registrar to make it easily accesible to users.")
+			font.bold: true
+		}
+
+		DefaultLabel
+		{
+			Layout.preferredWidth: 300
+			text: qsTr("The name Registrar must have been already deployed on the main chain.")
 			font.bold: true
 		}
 

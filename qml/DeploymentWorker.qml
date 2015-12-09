@@ -170,17 +170,14 @@ Item
 
 	function estimateGas(scenario, callback)
 	{
-		if (!clientModelGasEstimation.running)
+		for (var si = 0; si < projectModel.listModel.count; si++)
 		{
-			for (var si = 0; si < projectModel.listModel.count; si++)
-			{
-				var document = projectModel.listModel.get(si);
-				if (document.isContract)
-					codeModelGasEstimation.registerCodeChange(document.documentId, fileIo.readFile(document.path));
-			}
-			gasEstimationConnect.callback = callback
-			clientModelGasEstimation.setupScenario(scenario)
+			var document = projectModel.listModel.get(si);
+			if (document.isContract)
+				codeModelGasEstimation.registerCodeChange(document.documentId, fileIo.readFile(document.path));
 		}
+		gasEstimationConnect.callback = callback
+		clientModelGasEstimation.setupScenario(scenario)
 	}
 
 	Connections
@@ -188,7 +185,7 @@ Item
 		id: gasEstimationConnect
 		target: clientModelGasEstimation
 		property var callback
-		onRunComplete: {
+		onSetupFinished: {
 				callback(clientModelGasEstimation.gasCosts)
 		}
 	}

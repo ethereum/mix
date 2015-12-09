@@ -383,12 +383,17 @@ Rectangle
 				Layout.minimumHeight: 50
 				Layout.preferredWidth: parent.width - verLabel.width - 5
 				color: "#cccccc"
+				visible: false
 				DefaultTextArea
 				{
 					id: verificationTextArea
 					visible: false
 					backgroundVisible: false
 					anchors.fill: parent
+					onVisibleChanged:
+					{
+						parent.visible = visible
+					}
 				}
 			}
 

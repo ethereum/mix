@@ -20,13 +20,10 @@ Rectangle {
 	signal clicked
 	onEnabledChanged:
 	{
-		if (canDisable)
-		{
-			if (enabled)
-				updateColor(color)
-			else
-				updateColor(disabledColor)
-		}
+		if (enabled)
+			updateColor(color)
+		else
+			updateColor(disabledColor)
 	}
 
 	function startBlinking()
