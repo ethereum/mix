@@ -9,15 +9,25 @@ Rectangle {
 	property string text
 	property string buttonShortcut
 	property string sourceImg
-	property string fillColor
 	property alias roundLeft: left.visible
 	property alias roundRight: right.visible
 	property alias direction: blinkTimer.direction
 	property alias index: blinkTimer.index
-	property string color
+	property string color: "white"
+	property string disabledColor: "#e7e7e7"
 	property alias isBlinking: blinkTimer.running
 	property alias displayLabel: labelCont.visible
 	signal clicked
+	onEnabledChanged:
+	{
+		if (canDisable)
+		{
+			if (enabled)
+				updateColor(color)
+			else
+				updateColor(disabledColor)
+		}
+	}
 
 	function startBlinking()
 	{
@@ -74,6 +84,8 @@ Rectangle {
 			property int index: 0
 			property int direction: 1
 			onTriggered: {
+				if (!buttonActionContainer.enabled)
+					return
 				index = index + direction
 				color = parent.colorGradient[index]
 				updateColor(color)
