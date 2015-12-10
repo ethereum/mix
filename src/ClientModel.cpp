@@ -342,7 +342,8 @@ void ClientModel::stopExecution()
 
 void ClientModel::finalizeBlock()
 {
-	m_queueTransactions.pop_front();// pop last execution group. The last block is never mined (pending block)
+	if (m_queueTransactions.size() > 0)
+		m_queueTransactions.pop_front();// pop last execution group. The last block is never mined (pending block)
 	if (m_queueTransactions.size() > 0)
 		mine();
 	else

@@ -33,6 +33,7 @@ Rectangle
 			if (root.visible && verifyDeploy)
 				verifyDeployedContract();
 		})
+		ctrDeployCtrLabel.setCost()
 	}
 
 

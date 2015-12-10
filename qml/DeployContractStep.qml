@@ -35,8 +35,8 @@ Rectangle {
 			worker.currentAccount = worker.accounts[0].id
 		worker.renewCtx()
 		contractList.currentIndex = 0
-		contractList.change()
 		selectedScenarioIndex = 0
+		contractList.change()
 	}
 
 	function calculateContractDeployGas()
@@ -65,6 +65,13 @@ Rectangle {
 			anchors.top: parent.top
 			Layout.fillWidth: true
 			text: qsTr("Choose node and scenario")
+			font.bold: true
+		}
+
+		DefaultLabel
+		{
+			Layout.fillWidth: true
+			text: qsTr("This should only be used to deploy contract(s). \n - Transactions that are not a contract call/deployment will not be executed. \n - For each executed transaction, the amount of ether to be sent will be set to 0.")
 			font.bold: true
 		}
 
