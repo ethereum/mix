@@ -20,6 +20,7 @@ Item
 	property variant balances: ({})
 	property variant accounts: []
 	property alias pooler: pooler
+	property alias clientModelGasEstimation: clientModelGasEstimation
 	signal gasPriceLoaded()
 	signal nodeUnreachable(string message)
 	signal nodeReachable
@@ -168,7 +169,7 @@ Item
 		id: gasPriceInt
 	}
 
-	function estimateGas(scenario, callback)
+	function estimateGas(scenario)
 	{
 		for (var si = 0; si < projectModel.listModel.count; si++)
 		{
@@ -176,19 +177,8 @@ Item
 			if (document.isContract)
 				codeModelGasEstimation.registerCodeChange(document.documentId, fileIo.readFile(document.path));
 		}
-		gasEstimationConnect.callback = callback
 		clientModelGasEstimation.setupScenario(scenario)
-	}
-
-	Connections
-	{
-		id: gasEstimationConnect
-		target: clientModelGasEstimation
-		property var callback
-		onSetupFinished: {
-				callback(clientModelGasEstimation.gasCosts)
-		}
-	}
+	}	
 
 	CodeModel {
 		id: codeModelGasEstimation

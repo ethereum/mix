@@ -44,13 +44,21 @@ Rectangle {
 		if (!root.visible)
 			return;
 		var sce = projectModel.stateListModel.getState(contractList.currentIndex)
-		worker.estimateGas(sce, function(gas) {
-			gasByTx = gas
+		gasUsedLabel.text = qsTr("Updating...")
+		worker.estimateGas(sce)
+	}
+
+	Connections
+	{
+		id: gasEstimationConnect
+		target: worker.clientModelGasEstimation
+		onSetupFinished: {
+			gasByTx = worker.clientModelGasEstimation.gasCosts
 			gasUsed = 0
-			for (var k in gas)
-				gasUsed += gas[k]
+			for (var k in worker.clientModelGasEstimation.gasCosts)
+				gasUsed += worker.clientModelGasEstimation.gasCosts[k]
 			gasUsedLabel.text = gasUsed
-		});
+		}
 	}
 
 	ColumnLayout
@@ -172,7 +180,7 @@ Rectangle {
 						if (currentIndex > -1)
 						{
 							if (projectModel.stateListModel)
-							{
+							{								
 								for (var k = 0; k < projectModel.stateListModel.get(currentIndex).blocks.count; k++)
 								{
 									for (var j = 0; j < projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.count; j++)
