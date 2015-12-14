@@ -22,6 +22,11 @@ Rectangle {
 	property int labelWidth: 150
 	property int selectedScenarioIndex
 
+	onVisibleChanged:
+	{
+		if (visible)
+			contractList.change()
+	}
 
 	function show()
 	{
@@ -31,15 +36,10 @@ Rectangle {
 	function init()
 	{
 		visible = true
-		contractList.currentIndex = 0
-		contractList.change()
-
 		if (worker.currentAccount === "" && worker.accounts.length > 0)
-		{
 			worker.currentAccount = worker.accounts[0].id
-			accountsList.currentIndex = 0
-		}
 		worker.renewCtx()
+		contractList.currentIndex = 0
 		selectedScenarioIndex = 0
 	}
 
@@ -48,13 +48,27 @@ Rectangle {
 		if (!root.visible)
 			return;
 		var sce = projectModel.stateListModel.getState(contractList.currentIndex)
-		worker.estimateGas(sce, function(gas) {
-			gasByTx = gas
+		gasUsedLabel.text = qsTr("Updating...")
+		contractList.enabled = false
+		worker.estimateGas(sce)
+	}
+
+	Connections
+	{
+		id: gasEstimationConnect
+		target: worker.clientModelGasEstimation
+		onSetupFinished: {
+			gasByTx = worker.clientModelGasEstimation.gasCosts
 			gasUsed = 0
-			for (var k in gas)
-				gasUsed += gas[k]
+			for (var k in worker.clientModelGasEstimation.gasCosts)
+			{
+				gasUsed += worker.clientModelGasEstimation.gasCosts[k]
+				trList.itemAt(k).setGas(worker.clientModelGasEstimation.gasCosts[k])
+			}
+
 			gasUsedLabel.text = gasUsed
-		});
+			contractList.enabled = true
+		}
 	}
 
 	ColumnLayout
@@ -69,6 +83,13 @@ Rectangle {
 			anchors.top: parent.top
 			Layout.fillWidth: true
 			text: qsTr("Choose node and scenario")
+			font.bold: true
+		}
+
+		DefaultLabel
+		{
+			Layout.fillWidth: true
+			text: qsTr("This should only be used to deploy contract(s). \n - Transactions that are not a contract call/deployment will not be executed. \n - For each executed transaction, the amount of ether to be sent will be set to 0.")
 			font.bold: true
 		}
 
@@ -164,12 +185,14 @@ Rectangle {
 
 					function change()
 					{
+						if (!root.visible)
+							return
 						selectedScenarioIndex = currentIndex
 						trListModel.clear()
 						if (currentIndex > -1)
 						{
 							if (projectModel.stateListModel)
-							{
+							{								
 								for (var k = 0; k < projectModel.stateListModel.get(currentIndex).blocks.count; k++)
 								{
 									for (var j = 0; j < projectModel.stateListModel.get(currentIndex).blocks.get(k).transactions.count; j++)
@@ -226,6 +249,12 @@ Rectangle {
 											return 20
 									}
 
+									function setGas(gas)
+									{
+										gasEstimation.text =  " -  " + gas + " " + qsTr("gas")
+										gasEstimation.visible = true
+									}
+
 									function init()
 									{
 										paramList.clear()
@@ -248,6 +277,15 @@ Rectangle {
 												return trListModel.get(index).label
 											else
 												return ""
+										}
+
+										DefaultLabel
+										{
+											id: gasEstimation
+											visible: false
+											font.italic: true
+											anchors.left: parent.right
+											anchors.leftMargin: 5
 										}
 									}
 

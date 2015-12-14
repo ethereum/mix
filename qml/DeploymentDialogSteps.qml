@@ -112,7 +112,7 @@ Rectangle {
 							type:"upload",
 							label: qsTr("Upload and share\npackage")
 						}]
-				},
+				}/*,
 				{
 					step: 3,
 					type:"REGISTER",
@@ -122,7 +122,7 @@ Rectangle {
 							type:"register",
 							label: qsTr("Register dapp")
 						}]
-				}]
+				}*/]
 
 			Rectangle
 			{

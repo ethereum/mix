@@ -20,6 +20,7 @@ Item
 	property variant balances: ({})
 	property variant accounts: []
 	property alias pooler: pooler
+	property alias clientModelGasEstimation: clientModelGasEstimation
 	signal gasPriceLoaded()
 	signal nodeUnreachable(string message)
 	signal nodeReachable
@@ -168,30 +169,25 @@ Item
 		id: gasPriceInt
 	}
 
-	function estimateGas(scenario, callback)
+	function estimateGas(scenario)
 	{
-		if (!clientModelGasEstimation.running)
+		for (var si = 0; si < projectModel.listModel.count; si++)
 		{
-			for (var si = 0; si < projectModel.listModel.count; si++)
+			var document = projectModel.listModel.get(si);
+			if (document.isContract)
+				codeModelGasEstimation.registerCodeChange(document.documentId, fileIo.readFile(document.path));
+		}
+		var sce = projectModel.stateListModel.copyScenario(scenario)
+		for (var k = 0; k < sce.blocks.length; k++)
+		{
+			for (var j = 0; j < sce.blocks[k].transactions.length; j++)
 			{
-				var document = projectModel.listModel.get(si);
-				if (document.isContract)
-					codeModelGasEstimation.registerCodeChange(document.documentId, fileIo.readFile(document.path));
+				if (!sce.blocks[k].transactions[j].isFunctionCall)
+					sce.blocks[k].transactions.splice(j, 1)
 			}
-			gasEstimationConnect.callback = callback
-			clientModelGasEstimation.setupScenario(scenario)
 		}
-	}
-
-	Connections
-	{
-		id: gasEstimationConnect
-		target: clientModelGasEstimation
-		property var callback
-		onRunComplete: {
-				callback(clientModelGasEstimation.gasCosts)
-		}
-	}
+		clientModelGasEstimation.setupScenario(sce)
+	}	
 
 	CodeModel {
 		id: codeModelGasEstimation

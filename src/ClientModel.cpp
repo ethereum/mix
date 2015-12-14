@@ -143,8 +143,8 @@ void ClientModel::mine()
 		{
 			std::this_thread::sleep_for(std::chrono::seconds(1)); //ensure not future time
 			m_client->mine();
-			newBlock();
 			m_mining = false;
+			emit newBlock();
 			emit miningComplete();
 		}
 		catch (...)
@@ -304,8 +304,10 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 	{
 		QVariantList transactions = b.toMap().value("transactions").toList();
 		if (transactions.size() > 0)
+		{
 			m_queueTransactions.push_back(transactions);
-		trToExecute = transactions.size() > 0;
+			trToExecute = true;
+		}
 	}
 	m_client->resetState(m_accounts, Secret(_scenario.value("miner").toMap().value("secret").toString().toStdString()));
 	if (m_queueTransactions.count() > 0 && trToExecute)
@@ -341,7 +343,8 @@ void ClientModel::stopExecution()
 
 void ClientModel::finalizeBlock()
 {
-	m_queueTransactions.pop_front();// pop last execution group. The last block is never mined (pending block)
+	if (m_queueTransactions.size() > 0)
+		m_queueTransactions.pop_front();// pop last execution group. The last block is never mined (pending block)
 	if (m_queueTransactions.size() > 0)
 		mine();
 	else
@@ -402,8 +405,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 	m_runFuture = QtConcurrent::run([=]()
 	{
 		try
-		{
-			m_gasCosts.clear();
+		{			
 			for (TransactionSettings const& transaction: _sequence)
 			{
 				std::pair<QString, int> ctrInstance = resolvePair(transaction.contractId);
@@ -817,6 +819,9 @@ void ClientModel::onStateReset()
 	m_stdContractAddresses.clear();
 	m_stdContractNames.clear();
 	m_queueTransactions.clear();
+	m_gasCosts.clear();
+	m_mining = false;
+	m_running = false;
 	emit stateCleared();
 }
 
