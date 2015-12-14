@@ -33,7 +33,7 @@ Item
 							//accounts
 							jsonrpc: "2.0",
 							method: "eth_accounts",
-							params: null,
+							params: [],
 							id: 0
 						}];
 
