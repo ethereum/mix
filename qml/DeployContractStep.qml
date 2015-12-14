@@ -22,6 +22,11 @@ Rectangle {
 	property int labelWidth: 150
 	property int selectedScenarioIndex
 
+	onVisibleChanged:
+	{
+		if (visible)
+			contractList.change()
+	}
 
 	function show()
 	{
@@ -36,7 +41,6 @@ Rectangle {
 		worker.renewCtx()
 		contractList.currentIndex = 0
 		selectedScenarioIndex = 0
-		contractList.change()
 	}
 
 	function calculateContractDeployGas()
@@ -45,6 +49,7 @@ Rectangle {
 			return;
 		var sce = projectModel.stateListModel.getState(contractList.currentIndex)
 		gasUsedLabel.text = qsTr("Updating...")
+		contractList.enabled = false
 		worker.estimateGas(sce)
 	}
 
@@ -56,8 +61,13 @@ Rectangle {
 			gasByTx = worker.clientModelGasEstimation.gasCosts
 			gasUsed = 0
 			for (var k in worker.clientModelGasEstimation.gasCosts)
+			{
 				gasUsed += worker.clientModelGasEstimation.gasCosts[k]
+				trList.itemAt(k).setGas(worker.clientModelGasEstimation.gasCosts[k])
+			}
+
 			gasUsedLabel.text = gasUsed
+			contractList.enabled = true
 		}
 	}
 
@@ -175,6 +185,8 @@ Rectangle {
 
 					function change()
 					{
+						if (!root.visible)
+							return
 						selectedScenarioIndex = currentIndex
 						trListModel.clear()
 						if (currentIndex > -1)
@@ -237,6 +249,12 @@ Rectangle {
 											return 20
 									}
 
+									function setGas(gas)
+									{
+										gasEstimation.text =  " -  " + gas + " " + qsTr("gas")
+										gasEstimation.visible = true
+									}
+
 									function init()
 									{
 										paramList.clear()
@@ -259,6 +277,15 @@ Rectangle {
 												return trListModel.get(index).label
 											else
 												return ""
+										}
+
+										DefaultLabel
+										{
+											id: gasEstimation
+											visible: false
+											font.italic: true
+											anchors.left: parent.right
+											anchors.leftMargin: 5
 										}
 									}
 

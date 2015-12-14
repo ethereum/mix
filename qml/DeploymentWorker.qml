@@ -177,7 +177,16 @@ Item
 			if (document.isContract)
 				codeModelGasEstimation.registerCodeChange(document.documentId, fileIo.readFile(document.path));
 		}
-		clientModelGasEstimation.setupScenario(scenario)
+		var sce = projectModel.stateListModel.copyScenario(scenario)
+		for (var k = 0; k < sce.blocks.length; k++)
+		{
+			for (var j = 0; j < sce.blocks[k].transactions.length; j++)
+			{
+				if (!sce.blocks[k].transactions[j].isFunctionCall)
+					sce.blocks[k].transactions.splice(j, 1)
+			}
+		}
+		clientModelGasEstimation.setupScenario(sce)
 	}	
 
 	CodeModel {

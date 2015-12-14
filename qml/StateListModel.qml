@@ -302,7 +302,7 @@ Item {
 		function duplicateState(index)
 		{
 			var state = stateList[index]
-			var item = fromPlainStateItem(toPlainStateItem(state))
+			var item = copyScenario(state)
 
 			var copyIndex = 1;
 			while (titleExists(stateList, state.title + "_" + copyIndex))
@@ -311,6 +311,11 @@ Item {
 
 			appendState(item)
 			save()
+		}
+
+		function copyScenario(scenario)
+		{
+			return fromPlainStateItem(toPlainStateItem(scenario))
 		}
 
 		function createEmptyBlock()

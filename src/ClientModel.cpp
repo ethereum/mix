@@ -143,8 +143,8 @@ void ClientModel::mine()
 		{
 			std::this_thread::sleep_for(std::chrono::seconds(1)); //ensure not future time
 			m_client->mine();
-			newBlock();
 			m_mining = false;
+			emit newBlock();
 			emit miningComplete();
 		}
 		catch (...)
@@ -304,9 +304,10 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 	{
 		QVariantList transactions = b.toMap().value("transactions").toList();
 		if (transactions.size() > 0)
+		{
 			m_queueTransactions.push_back(transactions);
-		if (transactions.size() > 0)
 			trToExecute = true;
+		}
 	}
 	m_client->resetState(m_accounts, Secret(_scenario.value("miner").toMap().value("secret").toString().toStdString()));
 	if (m_queueTransactions.count() > 0 && trToExecute)
@@ -819,6 +820,8 @@ void ClientModel::onStateReset()
 	m_stdContractNames.clear();
 	m_queueTransactions.clear();
 	m_gasCosts.clear();
+	m_mining = false;
+	m_running = false;
 	emit stateCleared();
 }
 

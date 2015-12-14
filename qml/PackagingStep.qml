@@ -142,6 +142,34 @@ Rectangle {
 				}
 			}
 		}
+
+		RowLayout
+		{
+			Layout.fillWidth: true
+			Layout.minimumHeight: 20
+			Rectangle
+			{
+				Layout.preferredWidth: col.width / 5
+				anchors.verticalCenter: parent.verticalCenter
+				DefaultLabel
+				{
+					text: qsTr("Package Hash")
+					anchors.left: parent.left
+					anchors.verticalCenter: parent.verticalCenter
+				}
+			}
+
+			DisableInput
+			{
+				anchors.verticalCenter: parent.verticalCenter
+				Layout.preferredWidth: 359
+				text: root.packageHash
+				onTextChanged:
+				{
+					cursorPosition = 0
+				}
+			}
+		}
 	}
 }
 
