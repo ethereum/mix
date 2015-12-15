@@ -48,6 +48,7 @@ Rectangle {
 	{
 		if (!projectLoaded)
 			return
+		errorOccurred.visible = true
 		status.state = "warning";
 		status.text = text
 		logPane.push("warning", type, text);
@@ -58,6 +59,7 @@ Rectangle {
 	{
 		if (!projectLoaded)
 			return
+		errorOccurred.visible = true
 		status.state = "error";
 		status.text = text;
 		logPane.push("error", type, text);
@@ -68,6 +70,7 @@ Rectangle {
 	{
 		status.state = "";
 		status.text = "";
+		errorOccurred.visible = false
 	}
 
 	StatusPaneStyle {
@@ -111,6 +114,7 @@ Rectangle {
 				formatted = formatted[1];
 			else
 				return _message;
+
 			var exceptionInfos = _message.match(/(?:tag_)(.+)/g);
 			if (exceptionInfos !== null && exceptionInfos.length > 0)
 				formatted += ": "
@@ -160,6 +164,18 @@ Rectangle {
 			width: 20
 			anchors.verticalCenter: parent.verticalCenter
 		}
+
+		DefaultLabel
+		{
+			id: errorOccurred
+			visible: false
+			text: "!"
+			color: "red"
+			anchors.left: parent.right
+			anchors.leftMargin: 5
+			anchors.verticalCenter: parent.verticalCenter
+		}
+
 		id: statusContainer
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.verticalCenter: parent.verticalCenter
