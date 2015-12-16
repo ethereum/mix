@@ -31,7 +31,6 @@
 #include <libethereum/State.h>
 #include <libethereum/Executive.h>
 #include "MachineStates.h"
-#include "QVariableDefinition.h"
 #include "QBigInt.h"
 
 namespace dev

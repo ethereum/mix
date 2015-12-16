@@ -26,30 +26,81 @@ using namespace dev::mix;
 
 QString QEther::format() const
 {
-	return QString::fromStdString(dev::eth::formatBalance(boost::get<dev::u256>(toWei()->internalValue())));
+	try
+	{
+		return QString::fromStdString(dev::eth::formatBalance(boost::get<dev::u256>(toWei()->internalValue())));
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		return QString();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		return QString();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		return QString();
+	}
 }
 
 QBigInt* QEther::toWei() const
 {
-	QMetaEnum units = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("EtherUnit"));
-	const char* key = units.valueToKey(m_currentUnit);
-	for (std::pair<dev::u256, std::string> rawUnit: dev::eth::units())
+	try
 	{
-		if (QString::fromStdString(rawUnit.second).toLower() == QString(key).toLower())
-			return multiply(new QBigInt(rawUnit.first));
+		QMetaEnum units = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("EtherUnit"));
+		const char* key = units.valueToKey(m_currentUnit);
+		for (std::pair<dev::u256, std::string> rawUnit: dev::eth::units())
+		{
+			if (QString::fromStdString(rawUnit.second).toLower() == QString(key).toLower())
+				return multiply(new QBigInt(rawUnit.first));
+		}
+		return new QBigInt(dev::u256(0));
 	}
-	return new QBigInt(dev::u256(0));
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		return nullptr;
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		return nullptr;
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		return nullptr;
+	}
 }
 
 void QEther::setUnit(QString const& _unit)
 {
-	QMetaEnum units = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("EtherUnit"));
-	for (int k = 0; k < units.keyCount(); k++)
+	try
 	{
-		if (QString(units.key(k)).toLower() == _unit.toLower())
+		QMetaEnum units = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("EtherUnit"));
+		for (int k = 0; k < units.keyCount(); k++)
 		{
-			m_currentUnit = static_cast<EtherUnit>(units.keysToValue(units.key(k)));
-			return;
+			if (QString(units.key(k)).toLower() == _unit.toLower())
+			{
+				m_currentUnit = static_cast<EtherUnit>(units.keysToValue(units.key(k)));
+				return;
+			}
 		}
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
 	}
 }

@@ -56,7 +56,6 @@ class Web3Server;
 class QEther;
 class QDebugData;
 class MixClient;
-class QVariableDefinition;
 class CodeModel;
 class CompiledContract;
 struct SolidityType;
@@ -283,6 +282,8 @@ private slots:
 	void showDebugger();
 
 signals:
+	/// Internal error
+	void internalError(QString _message) const;
 	/// Transaction execution started
 	void runStarted();
 	/// Transaction execution completed successfully

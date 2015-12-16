@@ -221,8 +221,6 @@ public:
 	bool isCompiling() const { return m_compiling; }
 	/// @returns true there is a contract which has at least one function
 	bool hasContract() const;
-	/// Get contract code by url. Contract is compiled on first access and cached
-	dev::bytes const& getStdContractCode(QString const& _contractName, QString const& _url);
 	/// Get contract by name
 	/// Throws if not found
 	CompiledContract const& contract(QString const& _name) const;
@@ -259,6 +257,8 @@ public:
 	Q_INVOKABLE QVariantMap locationOf(QString _contract);
 
 signals:
+	/// Emited on internal error
+	void compilationInternalError(QString _error) const;
 	/// Emited on compilation state change
 	void stateChanged();
 	/// Emitted on compilation complete

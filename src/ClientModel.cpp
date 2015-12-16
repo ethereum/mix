@@ -40,7 +40,6 @@
 #include "Exceptions.h"
 #include "QContractDefinition.h"
 #include "QVariableDeclaration.h"
-#include "QVariableDefinition.h"
 #include "ContractCallDataEncoder.h"
 #include "CodeModel.h"
 #include "QEther.h"
@@ -78,8 +77,6 @@ ClientModel::ClientModel():
 	m_running(false)
 {
 	qRegisterMetaType<QBigInt*>("QBigInt*");
-	qRegisterMetaType<QVariableDefinition*>("QVariableDefinition*");
-	qRegisterMetaType<QList<QVariableDefinition*>>("QList<QVariableDefinition*>");
 	qRegisterMetaType<QList<QVariableDeclaration*>>("QList<QVariableDeclaration*>");
 	qRegisterMetaType<QVariableDeclaration*>("QVariableDeclaration*");
 	qRegisterMetaType<QSolidityType*>("QSolidityType*");
@@ -100,19 +97,37 @@ ClientModel::~ClientModel()
 
 void ClientModel::init(QString _dbpath)
 {
-	m_dbpath = _dbpath;
-	if (m_dbpath.isEmpty())
-		m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()));
-	else
-		m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString() + m_dbpath.toStdString()));
+	try
+	{
+		m_dbpath = _dbpath;
+		if (m_dbpath.isEmpty())
+			m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()));
+		else
+			m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString() + m_dbpath.toStdString()));
 
-	m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, std::vector<KeyPair>());
-	auto ethFace = new Web3Server(*m_client.get(), *m_ethAccounts.get());
-	m_web3Server.reset(new ModularServer<rpc::EthFace, rpc::DBFace, rpc::Web3Face>(ethFace, new rpc::MemoryDB(), new rpc::Web3()));
-	m_rpcConnectorId = m_web3Server->addConnector(new RpcConnector());
-	connect(ethFace, &Web3Server::newTransaction, this, [=]() {
-		onNewTransaction(RecordLogEntry::TxSource::Web3);
-	}, Qt::DirectConnection);
+		m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, std::vector<KeyPair>());
+		auto ethFace = new Web3Server(*m_client.get(), *m_ethAccounts.get());
+		m_web3Server.reset(new ModularServer<rpc::EthFace, rpc::DBFace, rpc::Web3Face>(ethFace, new rpc::MemoryDB(), new rpc::Web3()));
+		m_rpcConnectorId = m_web3Server->addConnector(new RpcConnector());
+		connect(ethFace, &Web3Server::newTransaction, this, [=]() {
+			onNewTransaction(RecordLogEntry::TxSource::Web3);
+		}, Qt::DirectConnection);
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+	}
 }
 
 QString ClientModel::apiCall(QString const& _message)
@@ -123,203 +138,466 @@ QString ClientModel::apiCall(QString const& _message)
 		connector->OnRequest(_message.toStdString(), nullptr);
 		return connector->response();
 	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+		return QString();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return QString();
+	}
 	catch (...)
 	{
-		cerr << boost::current_exception_diagnostic_information();
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
 		return QString();
 	}
 }
 
 void ClientModel::mine()
 {
-	if (m_mining)
-		return;
-	m_mining = true;
-	emit miningStarted();
-	emit miningStateChanged();
-	m_runFuture = QtConcurrent::run([=]()
+	try
 	{
-		try
-		{
-			std::this_thread::sleep_for(std::chrono::seconds(1)); //ensure not future time
-			m_client->mine();
-			m_mining = false;
-			emit newBlock();
-			emit miningComplete();
-		}
-		catch (...)
-		{
-			m_mining = false;
-			cerr << boost::current_exception_diagnostic_information();
-			emit runFailed(QString::fromStdString(boost::current_exception_diagnostic_information()));
-		}
+		if (m_mining)
+			return;
+		m_mining = true;
+		emit miningStarted();
 		emit miningStateChanged();
-	});
+		m_runFuture = QtConcurrent::run([=]()
+		{
+			try
+			{
+				std::this_thread::sleep_for(std::chrono::seconds(1)); //ensure not future time
+				m_client->mine();
+				m_mining = false;
+				emit newBlock();
+				emit miningComplete();
+			}
+			catch (...)
+			{
+				m_mining = false;
+				cerr << boost::current_exception_diagnostic_information();
+				emit runFailed(QString::fromStdString(boost::current_exception_diagnostic_information()));
+			}
+			emit miningStateChanged();
+		});
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit runFailed(QString::fromStdString(boost::diagnostic_information(_e)));
+		m_mining = false;
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit runFailed(QString::fromStdString(_e.what()));
+		m_mining = false;
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit runFailed(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		m_mining = false;
+	}
 }
 
 QString ClientModel::newSecret()
 {
-	KeyPair a = KeyPair::create();
-	return QString::fromStdString(dev::toHex(a.secret().ref()));
+	try
+	{
+		KeyPair a = KeyPair::create();
+		return QString::fromStdString(dev::toHex(a.secret().ref()));
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+		return QString();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return QString();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		return QString();
+	}
 }
 
 QString ClientModel::address(QString const& _secret)
 {
-	return QString::fromStdString(dev::toHex(KeyPair(Secret(_secret.toStdString())).address().ref()));
+	try
+	{
+		return QString::fromStdString(dev::toHex(KeyPair(Secret(_secret.toStdString())).address().ref()));
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+		return QString();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return QString();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		return QString();
+	}
 }
 
 QString ClientModel::toHex(QString const& _int)
 {
-	return QString::fromStdString(dev::toHex(dev::u256(_int.toStdString())));
+	try
+	{
+		return QString::fromStdString(dev::toHex(dev::u256(_int.toStdString())));
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+		return QString();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return QString();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		return QString();
+	}
 }
 
 QString ClientModel::encodeAbiString(QString _string)
 {
-	ContractCallDataEncoder encoder;
-	return QString::fromStdString(dev::toHex(encoder.encodeBytes(_string)));
+	try
+	{
+		ContractCallDataEncoder encoder;
+		return QString::fromStdString(dev::toHex(encoder.encodeBytes(_string)));
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+		return QString();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return QString();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		return QString();
+	}
 }
 
 QString ClientModel::encodeStringParam(QString const& _param)
 {
-	ContractCallDataEncoder encoder;
-	return QString::fromStdString(dev::toHex(encoder.encodeStringParam(_param, 32)));
+	try
+	{
+		ContractCallDataEncoder encoder;
+		return QString::fromStdString(dev::toHex(encoder.encodeStringParam(_param, 32)));
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+		return QString();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return QString();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		return QString();
+	}
 }
 
 QStringList ClientModel::encodeParams(QVariant const& _param, QString const& _contract, QString const& _function)
 {
-	QStringList ret;
-	CompiledContract const& compilerRes = m_codeModel->contract(_contract);
-	QList<QVariableDeclaration*> paramsList;
-	shared_ptr<QContractDefinition> contractDef = compilerRes.sharedContract();
-	if (_contract == _function)
-		paramsList = contractDef->constructor()->parametersList();
-	else
-		for (QFunctionDefinition* tf: contractDef->functionsList())
-			if (tf->name() == _function)
+	try
+	{
+		QStringList ret;
+		CompiledContract const& compilerRes = m_codeModel->contract(_contract);
+		QList<QVariableDeclaration*> paramsList;
+		shared_ptr<QContractDefinition> contractDef = compilerRes.sharedContract();
+		if (_contract == _function)
+			paramsList = contractDef->constructor()->parametersList();
+		else
+			for (QFunctionDefinition* tf: contractDef->functionsList())
+				if (tf->name() == _function)
+				{
+					paramsList = tf->parametersList();
+					break;
+				}
+		if (paramsList.length() > 0)
+			for (QVariableDeclaration* var: paramsList)
 			{
-				paramsList = tf->parametersList();
-				break;
+				ContractCallDataEncoder encoder;
+				QSolidityType const* type = var->type();
+				QVariant value = _param.toMap().value(var->name());
+				encoder.encode(value, type->type());
+				ret.push_back(QString::fromStdString(dev::toHex(encoder.encodedData())));
 			}
-	if (paramsList.length() > 0)
-		for (QVariableDeclaration* var: paramsList)
-		{
-			ContractCallDataEncoder encoder;
-			QSolidityType const* type = var->type();
-			QVariant value = _param.toMap().value(var->name());
-			encoder.encode(value, type->type());
-			ret.push_back(QString::fromStdString(dev::toHex(encoder.encodedData())));
-		}
-	return ret;
+		return ret;
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+		return QStringList();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return QStringList();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		return QStringList();
+	}
 }
 
 QVariantMap ClientModel::contractAddresses() const
 {
-	QVariantMap res;
-	for (auto const& c: m_contractAddresses)
+	try
 	{
-		res.insert(serializeToken(c.first), QString::fromStdString(toJS(c.second))); //key will be like <Contract - 0>
-		res.insert(c.first.first, QString::fromStdString(toJS(c.second))); //we keep name like Contract (compatibility with old projects)
+		QVariantMap res;
+		for (auto const& c: m_contractAddresses)
+		{
+			res.insert(serializeToken(c.first), QString::fromStdString(toJS(c.second))); //key will be like <Contract - 0>
+			res.insert(c.first.first, QString::fromStdString(toJS(c.second))); //we keep name like Contract (compatibility with old projects)
+		}
+		return res;
 	}
-	return res;
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+		return QVariantMap();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return QVariantMap();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		return QVariantMap();
+	}
 }
 
 QVariantList ClientModel::gasCosts() const
 {
-	QVariantList res;
-	for (auto const& c: m_gasCosts)
-		res.append(QVariant::fromValue(static_cast<int>(c)));
-	return res;
+	try
+	{
+		QVariantList res;
+		for (auto const& c: m_gasCosts)
+			res.append(QVariant::fromValue(static_cast<int>(c)));
+		return res;
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+		return QVariantList();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return QVariantList();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		return QVariantList();
+	}
 }
 
 void ClientModel::addAccount(QString const& _secret)
 {
-	KeyPair key(Secret(_secret.toStdString()));
-	m_accountsSecret.push_back(key);
-	Address address = key.address();
-	m_accounts[address] = Account(u256(0), Account::NormalCreation);
-	m_ethAccounts->setAccounts(m_accountsSecret);
+	try
+	{
+		KeyPair key(Secret(_secret.toStdString()));
+		m_accountsSecret.push_back(key);
+		Address address = key.address();
+		m_accounts[address] = Account(u256(0), Account::NormalCreation);
+		m_ethAccounts->setAccounts(m_accountsSecret);
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+	}
 }
 
 QString ClientModel::resolveAddress(QString const& _secret)
 {
-	KeyPair key(Secret(_secret.toStdString()));
-	return "0x" + QString::fromStdString(key.address().hex());
+	try
+	{
+		KeyPair key(Secret(_secret.toStdString()));
+		return "0x" + QString::fromStdString(key.address().hex());
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+		return QString();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return QString();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		return QString();
+	}
 }
 
 void ClientModel::setupScenario(QVariantMap _scenario)
 {
-	setupStarted();
-	onStateReset();
-	WriteGuard(x_queueTransactions);
-	m_running = true;
-
-	QVariantList blocks = _scenario.value("blocks").toList();
-	QVariantList stateAccounts = _scenario.value("accounts").toList();
-	QVariantList stateContracts = _scenario.value("contracts").toList();
-
-	m_accounts.clear();
-	m_accountsSecret.clear();
-	for (auto const& b: stateAccounts)
+	try
 	{
-		QVariantMap account = b.toMap();
-		Address address = {};
-		if (account.contains("secret"))
+		setupStarted();
+		onStateReset();
+		WriteGuard(x_queueTransactions);
+		m_running = true;
+
+		QVariantList blocks = _scenario.value("blocks").toList();
+		QVariantList stateAccounts = _scenario.value("accounts").toList();
+		QVariantList stateContracts = _scenario.value("contracts").toList();
+
+		m_accounts.clear();
+		m_accountsSecret.clear();
+		for (auto const& b: stateAccounts)
 		{
-			KeyPair key(Secret(account.value("secret").toString().toStdString()));
-			m_accountsSecret.push_back(key);
-			address = key.address();
+			QVariantMap account = b.toMap();
+			Address address = {};
+			if (account.contains("secret"))
+			{
+				KeyPair key(Secret(account.value("secret").toString().toStdString()));
+				m_accountsSecret.push_back(key);
+				address = key.address();
+			}
+			else if (account.contains("address"))
+				address = Address(fromHex(account.value("address").toString().toStdString()));
+			if (!address)
+				continue;
+
+			m_accounts[address] = Account(0, qvariant_cast<QEther*>(account.value("balance"))->toU256Wei(), Account::NormalCreation);
 		}
-		else if (account.contains("address"))
-			address = Address(fromHex(account.value("address").toString().toStdString()));
-		if (!address)
-			continue;
 
-		m_accounts[address] = Account(0, qvariant_cast<QEther*>(account.value("balance"))->toU256Wei(), Account::NormalCreation);
-	}
+		m_ethAccounts->setAccounts(m_accountsSecret);
 
-	m_ethAccounts->setAccounts(m_accountsSecret);
-	
-	auto ethFace = new Web3Server(*m_client.get(), *m_ethAccounts.get());
-	m_web3Server.reset(new ModularServer<rpc::EthFace, rpc::DBFace, rpc::Web3Face>(ethFace, new rpc::MemoryDB(), new rpc::Web3()));
-	m_rpcConnectorId = m_web3Server->addConnector(new RpcConnector());
-	connect(ethFace, &Web3Server::newTransaction, this, [=]() {
-		onNewTransaction(RecordLogEntry::TxSource::Web3);
-	}, Qt::DirectConnection);
+		auto ethFace = new Web3Server(*m_client.get(), *m_ethAccounts.get());
+		m_web3Server.reset(new ModularServer<rpc::EthFace, rpc::DBFace, rpc::Web3Face>(ethFace, new rpc::MemoryDB(), new rpc::Web3()));
+		m_rpcConnectorId = m_web3Server->addConnector(new RpcConnector());
+		connect(ethFace, &Web3Server::newTransaction, this, [=]() {
+			onNewTransaction(RecordLogEntry::TxSource::Web3);
+		}, Qt::DirectConnection);
 
-	for (auto const& c: stateContracts)
-	{
-		QVariantMap contract = c.toMap();
-		Address address = Address(fromHex(contract.value("address").toString().toStdString()));
-		Account account(0, qvariant_cast<QEther*>(contract.value("balance"))->toU256Wei(), Account::ContractConception);
-		bytes code = fromHex(contract.value("code").toString().toStdString());
-		account.setCode(std::move(code));
-		QVariantMap storageMap = contract.value("storage").toMap();
-		for(auto s = storageMap.cbegin(); s != storageMap.cend(); ++s)
-			account.setStorage(fromBigEndian<u256>(fromHex(s.key().toStdString())), fromBigEndian<u256>(fromHex(s.value().toString().toStdString())));
-		m_accounts[address] = account;
-	}
-
-	bool trToExecute = false;
-	for (auto const& b: blocks)
-	{
-		QVariantList transactions = b.toMap().value("transactions").toList();
-		if (transactions.size() > 0)
+		for (auto const& c: stateContracts)
 		{
-			m_queueTransactions.push_back(transactions);
-			trToExecute = true;
+			QVariantMap contract = c.toMap();
+			Address address = Address(fromHex(contract.value("address").toString().toStdString()));
+			Account account(0, qvariant_cast<QEther*>(contract.value("balance"))->toU256Wei(), Account::ContractConception);
+			bytes code = fromHex(contract.value("code").toString().toStdString());
+			account.setCode(std::move(code));
+			QVariantMap storageMap = contract.value("storage").toMap();
+			for(auto s = storageMap.cbegin(); s != storageMap.cend(); ++s)
+				account.setStorage(fromBigEndian<u256>(fromHex(s.key().toStdString())), fromBigEndian<u256>(fromHex(s.value().toString().toStdString())));
+
+			m_accounts[address] = account;
+		}
+
+		bool trToExecute = false;
+		for (auto const& b: blocks)
+		{
+			QVariantList transactions = b.toMap().value("transactions").toList();
+			if (transactions.size() > 0)
+			{
+				m_queueTransactions.push_back(transactions);
+				trToExecute = true;
+			}
+		}
+		m_client->resetState(m_accounts, Secret(_scenario.value("miner").toMap().value("secret").toString().toStdString()));
+		if (m_queueTransactions.count() > 0 && trToExecute)
+		{
+			m_executionCtx = ExecutionCtx::Rebuild;
+			setupExecutionChain();
+			processNextTransactions();
+		}
+		else
+		{
+			m_running = false;
+			setupFinished();
 		}
 	}
-	m_client->resetState(m_accounts, Secret(_scenario.value("miner").toMap().value("secret").toString().toStdString()));
-	if (m_queueTransactions.count() > 0 && trToExecute)
+	catch (boost::exception const& _e)
 	{
-		m_executionCtx = ExecutionCtx::Rebuild;
-		setupExecutionChain();
-		processNextTransactions();
-	}
-	else
-	{
+		std::cerr << boost::diagnostic_information(_e);
 		m_running = false;
-		setupFinished();
+		emit runFailed("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		m_running = false;
+		emit runFailed("Internal error: " + QString::fromStdString(_e.what()));
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		m_running = false;
+		emit runFailed("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
 	}
 }
 
@@ -332,6 +610,7 @@ void ClientModel::setupExecutionChain()
 
 void ClientModel::stopExecution()
 {
+	throw std::exception();
 	disconnect(this, &ClientModel::newBlock, this, &ClientModel::processNextTransactions);
 	disconnect(this, &ClientModel::runStateChanged, this, &ClientModel::finalizeBlock);
 	disconnect(this, &ClientModel::runFailed, this, &ClientModel::stopExecution);
@@ -382,7 +661,7 @@ TransactionSettings ClientModel::transaction(QVariant const& _tr) const
 }
 
 void ClientModel::processNextTransactions()
-{
+{		
 	WriteGuard(x_queueTransactions);
 	vector<TransactionSettings> transactionSequence;
 	for (auto const& t: m_queueTransactions.front())
@@ -405,7 +684,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 	m_runFuture = QtConcurrent::run([=]()
 	{
 		try
-		{			
+		{
 			for (TransactionSettings const& transaction: _sequence)
 			{
 				std::pair<QString, int> ctrInstance = resolvePair(transaction.contractId);
@@ -519,16 +798,37 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 
 void ClientModel::executeTr(QVariantMap _tr)
 {
-	WriteGuard(x_queueTransactions);
-	QVariantList trs;
-	trs.push_back(_tr);
-	m_queueTransactions.push_back(trs);
-	if (!m_running)
+	try
 	{
-		m_running = true;
-		m_executionCtx = ExecutionCtx::ExecuteTx;
-		setupExecutionChain();
-		processNextTransactions();
+		WriteGuard(x_queueTransactions);
+		QVariantList trs;
+		trs.push_back(_tr);
+		m_queueTransactions.push_back(trs);
+		if (!m_running)
+		{
+			m_running = true;
+			m_executionCtx = ExecutionCtx::ExecuteTx;
+			setupExecutionChain();
+			processNextTransactions();
+		}
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		m_running = false;
+		emit runFailed("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		m_running = false;
+		emit runFailed("Internal error: " + QString::fromStdString(_e.what()));
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		m_running = false;
+		emit runFailed("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
 	}
 }
 
@@ -576,45 +876,108 @@ void ClientModel::showDebugger()
 
 QVariantMap ClientModel::contractStorageByIndex(unsigned _index, QString const& _contractAddress)
 {
-	ExecutionResult e = m_client->execution(_index);
-	if (!e.machineStates.empty())
+	try
 	{
-		MachineState state = e.machineStates.back();
-		auto nameIter = m_contractNames.find(Address(_contractAddress.toStdString()));
-		CompiledContract const* compilerRes = m_codeModel->tryGetContract(nameIter->second);
-		return contractStorageByMachineState(state, compilerRes);
+		ExecutionResult e = m_client->execution(_index);
+		if (!e.machineStates.empty())
+		{
+			MachineState state = e.machineStates.back();
+			auto nameIter = m_contractNames.find(Address(_contractAddress.toStdString()));
+			CompiledContract const* compilerRes = m_codeModel->tryGetContract(nameIter->second);
+			return contractStorageByMachineState(state, compilerRes);
+		}
+		else
+			return QVariantMap();
 	}
-	else
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
 		return QVariantMap();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return QVariantMap();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		return QVariantMap();
+	}
 }
 
 QVariantMap ClientModel::contractStorage(std::unordered_map<u256, u256> _storage, CompiledContract const* _contract)
 {
-	QVariantMap storage;
-	QVariantList storageDeclarationList;
-	QVariantMap storageValues;
-
-	for (auto const& slot: _contract->storage())
+	try
 	{
-		for (auto const& stateVar: slot)
+		QVariantMap storage;
+		QVariantList storageDeclarationList;
+		QVariantMap storageValues;
+
+		for (auto const& slot: _contract->storage())
 		{
-			if (stateVar.type.name.startsWith("mapping"))
-				continue; //mapping type not yet managed
+			for (auto const& stateVar: slot)
+			{
+				if (stateVar.type.name.startsWith("mapping"))
+					continue; //mapping type not yet managed
 
-			auto storageDec = new QVariableDeclaration(0, stateVar.name.toStdString(), stateVar.type);
-			storageDeclarationList.push_back(QVariant::fromValue(storageDec));
-			storageValues[storageDec->name()] = formatStorageValue(storageDec->type()->type(), _storage, stateVar.offset, stateVar.slot);
+				auto storageDec = new QVariableDeclaration(0, stateVar.name.toStdString(), stateVar.type);
+				storageDeclarationList.push_back(QVariant::fromValue(storageDec));
+				storageValues[storageDec->name()] = formatStorageValue(storageDec->type()->type(), _storage, stateVar.offset, stateVar.slot);
+			}
 		}
-	}
 
-	storage["variables"] = storageDeclarationList;
-	storage["values"] = storageValues;
-	return storage;
+		storage["variables"] = storageDeclarationList;
+		storage["values"] = storageValues;
+		return storage;
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+		return QVariantMap();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return QVariantMap();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		return QVariantMap();
+	}
 }
 
 QVariantMap ClientModel::contractStorageByMachineState(MachineState const& _state, CompiledContract const* _contract)
 {
-	return contractStorage(_state.storage, _contract);
+	try
+	{
+		return contractStorage(_state.storage, _contract);
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+		return QVariantMap();
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return QVariantMap();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		return QVariantMap();
+	}
 }
 
 void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t, QString const& _label)
@@ -654,7 +1017,7 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t, QString 
 
 	QVariantList states;
 	QVariantList solCallStack;
-	map<int, QVariableDeclaration*> solLocals; //<stack pos, decl>	
+	map<int, QVariableDeclaration*> solLocals; //<stack pos, decl>
 	map<QString, SolidityDeclaration> localDecl; //<name, solDecl>
 	unsigned prevInstructionIndex = 0;
 
@@ -672,7 +1035,7 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t, QString 
 				//register new local variable initialization
 				auto localIter = contract->locals().find(LocationPair(instruction.location().start, instruction.location().end));
 				if (localIter != contract->locals().end())
-				{					
+				{
 					if (localDecl.find(localIter.value().name) == localDecl.end())
 					{
 						localDecl[localIter.value().name] = localIter.value();
@@ -761,13 +1124,49 @@ QVariant ClientModel::formatStorageValue(SolidityType const& _type, unordered_ma
 
 void ClientModel::emptyRecord()
 {
-	debugDataReady(new QDebugData());
+	try
+	{
+		debugDataReady(new QDebugData());
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+	}
 }
 
 void ClientModel::debugRecord(unsigned _index, QString const& _label)
 {
-	ExecutionResult e = m_client->execution(_index);
-	showDebuggerForTransaction(e, _label);
+	try
+	{
+		ExecutionResult e = m_client->execution(_index);
+		showDebuggerForTransaction(e, _label);
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+	}
 }
 
 Address ClientModel::deployContract(bytes const& _code, TransactionSettings const& _ctrTransaction)
@@ -797,14 +1196,35 @@ void ClientModel::callAddress(Address const& _contract, bytes const& _data, Tran
 
 RecordLogEntry* ClientModel::lastBlock() const
 {
-	eth::BlockHeader blockInfo = m_client->blockInfo();
-	stringstream strGas;
-	strGas << blockInfo.gasUsed();
-	stringstream strNumber;
-	strNumber << blockInfo.number();
-	RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList(), RecordLogEntry::TxSource::MixGui, RecordLogEntry::TransactionException::None);
-	QQmlEngine::setObjectOwnership(record, QQmlEngine::JavaScriptOwnership);
-	return record;
+	try
+	{
+		eth::BlockHeader blockInfo = m_client->blockInfo();
+		stringstream strGas;
+		strGas << blockInfo.gasUsed();
+		stringstream strNumber;
+		strNumber << blockInfo.number();
+		RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList(), RecordLogEntry::TxSource::MixGui, RecordLogEntry::TransactionException::None);
+		QQmlEngine::setObjectOwnership(record, QQmlEngine::JavaScriptOwnership);
+		return record;
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+		return nullptr;
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+		return nullptr;
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		return nullptr;
+	}
 }
 
 QString ClientModel::lastTransactionIndex() const
@@ -814,15 +1234,33 @@ QString ClientModel::lastTransactionIndex() const
 
 void ClientModel::onStateReset()
 {
-	m_contractAddresses.clear();
-	m_contractNames.clear();
-	m_stdContractAddresses.clear();
-	m_stdContractNames.clear();
-	m_queueTransactions.clear();
-	m_gasCosts.clear();
-	m_mining = false;
-	m_running = false;
-	emit stateCleared();
+	try
+	{
+		m_contractAddresses.clear();
+		m_contractNames.clear();
+		m_stdContractAddresses.clear();
+		m_stdContractNames.clear();
+		m_queueTransactions.clear();
+		m_gasCosts.clear();
+		m_mining = false;
+		m_running = false;
+		emit stateCleared();
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+	}
 }
 
 void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
