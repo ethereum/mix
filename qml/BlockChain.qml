@@ -425,15 +425,7 @@ ColumnLayout {
 				takeContractsSnapShot()
 				blinkReasons = []
 				buildUseOptimizedCode = codeModel.optimizeCode
-				try
-				{
-					clientModel.setupScenario(model);
-				}
-				catch (e)
-				{
-					console.log("ooo")
-				}
-
+				clientModel.setupScenario(model);
 				blockChainPanel.forceActiveFocus()
 			}
 
