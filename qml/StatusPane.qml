@@ -95,7 +95,12 @@ Rectangle {
 	}
 
 	Connections {
-		target:clientModel
+		target: fileIo
+		onFileIOInternalError: errorMessage(_error, "Run");
+	}
+
+	Connections {
+		target: clientModel
 		onRunStarted:
 		{
 			logPane.clear()

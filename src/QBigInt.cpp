@@ -27,6 +27,26 @@
 using namespace dev;
 using namespace dev::mix;
 
+void QBigInt::manageException() const
+{
+	try
+	{
+		throw;
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+	}
+}
+
 QString QBigInt::value() const
 {
 	try
@@ -35,19 +55,9 @@ QString QBigInt::value() const
 		s << m_internalValue;
 		return QString::fromStdString(s.str());
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		return QString();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		return QString();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		return QString();
 	}
 }
@@ -59,19 +69,9 @@ QBigInt* QBigInt::subtract(QBigInt* const& _value) const
 		BigIntVariant toSubtract = _value->internalValue();
 		return new QBigInt(boost::apply_visitor(mix::subtract(), m_internalValue, toSubtract));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		return nullptr;
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		return nullptr;
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		return nullptr;
 	}
 }
@@ -83,19 +83,9 @@ QBigInt* QBigInt::add(QBigInt* const& _value) const
 		BigIntVariant toAdd = _value->internalValue();
 		return new QBigInt(boost::apply_visitor(mix::add(), m_internalValue, toAdd));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		return nullptr;
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		return nullptr;
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		return nullptr;
 	}
 }
@@ -107,19 +97,9 @@ QBigInt* QBigInt::multiply(QBigInt* const& _value) const
 		BigIntVariant toMultiply = _value->internalValue();
 		return new QBigInt(boost::apply_visitor(mix::multiply(), m_internalValue, toMultiply));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		return nullptr;
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		return nullptr;
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		return nullptr;
 	}
 }
@@ -131,19 +111,9 @@ QBigInt* QBigInt::divide(QBigInt* const& _value) const
 		BigIntVariant toDivide = _value->internalValue();
 		return new QBigInt(boost::apply_visitor(mix::divide(), m_internalValue, toDivide));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		return nullptr;
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		return nullptr;
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		return nullptr;
 	}
 }
@@ -186,19 +156,9 @@ QVariantMap QBigInt::checkAgainst(QString const& _type) const
 		}
 		return ret;
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		return QVariantMap();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		return QVariantMap();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		return QVariantMap();
 	}
 }

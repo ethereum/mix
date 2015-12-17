@@ -72,7 +72,6 @@ private:
 	QString m_response;
 };
 
-
 ClientModel::ClientModel():
 	m_running(false)
 {
@@ -95,23 +94,11 @@ ClientModel::~ClientModel()
 	dir.removeRecursively();
 }
 
-void ClientModel::init(QString _dbpath)
+void ClientModel::manageException() const
 {
 	try
 	{
-		m_dbpath = _dbpath;
-		if (m_dbpath.isEmpty())
-			m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()));
-		else
-			m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString() + m_dbpath.toStdString()));
-
-		m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, std::vector<KeyPair>());
-		auto ethFace = new Web3Server(*m_client.get(), *m_ethAccounts.get());
-		m_web3Server.reset(new ModularServer<rpc::EthFace, rpc::DBFace, rpc::Web3Face>(ethFace, new rpc::MemoryDB(), new rpc::Web3()));
-		m_rpcConnectorId = m_web3Server->addConnector(new RpcConnector());
-		connect(ethFace, &Web3Server::newTransaction, this, [=]() {
-			onNewTransaction(RecordLogEntry::TxSource::Web3);
-		}, Qt::DirectConnection);
+		throw;
 	}
 	catch (boost::exception const& _e)
 	{
@@ -130,6 +117,30 @@ void ClientModel::init(QString _dbpath)
 	}
 }
 
+void ClientModel::init(QString _dbpath)
+{
+	try
+	{
+		m_dbpath = _dbpath;
+		if (m_dbpath.isEmpty())
+			m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()));
+		else
+			m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString() + m_dbpath.toStdString()));
+
+		m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, std::vector<KeyPair>());
+		auto ethFace = new Web3Server(*m_client.get(), *m_ethAccounts.get());
+		m_web3Server.reset(new ModularServer<rpc::EthFace, rpc::DBFace, rpc::Web3Face>(ethFace, new rpc::MemoryDB(), new rpc::Web3()));
+		m_rpcConnectorId = m_web3Server->addConnector(new RpcConnector());
+		connect(ethFace, &Web3Server::newTransaction, this, [=]() {
+			onNewTransaction(RecordLogEntry::TxSource::Web3);
+		}, Qt::DirectConnection);
+	}
+	catch (...)
+	{
+		manageException();
+	}
+}
+
 QString ClientModel::apiCall(QString const& _message)
 {
 	try
@@ -138,22 +149,9 @@ QString ClientModel::apiCall(QString const& _message)
 		connector->OnRequest(_message.toStdString(), nullptr);
 		return connector->response();
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return QString();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return QString();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QString();
 	}
 }
@@ -186,22 +184,9 @@ void ClientModel::mine()
 			emit miningStateChanged();
 		});
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit runFailed(QString::fromStdString(boost::diagnostic_information(_e)));
-		m_mining = false;
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit runFailed(QString::fromStdString(_e.what()));
-		m_mining = false;
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit runFailed(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		m_mining = false;
 	}
 }
@@ -213,22 +198,9 @@ QString ClientModel::newSecret()
 		KeyPair a = KeyPair::create();
 		return QString::fromStdString(dev::toHex(a.secret().ref()));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return QString();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return QString();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QString();
 	}
 }
@@ -239,22 +211,9 @@ QString ClientModel::address(QString const& _secret)
 	{
 		return QString::fromStdString(dev::toHex(KeyPair(Secret(_secret.toStdString())).address().ref()));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return QString();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return QString();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QString();
 	}
 }
@@ -265,22 +224,9 @@ QString ClientModel::toHex(QString const& _int)
 	{
 		return QString::fromStdString(dev::toHex(dev::u256(_int.toStdString())));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return QString();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return QString();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QString();
 	}
 }
@@ -292,22 +238,9 @@ QString ClientModel::encodeAbiString(QString _string)
 		ContractCallDataEncoder encoder;
 		return QString::fromStdString(dev::toHex(encoder.encodeBytes(_string)));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return QString();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return QString();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QString();
 	}
 }
@@ -319,22 +252,9 @@ QString ClientModel::encodeStringParam(QString const& _param)
 		ContractCallDataEncoder encoder;
 		return QString::fromStdString(dev::toHex(encoder.encodeStringParam(_param, 32)));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return QString();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return QString();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QString();
 	}
 }
@@ -367,22 +287,9 @@ QStringList ClientModel::encodeParams(QVariant const& _param, QString const& _co
 			}
 		return ret;
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return QStringList();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return QStringList();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QStringList();
 	}
 }
@@ -399,22 +306,9 @@ QVariantMap ClientModel::contractAddresses() const
 		}
 		return res;
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return QVariantMap();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return QVariantMap();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QVariantMap();
 	}
 }
@@ -428,22 +322,9 @@ QVariantList ClientModel::gasCosts() const
 			res.append(QVariant::fromValue(static_cast<int>(c)));
 		return res;
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return QVariantList();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return QVariantList();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QVariantList();
 	}
 }
@@ -458,20 +339,9 @@ void ClientModel::addAccount(QString const& _secret)
 		m_accounts[address] = Account(u256(0), Account::NormalCreation);
 		m_ethAccounts->setAccounts(m_accountsSecret);
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 	}
 }
 
@@ -482,22 +352,9 @@ QString ClientModel::resolveAddress(QString const& _secret)
 		KeyPair key(Secret(_secret.toStdString()));
 		return "0x" + QString::fromStdString(key.address().hex());
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return QString();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return QString();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QString();
 	}
 }
@@ -505,7 +362,7 @@ QString ClientModel::resolveAddress(QString const& _secret)
 void ClientModel::setupScenario(QVariantMap _scenario)
 {
 	try
-	{
+	{		
 		setupStarted();
 		onStateReset();
 		WriteGuard(x_queueTransactions);
@@ -581,23 +438,10 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 			setupFinished();
 		}
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		m_running = false;
-		emit runFailed("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		m_running = false;
-		emit runFailed("Internal error: " + QString::fromStdString(_e.what()));
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		m_running = false;
-		emit runFailed("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
 	}
 }
 
@@ -786,7 +630,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 			cerr << boost::current_exception_diagnostic_information();
 			emit runFailed(QString::fromStdString(boost::current_exception_diagnostic_information()));
 		}
-		catch(exception const& e)
+		catch(std::exception const& e)
 		{
 			cerr << boost::current_exception_diagnostic_information();
 			emit runFailed(e.what());
@@ -811,23 +655,10 @@ void ClientModel::executeTr(QVariantMap _tr)
 			processNextTransactions();
 		}
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		m_running = false;
-		emit runFailed("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		m_running = false;
-		emit runFailed("Internal error: " + QString::fromStdString(_e.what()));
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		m_running = false;
-		emit runFailed("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
 	}
 }
 
@@ -888,22 +719,9 @@ QVariantMap ClientModel::contractStorageByIndex(unsigned _index, QString const& 
 		else
 			return QVariantMap();
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return QVariantMap();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return QVariantMap();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QVariantMap();
 	}
 }
@@ -933,22 +751,9 @@ QVariantMap ClientModel::contractStorage(std::unordered_map<u256, u256> _storage
 		storage["values"] = storageValues;
 		return storage;
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return QVariantMap();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return QVariantMap();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QVariantMap();
 	}
 }
@@ -959,22 +764,9 @@ QVariantMap ClientModel::contractStorageByMachineState(MachineState const& _stat
 	{
 		return contractStorage(_state.storage, _contract);
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return QVariantMap();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return QVariantMap();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QVariantMap();
 	}
 }
@@ -1127,20 +919,9 @@ void ClientModel::emptyRecord()
 	{
 		debugDataReady(new QDebugData());
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 	}
 }
 
@@ -1151,20 +932,9 @@ void ClientModel::debugRecord(unsigned _index, QString const& _label)
 		ExecutionResult e = m_client->execution(_index);
 		showDebuggerForTransaction(e, _label);
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 	}
 }
 
@@ -1206,22 +976,9 @@ RecordLogEntry* ClientModel::lastBlock() const
 		QQmlEngine::setObjectOwnership(record, QQmlEngine::JavaScriptOwnership);
 		return record;
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-		return nullptr;
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-		return nullptr;
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return nullptr;
 	}
 }
@@ -1245,20 +1002,9 @@ void ClientModel::onStateReset()
 		m_running = false;
 		emit stateCleared();
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 	}
 }
 

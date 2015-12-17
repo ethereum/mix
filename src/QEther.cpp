@@ -24,25 +24,35 @@
 
 using namespace dev::mix;
 
+void QEther::manageException() const
+{
+	try
+	{
+		throw;
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+	}
+}
+
 QString QEther::format() const
 {
 	try
 	{
 		return QString::fromStdString(dev::eth::formatBalance(boost::get<dev::u256>(toWei()->internalValue())));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		return QString();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		return QString();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		return QString();
 	}
 }
@@ -60,19 +70,9 @@ QBigInt* QEther::toWei() const
 		}
 		return new QBigInt(dev::u256(0));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		return nullptr;
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		return nullptr;
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		return nullptr;
 	}
 }
@@ -91,16 +91,8 @@ void QEther::setUnit(QString const& _unit)
 			}
 		}
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 	}
 }

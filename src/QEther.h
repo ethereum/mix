@@ -81,6 +81,7 @@ public:
 
 private:
 	EtherUnit m_currentUnit;
+	void manageException() const;
 
 signals:
 	void valueChanged();

@@ -43,6 +43,8 @@ signals:
 	void error(QString const& _errorText);
 	/// Signnalled when a file is changed.
 	void fileChanged(QString const& _filePath);
+	/// Internal error during processing file
+	void fileIOInternalError(QString const& _error);
 
 public:
 	FileIo();
@@ -80,6 +82,8 @@ private:
 	QString getHomePath() const;
 	QString pathFromUrl(QString const& _url);
 	QFileSystemWatcher* m_watcher;
+
+	void manageException();
 };
 
 }

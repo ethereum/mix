@@ -288,6 +288,7 @@ private:
 	void releaseContracts();
 	void collectContracts(dev::solidity::CompilerStack const& _cs, std::vector<std::string> const& _sourceNames, GasMapWrapper* _gas);
 	QVariantMap resolveCompilationErrorLocation(dev::solidity::CompilerStack const& _cs, dev::SourceLocation const& _location);
+	void manageException() const;
 
 	std::atomic<bool> m_compiling;
 	mutable dev::Mutex x_contractMap;

@@ -342,6 +342,7 @@ private:
 	void stopExecution();
 	void setupExecutionChain();
 	TransactionSettings transaction(QVariant const& _tr) const;
+	void manageException() const;
 
 	std::atomic<bool> m_running;
 	std::atomic<bool> m_mining;

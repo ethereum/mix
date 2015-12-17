@@ -203,6 +203,29 @@ CodeModel::~CodeModel()
 		delete m_gasCostsMaps;
 }
 
+void CodeModel::manageException() const
+{
+	try
+	{
+		throw;
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit compilationInternalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit compilationInternalError("Internal error: " + QString::fromStdString(_e.what()));
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit compilationInternalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+	}
+}
+
 void CodeModel::stop()
 {
 	///@todo: cancel bg job
@@ -221,20 +244,9 @@ void CodeModel::reset()
 		m_pendingContracts.clear();
 		emit stateChanged();
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 	}
 }
 
@@ -252,20 +264,9 @@ void CodeModel::unregisterContractSrc(QString const& _documentId)
 		emit stateChanged();
 		emit scheduleCompilationJob(++m_backgroundJobId);
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 	}
 }
 
@@ -283,20 +284,9 @@ void CodeModel::registerCodeChange(QString const& _documentId, QString const& _c
 		emit stateChanged();
 		emit scheduleCompilationJob(++m_backgroundJobId);
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 	}
 }
 
@@ -310,22 +300,9 @@ QVariantMap CodeModel::contracts() const
 			result.insert(c.key(), QVariant::fromValue(c.value()));
 		return result;
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-		return QVariantMap();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-		return QVariantMap();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QVariantMap();
 	}
 }
@@ -340,22 +317,9 @@ CompiledContract* CodeModel::contractByDocumentId(QString const& _documentId) co
 				return c.value();
 		return nullptr;
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-		return nullptr;
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-		return nullptr;
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return nullptr;
 	}
 }
@@ -370,20 +334,9 @@ CompiledContract const& CodeModel::contract(QString const& _name) const
 		if (res == nullptr)
 			BOOST_THROW_EXCEPTION(dev::Exception() << dev::errinfo_comment("Contract not found: " + _name.toStdString()));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 	}
 	return *res;
 }
@@ -396,22 +349,9 @@ CompiledContract const* CodeModel::tryGetContract(QString const& _name) const
 		CompiledContract* res = m_contractMap.value(_name);
 		return res;
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-		return nullptr;
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-		return nullptr;
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return nullptr;
 	}
 }
@@ -589,20 +529,9 @@ GasMapWrapper* CodeModel::gasEstimation(solidity::CompilerStack const& _cs)
 			}
 		}
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 	}
 	return gasCostsMaps;
 }
@@ -616,22 +545,9 @@ QVariantList CodeModel::gasCostByDocumentId(QString const& _documentId) const
 		else
 			return QVariantList();
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-		return QVariantList();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-		return QVariantList();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QVariantList();
 	}
 }
@@ -645,22 +561,9 @@ QVariantList CodeModel::gasCostBy(QString const& _contractName, QString const& _
 		else
 			return QVariantList();
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-		return QVariantList();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-		return QVariantList();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QVariantList();
 	}
 }
@@ -728,20 +631,9 @@ void CodeModel::collectContracts(dev::solidity::CompilerStack const& _cs, std::v
 		emit codeChanged();
 		emit compilationComplete();
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 	}
 }
 
@@ -752,22 +644,9 @@ bool CodeModel::hasContract() const
 		Guard l(x_contractMap);
 		return m_contractMap.size() != 0;
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-		return false;
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-		return false;
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return false;
 	}
 }
@@ -889,22 +768,9 @@ QVariantMap CodeModel::locationOf(QString _contract)
 		}
 		return ret;
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-		return QVariantMap();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-		return QVariantMap();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QVariantMap();
 	}
 }
@@ -925,22 +791,9 @@ bool CodeModel::isContractOrFunctionLocation(dev::SourceLocation const& _locatio
 		}
 		return false;
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-		return false;
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-		return false;
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return false;
 	}
 }
@@ -962,22 +815,9 @@ QString CodeModel::resolveFunctionName(dev::SourceLocation const& _location)
 		}
 		return QString();
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-		return QString();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-		return QString();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 		return QString();
 	}
 }
@@ -989,20 +829,9 @@ void CodeModel::setOptimizeCode(bool _value)
 		m_optimizeCode = _value;
 		emit scheduleCompilationJob(++m_backgroundJobId);
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		emit compilationInternalError(QString::fromStdString(boost::diagnostic_information(_e)));
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		emit compilationInternalError(QString::fromStdString(_e.what()));
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
-		emit compilationInternalError(QString::fromStdString(boost::current_exception_diagnostic_information()));
+		manageException();
 	}
 }
 

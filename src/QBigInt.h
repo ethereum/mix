@@ -102,6 +102,9 @@ public:
 	/// check if the current value satisfy the given type
 	Q_INVOKABLE QVariantMap checkAgainst(QString const& _type) const;
 
+private:
+	void manageException() const;
+
 protected:
 	 BigIntVariant m_internalValue;
 };

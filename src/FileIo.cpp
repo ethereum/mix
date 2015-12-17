@@ -46,6 +46,29 @@ FileIo::FileIo(): m_watcher(new QFileSystemWatcher(this))
 	connect(m_watcher, &QFileSystemWatcher::fileChanged, this, &FileIo::fileChanged);
 }
 
+void FileIo::manageException()
+{
+	try
+	{
+		throw;
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+		emit fileIOInternalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+		emit fileIOInternalError("Internal error: " + QString::fromStdString(_e.what()));
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+		emit fileIOInternalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
+	}
+}
+
 void FileIo::openFileBrowser(QString const& _dir)
 {
 	QDesktopServices::openUrl(QUrl(_dir));
@@ -78,17 +101,9 @@ void FileIo::makeDir(QString const& _url)
 			dirPath.removeRecursively();
 		dirPath.mkpath(dirPath.path());
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 	}
 }
 
@@ -100,17 +115,9 @@ void FileIo::deleteDir(QString const& _url)
 		if (dirPath.exists())
 			dirPath.removeRecursively();
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 	}
 }
 
@@ -129,19 +136,9 @@ QString FileIo::readFile(QString const& _url)
 			error(tr("Error reading file %1").arg(_url));
 		return QString();
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		return QString();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		return QString();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		return QString();
 	}
 }
@@ -163,17 +160,9 @@ void FileIo::writeFile(QString const& _url, QString const& _data)
 		file.close();
 		m_watcher->addPath(path);
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 	}
 }
 
@@ -190,17 +179,9 @@ void FileIo::copyFile(QString const& _sourceUrl, QString const& _destUrl)
 		if (!QFile::copy(pathFromUrl(_sourceUrl), pathFromUrl(_destUrl)))
 			error(tr("Error copying file %1 to %2").arg(_sourceUrl).arg(_destUrl));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 	}
 }
 
@@ -216,17 +197,9 @@ void FileIo::moveFile(QString const& _sourceUrl, QString const& _destUrl)
 		if (!QFile::rename(pathFromUrl(_sourceUrl), pathFromUrl(_destUrl)))
 			error(tr("Error moving file %1 to %2").arg(_sourceUrl).arg(_destUrl));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 	}
 }
 
@@ -237,19 +210,9 @@ bool FileIo::fileExists(QString const& _url)
 		QFile file(pathFromUrl(_url));
 		return file.exists();
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		return false;
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		return false;
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		return false;
 	}
 }
@@ -320,19 +283,9 @@ QStringList FileIo::makePackage(QString const& _deploymentFolder)
 		ret.append(url.toString());
 		return ret;
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		return QStringList();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		return QStringList();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		return QStringList();
 	}
 }
@@ -343,17 +296,9 @@ void FileIo::watchFileChanged(QString const& _path)
 	{
 		m_watcher->addPath(pathFromUrl(_path));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 	}
 }
 
@@ -363,17 +308,9 @@ void FileIo::stopWatching(QString const& _path)
 	{
 		m_watcher->removePath(pathFromUrl(_path));
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 	}
 }
 
@@ -384,17 +321,9 @@ void FileIo::deleteFile(QString const& _path)
 		QFile file(pathFromUrl(_path));
 		file.remove();
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 	}
 }
 
@@ -407,19 +336,9 @@ QUrl FileIo::pathFolder(QString const& _path)
 			return QUrl::fromLocalFile(_path);
 		return QUrl::fromLocalFile(QFileInfo(_path).absolutePath());
 	}
-	catch (boost::exception const& _e)
-	{
-		std::cerr << boost::diagnostic_information(_e);
-		return QUrl();
-	}
-	catch (std::exception const& _e)
-	{
-		std::cerr << _e.what();
-		return QUrl();
-	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		manageException();
 		return QUrl();
 	}
 }
