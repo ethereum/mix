@@ -610,7 +610,6 @@ void ClientModel::setupExecutionChain()
 
 void ClientModel::stopExecution()
 {
-	throw std::exception();
 	disconnect(this, &ClientModel::newBlock, this, &ClientModel::processNextTransactions);
 	disconnect(this, &ClientModel::runStateChanged, this, &ClientModel::finalizeBlock);
 	disconnect(this, &ClientModel::runFailed, this, &ClientModel::stopExecution);
