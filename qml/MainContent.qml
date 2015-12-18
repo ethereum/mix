@@ -202,8 +202,8 @@ Rectangle {
 							height: parent.height * 0.4
 							Layout.fillWidth: codeWebSplitter.orientation === Qt.Vertical
 							Layout.fillHeight: codeWebSplitter.orientation === Qt.Horizontal
-							Layout.minimumHeight: 200
-							Layout.minimumWidth: 170
+							Layout.minimumHeight: codeWebSplitter.orientation === Qt.Horizontal ? /*parent.height*/300 : 300
+							Layout.minimumWidth: codeWebSplitter.orientation === Qt.Vertical ? /*parent.width*/500 : 500
 						}
 					}
 				}

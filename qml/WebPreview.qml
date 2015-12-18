@@ -247,7 +247,7 @@ Item {
 				{
 					id: urlInput
 					anchors.verticalCenter: parent.verticalCenter
-					width: 300
+					width: codeWebSplitter.orientation === Qt.Horizontal ? 250 : 300
 					Keys.onEnterPressed:
 					{
 						setPreviewUrl(text);
@@ -271,7 +271,7 @@ Item {
 					id: reloadFrontend
 					text: qsTr("Reload frontend")
 					height: 30
-					width: 80
+					width: 30
 					anchors.verticalCenter: parent.verticalCenter
 					roundLeft: true
 					roundRight: true
@@ -431,7 +431,7 @@ Item {
 
 				function updateView()
 				{
-					if (expressionPanel.visible)
+					if (expressionPanel.visible && mainContent.webViewHorizontal)
 						webView.width = webView.parent.width - 350
 					else
 						webView.width = webView.parent.width
