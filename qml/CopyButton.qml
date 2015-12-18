@@ -5,11 +5,19 @@ import QtQuick.Controls.Styles 1.3
 import QtQuick.Dialogs 1.1
 import Qt.labs.settings 1.0
 
-DefaultImgButton
+DefaultButton
 {
 	property var getContent;
-	iconSource: "qrc:/qml/img/copyiconactive.png"
+	Image
+	{
+		width: 20
+		height: 20
+		anchors.centerIn: parent
+		source: "qrc:/qml/img/copyiconactive.png"
+	}
 	tooltip: qsTr("Copy to clipboard")
+	width: 35
+	height: 28
 	onClicked:
 	{
 		clipboard.text = getContent()

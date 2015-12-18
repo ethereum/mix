@@ -461,27 +461,6 @@ Dialog {
 												source: "qrc:/qml/img/delete-block-icon@2x.png"
 											}
 										}
-									/*	DefaultButton
-										{
-											id: addAccount
-											Image
-											{
-												width: 20
-												height: 20
-												anchors.centerIn: parent
-												source: "qrc:/qml/img/edit_combox.png"
-											}
-											width: 35
-											height: 28
-											anchors.verticalCenter: parent.verticalCenter
-											
-											tooltip: qsTr("Add new account")
-											onClicked:
-											{
-												newAddressWin.accounts = stateAccounts
-												newAddressWin.open()
-											}
-										}*/
 									}
 
 									Rectangle
