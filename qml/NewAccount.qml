@@ -160,7 +160,11 @@ Dialog {
 									return
 								}
 							}
-						var ac = projectModel.stateListModel.newAccount(balance.value.toWei().value(), QEther.Wei, newAddressWin.secret.toLowerCase(), nickNameInput.text)
+						var balance = balance.value.toWei()
+						var balanceStr = "0"
+						if (balance !== null)
+							balanceStr = balance.value()
+						var ac = projectModel.stateListModel.newAccount(balanceStr, QEther.Wei, newAddressWin.secret.toLowerCase(), nickNameInput.text)
 						newAddressWin.addAccount(ac)
 						newAddressWin.close()
 						addressText.originalText = ""

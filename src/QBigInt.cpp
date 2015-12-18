@@ -66,6 +66,8 @@ QBigInt* QBigInt::subtract(QBigInt* const& _value) const
 {
 	try
 	{
+		if (!_value)
+			return nullptr;
 		BigIntVariant toSubtract = _value->internalValue();
 		return new QBigInt(boost::apply_visitor(mix::subtract(), m_internalValue, toSubtract));
 	}
@@ -80,6 +82,8 @@ QBigInt* QBigInt::add(QBigInt* const& _value) const
 {
 	try
 	{
+		if (!_value)
+			return nullptr;
 		BigIntVariant toAdd = _value->internalValue();
 		return new QBigInt(boost::apply_visitor(mix::add(), m_internalValue, toAdd));
 	}
@@ -94,6 +98,8 @@ QBigInt* QBigInt::multiply(QBigInt* const& _value) const
 {
 	try
 	{
+		if (!_value)
+			return nullptr;
 		BigIntVariant toMultiply = _value->internalValue();
 		return new QBigInt(boost::apply_visitor(mix::multiply(), m_internalValue, toMultiply));
 	}
@@ -108,6 +114,8 @@ QBigInt* QBigInt::divide(QBigInt* const& _value) const
 {
 	try
 	{
+		if (!_value)
+			return nullptr;
 		BigIntVariant toDivide = _value->internalValue();
 		return new QBigInt(boost::apply_visitor(mix::divide(), m_internalValue, toDivide));
 	}
@@ -120,9 +128,9 @@ QBigInt* QBigInt::divide(QBigInt* const& _value) const
 
 QVariantMap QBigInt::checkAgainst(QString const& _type) const
 {
+	QVariantMap ret;
 	try
 	{
-		QVariantMap ret;
 		QString type = _type;
 		QString capacity = type.replace("uint", "").replace("int", "");
 		if (capacity.isEmpty())
@@ -154,11 +162,10 @@ QVariantMap QBigInt::checkAgainst(QString const& _type) const
 			if (-range > value || value > range - 1)
 				ret["valid"] = false;
 		}
-		return ret;
 	}
 	catch (...)
 	{
 		manageException();
-		return QVariantMap();
 	}
+	return ret;
 }

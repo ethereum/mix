@@ -292,19 +292,18 @@ void CodeModel::registerCodeChange(QString const& _documentId, QString const& _c
 
 QVariantMap CodeModel::contracts() const
 {
+	QVariantMap result;
 	try
 	{
-		QVariantMap result;
 		Guard l(x_contractMap);
 		for (ContractMap::const_iterator c = m_contractMap.cbegin(); c != m_contractMap.cend(); ++c)
 			result.insert(c.key(), QVariant::fromValue(c.value()));
-		return result;
 	}
 	catch (...)
 	{
 		manageException();
-		return QVariantMap();
 	}
+	return result;
 }
 
 CompiledContract* CodeModel::contractByDocumentId(QString const& _documentId) const
@@ -324,7 +323,7 @@ CompiledContract* CodeModel::contractByDocumentId(QString const& _documentId) co
 	}
 }
 
-CompiledContract const& CodeModel::contract(QString const& _name) const
+CompiledContract const* CodeModel::contract(QString const& _name) const
 {
 	CompiledContract* res;
 	try
@@ -338,22 +337,7 @@ CompiledContract const& CodeModel::contract(QString const& _name) const
 	{
 		manageException();
 	}
-	return *res;
-}
-
-CompiledContract const* CodeModel::tryGetContract(QString const& _name) const
-{
-	try
-	{
-		Guard l(x_contractMap);
-		CompiledContract* res = m_contractMap.value(_name);
-		return res;
-	}
-	catch (...)
-	{
-		manageException();
-		return nullptr;
-	}
+	return res;
 }
 
 void CodeModel::releaseContracts()
@@ -746,9 +730,9 @@ SolidityType CodeModel::nodeType(dev::solidity::Type const* _type)
 
 QVariantMap CodeModel::locationOf(QString _contract)
 {
+	QVariantMap ret;
 	try
 	{
-		QVariantMap ret;
 		ret["source"] = "-1";
 		ret["startlocation"] = "-1";
 		for (auto const& s: m_sourceMaps.keys())
@@ -766,13 +750,12 @@ QVariantMap CodeModel::locationOf(QString _contract)
 				}
 			}
 		}
-		return ret;
 	}
 	catch (...)
 	{
 		manageException();
-		return QVariantMap();
 	}
+	return ret;
 }
 
 

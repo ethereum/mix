@@ -219,6 +219,7 @@ bool FileIo::fileExists(QString const& _url)
 
 QStringList FileIo::makePackage(QString const& _deploymentFolder)
 {
+	QStringList ret;
 	try
 	{
 		Json::Value manifest;
@@ -277,17 +278,16 @@ QStringList FileIo::makePackage(QString const& _deploymentFolder)
 		else
 			error(tr("Error creating package.dapp"));
 		compressed.close();
-		QStringList ret;
+
 		ret.append(QString::fromStdString(toHex(dappHash.ref())));
 		ret.append(qFileBytes.toBase64());
 		ret.append(url.toString());
-		return ret;
 	}
 	catch (...)
 	{
 		manageException();
-		return QStringList();
 	}
+	return ret;
 }
 
 void FileIo::watchFileChanged(QString const& _path)

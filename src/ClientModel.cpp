@@ -261,12 +261,12 @@ QString ClientModel::encodeStringParam(QString const& _param)
 
 QStringList ClientModel::encodeParams(QVariant const& _param, QString const& _contract, QString const& _function)
 {
+	QStringList ret;
 	try
 	{
-		QStringList ret;
-		CompiledContract const& compilerRes = m_codeModel->contract(_contract);
+		CompiledContract const* compilerRes = m_codeModel->contract(_contract);
 		QList<QVariableDeclaration*> paramsList;
-		shared_ptr<QContractDefinition> contractDef = compilerRes.sharedContract();
+		shared_ptr<QContractDefinition> contractDef = compilerRes->sharedContract();
 		if (_contract == _function)
 			paramsList = contractDef->constructor()->parametersList();
 		else
@@ -285,48 +285,45 @@ QStringList ClientModel::encodeParams(QVariant const& _param, QString const& _co
 				encoder.encode(value, type->type());
 				ret.push_back(QString::fromStdString(dev::toHex(encoder.encodedData())));
 			}
-		return ret;
 	}
 	catch (...)
 	{
 		manageException();
-		return QStringList();
 	}
+	return ret;
 }
 
 QVariantMap ClientModel::contractAddresses() const
 {
+	QVariantMap res;
 	try
 	{
-		QVariantMap res;
 		for (auto const& c: m_contractAddresses)
 		{
 			res.insert(serializeToken(c.first), QString::fromStdString(toJS(c.second))); //key will be like <Contract - 0>
 			res.insert(c.first.first, QString::fromStdString(toJS(c.second))); //we keep name like Contract (compatibility with old projects)
 		}
-		return res;
 	}
 	catch (...)
 	{
 		manageException();
-		return QVariantMap();
 	}
+	return res;
 }
 
 QVariantList ClientModel::gasCosts() const
 {
+	QVariantList res;
 	try
 	{
-		QVariantList res;
 		for (auto const& c: m_gasCosts)
 			res.append(QVariant::fromValue(static_cast<int>(c)));
-		return res;
 	}
 	catch (...)
 	{
 		manageException();
-		return QVariantList();
 	}
+	return res;
 }
 
 void ClientModel::addAccount(QString const& _secret)
@@ -504,7 +501,7 @@ TransactionSettings ClientModel::transaction(QVariant const& _tr) const
 }
 
 void ClientModel::processNextTransactions()
-{		
+{
 	WriteGuard(x_queueTransactions);
 	vector<TransactionSettings> transactionSequence;
 	for (auto const& t: m_queueTransactions.front())
@@ -541,10 +538,10 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 				}
 				ContractCallDataEncoder encoder;
 				//encode data
-				CompiledContract const& compilerRes = m_codeModel->contract(ctrInstance.first);
+				CompiledContract const* compilerRes = m_codeModel->contract(ctrInstance.first);
 				QFunctionDefinition const* f = nullptr;
-				bytes contractCode = compilerRes.bytes();
-				shared_ptr<QContractDefinition> contractDef = compilerRes.sharedContract();
+				bytes contractCode = compilerRes->bytes();
+				shared_ptr<QContractDefinition> contractDef = compilerRes->sharedContract();
 				if (transaction.functionId.isEmpty())
 					f = contractDef->constructor();
 				else
@@ -713,7 +710,7 @@ QVariantMap ClientModel::contractStorageByIndex(unsigned _index, QString const& 
 		{
 			MachineState state = e.machineStates.back();
 			auto nameIter = m_contractNames.find(Address(_contractAddress.toStdString()));
-			CompiledContract const* compilerRes = m_codeModel->tryGetContract(nameIter->second);
+			CompiledContract const* compilerRes = m_codeModel->contract(nameIter->second);
 			return contractStorageByMachineState(state, compilerRes);
 		}
 		else
@@ -728,12 +725,11 @@ QVariantMap ClientModel::contractStorageByIndex(unsigned _index, QString const& 
 
 QVariantMap ClientModel::contractStorage(std::unordered_map<u256, u256> _storage, CompiledContract const* _contract)
 {
+	QVariantMap storage;
 	try
 	{
-		QVariantMap storage;
 		QVariantList storageDeclarationList;
 		QVariantMap storageValues;
-
 		for (auto const& slot: _contract->storage())
 		{
 			for (auto const& stateVar: slot)
@@ -746,16 +742,14 @@ QVariantMap ClientModel::contractStorage(std::unordered_map<u256, u256> _storage
 				storageValues[storageDec->name()] = formatStorageValue(storageDec->type()->type(), _storage, stateVar.offset, stateVar.slot);
 			}
 		}
-
 		storage["variables"] = storageDeclarationList;
 		storage["values"] = storageValues;
-		return storage;
 	}
 	catch (...)
 	{
 		manageException();
-		return QVariantMap();
 	}
+	return storage;
 }
 
 QVariantMap ClientModel::contractStorageByMachineState(MachineState const& _state, CompiledContract const* _contract)
@@ -787,8 +781,8 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t, QString 
 		codeMaps.push_back(move(codeMap));
 		//try to resolve contract for source level debugging
 		auto nameIter = m_contractNames.find(code.address);
-		CompiledContract const* compilerRes = nullptr;
-		if (nameIter != m_contractNames.end() && (compilerRes = m_codeModel->tryGetContract(nameIter->second))) //returned object is guaranteed to live till the end of event handler in main thread
+		CompiledContract const* compilerRes = m_codeModel->contract(nameIter->second); //returned object is guaranteed to live till the end of event handler in main thread
+		if (nameIter != m_contractNames.end() && compilerRes)
 		{
 			eth::AssemblyItems assemblyItems = !_t.isConstructor() ? compilerRes->assemblyItems() : compilerRes->constructorAssemblyItems();
 			codes.back()->setDocument(compilerRes->documentId());
@@ -1121,8 +1115,8 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 	if (contractAddressIter != m_contractNames.end())
 	{
 		ContractCallDataEncoder encoder;
-		CompiledContract const& compilerRes = m_codeModel->contract(contractAddressIter->second);
-		const QContractDefinition* def = compilerRes.contract();
+		CompiledContract const* compilerRes = m_codeModel->contract(contractAddressIter->second);
+		const QContractDefinition* def = compilerRes->contract();
 		contract = def->name();
 		if (creation)
 			function = contract;
@@ -1237,8 +1231,8 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 	{
 		u256 wei = m_client->balanceAt(ctr.second, PendingBlock);
 		auto contractAddressIter = m_contractNames.find(ctr.second);
-		CompiledContract const& compilerRes = m_codeModel->contract(contractAddressIter->second);
-		QVariantMap sto = contractStorage(m_client->storageAt(ctr.second, PendingBlock), &compilerRes);
+		CompiledContract const* compilerRes = m_codeModel->contract(contractAddressIter->second);
+		QVariantMap sto = contractStorage(m_client->storageAt(ctr.second, PendingBlock), compilerRes);
 		contractsStorage.insert(contractAddressIter->second + " - " + QString::fromStdString(ctr.second.hex()) + " - " + QEther(wei, QEther::Wei).format(), sto);
 	}
 	for (auto const& account : m_accounts)

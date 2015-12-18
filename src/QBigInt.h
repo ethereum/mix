@@ -91,13 +91,13 @@ public:
 	}
 
 	void setBigInt(u256 const& _value) { m_internalValue = _value; }
-	/// Subtract by @a _value. Invokable from QML.
+	/// Subtract by @a _value. @returns nullptr if exception. Invokable from QML.
 	Q_INVOKABLE QBigInt* subtract(QBigInt* const& _value) const;
-	/// Add @a _value to the current big integer. Invokable from QML.
+	/// Add @a _value to the current big integer. @returns nullptr if exception. Invokable from QML.
 	Q_INVOKABLE QBigInt* add(QBigInt* const& _value) const;
-	/// Multiply by @a _value. Invokable from QML.
+	/// Multiply by @a _value. @returns nullptr if exception. Invokable from QML.
 	Q_INVOKABLE QBigInt* multiply(QBigInt* const& _value) const;
-	/// divide by @a _value. Invokable from QML.
+	/// divide by @a _value. @returns nullptr if exception. Invokable from QML.
 	Q_INVOKABLE QBigInt* divide(QBigInt* const& _value) const;
 	/// check if the current value satisfy the given type
 	Q_INVOKABLE QVariantMap checkAgainst(QString const& _type) const;

@@ -233,9 +233,13 @@ Rectangle
 				if (gasPriceConf.gasPrice && deployStep.gasUsed)
 				{
 					var ether = QEtherHelper.createBigInt(deployStep.gasUsed);
-					var gasTotal = ether.multiply(gasPriceConf.gasPrice.toWei());
-					if (gasTotal)
-						gasToUseInput.value = QEtherHelper.createEther(gasTotal.value(), QEther.Wei, parent);
+					var gasPriceWei = gasPriceConf.gasPrice.toWei();
+					if (gasPriceWei !== null)
+					{
+						var gasTotal = ether.multiply(gasPriceWei);
+						if (gasTotal !== null)
+							gasToUseInput.value = QEtherHelper.createEther(gasTotal.value(), QEther.Wei, parent);
+					}
 				}
 			}
 

@@ -68,13 +68,12 @@ QBigInt* QEther::toWei() const
 			if (QString::fromStdString(rawUnit.second).toLower() == QString(key).toLower())
 				return multiply(new QBigInt(rawUnit.first));
 		}
-		return new QBigInt(dev::u256(0));
 	}
 	catch (...)
 	{
 		manageException();
-		return nullptr;
 	}
+	return nullptr;
 }
 
 void QEther::setUnit(QString const& _unit)
