@@ -20,6 +20,7 @@ Dialog {
 	visible: false
 
 	property alias minerComboBox: comboMiner
+	property int minerIndex
 	property int stateIndex
 	property var stateTransactions: []
 	property var stateAccounts: []
@@ -45,12 +46,12 @@ Dialog {
 		stateIndex = index
 		accountsModel.clear()
 		stateAccounts = []
-		var miner = 0
+		minerIndex = 0
 		for (var k = 0; k < item.accounts.length; k++) {
 			accountsModel.append(item.accounts[k])
 			stateAccounts.push(item.accounts[k])
 			if (item.miner && item.accounts[k].name === item.miner.name)
-				miner = k
+				minerIndex = k
 		}
 		contractsModel.clear()
 		stateContracts = []
@@ -62,10 +63,14 @@ Dialog {
 		}
 
 		visible = true
-		comboMiner.model = stateAccounts
-		comboMiner.currentIndex = miner
+		updateMinerList()
 		forceActiveFocus()
+	}
 
+	function updateMinerList()
+	{
+		comboMiner.model = stateAccounts
+		comboMiner.currentIndex = minerIndex
 	}
 
 	function acceptAndClose() {
@@ -258,15 +263,12 @@ Dialog {
 							id: addAccount
 							Image
 							{
-								width: 20
-								height: 20
 								anchors.centerIn: parent
-								source: "qrc:/qml/img/edit_combox.png"
+								source: "qrc:/qml/img/newaccounticon@2x.png"
 							}
 							width: 35
 							height: 28
 							anchors.verticalCenter: parent.verticalCenter
-
 							tooltip: qsTr("Add new account")
 							onClicked:
 							{
@@ -321,6 +323,7 @@ Dialog {
 										{
 											stateAccounts.splice(styleData.row, 1)
 											accountsView.model.remove(styleData.row)
+											updateMinerList()
 										}
 										standardButtons: StandardButton.Yes | StandardButton.No
 									}

@@ -71,7 +71,7 @@ Rectangle
 					model: SortFilterProxyModel {
 						id: proxyModel
 						source: logsModel
-						property var roles: ["-", "javascript", "run", "state", "comp", "deployment"]
+						property var roles: ["-", "javascript", "run", "state", "comp"]
 
 						Component.onCompleted: {
 							filterType = regEx(proxyModel.roles);
@@ -104,7 +104,7 @@ Rectangle
 							return "(?:" + roles.join('|') + ")";
 						}
 
-						filterType: "(?:javascript|run|state|comp|deployment)"
+						filterType: "(?:javascript|run|state|comp)"
 						filterContent: ""
 						filterSyntax: SortFilterProxyModel.RegExp
 						filterCaseSensitivity: Qt.CaseInsensitive
@@ -243,12 +243,14 @@ Rectangle
 		{
 			if (mainApplication.systemPointSize >= appSettings.systemPointSize)
 			{
+				labelFilter.height = logStyle.generic.layout.headerButtonHeight
 				rectToolBtn.height = logStyle.generic.layout.headerHeight
 				rowAction.height = logStyle.generic.layout.headerHeight
 				javascriptButton.height = logStyle.generic.layout.headerButtonHeight
 				runButton.height = logStyle.generic.layout.headerButtonHeight
 				stateButton.height = logStyle.generic.layout.headerButtonHeight
 				deloyButton.height = logStyle.generic.layout.headerButtonHeight
+				labelFilter.width = 50
 				javascriptButton.width = 30
 				runButton.width = 40
 				stateButton.width = 50
@@ -261,6 +263,8 @@ Rectangle
 			}
 			else
 			{
+				labelFilter.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
+				labelFilter.width = 50 + (2 * appSettings.systemPointSize)
 				rectToolBtn.height = logStyle.generic.layout.headerHeight + Math.round(appSettings.systemPointSize / 2)
 				rowAction.height = logStyle.generic.layout.headerHeight + Math.round(appSettings.systemPointSize / 2)
 				javascriptButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
@@ -299,6 +303,14 @@ Rectangle
 			spacing: logStyle.generic.layout.headerButtonSpacing
 			height: parent.height
 
+			DefaultLabel
+			{
+				id: labelFilter
+				text: qsTr("Filter:")
+				verticalAlignment: Text.AlignVCenter
+				width: 50
+			}
+
 			Rectangle {
 				anchors.verticalCenter: parent.verticalCenter
 				width: 1;
@@ -311,7 +323,7 @@ Rectangle
 				width: 2;
 				height: parent.height
 				color: logStyle.generic.layout.buttonSeparatorColor2
-			}
+			}		
 
 			ToolButton {
 				id: javascriptButton
@@ -470,60 +482,7 @@ Rectangle
 				width: 2;
 				height: parent.height
 				color: logStyle.generic.layout.buttonSeparatorColor2
-			}
-
-			ToolButton {
-				id: deloyButton
-				checkable: true
-				height: logStyle.generic.layout.headerButtonHeight
-				property int labelWidth: 40
-				width: 60
-				anchors.verticalCenter: parent.verticalCenter
-				checked: true
-				onCheckedChanged: {
-					proxyModel.toogleFilter("deployment")
-				}
-				tooltip: qsTr("Deployment")
-				style:
-					ButtonStyle {
-					label:
-						Item {
-						Rectangle
-						{
-							width: deloyButton.width - 5
-							height: deloyButton.height - 7
-							color: "transparent"
-							DefaultLabel {
-								anchors.horizontalCenter: parent.horizontalCenter
-								anchors.verticalCenter: parent.verticalCenter
-								elide: Text.ElideRight
-								font.family: logStyle.generic.layout.logLabelFont
-								font.pixelSize: 12
-								color: logStyle.generic.layout.logLabelColor
-								text: qsTr("Deploy")
-							}
-						}
-					}
-					background:
-						Rectangle {
-						color: deloyButton.checked ? logStyle.generic.layout.buttonSelected : "transparent"
-					}
-				}
-			}
-
-			Rectangle {
-				anchors.verticalCenter: parent.verticalCenter
-				width: 1;
-				height: parent.height
-				color: logStyle.generic.layout.buttonSeparatorColor1
-			}
-
-			Rectangle {
-				anchors.verticalCenter: parent.verticalCenter
-				width: 2;
-				height: parent.height
-				color: logStyle.generic.layout.buttonSeparatorColor2
-			}
+			}			
 		}
 
 		Row
