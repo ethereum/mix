@@ -304,7 +304,7 @@ ApplicationWindow {
 	Action {
 		id: toggleWebPreviewOrientationAction
 		text: qsTr("Horizontal Web View")
-		shortcut: ""
+		shortcut: "Alt+W"
 		checkable: true
 		checked: mainContent.webViewHorizontal
 		onTriggered: mainContent.toggleWebPreviewOrientation();
