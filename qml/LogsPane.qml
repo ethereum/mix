@@ -9,6 +9,7 @@ Rectangle
 	property variant statusPane
 	property variant currentStatus
 	property int contentXPos: logStyle.generic.layout.dateWidth + logStyle.generic.layout.typeWidth - 70
+	property int length: logsModel.count
 
 	function clear()
 	{

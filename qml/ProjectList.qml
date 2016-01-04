@@ -49,9 +49,8 @@ ScrollView
 			{
 				id: projectTitle
 				color: projectFilesStyle.title.color
-				text: projectModel.projectTitle
+				text: projectModel.projectTitle == "" ? "-" : projectModel.projectTitle
 				anchors.verticalCenter: parent.verticalCenter
-				visible: !projectModel.isEmpty;
 				anchors.left: parent.left
 				anchors.leftMargin: projectFilesStyle.general.leftMargin
 				font.family: srcSansProLight.name

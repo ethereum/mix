@@ -750,7 +750,7 @@ ColumnLayout {
 					id: genesis
 					Layout.preferredWidth: blockChainScrollView.width
 					scenario: blockChainPanel.model
-					scenarioIndex: scenarioIndex
+					scenarioIndex: blockChainPanel.scenarioIndex
 					blockIndex: -1
 					transactions: []
 					status: ""
