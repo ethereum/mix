@@ -329,14 +329,14 @@ CompiledContract const* CodeModel::contract(QString const& _name) const
 	try
 	{
 		Guard l(x_contractMap);
-		res = m_contractMap.value(_name);
-		if (res == nullptr)
-			BOOST_THROW_EXCEPTION(dev::Exception() << dev::errinfo_comment("Contract not found: " + _name.toStdString()));
+		res = m_contractMap.value(_name);		
 	}
 	catch (...)
 	{
-		manageException();
+		manageException();		
 	}
+	if (res == nullptr)
+		BOOST_THROW_EXCEPTION(dev::Exception() << dev::errinfo_comment("Contract not found: " + _name.toStdString()));
 	return res;
 }
 
