@@ -24,7 +24,6 @@
 
 #include <boost/asio.hpp>
 #include "QVariableDeclaration.h"
-#include "QVariableDefinition.h"
 
 namespace dev
 {
@@ -33,7 +32,6 @@ namespace mix
 
 class QFunctionDefinition;
 class QVariableDeclaration;
-class QVariableDefinition;
 class QSolidityType;
 
 /**

@@ -95,7 +95,12 @@ Rectangle {
 	}
 
 	Connections {
-		target:clientModel
+		target: fileIo
+		onFileIOInternalError: errorMessage(_error, "Run");
+	}
+
+	Connections {
+		target: clientModel
 		onRunStarted:
 		{
 			logPane.clear()
@@ -104,6 +109,7 @@ Rectangle {
 		onRunFailed: errorMessage(format(_message), "Run");
 		onRunComplete: infoMessage(qsTr("Run complete"), "Run");
 		onNewBlock: infoMessage(qsTr("New block created"), "State");
+		onInternalError: errorMessage(format(_message), "Run");
 
 		function format(_message)
 		{
@@ -135,6 +141,11 @@ Rectangle {
 		onCompilationError:
 		{
 			goToLine.visible = true
+			updateStatus(_error);
+		}
+
+		onCompilationInternalError:
+		{
 			updateStatus(_error);
 		}
 	}

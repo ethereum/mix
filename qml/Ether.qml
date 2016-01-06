@@ -31,6 +31,15 @@ RowLayout {
 		units.enabled = !readOnly
 	}
 
+	function toHexWei()
+	{
+		var wei = value.toWei()
+		if (wei !== null)
+			return "0x" + wei.hexValue()
+		else
+			return "0x"
+	}
+
 	function update()
 	{
 		if (value)

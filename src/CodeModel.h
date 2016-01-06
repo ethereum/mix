@@ -221,14 +221,9 @@ public:
 	bool isCompiling() const { return m_compiling; }
 	/// @returns true there is a contract which has at least one function
 	bool hasContract() const;
-	/// Get contract code by url. Contract is compiled on first access and cached
-	dev::bytes const& getStdContractCode(QString const& _contractName, QString const& _url);
 	/// Get contract by name
 	/// Throws if not found
-	CompiledContract const& contract(QString const& _name) const;
-	/// Get contract by name
-	/// @returns nullptr if not found
-	Q_INVOKABLE CompiledContract const* tryGetContract(QString const& _name) const;
+	CompiledContract const* contract(QString const& _name) const;
 	/// Find a contract by document id
 	/// @returns CompiledContract object or null if not found
 	Q_INVOKABLE CompiledContract* contractByDocumentId(QString const& _documentId) const;
@@ -259,6 +254,8 @@ public:
 	Q_INVOKABLE QVariantMap locationOf(QString _contract);
 
 signals:
+	/// Emited on internal error
+	void compilationInternalError(QString _error) const;
 	/// Emited on compilation state change
 	void stateChanged();
 	/// Emitted on compilation complete
@@ -288,6 +285,7 @@ private:
 	void releaseContracts();
 	void collectContracts(dev::solidity::CompilerStack const& _cs, std::vector<std::string> const& _sourceNames, GasMapWrapper* _gas);
 	QVariantMap resolveCompilationErrorLocation(dev::solidity::CompilerStack const& _cs, dev::SourceLocation const& _location);
+	void manageException() const;
 
 	std::atomic<bool> m_compiling;
 	mutable dev::Mutex x_contractMap;

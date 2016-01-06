@@ -31,7 +31,6 @@
 #include <libethcore/CommonJS.h>
 #include <libsolidity/ast/AST.h>
 #include "QVariableDeclaration.h"
-#include "QVariableDefinition.h"
 #include "QFunctionDefinition.h"
 #include "ContractCallDataEncoder.h"
 #include "CodeModel.h"

@@ -25,7 +25,11 @@ ColumnLayout
 
 	function toHexWei()
 	{
-		return "0x" + gasPrice.toWei().hexValue()
+		var wei = gasPrice.toWei()
+		if (wei !== null)
+			return "0x" + wei.hexValue()
+		else
+			return "0x"
 	}
 
 	Component.onCompleted:
@@ -66,11 +70,6 @@ ColumnLayout
 			displayUnitSelection: false
 			displayFormattedValue: true
 			edit: false
-
-			function toHexWei()
-			{
-				return "0x" + gasPriceDefault.value.toWei().hexValue()
-			}
 		}
 	}
 
@@ -90,10 +89,6 @@ ColumnLayout
 			edit: true
 			readOnly: true
 			Layout.preferredWidth: 200
-			function toHexWei()
-			{
-				return "0x" + gasPriceInput.value.toWei().hexValue()
-			}
 		}
 	}
 
