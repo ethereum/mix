@@ -1,7 +1,8 @@
 import QtQuick 2.0
 import QtQuick.Window 2.0
 import QtQuick.Layouts 1.0
-import QtQuick.Controls 1.0
+import QtQuick.Controls 1.4
+import Qt.labs.folderlistmodel 2.1
 import QtQuick.Controls.Styles 1.3
 import Qt.labs.settings 1.0
 import "."
@@ -10,10 +11,12 @@ ScrollView
 {
 	id: filesCol
 	property bool renameMode: false
-	property alias sections: sectionRepeater
 	flickableItem.interactive: false
+	signal docDoubleClicked(var fileData)
 	ColumnLayout
 	{
+		Layout.preferredHeight: parent.height
+		spacing: 0
 		ProjectFilesStyle
 		{
 			id: projectFilesStyle
@@ -26,6 +29,7 @@ ScrollView
 
 		RowLayout
 		{
+			id: projectHeader
 			Layout.preferredWidth: parent.width
 			Rectangle
 			{
@@ -70,238 +74,177 @@ ScrollView
 			}
 		}
 
-		Repeater {
-			model: [qsTr("Contracts"), qsTr("Javascript"), qsTr("Web Pages"), qsTr("Styles"), qsTr("Images"), qsTr("Misc")];
-			signal selected(string doc, string groupName)
-			signal isCleanChanged(string doc, string groupName, var isClean)
-			property int incr: -1;
-			id: sectionRepeater
-			FilesSection
+		Connections {
+			id: projectModelConnection
+			target: projectModel
+			onProjectLoaded:
 			{
-				Layout.preferredWidth: filesCol.width
-				id: section;
-				sectionName: modelData
-				index:
+				projectFiles.setFolder(fileIo.pathFromUrl(projectModel.projectPath))
+			}
+			onIsCleanChanged:
+			{
+				for (var k = 0; k < projectFiles.model.count; k++)
 				{
-					for (var k in sectionRepeater.model)
+					if (projectFiles.model.get(k).path === document.path)
 					{
-						if (sectionRepeater.model[k] === modelData)
-							return k;
+						projectFiles.model.get(k).unsaved = true
+						break
+					}
+				}
+			}
+		}
+
+		DefaultText
+		{
+			id: folderPath
+			Layout.preferredWidth: filesCol.width
+		}
+
+		TableView {
+			id: projectFiles
+			property string currentFolder
+			Layout.preferredWidth: filesCol.width
+			Layout.preferredHeight: filesCol.height - projectHeader.height - folderPath.height
+			clip: true
+			headerDelegate: null
+			itemDelegate: renderDelegate
+			model: ListModel {}
+
+			function setFolder(folder)
+			{
+				currentFolder = folder
+				folderPath.text = folder
+				model.clear()
+				model.append({ fileName: "..", type: "folder", path: currentFolder })
+				fillView(fileIo.files(folder), "file")
+				fillView(fileIo.directories(folder), "folder")
+				updateSaveStatus()
+			}
+
+			function updateSaveStatus()
+			{
+				for (var k = 0; k < projectFiles.model.count; k++)
+				{
+					projectFiles.model.get(k).unsaved = false
+					for (var document in projectModel.unsavedFiles)
+					{
+						if (projectFiles.model.get(k).path === document.path)
+						{
+							projectFiles.model.get(k).unsaved = true
+							break
+						}
+					}
+				}
+			}
+
+			function fillView(items, type)
+			{
+				for (var k = 0; k < items.length; k++)
+				{
+					if (items[k].fileName !== "" && items[k].fileName !== ".." && items[k].fileName !== ".")
+						model.append({ fileName: items[k].fileName, type: type, path: items[k].path, unsaved: false })
+				}
+			}
+
+			TableViewColumn {
+				role: "fileName"
+				width: parent.width - 10
+			}
+
+			rowDelegate:
+				Component
+			{
+			id: rowItems
+			Rectangle
+			{
+				id: rect
+				height: 20
+				color: "transparent"
+
+				Component.onCompleted:
+				{
+					rect.updateLayout()
+				}
+
+				Connections
+				{
+					target: appSettings
+					onSystemPointSizeChanged:
+					{
+						rect.updateLayout()
 					}
 				}
 
-				model: sectionModel
-				selManager: sectionRepeater
-
-				onDocumentSelected: {
-					selManager.selected(doc, groupName);
-				}
-
-				ListModel
+				function updateLayout()
 				{
-					id: sectionModel
+					if (mainApplication.systemPointSize >= appSettings.systemPointSize)
+						rect.height = 20
+					else
+						rect.height = 20 + appSettings.systemPointSize
+				}
+			}
+		}
+	}
+
+	Component {
+		id: renderDelegate
+		Item {
+
+			RowLayout {
+				id: wrapperItem
+				anchors.fill: parent
+				spacing: 5
+
+				Rectangle {
+					id: selectedItem
+					radius: 4
+					border.color: "#4A90E2"
+					anchors.fill: parent
+					color: "transparent"
+					visible: false
 				}
 
-				Connections {
-					id: projectConnection
-					target: codeModel
-					property bool firstLoad: true
-					property bool inErrorAtStart: false
+				DefaultText {
+					anchors.left: parent.left
+					anchors.leftMargin: 10
+					width: parent.width
+					text: styleData.value
+					wrapMode: Text.NoWrap
+					id: fileName
 
-					onCompilationError:
+					DefaultText
 					{
-						if (firstLoad)
-						{
-							firstLoad = false
-							if (modelData !== "Contracts")
-								return
-							inErrorAtStart = true
-							for (var k = 0; k < projectModel.listModel.count; k++)
-							{
-								var i = projectModel.listModel.get(k);
-								if (i.isContract)
-								{
-									sectionModel.append(i)
-								}
-							}
-						}
+						id: unsaved
+						text: "*"
+						visible: projectFiles.model.get(styleData.row).unsaved
+						anchors.left: parent.right
+						anchors.leftMargin: 5
 					}
 
-					onCompilationComplete:
+					MouseArea
 					{
-						if (modelData !== "Contracts")
-							return
-
-						if (projectConnection.inErrorAtStart && projectConnection.firstLoad)
-							sectionModel.clear()
-						projectConnection.firstLoad = false
-
-						for (var name in codeModel.contracts)
+						anchors.fill: parent
+						onDoubleClicked:
 						{
-							var newLocation = codeModel.locationOf(name)
-							var found = false
-							for (var k = 0; k < sectionModel.count; k++)
+							if (projectFiles.model.get(styleData.row).type === "folder")
 							{
-								var ctr = sectionModel.get(k)
-								if (ctr.startlocation["source"] === newLocation["source"]
-										&& ctr.startlocation["startlocation"] === newLocation["startlocation"]
-										&& name !== ctr.name)
+								if (fileName.text === "..")
 								{
-									found = true
-									ctr.name = name
-									sectionModel.set(k, ctr)
-									// we have a contract at a known location. contract name has changed
-									break
+									var f = projectFiles.currentFolder.substring(0, projectFiles.currentFolder.lastIndexOf("/"))
+									projectFiles.setFolder(f)
 								}
-								else if ((ctr.startlocation["source"] !== newLocation["source"]
-										  || ctr.startlocation["startlocation"] !== newLocation["startlocation"])
-										 && name === ctr.name)
-								{
-									found = true
-									ctr.startLocation = newLocation
-									sectionModel.set(k, ctr)
-									// we have a known contract at a different location
-									break;
-								}
-								else if (ctr.startlocation["source"] === newLocation["source"]
-										 && ctr.startlocation["startlocation"] === newLocation["startlocation"]
-										 && name === ctr.name)
-								{
-									found = true
-									break;
-								}
-							}
-
-							//before, we delete duplicate (empty file) which lead to the same sol file.
-							if (!found)
-							{
-								var ctr = codeModel.contracts[name]
-								var doc = projectModel.getDocument(ctr.documentId)
-								var item = {};
-								item.startlocation = newLocation
-								item.name = name // change the filename by the contract name
-								item.fileName = doc.fileName
-								item.contract = true
-								item.documentId = doc.documentId
-								item.groupName = doc.groupName
-								item.isContract = doc.isContract
-								item.isHtml = doc.isHtml
-								item.isText = doc.isText
-								item.path = doc.path
-								item.syntaxMode = doc.syntaxMode
-
-								//we have a new contract, check if this contract has been created in an empty doc which already exist.
-								var emptyFileNotFound = true
-								for (var k = 0; k < sectionModel.count; k++)
-								{
-									var doc = sectionModel.get(k)
-									if (doc.name === qsTr("(empty)") && doc.documentId === codeModel.contracts[name].documentId)
-									{
-										if (emptyFileNotFound)
-										{
-											sectionModel.set(k, item);
-											emptyFileNotFound = false
-											break;
-										}
-									}
-								}
-								if (emptyFileNotFound)
-									sectionModel.append(item);
-							}
-						}
-
-						var alreadyEmpty = {}
-						for (var k = 0; k < sectionModel.count; k++)
-						{
-							var c = sectionModel.get(k)
-							if (!codeModel.contracts[c.name])
-							{
-								if (projectModel.codeEditor.getDocumentText(c.documentId).trim() !== "")
-									sectionModel.remove(k)
 								else
-								{
-									if (alreadyEmpty[c.documentId])
-										sectionModel.remove(k)
-									else
-									{
-										alreadyEmpty[c.documentId] = 1
-										c.name = qsTr("(empty)")
-										sectionModel.set(k, c)
-									}
-								}
+									projectFiles.setFolder(projectFiles.model.get(styleData.row).path)
 							}
-						}						
-					}
-
-					onContractRenamed: {
-					}
-				}
-
-				Connections {
-					id: projectModelConnection
-					target: projectModel
-
-					function addDocToSubModel()
-					{
-						for (var k = 0; k < projectModel.listModel.count; k++)
-						{
-							var item = projectModel.listModel.get(k);
-							if (item.groupName === modelData)
-								sectionModel.append(item);
-						}
-					}
-
-					onIsCleanChanged: {
-						for (var si = 0; si < sectionModel.count; si++) {
-							var document = sectionModel.get(si);
-							if (documentId === document.documentId && document.groupName === modelData)
-							{
-								selManager.isCleanChanged(documentId, modelData, isClean);
-								break;
-							}
-						}
-					}
-
-					onDocumentOpened: {
-						if (document.groupName === modelData)
-							sectionRepeater.selected(document.documentId, modelData);
-					}
-
-					onNewProject: {
-						sectionModel.clear();
-					}
-
-					onProjectClosed: {
-						sectionModel.clear();
-					}
-
-					onProjectLoaded: {
-						sectionModel.clear();
-						if (modelData != "Contracts")
-							addDocToSubModel();
-						if (modelData === "Contracts")
-						{
-							var selItem = projectModel.listModel.get(0);
-							projectModel.openDocument(selItem.documentId);
-						}
-					}
-
-					onDocumentAdded:
-					{
-						var newDoc = projectModel.getDocument(documentId);
-						if (newDoc.groupName === modelData)
-						{
-							if (modelData !== "Contracts")
-								sectionModel.append(newDoc);
-
-							projectModel.openDocument(newDoc.documentId);
-							sectionRepeater.selected(newDoc.documentId, modelData);
+							else
+								docDoubleClicked(projectModel.file(projectFiles.model.get(styleData.row)))
 						}
 					}
 				}
 			}
 		}
 	}
+}
 }
 
 

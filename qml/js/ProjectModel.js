@@ -70,22 +70,21 @@ var contractTemplate = "//Sample contract\n" +
 		"}\n";
 
 
-function saveDocument(documentId)
+function saveDocument(doc)
 {
-	var doc = projectListModel.get(getDocumentIndex(documentId));
 	documentSaving(doc);
 	if (doc.isContract)
-		contractSaved(currentDocumentId);
+		contractSaved(doc);
 	else
-		documentSaved(currentDocumentId);
+		documentSaved(doc);
 }
 
 function saveCurrentDocument()
 {	
-	saveDocument(currentDocumentId)
+	saveDocument(currentDocument)
 }
 
-function saveContracts()
+/*function saveContracts()
 {
 	for (var i = 0; i < projectListModel.count; i++)
 	{
@@ -93,11 +92,11 @@ function saveContracts()
 		if (d.isContract)
 			saveDocument(d.documentId)
 	}
-}
+}*/
 
-function saveAll() {
+/*function saveAll() {
 	saveProject();
-}
+}*/
 
 function createProject() {
 	newProjectDialog.open();
@@ -210,13 +209,8 @@ function loadProject(path) {
 		if (!projectData.files)
 			projectData.files = [];
 
-		for(var i = 0; i < projectData.files.length; i++) {
-			var entry = projectData.files[i];
-			if (typeof(entry) === "string")
-				addFile(entry); //TODO: remove old project file support
-			else
-				addFile(entry.fileName, entry.title);
-		}
+		// all files/folders from the root path are included in Mix.
+
 		if (mainApplication.trackLastProject)
 			projectSettings.lastProjectPath = path;
 		projectLoading(projectData);
@@ -231,9 +225,11 @@ function loadProject(path) {
 	});
 }
 
-function addFile(fileName, title) {
-	var p = projectPath + fileName;
+function file(docData)
+{
+	var fileName = docData.fileName
 	var extension = fileName.substring(fileName.lastIndexOf("."), fileName.length);
+	var path = docData.path
 	var isContract = extension === ".sol";
 	var isHtml = extension === ".html";
 	var isCss = extension === ".css";
@@ -243,32 +239,41 @@ function addFile(fileName, title) {
 	var groupName = isContract ? qsTr("Contracts") : isJs ? qsTr("Javascript") : isHtml ? qsTr("Web Pages") : isCss ? qsTr("Styles") : isImg ? qsTr("Images") : qsTr("Misc");
 	var docData = {
 		contract: false,
-		path: p,
+		path: path,
 		fileName: fileName,
-		name: title !== undefined ? title : fileName,
-									documentId: fileName,
-									syntaxMode: syntaxMode,
-									isText: isContract || isHtml || isCss || isJs,
-									isContract: isContract,
-									isHtml: isHtml,
-									groupName: groupName
+		name: fileName,
+		documentId: fileName,
+		syntaxMode: syntaxMode,
+		isText: isContract || isHtml || isCss || isJs,
+		isContract: isContract,
+		isHtml: isHtml,
+		groupName: groupName
 	};
-
-	projectListModel.append(docData);
-	fileIo.watchFileChanged(p);
-	return docData.documentId;
+	return docData
 }
 
-function getDocumentIndex(documentId)
+/*function addFile(filePath)
+{
+	var docData = file(filePath)
+	projectListModel.append(docData);
+	if (!filesMap[path])
+		filesMap[path] = []
+	filesMap[path].push(fileName)
+	filesPath[filePath] = docData
+	fileIo.watchFileChanged(filePath);
+	return docData.documentId;
+}*/
+
+/*function getDocumentIndex(documentId)
 {
 	for (var i = 0; i < projectListModel.count; i++)
 		if (projectListModel.get(i).documentId === documentId)
 			return i;
 	console.error("Can't find document " + documentId);
 	return -1;
-}
+}*/
 
-function getDocumentByPath(_path)
+/*function getDocumentByPath(_path)
 {
 	for (var i = 0; i < projectListModel.count; i++)
 	{
@@ -277,22 +282,22 @@ function getDocumentByPath(_path)
 			return doc.documentId;
 	}
 	return null;
-}
+}*/
 
-function selectContractByIndex(contractIndex)
+/*function selectContractByIndex(contractIndex)
 {
 	currentContractIndex = contractIndex	
 	contractSelected(contractIndex)
-}
+}*/
 
-function openDocument(documentId) {
+/*function openDocument(documentId) {
 	if (documentId !== currentDocumentId) {
 		documentOpened(projectListModel.get(getDocumentIndex(documentId)));
 		currentDocumentId = documentId;
 	}
-}
+}*/
 
-function openNextContract()
+/*function openNextContract()
 {
 	if (Object.keys(codeModel.contracts).length - 1 > currentContractIndex)
 	{
@@ -381,13 +386,13 @@ function openPrevDocument() {
 		currentContractIndex = Object.keys(codeModel.contracts).length - 1
 		selectContractByIndex(currentContractIndex)
 	}
-}
+}*/
 
 function doCloseProject() {
 	console.log("Closing project");
 	projectListModel.clear();
 	projectPath = "";
-	currentDocumentId = "";
+	currentDocument = null
 	projectClosed();
 }
 
@@ -411,6 +416,7 @@ function doCreateProject(title, path) {
 			fileIo.writeFile(dirPath + indexFile, htmlTemplate);
 		if (!fileIo.fileExists(dirPath + contractsFile))
 			fileIo.writeFile(dirPath + contractsFile, contractTemplate);
+
 		newProject(projectData);
 		var json = JSON.stringify(projectData, null, "\t");
 		fileIo.writeFile(projectFile, json);
@@ -418,20 +424,20 @@ function doCreateProject(title, path) {
 	});
 }
 
-function doAddExistingFiles(files) {
+/*function doAddExistingFiles(files) {
 	for(var i = 0; i < files.length; i++) {
 		var sourcePath = files[i];
 		var sourceFileName = sourcePath.substring(sourcePath.lastIndexOf("/") + 1, sourcePath.length);
 		var destPath = projectPath + sourceFileName;
 		if (sourcePath !== destPath)
 			fileIo.copyFile(sourcePath, destPath);
-		var id = addFile(sourceFileName);
+		var id = addFile(sourcePath);
 		saveProjectFile();
 		documentAdded(id)
 	}
-}
+}*/
 
-function renameDocument(documentId, newName) {
+/*function renameDocument(documentId, newName) {
 	var i = getDocumentIndex(documentId);
 	var document = projectListModel.get(i);
 	if (!document.isContract) {
@@ -447,9 +453,9 @@ function renameDocument(documentId, newName) {
 		saveProjectFile();
 		documentUpdated(documentId);
 	}
-}
+}*/
 
-function getDocument(documentId) {
+/*function getDocument(documentId) {
 	var i = getDocumentIndex(documentId);
 	if (i === -1)
 		return undefined;
@@ -476,6 +482,7 @@ function removeDocument(documentId) {
 	saveProjectFile();
 	documentRemoved(documentId);
 }
+*/
 
 function newHtmlFile() {
 	createAndAddFile("page", "html", htmlTemplate);
@@ -501,7 +508,7 @@ function createAndAddFile(name, extension, content, fileName) {
 	var filePath = projectPath + fileName;
 	if (!fileIo.fileExists(filePath))
 		fileIo.writeFile(filePath, content);
-	var id = addFile(fileName);
+	var id = addFile(filePath);
 	saveProjectFile();
 	documentAdded(id);
 }

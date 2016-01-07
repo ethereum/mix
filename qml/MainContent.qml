@@ -190,13 +190,40 @@ Rectangle {
 						id: codeWebSplitter
 						anchors.fill: parent
 						orientation: Qt.Horizontal
-						CodeEditorView {
-							id: codeEditor
-							height: parent.height * 0.6
-							anchors.top: parent.top
-							Layout.fillWidth: true
-							Layout.fillHeight: true
+
+						Connections
+						{
+							target: projectList
+							onDocDoubleClicked:
+							{
+								codeEditor.openDocument(fileData)
+								path.text = fileData.path
+								projectModel.currentDocument = fileData
+							}
 						}
+
+						ColumnLayout
+						{
+							Layout.fillHeight: true
+							Layout.fillWidth: true
+							anchors.top: parent.top
+							spacing: 0
+							DefaultLabel
+							{
+								id: path
+								verticalAlignment: Text.AlignVCenter
+							}
+
+							CodeEditorView
+							{
+								id: codeEditor
+								Layout.fillHeight: true
+								Layout.fillWidth: true
+							}
+						}
+
+
+
 						WebPreview {
 							id: webPreview
 							height: parent.height * 0.4

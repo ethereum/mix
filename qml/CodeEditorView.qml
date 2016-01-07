@@ -12,7 +12,7 @@ Item {
 	property int openDocCount: 0
 	signal documentEdit(string documentId)
 	signal breakpointsChanged(string documentId)
-	signal isCleanChanged(var isClean, string documentId)
+	signal isCleanChanged(var isClean, var document)
 	signal loadComplete
 
 	function getDocumentText(documentId) {
@@ -30,9 +30,7 @@ Item {
 		for (var i = 0; i < openDocCount; i++)
 		{
 			if (editorListModel.get(i).isContract)
-			{
 				ctr.push(editors.itemAt(i).item)
-			}
 		}
 		return ctr;
 	}
@@ -83,8 +81,7 @@ Item {
 					breakpointsChanged(editor.document.documentId);
 			});
 			editor.onIsCleanChanged.connect(function() {
-				if (!editor.document.isContract)
-					isCleanChanged(editor.isClean, editor.document.documentId);
+				isCleanChanged(editor.isClean, editor.document);
 			});
 		}
 		editor.document = document;
@@ -254,11 +251,11 @@ Item {
 		}
 
 		onDocumentSaved: {
-			resetEditStatus(documentId);
+			resetEditStatus(document);
 		}
 
 		onContractSaved: {
-			resetEditStatus(documentId);
+			resetEditStatus(document);
 		}
 
 		onDocumentSaving: {

@@ -85,5 +85,6 @@
         <file>qml/DefaultCombobox.qml</file>
         <file>qml/DefaultRadioButton.qml</file>
         <file>qml/js/ScientificNumber.js</file>
+        <file>qml/FileItem.qml</file>
     </qresource>
 </RCC>

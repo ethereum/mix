@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <QFileSystemModel>
 #include <libdevcore/CommonData.h>
 #include <QObject>
 
@@ -70,6 +71,12 @@ public:
 	Q_INVOKABLE void deleteFile(QString const& _path);
 	/// delete a directory
 	Q_INVOKABLE void deleteDir(QString const& _url);
+	/// retrieve all sub files
+	Q_INVOKABLE QVariantList files(QString const& _root);
+	/// retrieve all sub dir
+	Q_INVOKABLE QVariantList directories(QString const& _root);
+	/// path from url
+	Q_INVOKABLE QString pathFromUrl(QString const& _url);
 
 	//TODO: remove once qt 5.5.1 is out
 	Q_INVOKABLE QString urlToPath(QUrl const& _url) { return _url.toLocalFile(); }
@@ -77,8 +84,7 @@ public:
 	Q_INVOKABLE QUrl pathFolder(QString const& _path);
 
 private:
-	QString getHomePath() const;
-	QString pathFromUrl(QString const& _url);
+	QString getHomePath() const;	
 	QFileSystemWatcher* m_watcher;
 };
 

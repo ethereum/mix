@@ -138,7 +138,8 @@ Item {
 
 		onDocumentSaved:
 		{
-			if (!projectModel.getDocument(documentId).isContract)
+			console.log(JSON.stringify(document))
+			if (document.isContract)
 				reloadOnSave();
 		}
 

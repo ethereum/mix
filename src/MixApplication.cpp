@@ -88,6 +88,7 @@ void MixApplication::initialize()
 	qmlRegisterType<InverseMouseArea>("org.ethereum.qml.InverseMouseArea", 1, 0, "InverseMouseArea");
 	qRegisterMetaType<CodeModel*>("CodeModel*");
 	qRegisterMetaType<ClientModel*>("ClientModel*");
+	qRegisterMetaType<QFileSystemModel*>("QFileSystemModel*");
 }
 
 MixApplication::~MixApplication()

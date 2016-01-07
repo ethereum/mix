@@ -21,6 +21,7 @@
  */
 
 #include <QFileSystemWatcher>
+#include <QFileSystemModel>
 #include <QDebug>
 #include <QDesktopServices>
 #include <QMimeDatabase>
@@ -231,3 +232,32 @@ QUrl FileIo::pathFolder(QString const& _path)
 		return QUrl::fromLocalFile(_path);
 	return QUrl::fromLocalFile(QFileInfo(_path).absolutePath());
 }
+
+QVariantList FileIo::files(QString const& _root)
+{
+	QDirIterator it(_root, QDir::Files, QDirIterator::NoIteratorFlags);
+	QVariantList ret;
+	while (it.hasNext())
+	{
+		QVariantMap file;
+		file["path"] = it.next();
+		file["fileName"] = it.fileName();
+		ret.append(file);
+	}
+	return ret;
+}
+
+QVariantList FileIo::directories(QString const& _root)
+{
+	QDirIterator it(_root, QDir::Dirs, QDirIterator::NoIteratorFlags);
+	QVariantList ret;
+	while (it.hasNext())
+	{
+		QVariantMap path;
+		path["path"] = it.next();
+		path["fileName"] = it.fileName();
+		ret.append(path);
+	}
+	return ret;
+}
+
