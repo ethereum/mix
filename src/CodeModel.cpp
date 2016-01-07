@@ -325,7 +325,7 @@ CompiledContract* CodeModel::contractByDocumentId(QString const& _documentId) co
 
 CompiledContract const* CodeModel::contract(QString const& _name) const
 {
-	CompiledContract* res;
+	CompiledContract* res = nullptr;
 	try
 	{
 		Guard l(x_contractMap);
