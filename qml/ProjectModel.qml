@@ -14,7 +14,7 @@ Item {
 	signal projectLoading(var projectData)
 	signal projectLoaded()
 	signal documentSaving(var document)
-	signal documentChanged(var documentId)
+	signal documentChanged(var path)
 	signal documentOpened(var document)
 	signal documentRemoved(var documentId)
 	signal documentUpdated(var documentId) //renamed
@@ -32,6 +32,7 @@ Item {
 	signal deploymentError(string error)
 	signal isCleanChanged(var isClean, var document)
 	signal contractSelected(var _contractIndex)
+	signal folderAdded(string path)
 
 	property bool isEmpty: (projectPath === "")
 	readonly property string projectFileName: ".mix"
@@ -61,6 +62,7 @@ Item {
 	property variant filesMap: ({})
 	property variant filesPath: ({})
 	property variant currentDocument
+	property string currentFolder
 
 	//interface
 	function saveAll() { ProjectModelCode.saveAll(); }
@@ -75,6 +77,7 @@ Item {
 	function newJsFile() { ProjectModelCode.newJsFile(); }
 	function newCssFile() { ProjectModelCode.newCssFile(); }
 	function newContract() { ProjectModelCode.newContract(); }
+	function newFolder() { newFolderDialog.open() }
 	//function openDocument(documentId) { ProjectModelCode.openDocument(documentId); }
 	//function selectContractByIndex(index, name) { ProjectModelCode.selectContractByIndex(index, name); }
 	//function openNextDocument() { ProjectModelCode.openNextDocument(); }
@@ -88,7 +91,7 @@ Item {
 	function deployProject() { NetworkDeploymentCode.deployProject(false); }
 	function registerToUrlHint(url, gasPrice, callback) { NetworkDeploymentCode.registerToUrlHint(url, gasPrice, callback); }
 	function formatAppUrl() { NetworkDeploymentCode.formatAppUrl(url); }
-	//function saveContracts() { ProjectModelCode.saveContracts(); }
+	function saveDocuments(onlyContracts) { ProjectModelCode.saveDocuments(onlyContracts); }
 	function file(docData) { return ProjectModelCode.file(docData) }
 
 	function cleanDeploymentStatus()
@@ -140,6 +143,16 @@ Item {
 		}
 	}
 
+	NewFolderDialog
+	{
+		id: newFolderDialog
+		visible: false
+		onAccepted: {
+			fileIo.makeDir(newFolderDialog.path)
+			folderAdded(newFolderDialog.path)
+		}
+	}
+
 	NewProjectDialog {
 		id: newProjectDialog
 		visible: false
@@ -156,9 +169,8 @@ Item {
 		property bool saving: false
 		onFileChanged:
 		{
-			fileIo.watchFileChanged(_filePath);
-			var documentId = ProjectModelCode.getDocumentByPath(_filePath);
-			documentChanged(documentId);
+			//fileIo.watchFileChanged(_filePath);
+			documentChanged(_filePath);
 		}
 	}
 

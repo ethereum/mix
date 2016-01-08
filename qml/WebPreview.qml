@@ -103,25 +103,6 @@ Item {
 	Connections {
 		target: projectModel
 
-		onDocumentAdded: {
-			var document = projectModel.getDocument(documentId)
-			if (document.isHtml)
-				pageListModel.append(document);
-		}
-		onDocumentRemoved: {
-			updateDocument(documentId, function(i) { pageListModel.remove(i) } )
-		}
-
-		onDocumentUpdated: {
-			var document = projectModel.getDocument(documentId);
-			for (var i = 0; i < pageListModel.count; i++)
-				if (pageListModel.get(i).documentId === documentId)
-				{
-					pageListModel.set(i, document);
-					break;
-				}
-		}
-
 		onProjectLoading: {
 			for (var i = 0; i < target.listModel.count; i++) {
 				var document = target.listModel.get(i);
@@ -138,7 +119,6 @@ Item {
 
 		onDocumentSaved:
 		{
-			console.log(JSON.stringify(document))
 			if (document.isContract)
 				reloadOnSave();
 		}

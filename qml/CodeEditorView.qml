@@ -85,6 +85,8 @@ Item {
 			});
 		}
 		editor.document = document;
+		if (document.isContract)
+			codeModel.registerCodeChange(document.documentId, data);
 		editor.setFontSize(editorSettings.fontSize);
 		editor.sourceName = document.documentId;
 		editor.setText(data, document.syntaxMode);
@@ -161,8 +163,8 @@ Item {
 			editor.toggleBreakpoint();
 	}
 
-	function resetEditStatus(docId) {
-		var editor = getEditor(docId);
+	function resetEditStatus(document) {
+		var editor = getEditor(document.documentId);
 		if (editor)
 			editor.changeGeneration();
 	}
@@ -328,7 +330,7 @@ Item {
 					if (!item)
 						return;
 					var current = editorListModel.get(index);
-					if (documentId === current.documentId)
+					if (path === current.path)
 					{
 						if (currentDocumentId === current.documentId)
 						{

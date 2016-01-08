@@ -79,7 +79,6 @@ ColumnLayout
 		property int comboboxWidth: 100
 		property int minimalWidth: 100 + 6 * btnRowContainer.comboboxWidth
 		Layout.minimumHeight: 30
-		Layout.preferredWidth: root.scenarioMinWidth
 
 		Item
 		{

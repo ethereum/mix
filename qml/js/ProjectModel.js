@@ -84,19 +84,23 @@ function saveCurrentDocument()
 	saveDocument(currentDocument)
 }
 
-/*function saveContracts()
+function saveDocuments(onlyContracts)
 {
-	for (var i = 0; i < projectListModel.count; i++)
+	for (var i = 0; i < unsavedFiles.length; i++)
 	{
-		var d = projectListModel.get(i)
-		if (d.isContract)
-			saveDocument(d.documentId)
+		var d = unsavedFiles[k]
+		if (!onlyContracts)
+			saveDocument(d)
+		else if (d.isContract)
+			saveDocument(d)
 	}
-}*/
+}
 
-/*function saveAll() {
+function saveAll()
+{
+	saveDocuments(false)
 	saveProject();
-}*/
+}
 
 function createProject() {
 	newProjectDialog.open();
@@ -205,14 +209,17 @@ function loadProject(path) {
 		}
 		deploymentAddresses = projectData.deploymentAddresses ? projectData.deploymentAddresses : {};
 		projectTitle = projectData.title;
+		if (path.lastIndexOf("/") === path.length - 1)
+			path = path.substring(0, path.length - 1)
 		projectPath = path;
+
+		// all files/folders from the root path are included in Mix.
 		if (!projectData.files)
 			projectData.files = [];
 
-		// all files/folders from the root path are included in Mix.
-
 		if (mainApplication.trackLastProject)
 			projectSettings.lastProjectPath = path;
+
 		projectLoading(projectData);
 		//TODO: move this to codemodel
 		var contractSources = {};
@@ -242,7 +249,7 @@ function file(docData)
 		path: path,
 		fileName: fileName,
 		name: fileName,
-		documentId: fileName,
+		documentId: path,
 		syntaxMode: syntaxMode,
 		isText: isContract || isHtml || isCss || isJs,
 		isContract: isContract,
@@ -399,9 +406,7 @@ function doCloseProject() {
 function doCreateProject(title, path) {
 	closeProject(function() {
 		console.log("Creating project " + title + " at " + path);
-		if (path[path.length - 1] !== "/")
-			path += "/";
-		var dirPath = path + title + "/";
+		var dirPath = path + "/" + title
 		fileIo.makeDir(dirPath);
 		var projectFile = dirPath + projectFileName;
 
@@ -412,10 +417,10 @@ function doCreateProject(title, path) {
 			files: [ contractsFile, indexFile ]
 		};
 		//TODO: copy from template
-		if (!fileIo.fileExists(dirPath + indexFile))
-			fileIo.writeFile(dirPath + indexFile, htmlTemplate);
-		if (!fileIo.fileExists(dirPath + contractsFile))
-			fileIo.writeFile(dirPath + contractsFile, contractTemplate);
+		if (!fileIo.fileExists(dirPath + "/" + indexFile))
+			fileIo.writeFile(dirPath + "/" + indexFile, htmlTemplate);
+		if (!fileIo.fileExists(dirPath + "/" + contractsFile))
+			fileIo.writeFile(dirPath + "/" + contractsFile, contractTemplate);
 
 		newProject(projectData);
 		var json = JSON.stringify(projectData, null, "\t");
@@ -497,27 +502,26 @@ function newJsFile() {
 }
 
 function newContract() {
-	var ctrName = "contract" + projectListModel.count
+	var ctrName = "contract" + Object.keys(codeModel.contracts).length
 	var ctr = basicContractTemplate.replace("FirstContract", ctrName)
 	createAndAddFile("contract", "sol", ctr, ctrName + ".sol");
 }
 
 function createAndAddFile(name, extension, content, fileName) {
-	if (!fileName)
-		fileName = generateFileName(name, extension);
-	var filePath = projectPath + fileName;
+	fileName = generateFileName(name, extension);
+	var filePath = currentFolder + "/" + fileName;
 	if (!fileIo.fileExists(filePath))
 		fileIo.writeFile(filePath, content);
-	var id = addFile(filePath);
+	//fileIo.watchFileChanged(filePath);
 	saveProjectFile();
-	documentAdded(id);
+	documentAdded(filePath);
 }
 
 function generateFileName(name, extension) {
 	var i = 1;
 	do {
 		var fileName = name + i + "." + extension;
-		var filePath = projectPath + fileName;
+		var filePath = currentFolder + "/" + fileName;
 		i++;
 	} while (fileIo.fileExists(filePath));
 	return fileName

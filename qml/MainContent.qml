@@ -222,8 +222,6 @@ Rectangle {
 							}
 						}
 
-
-
 						WebPreview {
 							id: webPreview
 							height: parent.height * 0.4

@@ -16,6 +16,7 @@ ScrollView
 	ColumnLayout
 	{
 		Layout.preferredHeight: parent.height
+		Layout.preferredWidth: parent.width
 		spacing: 0
 		ProjectFilesStyle
 		{
@@ -25,8 +26,6 @@ ScrollView
 		{
 			id: srcSansProLight
 		}
-		Layout.preferredWidth: parent.width
-
 		RowLayout
 		{
 			id: projectHeader
@@ -80,6 +79,16 @@ ScrollView
 			onProjectLoaded:
 			{
 				projectFiles.setFolder(fileIo.pathFromUrl(projectModel.projectPath))
+				if (projectFiles.model.count > 1)
+				{
+					projectFiles.currentRow = 1
+					if (projectFiles.model.get(1).type === "file")
+						projectFiles.executeSelection(1)
+					else
+						projectFiles.currentRow = 0
+				}
+				else
+					projectFiles.currentRow = 0
 			}
 			onIsCleanChanged:
 			{
@@ -87,10 +96,18 @@ ScrollView
 				{
 					if (projectFiles.model.get(k).path === document.path)
 					{
-						projectFiles.model.get(k).unsaved = true
+						projectFiles.model.get(k).unsaved = !isClean
 						break
 					}
 				}
+			}
+			onDocumentAdded:
+			{
+				projectFiles.setFolder(projectFiles.currentFolder)
+			}
+			onFolderAdded:
+			{
+				projectFiles.setFolder(projectFiles.currentFolder)
 			}
 		}
 
@@ -114,10 +131,11 @@ ScrollView
 			{
 				currentFolder = folder
 				folderPath.text = folder
+				projectModel.currentFolder = folder
 				model.clear()
 				model.append({ fileName: "..", type: "folder", path: currentFolder })
-				fillView(fileIo.files(folder), "file")
 				fillView(fileIo.directories(folder), "folder")
+				fillView(fileIo.files(folder), "file")
 				updateSaveStatus()
 			}
 
@@ -142,13 +160,43 @@ ScrollView
 				for (var k = 0; k < items.length; k++)
 				{
 					if (items[k].fileName !== "" && items[k].fileName !== ".." && items[k].fileName !== ".")
+					{
+						var document = projectModel.file(items[k])
+						if (document.isContract)
+						{
+							var data = fileIo.readFile(document.path);
+							codeModel.registerCodeChange(document.documentId, data);
+						}
 						model.append({ fileName: items[k].fileName, type: type, path: items[k].path, unsaved: false })
+					}
 				}
+			}
+
+			function executeSelection(row)
+			{
+				var item = projectFiles.model.get(row)
+				if (item.type === "folder")
+				{
+					if (item.fileName === "..")
+					{
+						var f = projectFiles.currentFolder.substring(0, projectFiles.currentFolder.lastIndexOf("/"))
+						projectFiles.setFolder(f)
+					}
+					else
+						projectFiles.setFolder(item.path)
+				}
+				else
+					docDoubleClicked(projectModel.file(item))
+			}
+
+			onDoubleClicked:
+			{
+				executeSelection(row)
 			}
 
 			TableViewColumn {
 				role: "fileName"
-				width: parent.width - 10
+				width: parent.width
 			}
 
 			rowDelegate:
@@ -189,57 +237,27 @@ ScrollView
 	Component {
 		id: renderDelegate
 		Item {
-
-			RowLayout {
-				id: wrapperItem
+			Rectangle {
+				id: selectedItem
 				anchors.fill: parent
-				spacing: 5
+				color: projectFilesStyle.title.background
+				visible: styleData.selected
+			}
 
-				Rectangle {
-					id: selectedItem
-					radius: 4
-					border.color: "#4A90E2"
-					anchors.fill: parent
-					color: "transparent"
-					visible: false
-				}
+			DefaultText {
+				anchors.left: parent.left
+				anchors.leftMargin: 10
+				text: styleData.value
+				wrapMode: Text.NoWrap
+				id: fileName
 
-				DefaultText {
-					anchors.left: parent.left
-					anchors.leftMargin: 10
-					width: parent.width
-					text: styleData.value
-					wrapMode: Text.NoWrap
-					id: fileName
-
-					DefaultText
-					{
-						id: unsaved
-						text: "*"
-						visible: projectFiles.model.get(styleData.row).unsaved
-						anchors.left: parent.right
-						anchors.leftMargin: 5
-					}
-
-					MouseArea
-					{
-						anchors.fill: parent
-						onDoubleClicked:
-						{
-							if (projectFiles.model.get(styleData.row).type === "folder")
-							{
-								if (fileName.text === "..")
-								{
-									var f = projectFiles.currentFolder.substring(0, projectFiles.currentFolder.lastIndexOf("/"))
-									projectFiles.setFolder(f)
-								}
-								else
-									projectFiles.setFolder(projectFiles.model.get(styleData.row).path)
-							}
-							else
-								docDoubleClicked(projectModel.file(projectFiles.model.get(styleData.row)))
-						}
-					}
+				DefaultText
+				{
+					id: unsaved
+					text: "*"
+					visible: styleData.row > -1 ? projectFiles.model.get(styleData.row).unsaved : false
+					anchors.left: parent.right
+					anchors.leftMargin: 5
 				}
 			}
 		}

@@ -95,7 +95,7 @@ ApplicationWindow {
 			MenuItem { action: saveAllFilesAction }
 			MenuItem { action: saveCurrentDocument }
 			MenuSeparator {}
-			MenuItem { action: addExistingFileAction }
+			MenuItem { action: newFolderAction }
 			MenuItem { action: addNewJsFileAction }
 			MenuItem { action: addNewHtmlFileAction }
 			MenuItem { action: addNewCssFileAction }
@@ -352,7 +352,6 @@ ApplicationWindow {
 		selectExisting: true
 		onAccepted: {
 			var path = openProjectFileDialog.fileUrl.toString();
-			path += "/";
 			projectModel.loadProject(path);
 		}
 	}
@@ -390,11 +389,11 @@ ApplicationWindow {
 	}
 
 	Action {
-		id: addExistingFileAction
-		text: qsTr("Add Existing File")
-		shortcut: "Ctrl+Alt+A"
+		id: newFolderAction
+		text: qsTr("New Folder")
+		shortcut: "Ctrl+Alt+F"
 		enabled: !projectModel.isEmpty
-		onTriggered: addExistingFileDialog.open()
+		onTriggered: projectModel.newFolder();
 	}
 
 	QFileDialog {
