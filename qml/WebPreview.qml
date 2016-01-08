@@ -98,28 +98,17 @@ Item {
 		}
 	}	
 
-
-
 	Connections {
 		target: projectModel
 
 		onProjectLoading: {
-			for (var i = 0; i < target.listModel.count; i++) {
-				var document = target.listModel.get(i);
-				if (document.isHtml) {
-					pageListModel.append(document);
-					if (pageListModel.count === 1) //first page added
-					{
-						urlInput.text = httpServer.url + "/" + document.documentId;
-						setPreviewUrl(httpServer.url + "/" + document.documentId);
-					}
-				}
-			}
+			urlInput.text = httpServer.url + "/index.html";
+			setPreviewUrl(httpServer.url + "/index.html");
 		}
 
 		onDocumentSaved:
 		{
-			if (document.isContract)
+			if (!document.isContract)
 				reloadOnSave();
 		}
 
@@ -157,18 +146,8 @@ Item {
 				//document request
 				if (urlPath === "/")
 					urlPath = "/index.html";
-				var documentName = urlPath.substr(urlPath.lastIndexOf("/") + 1);
-				var documentId = projectModel.getDocumentIdByName(documentName);
-				var content = "";
-				if (projectModel.codeEditor.isDocumentOpen(documentId))
-					content = projectModel.codeEditor.getDocumentText(documentId);
-				else
-				{
-					var doc = projectModel.getDocument(documentId);
-					if (doc)
-						content = fileIo.readFile(doc.path);
-				}
-
+				var filePath = projectModel.projectPath + "/" + urlPath.replace(httpServer.url, "")
+				var content = fileIo.readFile(filePath)
 				var accept = _request.headers["accept"];
 				if (accept && accept.indexOf("text/html") >= 0 && !_request.headers["http_x_requested_with"])
 				{
