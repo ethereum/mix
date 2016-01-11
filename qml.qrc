@@ -15,7 +15,6 @@
         <file>qml/DeploymentDialog.qml</file>
         <file>qml/Ether.qml</file>
         <file>qml/EtherValue.qml</file>
-        <file>qml/FilesSection.qml</file>
         <file>qml/ItemDelegateDataDump.qml</file>
         <file>qml/LogsPane.qml</file>
         <file>qml/LogsPaneStyle.qml</file>
@@ -85,7 +84,6 @@
         <file>qml/DefaultCombobox.qml</file>
         <file>qml/DefaultRadioButton.qml</file>
         <file>qml/js/ScientificNumber.js</file>
-        <file>qml/FileItem.qml</file>
         <file>qml/NewFolderDialog.qml</file>
     </qresource>
 </RCC>
