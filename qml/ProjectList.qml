@@ -14,6 +14,12 @@ ScrollView
 	signal docDoubleClicked(var fileData)
 	signal fileUnsaved(string path, bool status)
 	signal documentSelected(string path)
+	signal documentRenamed(string oldDocumentId, string newDocumentId)
+
+	onDocumentRenamed:
+	{
+		projectFiles.updateFileName(newDocumentId, oldDocumentId)
+	}
 
 	function openNextOpenedDocument()
 	{
@@ -161,6 +167,19 @@ ScrollView
 				headerDelegate: null
 				itemDelegate: renderDelegate
 				model: ListModel {}
+
+				function updateFileName(newPath, oldPath)
+				{
+					for (var k = 0; k < model.count; k++)
+					{
+						if (model.get(k).path === oldPath)
+						{
+							var fileName = newPath.substring(newPath.lastIndexOf("/") + 1)
+							model.set(k, { fileName: fileName, type: "file", path: newPath })
+							break
+						}
+					}
+				}
 
 				function updateView()
 				{
@@ -387,9 +406,21 @@ ScrollView
 
 					function close(accept)
 					{
-						fileIo.moveFile(projectFiles.model.get(styleData.row).path, projectFiles.currentFolder + "/" + fileNameRename.text)
-						fileNameRename.text = ""
-						projectFiles.updateView()
+						contextMenu.visible = false
+						fileName.visible = true
+						fileNameRename.visible = false
+						if (accept)
+						{
+							var shouldReopen = mainContent.codeEditor.currentDocumentId === projectFiles.model.get(styleData.row).path
+							var oldPath = projectFiles.model.get(styleData.row).path
+							var newPath = projectFiles.currentFolder + "/" + fileNameRename.text
+							mainContent.codeEditor.closeDocument(oldPath)
+							fileIo.stopWatching(oldPath)
+							fileIo.moveFile(oldPath, newPath)
+							fileIo.watchFileChanged(newPath)
+							documentRenamed(oldPath, newPath)
+							mainContent.codeEditor.openDocument(projectModel.file(projectFiles.model.get(styleData.row)))
+						}
 					}
 				}
 
@@ -400,6 +431,8 @@ ScrollView
 					standardButtons: StandardIcon.Ok | StandardIcon.Cancel
 					onAccepted:
 					{
+						mainContent.codeEditor.closeDocument(projectFiles.model.get(styleData.row).path)
+						fileIo.stopWatching(projectFiles.model.get(styleData.row).path)
 						fileIo.deleteFile(projectFiles.model.get(styleData.row).path)
 						projectFiles.updateView()
 					}

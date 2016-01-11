@@ -17,7 +17,6 @@ Item {
 	signal documentChanged(var path)
 	signal documentOpened(var document)
 	signal documentRemoved(var documentId)
-	signal documentUpdated(var documentId) //renamed
 	signal documentAdded(var documentId)
 	signal projectSaving()
 	signal projectFileSaving(var projectData)
@@ -78,16 +77,6 @@ Item {
 	function newCssFile() { ProjectModelCode.newCssFile(); }
 	function newContract() { ProjectModelCode.newContract(); }
 	function newFolder() { newFolderDialog.open() }
-	//function openDocument(documentId) { ProjectModelCode.openDocument(documentId); }
-	//function selectContractByIndex(index, name) { ProjectModelCode.selectContractByIndex(index, name); }
-	//function openNextDocument() { ProjectModelCode.openNextDocument(); }
-	//function openPrevDocument() { ProjectModelCode.openPrevDocument(); }
-	//function renameDocument(documentId, newName) { ProjectModelCode.renameDocument(documentId, newName); }
-	//function removeDocument(documentId) { ProjectModelCode.removeDocument(documentId); }
-	//function getDocument(documentId) { return ProjectModelCode.getDocument(documentId); }
-	//function getDocumentIdByName(documentName) { return ProjectModelCode.getDocumentIdByName(documentName); }
-	//function getDocumentIndex(documentId) { return ProjectModelCode.getDocumentIndex(documentId); }
-	//function addExistingFiles(paths) { ProjectModelCode.doAddExistingFiles(paths); }
 	function deployProject() { NetworkDeploymentCode.deployProject(false); }
 	function registerToUrlHint(url, gasPrice, callback) { NetworkDeploymentCode.registerToUrlHint(url, gasPrice, callback); }
 	function formatAppUrl() { NetworkDeploymentCode.formatAppUrl(url); }
@@ -169,7 +158,6 @@ Item {
 		property bool saving: false
 		onFileChanged:
 		{
-			//fileIo.watchFileChanged(_filePath);
 			documentChanged(_filePath);
 		}
 	}

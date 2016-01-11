@@ -45,7 +45,8 @@ Item {
 
 	function openDocument(document)	{
 		loadDocument(document);
-		currentDocumentId = document.documentId;
+		currentDocumentId = document.path;
+		fileIo.watchFileChanged(currentDocumentId)
 	}
 
 	function openedDocuments()
@@ -63,6 +64,7 @@ Item {
 			if (editorListModel.get(k).path === path)
 			{
 				editorListModel.remove(k)
+				fileIo.stopWatching(currentDocumentId)
 				documentClosed(path)
 				break;
 			}
