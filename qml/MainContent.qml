@@ -176,7 +176,8 @@ Rectangle {
 				anchors.fill: parent
 				orientation: Qt.Horizontal
 
-				ProjectList	{
+				ProjectList
+				{
 					id: projectList
 					Layout.minimumWidth: 200
 					Layout.fillHeight: true
@@ -199,6 +200,19 @@ Rectangle {
 								codeEditor.openDocument(fileData)
 								path.text = fileData.path
 								projectModel.currentDocument = fileData
+							}
+						}
+
+						Connections
+						{
+							target: codeEditor
+							onCurrentDocumentIdChanged:
+							{
+								path.text = mainContent.codeEditor.currentDocumentId
+							}
+							onDocumentClosed:
+							{
+								path.text = ""
 							}
 						}
 

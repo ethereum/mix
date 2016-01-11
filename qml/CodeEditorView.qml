@@ -9,14 +9,14 @@ Item {
 	id: codeEditorView
 	property string currentDocumentId: ""
 	property string sourceInError
-	property int openDocCount: 0
 	signal documentEdit(string documentId)
 	signal breakpointsChanged(string documentId)
 	signal isCleanChanged(var isClean, var document)
 	signal loadComplete
+	signal documentClosed(string path)
 
 	function getDocumentText(documentId) {
-		for (var i = 0; i < openDocCount; i++)	{
+		for (var i = 0; i < editorListModel.count; i++)	{
 			if (editorListModel.get(i).documentId === documentId) {
 				return editors.itemAt(i).item.getText();
 			}
@@ -27,7 +27,7 @@ Item {
 	function getContracts()
 	{
 		var ctr = []
-		for (var i = 0; i < openDocCount; i++)
+		for (var i = 0; i < editorListModel.count; i++)
 		{
 			if (editorListModel.get(i).isContract)
 				ctr.push(editors.itemAt(i).item)
@@ -36,7 +36,7 @@ Item {
 	}
 
 	function isDocumentOpen(documentId) {
-		for (var i = 0; i < openDocCount; i++)
+		for (var i = 0; i < editorListModel.count; i++)
 			if (editorListModel.get(i).documentId === documentId &&
 					editors.itemAt(i).item)
 				return true;
@@ -48,20 +48,52 @@ Item {
 		currentDocumentId = document.documentId;
 	}
 
+	function openedDocuments()
+	{
+		var ret = []
+		for (var k = 0; k < editorListModel.count; k++)
+			ret.push(editorListModel.get(k))
+		return ret
+	}
+
+	function closeDocument(path)
+	{
+		for (var k = 0; k < editorListModel.count; k++)
+		{
+			if (editorListModel.get(k).path === path)
+			{
+				editorListModel.remove(k)
+				documentClosed(path)
+				break;
+			}
+		}
+		if (path === currentDocumentId)
+		{
+			currentDocumentId = ""
+			if (editorListModel.count > 0)
+				currentDocumentId = editorListModel.get(0).documentId
+		}
+	}
+
+	function displayOpenedDocument(index)
+	{
+		if (editorListModel.count > index)
+			currentDocumentId = editorListModel.get(index).documentId
+	}
+
 	function loadDocument(document) {
-		for (var i = 0; i < openDocCount; i++)
+		for (var i = 0; i < editorListModel.count; i++)
 			if (editorListModel.get(i).documentId === document.documentId)
 				return; //already open
 
-		if (editorListModel.count <= openDocCount)
+		if (editorListModel.count <= editorListModel.count)
 			editorListModel.append(document);
 		else
 		{
-			editorListModel.set(openDocCount, document);
-			doLoadDocument(editors.itemAt(openDocCount).item, editorListModel.get(openDocCount), false)
+			editorListModel.set(editorListModel.count, document);
+			doLoadDocument(editors.itemAt(editorListModel.count).item, editorListModel.get(editorListModel.count), false)
 			loadComplete();
 		}
-		openDocCount++;
 	}
 
 	function doLoadDocument(editor, document, create) {
@@ -94,7 +126,7 @@ Item {
 	}
 
 	function getEditor(documentId) {
-		for (var i = 0; i < openDocCount; i++)
+		for (var i = 0; i < editorListModel.count; i++)
 		{
 			if (editorListModel.get(i).documentId === documentId)
 				return editors.itemAt(i).item;
@@ -139,7 +171,7 @@ Item {
 	}
 
 	function editingContract() {
-		for (var i = 0; i < openDocCount; i++)
+		for (var i = 0; i < editorListModel.count; i++)
 			if (editorListModel.get(i).documentId === currentDocumentId)
 				return editorListModel.get(i).isContract;
 		return false;
@@ -147,7 +179,7 @@ Item {
 
 	function getBreakpoints() {
 		var bpMap = {};
-		for (var i = 0; i < openDocCount; i++)  {
+		for (var i = 0; i < editorListModel.count; i++)  {
 			var documentId = editorListModel.get(i).documentId;
 			var editor = editors.itemAt(i).item;
 			if (editor) {
@@ -174,7 +206,7 @@ Item {
 			return;
 		if (currentDocumentId !== sourceInError)
 			projectModel.openDocument(sourceInError);
-		for (var i = 0; i < openDocCount; i++)
+		for (var i = 0; i < editorListModel.count; i++)
 		{
 			var doc = editorListModel.get(i);
 			if (doc.isContract && doc.documentId === sourceInError)
@@ -225,7 +257,7 @@ Item {
 		}
 
 		onProjectSaving: {
-			for (var i = 0; i < openDocCount; i++)
+			for (var i = 0; i < editorListModel.count; i++)
 			{
 				var doc = editorListModel.get(i);
 				if (editors.itemAt(i))
@@ -240,7 +272,7 @@ Item {
 		onProjectSaved: {
 			if (projectModel.appIsClosing || projectModel.projectIsClosing)
 				return;
-			for (var i = 0; i < openDocCount; i++)
+			for (var i = 0; i < editorListModel.count; i++)
 			{
 				var doc = editorListModel.get(i);
 				resetEditStatus(doc.documentId);
@@ -249,7 +281,7 @@ Item {
 
 		onProjectClosed: {
 			currentDocumentId = "";
-			openDocCount = 0;
+			editorListModel.clear()
 		}
 
 		onDocumentSaved: {
@@ -299,7 +331,7 @@ Item {
 			asynchronous: true
 			anchors.fill:  parent
 			source: appService.haveWebEngine ? "WebCodeEditor.qml" : "CodeEditor.qml"
-			visible: (index >= 0 && index < openDocCount && currentDocumentId === editorListModel.get(index).documentId)
+			visible: (index >= 0 && index < editorListModel.count && currentDocumentId === editorListModel.get(index).documentId)
 			property bool changed: false
 			onVisibleChanged: {
 				loadIfNotLoaded()
@@ -343,22 +375,11 @@ Item {
 					}
 				}
 
-				onDocumentUpdated: {
-					var document = projectModel.getDocument(documentId);
-					for (var i = 0; i < editorListModel.count; i++)
-						if (editorListModel.get(i).documentId === documentId)
-						{
-							editorListModel.set(i, document);
-							break;
-						}
-				}
-
 				onDocumentRemoved: {
 					for (var i = 0; i < editorListModel.count; i++)
 						if (editorListModel.get(i).documentId === documentId)
 						{
 							editorListModel.remove(i);
-							openDocCount--;
 							break;
 						}
 				}

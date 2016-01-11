@@ -376,7 +376,6 @@ Item {
 				}
 				onVisibleChanged: { if (visible) updateView() }
 
-
 				function addExpression()
 				{
 					if (expressionInput.text === "")

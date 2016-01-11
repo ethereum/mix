@@ -437,7 +437,7 @@ ApplicationWindow {
 		text: qsTr("Next Document")
 		shortcut: "Ctrl+Tab"
 		enabled: !projectModel.isEmpty
-		onTriggered: projectModel.openNextDocument();
+		onTriggered: mainContent.projectNavigator.openNextOpenedDocument();
 	}
 
 	Action {
@@ -445,7 +445,7 @@ ApplicationWindow {
 		text: qsTr("Previous Document")
 		shortcut: "Ctrl+Shift+Tab"
 		enabled: !projectModel.isEmpty
-		onTriggered: projectModel.openPrevDocument();
+		onTriggered: mainContent.projectNavigator.openPrevOpenedDocument();
 	}
 
 	Action {
