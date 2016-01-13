@@ -322,15 +322,20 @@ ScrollView
 							fileNameRename.visible = false
 							if (accept)
 							{
-								var shouldReopen = mainContent.codeEditor.currentDocumentId === projectFiles.model.get(styleData.row).path
 								var oldPath = projectFiles.model.get(styleData.row).path
 								var newPath = projectFiles.currentFolder + "/" + fileNameRename.text
-								mainContent.codeEditor.closeDocument(oldPath)
-								fileIo.stopWatching(oldPath)
-								fileIo.moveFile(oldPath, newPath)
-								fileIo.watchFileChanged(newPath)
+								if (projectFiles.model.get(styleData.row).type === "folder")
+									fileIo.moveFile(oldPath, newPath)
+								else
+								{
+									var shouldReopen = mainContent.codeEditor.currentDocumentId === projectFiles.model.get(styleData.row).path
+									mainContent.codeEditor.closeDocument(oldPath)
+									fileIo.stopWatching(oldPath)
+									fileIo.moveFile(oldPath, newPath)
+									fileIo.watchFileChanged(newPath)
+									mainContent.codeEditor.openDocument(projectModel.file(projectFiles.model.get(styleData.row)))
+								}
 								documentRenamed(oldPath, newPath)
-								mainContent.codeEditor.openDocument(projectModel.file(projectFiles.model.get(styleData.row)))
 							}
 						}
 					}
@@ -342,9 +347,14 @@ ScrollView
 						standardButtons: StandardIcon.Ok | StandardIcon.Cancel
 						onAccepted:
 						{
-							mainContent.codeEditor.closeDocument(projectFiles.model.get(styleData.row).path)
-							fileIo.stopWatching(projectFiles.model.get(styleData.row).path)
-							fileIo.deleteFile(projectFiles.model.get(styleData.row).path)
+							if (projectFiles.model.get(styleData.row).type === "folder")
+								fileIo.deleteDir(projectFiles.model.get(styleData.row).path)
+							else
+							{
+								mainContent.codeEditor.closeDocument(projectFiles.model.get(styleData.row).path)
+								fileIo.stopWatching(projectFiles.model.get(styleData.row).path)
+								fileIo.deleteFile(projectFiles.model.get(styleData.row).path)
+							}
 							projectFiles.updateView()
 						}
 					}
@@ -359,7 +369,7 @@ ScrollView
 						if (model.get(k).path === oldPath)
 						{
 							var fileName = newPath.substring(newPath.lastIndexOf("/") + 1)
-							model.set(k, { fileName: fileName, type: "file", path: newPath })
+							model.set(k, { fileName: fileName, type: model.get(k).type, path: newPath })
 							break
 						}
 					}
@@ -452,7 +462,6 @@ ScrollView
 					id: rect
 					height: 30
 					color: styleData.selected ? projectFilesStyle.title.background : "transparent"
-					//anchors.top: parent.top
 					Component.onCompleted:
 					{
 						rect.updateLayout()
