@@ -23,6 +23,11 @@ Item {
 	signal ready
 	property bool buildingScenario
 
+	function relativePath()
+	{
+		return urlInput.text.replace(httpServer.url, "")
+	}
+
 	function setPreviewUrl(url) {
 		if (buildingScenario)
 			return
@@ -33,6 +38,7 @@ Item {
 			webView.runJavaScript("loadPage(\"" + url + "\")");
 			updateContract();
 		}
+		projectModel.saveProjectProperty("startUrl", relativePath())
 	}
 
 	function reload() {
@@ -101,9 +107,13 @@ Item {
 	Connections {
 		target: projectModel
 
-		onProjectLoading: {
-			urlInput.text = httpServer.url + "/index.html";
-			setPreviewUrl(httpServer.url + "/index.html");
+		onProjectLoading:
+		{
+			var url = httpServer.url + "/index.html"
+			if (projectData.startUrl)
+				url = httpServer.url + projectData.startUrl
+			urlInput.text = url
+			pendingPageUrl = url;
 		}
 
 		onDocumentSaved:
@@ -112,7 +122,8 @@ Item {
 				reloadOnSave();
 		}
 
-		onProjectClosed: {
+		onProjectClosed:
+		{
 			pageListModel.clear();
 			webPreview.setPreviewUrl("")
 			urlInput.text = ""
@@ -198,6 +209,7 @@ Item {
 					}
 				}
 			}
+
 			Row {
 				anchors.verticalCenter: parent.verticalCenter
 				anchors.leftMargin: 3
@@ -273,7 +285,8 @@ Item {
 					}
 					onSetupStarted:
 					{
-						webView.runJavaScript("resetWeb3()")
+						if (initialized)
+							webView.runJavaScript("resetWeb3()")
 						buildingScenario = true
 					}
 					onNewRecord:
@@ -350,16 +363,18 @@ Item {
 				Layout.preferredWidth: parent.width
 				id: webView
 				onJavaScriptConsoleMessage: {
-					console.log(sourceID + ":" + lineNumber + ": " + message);
+					if (message === "Synchronous XMLHttpRequest on the main thread is deprecated because of its detrimental effects to the end user's experience. For more help, check http://xhr.spec.whatwg.org/.") // avoid this warning to be displayed
+						return
 					webPreview.javaScriptMessage(level, sourceID, lineNumber - 1, message);
 				}
 				onLoadingChanged: {
 					if (!loading) {
 						initialized = true;
-						webView.runJavaScript("init(\"" + httpServer.url + "/rpc/\")");
-						if (pendingPageUrl)
-							setPreviewUrl(pendingPageUrl);
-						ready();
+						webView.runJavaScript("init(\"" + httpServer.url + "/rpc/\")", function() {
+							if (pendingPageUrl)
+								setPreviewUrl(pendingPageUrl);
+							ready();
+						});
 					}
 				}
 			}

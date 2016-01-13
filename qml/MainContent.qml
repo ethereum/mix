@@ -222,10 +222,28 @@ Rectangle {
 							Layout.fillWidth: true
 							anchors.top: parent.top
 							spacing: 0
-							DefaultLabel
+							Rectangle
 							{
-								id: path
-								verticalAlignment: Text.AlignVCenter
+
+								WebPreviewStyle {
+									id: webPreviewStyle
+								}
+
+								Layout.minimumHeight: 38
+								Layout.fillWidth: true
+								color: webPreviewStyle.general.headerBackgroundColor
+								DefaultLabel
+								{
+									id: path
+									anchors.centerIn: parent
+								}
+							}
+
+							Rectangle
+							{
+								Layout.minimumHeight: 1
+								Layout.preferredWidth: parent.width
+								color: webPreviewStyle.general.separatorColor
 							}
 
 							CodeEditorView

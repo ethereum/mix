@@ -132,6 +132,18 @@ function saveProject() {
 	}
 }
 
+function saveProjectProperty(key, value)
+{
+	var projectFile = projectPath + projectFileName;
+	var json = fileIo.readFile(projectFile);
+	if (!json)
+		return;
+	var projectData = JSON.parse(json);
+	projectData[key] = value
+	json = JSON.stringify(projectData, null, "\t");
+	fileIo.writeFile(projectFile, json);
+}
+
 function saveProjectFile()
 {
 	if (!isEmpty) {
@@ -151,7 +163,8 @@ function saveProjectFile()
 			registerContentHashTrHash: projectModel.registerContentHashTrHash,
 			registerUrlTrHash: projectModel.registerUrlTrHash,
 			registerContentHashBlockNumber: projectModel.registerContentHashBlockNumber,
-			registerUrlBlockNumber: projectModel.registerUrlBlockNumber
+			registerUrlBlockNumber: projectModel.registerUrlBlockNumber,
+			startUrl: mainContent.webView.relativePath()
 		};
 		for (var i = 0; i < projectListModel.count; i++)
 			projectData.files.push({
@@ -203,6 +216,8 @@ function loadProject(path) {
 			projectModel.registerContentHashBlockNumber = projectData.registerContentHashBlockNumber
 		if (projectData.registerUrlBlockNumber)
 			projectModel.registerUrlBlockNumber = projectData.registerUrlBlockNumber
+		if (projectData.startUrl)
+			projectModel.startUrl = projectData.startUrl
 		if (!projectData.title) {
 			var parts = path.split("/");
 			projectData.title = parts[parts.length - 2];

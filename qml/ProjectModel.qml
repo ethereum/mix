@@ -62,6 +62,7 @@ Item {
 	property variant filesPath: ({})
 	property variant currentDocument
 	property string currentFolder
+	property string startUrl
 
 	//interface
 	function saveAll() { ProjectModelCode.saveAll(); }
@@ -78,10 +79,11 @@ Item {
 	function newContract() { ProjectModelCode.newContract(); }
 	function newFolder() { newFolderDialog.open() }
 	function deployProject() { NetworkDeploymentCode.deployProject(false); }
-	function registerToUrlHint(url, gasPrice, callback) { NetworkDeploymentCode.registerToUrlHint(url, gasPrice, callback); }
+	function registerToUrlHint(url, gasPrice, callback) { NetworkDeploymentCode.registerToUrlHint(url, gasPrice, callback) }
 	function formatAppUrl() { NetworkDeploymentCode.formatAppUrl(url); }
-	function saveDocuments(onlyContracts) { ProjectModelCode.saveDocuments(onlyContracts); }
+	function saveDocuments(onlyContracts) { ProjectModelCode.saveDocuments(onlyContracts) }
 	function file(docData) { return ProjectModelCode.file(docData) }
+	function saveProjectProperty(key, value) { return ProjectModelCode.saveProjectProperty(key, value) }
 
 	function cleanDeploymentStatus()
 	{
