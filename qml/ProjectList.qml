@@ -510,7 +510,7 @@ ScrollView
 						Layout.maximumHeight: 40
 						Layout.minimumHeight: 40
 						Layout.preferredWidth: filesCol.width
-						id: openedFile
+						id: openedFile						
 						Rectangle
 						{
 							color: mainContent.codeEditor.openedDocuments()[index].documentId === mainContent.codeEditor.currentDocumentId ? projectFilesStyle.title.background : "transparent"
@@ -524,10 +524,25 @@ ScrollView
 									mainContent.codeEditor.currentDocumentId = mainContent.codeEditor.openedDocuments()[index].documentId
 								}
 							}
-							DefaultLabel
+
+							Button
 							{
+								id: fileCloseBtn
 								anchors.left: parent.left
 								anchors.leftMargin: 10
+								text: qsTr("Close")
+								anchors.verticalCenter: parent.verticalCenter
+								onClicked:
+								{
+									var currentPath = mainContent.codeEditor.openedDocuments()[index].path
+									mainContent.codeEditor.closeDocument(currentPath)
+								}
+							}
+
+							DefaultLabel
+							{
+								anchors.left: fileCloseBtn.right
+								anchors.leftMargin: 5
 								text: mainContent.codeEditor.openedDocuments()[index].fileName
 								elide: Text.ElideRight
 								anchors.verticalCenter: parent.verticalCenter
@@ -559,23 +574,6 @@ ScrollView
 									{
 										if (mainContent.codeEditor.openedDocuments()[index].path === path)
 											unsavedOpenedFile.visible = status
-									}
-								}
-
-								DefaultLabel
-								{
-									text: qsTr("Close")
-									anchors.top: parent.top
-									anchors.left: parent.right
-									anchors.leftMargin: 30
-									MouseArea
-									{
-										anchors.fill: parent
-										onClicked:
-										{
-											var currentPath = mainContent.codeEditor.openedDocuments()[index].path
-											mainContent.codeEditor.closeDocument(currentPath)
-										}
 									}
 								}
 							}
