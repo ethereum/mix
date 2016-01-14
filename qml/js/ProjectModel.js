@@ -174,7 +174,7 @@ function saveProjectFile()
 
 		projectFileSaving(projectData);
 		var json = JSON.stringify(projectData, null, "\t");
-		var projectFile = projectPath + projectFileName;
+		var projectFile = projectPath + "/" + projectFileName;
 		fileIo.writeFile(projectFile, json);
 		projectFileSaved(projectData);
 		return projectData;
@@ -185,7 +185,7 @@ function saveProjectFile()
 function loadProject(path) {
 	closeProject(function() {
 		console.log("Loading project at " + path);
-		var projectFile = path + projectFileName;
+		var projectFile = path + "/" + projectFileName;
 		var json = fileIo.readFile(projectFile);
 		if (!json)
 			return;
@@ -242,7 +242,7 @@ function loadProject(path) {
 			var doc = listModel.get(d);
 			if (doc.isContract)
 				projectModel.openDocument(doc.documentId)
-		}
+		}	
 		projectLoaded()
 	});
 }
