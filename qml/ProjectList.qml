@@ -113,6 +113,10 @@ ScrollView
 		Connections {
 			id: projectModelConnection
 			target: projectModel
+			onProjectClosed:
+			{
+				projectFiles.clear()
+			}
 			onProjectLoaded:
 			{
 				projectFiles.setFolder(fileIo.pathFromUrl(projectModel.projectPath))
@@ -195,20 +199,11 @@ ScrollView
 							source:
 							{
 								if (styleData.value === "" || styleData.row === -1)
-									return "qrc:/qml/img/fileformat/unknown.png"
+									return "qrc:/qml/img/unknown.png"
 								if (projectFiles.model.get(styleData.row).type === "folder")
 									return "qrc:/qml/img/folder-icon-64x64.png"
 								else
-								{
-									if (styleData.value.indexOf(".") !== -1)
-									{
-										var splitted = styleData.value.split(".")
-										return "qrc:/qml/img/fileformat/" + splitted[splitted.length - 1] + ".png"
-									}
-									else
-										return "qrc:/qml/img/fileformat/unknown.png"
-
-								}
+									return "qrc:/qml/img/unknown.png"
 							}
 							anchors.verticalCenter: parent.verticalCenter
 							height: 25
@@ -380,13 +375,20 @@ ScrollView
 					setFolder(currentFolder)
 				}
 
+				function clear()
+				{
+					folderPath.text = ""
+					model.clear()
+				}
+
 				function setFolder(folder)
 				{
+					clear()
 					currentFolder = folder
 					folderPath.text = folder
 					projectModel.currentFolder = folder
-					model.clear()
-					model.append({ fileName: "..", type: "folder", path: currentFolder })
+					if (currentFolder !== "/")
+						model.append({ fileName: "..", type: "folder", path: currentFolder })
 					fillView(fileIo.directories(folder), "folder")
 					fillView(fileIo.files(folder), "file")
 					updateSaveStatus()
@@ -434,6 +436,8 @@ ScrollView
 						if (item.fileName === "..")
 						{
 							var f = projectFiles.currentFolder.substring(0, projectFiles.currentFolder.lastIndexOf("/"))
+							if (f === "")
+								f = "/"
 							projectFiles.setFolder(f)
 						}
 						else
@@ -582,6 +586,3 @@ ScrollView
 		}
 	}
 }
-
-
-
