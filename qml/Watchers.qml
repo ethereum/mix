@@ -107,7 +107,7 @@ Column {
 		}
 	}
 
-		 RowLayout
+	RowLayout
 	{
 		id: searchBox
 		width: parent.width
