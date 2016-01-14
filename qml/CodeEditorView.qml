@@ -15,6 +15,16 @@ Item {
 	signal loadComplete
 	signal documentClosed(string path)
 
+	onDocumentClosed:
+	{
+		if (path === currentDocumentId)
+		{
+			currentDocumentId = ""
+			if (editorListModel.count > 0)
+				currentDocumentId = editorListModel.get(0).documentId
+		}
+	}
+
 	function getDocumentText(documentId) {
 		for (var i = 0; i < editorListModel.count; i++)	{
 			if (editorListModel.get(i).documentId === documentId) {
@@ -68,13 +78,7 @@ Item {
 				documentClosed(path)
 				break;
 			}
-		}
-		if (path === currentDocumentId)
-		{
-			currentDocumentId = ""
-			if (editorListModel.count > 0)
-				currentDocumentId = editorListModel.get(0).documentId
-		}
+		}		
 	}
 
 	function displayOpenedDocument(index)

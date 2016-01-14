@@ -34,7 +34,7 @@ Item {
 		if (!initialized)
 			pendingPageUrl = url;
 		else {
-			pendingPageUrl = "";			
+			pendingPageUrl = "";
 			webView.runJavaScript("loadPage(\"" + url + "\")");
 			updateContract();
 		}

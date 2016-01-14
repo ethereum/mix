@@ -516,9 +516,10 @@ ScrollView
 							color: mainContent.codeEditor.openedDocuments()[index].documentId === mainContent.codeEditor.currentDocumentId ? projectFilesStyle.title.background : "transparent"
 							Layout.preferredHeight: parent.height
 							Layout.preferredWidth: parent.width
-							MouseArea
+
+							TooltipArea
 							{
-								anchors.fill: parent
+								text: mainContent.codeEditor.openedDocuments()[index].path
 								onClicked:
 								{
 									mainContent.codeEditor.currentDocumentId = mainContent.codeEditor.openedDocuments()[index].documentId
@@ -546,11 +547,6 @@ ScrollView
 								text: mainContent.codeEditor.openedDocuments()[index].fileName
 								elide: Text.ElideRight
 								anchors.verticalCenter: parent.verticalCenter
-
-								TooltipArea
-								{
-									text: mainContent.codeEditor.openedDocuments()[index].path
-								}
 
 								DefaultText
 								{
