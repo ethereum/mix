@@ -84,5 +84,6 @@
         <file>qml/DefaultRadioButton.qml</file>
         <file>qml/js/ScientificNumber.js</file>
         <file>qml/NewFolderDialog.qml</file>
+        <file>qml/TooltipArea.qml</file>
     </qresource>
 </RCC>

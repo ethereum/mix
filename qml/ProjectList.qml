@@ -547,6 +547,11 @@ ScrollView
 								elide: Text.ElideRight
 								anchors.verticalCenter: parent.verticalCenter
 
+								TooltipArea
+								{
+									text: mainContent.codeEditor.openedDocuments()[index].path
+								}
+
 								DefaultText
 								{
 									id: unsavedOpenedFile
