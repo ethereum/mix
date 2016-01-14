@@ -94,11 +94,15 @@ MixApplication::~MixApplication()
 {
 }
 
-bool MixApplication::notify(QObject * receiver, QEvent * event)
+bool MixApplication::notify(QObject* _receiver, QEvent* _event)
 {
 	try
 	{
-		return QApplication::notify(receiver, event);
+		return QApplication::notify(_receiver, _event);
+	}
+	catch (std::exception e)
+	{
+		std::cerr << e.what();
 	}
 	catch (...)
 	{

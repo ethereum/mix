@@ -70,7 +70,7 @@ public:
 	Q_INVOKABLE QString format() const;
 	/// @returns the current amount of Ether in Wei. Invokable from QML.
 	Q_INVOKABLE QBigInt* toWei() const;
-	/// @returns the current unit used. Invokable from QML.
+	/// @returns the current unit used. @returns nullptr if exception. Invokable from QML.
 	Q_INVOKABLE EtherUnit unit() const { return m_currentUnit; }
 	/// Set the unit to be used. Invokable from QML.
 	Q_INVOKABLE void setUnit(EtherUnit const& _unit) { m_currentUnit = _unit; }
@@ -81,6 +81,7 @@ public:
 
 private:
 	EtherUnit m_currentUnit;
+	void manageException() const;
 
 signals:
 	void valueChanged();
