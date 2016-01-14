@@ -287,8 +287,7 @@ function doCreateProject(title, path) {
 		console.log("Creating project " + title + " at " + path);
 		var dirPath = path + "/" + title
 		fileIo.makeDir(dirPath);
-		var projectFile = dirPath + projectFileName;
-
+		var projectFile = dirPath + "/" + projectFileName;
 		var indexFile = "index.html";
 		var contractsFile = "contract.sol";
 		var projectData = {
