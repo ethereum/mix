@@ -27,70 +27,145 @@
 using namespace dev;
 using namespace dev::mix;
 
+void QBigInt::manageException() const
+{
+	try
+	{
+		throw;
+	}
+	catch (boost::exception const& _e)
+	{
+		std::cerr << boost::diagnostic_information(_e);
+	}
+	catch (std::exception const& _e)
+	{
+		std::cerr << _e.what();
+	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+	}
+}
+
 QString QBigInt::value() const
 {
-	std::ostringstream s;
-	s << m_internalValue;
-	return QString::fromStdString(s.str());
+	try
+	{
+		std::ostringstream s;
+		s << m_internalValue;
+		return QString::fromStdString(s.str());
+	}
+	catch (...)
+	{
+		manageException();
+		return QString();
+	}
 }
 
 QBigInt* QBigInt::subtract(QBigInt* const& _value) const
 {
-	BigIntVariant toSubtract = _value->internalValue();
-	return new QBigInt(boost::apply_visitor(mix::subtract(), m_internalValue, toSubtract));
+	try
+	{
+		if (!_value)
+			return nullptr;
+		BigIntVariant toSubtract = _value->internalValue();
+		return new QBigInt(boost::apply_visitor(mix::subtract(), m_internalValue, toSubtract));
+	}
+	catch (...)
+	{
+		manageException();
+		return nullptr;
+	}
 }
 
 QBigInt* QBigInt::add(QBigInt* const& _value) const
 {
-	BigIntVariant toAdd = _value->internalValue();
-	return new QBigInt(boost::apply_visitor(mix::add(), m_internalValue, toAdd));
+	try
+	{
+		if (!_value)
+			return nullptr;
+		BigIntVariant toAdd = _value->internalValue();
+		return new QBigInt(boost::apply_visitor(mix::add(), m_internalValue, toAdd));
+	}
+	catch (...)
+	{
+		manageException();
+		return nullptr;
+	}
 }
 
 QBigInt* QBigInt::multiply(QBigInt* const& _value) const
 {
-	BigIntVariant toMultiply = _value->internalValue();
-	return new QBigInt(boost::apply_visitor(mix::multiply(), m_internalValue, toMultiply));
+	try
+	{
+		if (!_value)
+			return nullptr;
+		BigIntVariant toMultiply = _value->internalValue();
+		return new QBigInt(boost::apply_visitor(mix::multiply(), m_internalValue, toMultiply));
+	}
+	catch (...)
+	{
+		manageException();
+		return nullptr;
+	}
 }
 
 QBigInt* QBigInt::divide(QBigInt* const& _value) const
 {
-	BigIntVariant toDivide = _value->internalValue();
-	return new QBigInt(boost::apply_visitor(mix::divide(), m_internalValue, toDivide));
+	try
+	{
+		if (!_value)
+			return nullptr;
+		BigIntVariant toDivide = _value->internalValue();
+		return new QBigInt(boost::apply_visitor(mix::divide(), m_internalValue, toDivide));
+	}
+	catch (...)
+	{
+		manageException();
+		return nullptr;
+	}
 }
 
 QVariantMap QBigInt::checkAgainst(QString const& _type) const
 {
 	QVariantMap ret;
-	QString type = _type;
-	QString capacity = type.replace("uint", "").replace("int", "");
-	if (capacity.isEmpty())
-		capacity = "256";
-	bigint range = 1;
-	for (int k = 0; k < capacity.toInt() / 8; ++k)
-		range = range * 256;
-	bigint value = boost::get<bigint>(this->internalValue());
-	ret.insert("valid", true);
-	if (_type.startsWith("uint") && value > range - 1)
+	try
 	{
-		ret.insert("minValue", "0");
-		std::ostringstream s;
-		s << range - 1;
-		ret.insert("maxValue", QString::fromStdString(s.str()));
-		if (value > range)
-			ret["valid"] = false;
+		QString type = _type;
+		QString capacity = type.replace("uint", "").replace("int", "");
+		if (capacity.isEmpty())
+			capacity = "256";
+		bigint range = 1;
+		for (int k = 0; k < capacity.toInt() / 8; ++k)
+			range = range * 256;
+		bigint value = boost::get<bigint>(this->internalValue());
+		ret.insert("valid", true);
+		if (_type.startsWith("uint") && value > range - 1)
+		{
+			ret.insert("minValue", "0");
+			std::ostringstream s;
+			s << range - 1;
+			ret.insert("maxValue", QString::fromStdString(s.str()));
+			if (value > range)
+				ret["valid"] = false;
+		}
+		else if (_type.startsWith("int"))
+		{
+			range = range / 2;
+			std::ostringstream s;
+			s << -range;
+			ret.insert("minValue", QString::fromStdString(s.str()));
+			s.str("");
+			s.clear();
+			s << range - 1;
+			ret.insert("maxValue", QString::fromStdString(s.str()));
+			if (-range > value || value > range - 1)
+				ret["valid"] = false;
+		}
 	}
-	else if (_type.startsWith("int"))
+	catch (...)
 	{
-		range = range / 2;
-		std::ostringstream s;
-		s << -range;
-		ret.insert("minValue", QString::fromStdString(s.str()));
-		s.str("");
-		s.clear();
-		s << range - 1;
-		ret.insert("maxValue", QString::fromStdString(s.str()));
-		if (-range > value || value > range - 1)
-			ret["valid"] = false;
+		manageException();
 	}
 	return ret;
 }

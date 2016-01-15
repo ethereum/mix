@@ -196,7 +196,11 @@ function highlightSelection(index)
 
 function retrieveGasSpent(state)
 {
-	return debugData.states[0].gas.subtract(state.gas).value()
+	var gasSpent = debugData.states[0].gas.subtract(state.gas)
+	if (gasSpent !== null)
+		return gasSpent.value()
+	else
+		return "-1";
 }
 
 function completeCtxInformation(state)

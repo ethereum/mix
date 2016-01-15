@@ -44,4 +44,8 @@ int main(int _argc, char* _argv[])
 	{
 		std::cerr << _e.what();
 	}
+	catch (...)
+	{
+		std::cerr << boost::current_exception_diagnostic_information();
+	}
 }

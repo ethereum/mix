@@ -310,8 +310,11 @@ Rectangle {
 							if (gasPriceConf.gasPrice)
 							{
 								var gasTotal = ether.multiply(gasPriceConf.gasPrice.toWei());
-								gasToUseDeployInput.value = QEtherHelper.createEther(gasTotal.value(), QEther.Wei, parent);
-								gasToUseDeployInput.update();
+								if (gasTotal !== null)
+								{
+									gasToUseDeployInput.value = QEtherHelper.createEther(gasTotal.value(), QEther.Wei, parent);
+									gasToUseDeployInput.update();
+								}
 							}
 						});
 					}
