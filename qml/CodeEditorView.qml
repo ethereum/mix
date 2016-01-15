@@ -73,9 +73,12 @@ Item {
 		{
 			if (editorListModel.get(k).path === path)
 			{
-				editorListModel.remove(k)
-				fileIo.stopWatching(currentDocumentId)
-				documentClosed(path)
+				if (editorListModel.count > k)
+				{
+					editorListModel.remove(k)
+					fileIo.stopWatching(path)
+					documentClosed(path)
+				}
 				break;
 			}
 		}		
@@ -92,14 +95,8 @@ Item {
 			if (editorListModel.get(i).documentId === document.documentId)
 				return; //already open
 
-		if (editorListModel.count <= editorListModel.count)
-			editorListModel.append(document);
-		else
-		{
-			editorListModel.set(editorListModel.count, document);
-			doLoadDocument(editors.itemAt(editorListModel.count).item, editorListModel.get(editorListModel.count), false)
-			loadComplete();
-		}
+		editorListModel.append(document);
+
 	}
 
 	function doLoadDocument(editor, document, create) {
@@ -328,9 +325,6 @@ Item {
 	Repeater {
 		id: editors
 		model: editorListModel
-		onItemRemoved: {
-			item.item.unloaded = true;
-		}
 		delegate: Loader {
 			id: loader
 			active: false
@@ -359,6 +353,7 @@ Item {
 			}
 			onLoaded: {
 				doLoadDocument(loader.item, editorListModel.get(index), true)
+				loadComplete()
 			}
 
 			Connections

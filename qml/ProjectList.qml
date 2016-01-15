@@ -131,6 +131,7 @@ ScrollView
 				else
 					projectFiles.currentRow = 0
 			}
+
 			onIsCleanChanged:
 			{
 				for (var k = 0; k < projectFiles.model.count; k++)
@@ -184,177 +185,179 @@ ScrollView
 				model: ListModel {}
 
 				Component {
-				id: renderDelegate
-				Item {
-					id: innerItem
+					id: renderDelegate
+					Item {
+						id: innerItem
 
-					Rectangle
-					{
-						color: "transparent"
-						anchors.verticalCenter: parent.verticalCenter
-						anchors.left: parent.left
-						anchors.leftMargin: 3
-						height: fileName.height
-						Image {
-							source:
-							{
-								if (styleData.value === "" || styleData.row === -1)
-									return "qrc:/qml/img/unknown.png"
-								if (projectFiles.model.get(styleData.row).type === "folder")
-									return "qrc:/qml/img/folder-icon-64x64.png"
-								else
-									return "qrc:/qml/img/unknown.png"
-							}
+						Rectangle
+						{
+							color: "transparent"
 							anchors.verticalCenter: parent.verticalCenter
-							height: 25
-							sourceSize.height: 25
-							fillMode: Image.PreserveAspectFit
-							visible: styleData.value !== ".."
-						}
-					}
-
-					DefaultText {
-						anchors.verticalCenter: parent.verticalCenter
-						anchors.left: parent.left
-						anchors.leftMargin: 30
-						text: styleData.value
-						wrapMode: Text.NoWrap
-						id: fileName
-
-						Connections
-						{
-							target: mainContent.codeEditor
-							onDocumentClosed:
-							{
-								if (unsaved.visible)
-									unsaved.visible = projectFiles.model.get(styleData.row).path !== path
+							anchors.left: parent.left
+							anchors.leftMargin: 3
+							height: fileName.height
+							Image {
+								source:
+								{
+									if (styleData.value === "" || styleData.row === -1)
+										return "qrc:/qml/img/unknown.png"
+									if (projectFiles.model.get(styleData.row).type === "folder")
+										return "qrc:/qml/img/folder-icon-64x64.png"
+									else
+										return "qrc:/qml/img/unknown.png"
+								}
+								anchors.verticalCenter: parent.verticalCenter
+								height: 25
+								sourceSize.height: 25
+								fillMode: Image.PreserveAspectFit
+								visible: styleData.value !== ".."
 							}
 						}
 
-						DefaultText
-						{
-							id: unsaved
-							text: "*"
-							visible: styleData.row > -1 ? projectFiles.model.get(styleData.row).unsaved : false
-							anchors.left: parent.right
-							anchors.leftMargin: 5
-						}
+						DefaultText {
+							anchors.verticalCenter: parent.verticalCenter
+							anchors.left: parent.left
+							anchors.leftMargin: 30
+							text: styleData.value
+							wrapMode: Text.NoWrap
+							id: fileName
 
-						MouseArea
-						{
-							anchors.fill: parent
-							acceptedButtons: Qt.RightButton
-							onClicked:
+							Connections
 							{
-								contextMenu.popup()
+								target: mainContent.codeEditor
+								objectName: "ConnectionmainContent.codeEditor"
+								onDocumentClosed:
+								{
+									if (unsaved.visible)
+										unsaved.visible = projectFiles.model.get(styleData.row).path !== path
+								}
+							}
+
+							DefaultText
+							{
+								id: unsaved
+								text: "*"
+								visible: styleData.row > -1 ? projectFiles.model.get(styleData.row).unsaved : false
+								anchors.left: parent.right
+								anchors.leftMargin: 5
+							}
+
+							MouseArea
+							{
+								anchors.fill: parent
+								acceptedButtons: Qt.RightButton
+								onClicked:
+								{
+									contextMenu.popup()
+								}
+							}
+
+							Menu
+							{
+								id: contextMenu
+								visible: false
+								MenuItem {
+									text: qsTr("Rename")
+									onTriggered: {
+										fileNameRename.text = fileName.text
+										fileName.visible = false
+										fileNameRename.visible = true
+										fileNameRename.forceActiveFocus()
+										contextMenu.visible = false
+									}
+								}
+								MenuItem {
+									text: qsTr("Delete")
+									onTriggered: {
+										deleteConfirmation.open();
+										contextMenu.visible = false
+									}
+								}
 							}
 						}
 
-						Menu
-						{
-							id: contextMenu
+						TextInput {
+							anchors.verticalCenter: parent.verticalCenter
+							anchors.left: parent.left
+							anchors.leftMargin: 30
+							text: styleData.value
+							wrapMode: Text.NoWrap
+							id: fileNameRename
 							visible: false
-							MenuItem {
-								text: qsTr("Rename")
-								onTriggered: {
-									fileNameRename.text = fileName.text
-									fileName.visible = false
-									fileNameRename.visible = true
-									fileNameRename.forceActiveFocus()
-									contextMenu.visible = false
+
+							MouseArea {
+								id: textMouseArea
+								anchors.fill: parent
+								hoverEnabled: true
+								z: 2
+								onClicked: {
+									fileNameRename.forceActiveFocus();
 								}
 							}
-							MenuItem {
-								text: qsTr("Delete")
-								onTriggered: {
-									deleteConfirmation.open();
-									contextMenu.visible = false
+
+							onVisibleChanged: {
+								if (visible) {
+									selectAll();
+									forceActiveFocus();
 								}
 							}
-						}
-					}
 
-					TextInput {
-						anchors.verticalCenter: parent.verticalCenter
-						anchors.left: parent.left
-						anchors.leftMargin: 30
-						text: styleData.value
-						wrapMode: Text.NoWrap
-						id: fileNameRename
-						visible: false
-
-						MouseArea {
-							id: textMouseArea
-							anchors.fill: parent
-							hoverEnabled: true
-							z: 2
-							onClicked: {
-								fileNameRename.forceActiveFocus();
+							onAccepted: close(true);
+							onCursorVisibleChanged: {
+								if (!cursorVisible)
+									close(false);
 							}
-						}
-
-						onVisibleChanged: {
-							if (visible) {
-								selectAll();
-								forceActiveFocus();
+							onFocusChanged: {
+								if (!focus)
+									close(false);
 							}
-						}
 
-						onAccepted: close(true);
-						onCursorVisibleChanged: {
-							if (!cursorVisible)
-								close(false);
-						}
-						onFocusChanged: {
-							if (!focus)
-								close(false);
-						}
-
-						function close(accept)
-						{
-							contextMenu.visible = false
-							fileName.visible = true
-							fileNameRename.visible = false
-							if (accept)
+							function close(accept)
 							{
-								var oldPath = projectFiles.model.get(styleData.row).path
-								var newPath = projectFiles.currentFolder + "/" + fileNameRename.text
+								contextMenu.visible = false
+								fileName.visible = true
+								fileNameRename.visible = false
+								if (accept)
+								{
+									var oldPath = projectFiles.model.get(styleData.row).path
+									var newPath = projectFiles.currentFolder + "/" + fileNameRename.text
+									if (projectFiles.model.get(styleData.row).type === "folder")
+										fileIo.moveFile(oldPath, newPath)
+									else
+									{
+										var shouldReopen = mainContent.codeEditor.currentDocumentId === projectFiles.model.get(styleData.row).path
+										mainContent.codeEditor.closeDocument(oldPath)
+										fileIo.stopWatching(oldPath)
+										fileIo.moveFile(oldPath, newPath)
+										fileIo.watchFileChanged(newPath)
+										if (shouldReopen)
+											mainContent.codeEditor.openDocument(projectModel.file(projectFiles.model.get(styleData.row)))
+									}
+									documentRenamed(oldPath, newPath)
+								}
+							}
+						}
+
+						MessageDialog
+						{
+							id: deleteConfirmation
+							text: qsTr("Are you sure to delete this file ?")
+							standardButtons: StandardIcon.Ok | StandardIcon.Cancel
+							onAccepted:
+							{
 								if (projectFiles.model.get(styleData.row).type === "folder")
-									fileIo.moveFile(oldPath, newPath)
+									fileIo.deleteDir(projectFiles.model.get(styleData.row).path)
 								else
 								{
-									var shouldReopen = mainContent.codeEditor.currentDocumentId === projectFiles.model.get(styleData.row).path
-									mainContent.codeEditor.closeDocument(oldPath)
-									fileIo.stopWatching(oldPath)
-									fileIo.moveFile(oldPath, newPath)
-									fileIo.watchFileChanged(newPath)
-									mainContent.codeEditor.openDocument(projectModel.file(projectFiles.model.get(styleData.row)))
+									mainContent.codeEditor.closeDocument(projectFiles.model.get(styleData.row).path)
+									fileIo.stopWatching(projectFiles.model.get(styleData.row).path)
+									fileIo.deleteFile(projectFiles.model.get(styleData.row).path)
 								}
-								documentRenamed(oldPath, newPath)
+								projectFiles.updateView()
 							}
-						}
-					}
-
-					MessageDialog
-					{
-						id: deleteConfirmation
-						text: qsTr("Are you sure to delete this file ?")
-						standardButtons: StandardIcon.Ok | StandardIcon.Cancel
-						onAccepted:
-						{
-							if (projectFiles.model.get(styleData.row).type === "folder")
-								fileIo.deleteDir(projectFiles.model.get(styleData.row).path)
-							else
-							{
-								mainContent.codeEditor.closeDocument(projectFiles.model.get(styleData.row).path)
-								fileIo.stopWatching(projectFiles.model.get(styleData.row).path)
-								fileIo.deleteFile(projectFiles.model.get(styleData.row).path)
-							}
-							projectFiles.updateView()
 						}
 					}
 				}
-			}
 
 
 				function updateFileName(newPath, oldPath)
@@ -497,6 +500,9 @@ ScrollView
 			}
 		}
 
+		ScrollView
+		{
+			horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
 			ColumnLayout
 			{
 				id: openedFiles
@@ -510,7 +516,7 @@ ScrollView
 						Layout.maximumHeight: 40
 						Layout.minimumHeight: 40
 						Layout.preferredWidth: filesCol.width
-						id: openedFile						
+						id: openedFile
 						Rectangle
 						{
 							color: mainContent.codeEditor.openedDocuments()[index].documentId === mainContent.codeEditor.currentDocumentId ? projectFilesStyle.title.background : "transparent"
@@ -536,6 +542,7 @@ ScrollView
 								onClicked:
 								{
 									var currentPath = mainContent.codeEditor.openedDocuments()[index].path
+									//console.log(currentPath)
 									mainContent.codeEditor.closeDocument(currentPath)
 								}
 							}
@@ -582,6 +589,9 @@ ScrollView
 					}
 				}
 			}
+
 		}
+
 	}
+}
 }
