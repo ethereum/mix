@@ -542,7 +542,6 @@ ScrollView
 								onClicked:
 								{
 									var currentPath = mainContent.codeEditor.openedDocuments()[index].path
-									//console.log(currentPath)
 									mainContent.codeEditor.closeDocument(currentPath)
 								}
 							}

@@ -20,8 +20,8 @@ Item {
 		if (path === currentDocumentId)
 		{
 			currentDocumentId = ""
-			if (editorListModel.count > 0)
-				currentDocumentId = editorListModel.get(0).documentId
+			if (openedDocuments().length > 0)
+				currentDocumentId = openedDocuments()[0].documentId
 		}
 	}
 
@@ -57,13 +57,22 @@ Item {
 		loadDocument(document);
 		currentDocumentId = document.path;
 		fileIo.watchFileChanged(currentDocumentId)
+		for (var i = 0; i < editorListModel.count; i++)
+			if (editorListModel.get(i).documentId === document.documentId)
+			{
+				editorListModel.get(i).opened = true
+				break;
+			}
 	}
 
 	function openedDocuments()
 	{
 		var ret = []
 		for (var k = 0; k < editorListModel.count; k++)
-			ret.push(editorListModel.get(k))
+		{
+			if (editorListModel.get(k).opened)
+				ret.push(editorListModel.get(k))
+		}
 		return ret
 	}
 
@@ -75,7 +84,7 @@ Item {
 			{
 				if (editorListModel.count > k)
 				{
-					editorListModel.remove(k)
+					editorListModel.get(k).opened = false
 					fileIo.stopWatching(path)
 					documentClosed(path)
 				}
@@ -93,10 +102,9 @@ Item {
 	function loadDocument(document) {
 		for (var i = 0; i < editorListModel.count; i++)
 			if (editorListModel.get(i).documentId === document.documentId)
-				return; //already open
+				return; //already opened
 
 		editorListModel.append(document);
-
 	}
 
 	function doLoadDocument(editor, document, create) {
