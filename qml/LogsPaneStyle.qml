@@ -24,7 +24,7 @@ QtObject {
 			property string errorColor: "#fffcd5"
 			property string buttonSeparatorColor1: "#d3d0d0"
 			property string buttonSeparatorColor2: "#f2f1f2"
-			property string buttonSelected: "#dcdcdc"
+			property string buttonSelected: "#d9d9d9"
 		}
 	}
 }

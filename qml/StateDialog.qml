@@ -455,7 +455,8 @@ Dialog {
 											anchors.left: parent.right
 											anchors.leftMargin: 50
 											tooltip: qsTr("Delete Account")
-											onClicked: deleteAccountMsg.open()
+											onClicked: if (stateAccounts.length > 1) { deleteAccountMsg.open() }
+											enabled: accountsView.model.count > 1
 											Image {
 												width: 28
 												anchors.centerIn: parent

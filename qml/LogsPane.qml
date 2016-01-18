@@ -243,14 +243,12 @@ Rectangle
 		{
 			if (mainApplication.systemPointSize >= appSettings.systemPointSize)
 			{
-				labelFilter.height = logStyle.generic.layout.headerButtonHeight
 				rectToolBtn.height = logStyle.generic.layout.headerHeight
 				rowAction.height = logStyle.generic.layout.headerHeight
 				javascriptButton.height = logStyle.generic.layout.headerButtonHeight
 				runButton.height = logStyle.generic.layout.headerButtonHeight
 				stateButton.height = logStyle.generic.layout.headerButtonHeight
 				deloyButton.height = logStyle.generic.layout.headerButtonHeight
-				labelFilter.width = 50
 				javascriptButton.width = 30
 				runButton.width = 40
 				stateButton.width = 50
@@ -263,8 +261,6 @@ Rectangle
 			}
 			else
 			{
-				labelFilter.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
-				labelFilter.width = 50 + (2 * appSettings.systemPointSize)
 				rectToolBtn.height = logStyle.generic.layout.headerHeight + Math.round(appSettings.systemPointSize / 2)
 				rowAction.height = logStyle.generic.layout.headerHeight + Math.round(appSettings.systemPointSize / 2)
 				javascriptButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
@@ -303,14 +299,6 @@ Rectangle
 			spacing: logStyle.generic.layout.headerButtonSpacing
 			height: parent.height
 
-			DefaultLabel
-			{
-				id: labelFilter
-				text: qsTr("Filter:")
-				verticalAlignment: Text.AlignVCenter
-				width: 50
-			}
-
 			Rectangle {
 				anchors.verticalCenter: parent.verticalCenter
 				width: 1;
@@ -336,7 +324,7 @@ Rectangle
 				onCheckedChanged: {
 					proxyModel.toogleFilter("javascript")
 				}
-				tooltip: qsTr("JavaScript")
+				tooltip: checked ? qsTr("Remove JavaScript Filter") : qsTr("Add JavaScript Filter")
 				style:
 					ButtonStyle {
 					label:
@@ -389,7 +377,7 @@ Rectangle
 				onCheckedChanged: {
 					proxyModel.toogleFilter("run")
 				}
-				tooltip: qsTr("Run")
+				tooltip: checked ? qsTr("Remove Run Filter") : qsTr("Add Run Filter")
 				style:
 					ButtonStyle {
 					label:
@@ -442,7 +430,7 @@ Rectangle
 				onCheckedChanged: {
 					proxyModel.toogleFilter("state")
 				}
-				tooltip: qsTr("State")
+				tooltip: checked ? qsTr("Remove State Filter") : qsTr("Add State Filter")
 				style:
 					ButtonStyle {
 					label:

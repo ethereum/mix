@@ -68,7 +68,7 @@ Rectangle {
 	function clear()
 	{
 		status.state = "";
-		status.text = "Empty";
+		status.text = "<no log>";
 		status.font.italic = true
 		errorOccurred.visible = false
 	}
