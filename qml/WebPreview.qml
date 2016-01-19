@@ -23,16 +23,22 @@ Item {
 	signal ready
 	property bool buildingScenario
 
+	function relativePath()
+	{
+		return urlInput.text.replace(httpServer.url, "")
+	}
+
 	function setPreviewUrl(url) {
 		if (buildingScenario)
 			return
 		if (!initialized)
 			pendingPageUrl = url;
 		else {
-			pendingPageUrl = "";			
+			pendingPageUrl = "";
 			webView.runJavaScript("loadPage(\"" + url + "\")");
 			updateContract();
 		}
+		projectModel.saveProjectProperty("startUrl", relativePath())
 	}
 
 	function reload() {
@@ -98,51 +104,26 @@ Item {
 		}
 	}	
 
-
-
 	Connections {
 		target: projectModel
 
-		onDocumentAdded: {
-			var document = projectModel.getDocument(documentId)
-			if (document.isHtml)
-				pageListModel.append(document);
-		}
-		onDocumentRemoved: {
-			updateDocument(documentId, function(i) { pageListModel.remove(i) } )
-		}
-
-		onDocumentUpdated: {
-			var document = projectModel.getDocument(documentId);
-			for (var i = 0; i < pageListModel.count; i++)
-				if (pageListModel.get(i).documentId === documentId)
-				{
-					pageListModel.set(i, document);
-					break;
-				}
-		}
-
-		onProjectLoading: {
-			for (var i = 0; i < target.listModel.count; i++) {
-				var document = target.listModel.get(i);
-				if (document.isHtml) {
-					pageListModel.append(document);
-					if (pageListModel.count === 1) //first page added
-					{
-						urlInput.text = httpServer.url + "/" + document.documentId;
-						setPreviewUrl(httpServer.url + "/" + document.documentId);
-					}
-				}
-			}
+		onProjectLoading:
+		{
+			var url = httpServer.url + "/index.html"
+			if (projectData.startUrl)
+				url = httpServer.url + projectData.startUrl
+			urlInput.text = url
+			pendingPageUrl = url;
 		}
 
 		onDocumentSaved:
 		{
-			if (!projectModel.getDocument(documentId).isContract)
+			if (!document.isContract)
 				reloadOnSave();
 		}
 
-		onProjectClosed: {
+		onProjectClosed:
+		{
 			pageListModel.clear();
 			webPreview.setPreviewUrl("")
 			urlInput.text = ""
@@ -176,18 +157,8 @@ Item {
 				//document request
 				if (urlPath === "/")
 					urlPath = "/index.html";
-				var documentName = urlPath.substr(urlPath.lastIndexOf("/") + 1);
-				var documentId = projectModel.getDocumentIdByName(documentName);
-				var content = "";
-				if (projectModel.codeEditor.isDocumentOpen(documentId))
-					content = projectModel.codeEditor.getDocumentText(documentId);
-				else
-				{
-					var doc = projectModel.getDocument(documentId);
-					if (doc)
-						content = fileIo.readFile(doc.path);
-				}
-
+				var filePath = projectModel.projectPath + "/" + urlPath.replace(httpServer.url, "")
+				var content = fileIo.readFile(filePath)
 				var accept = _request.headers["accept"];
 				if (accept && accept.indexOf("text/html") >= 0 && !_request.headers["http_x_requested_with"])
 				{
@@ -238,6 +209,7 @@ Item {
 					}
 				}
 			}
+
 			Row {
 				anchors.verticalCenter: parent.verticalCenter
 				anchors.leftMargin: 3
@@ -313,7 +285,8 @@ Item {
 					}
 					onSetupStarted:
 					{
-						webView.runJavaScript("resetWeb3()")
+						if (initialized)
+							webView.runJavaScript("resetWeb3()")
 						buildingScenario = true
 					}
 					onNewRecord:
@@ -390,16 +363,18 @@ Item {
 				Layout.preferredWidth: parent.width
 				id: webView
 				onJavaScriptConsoleMessage: {
-					console.log(sourceID + ":" + lineNumber + ": " + message);
+					if (message === "Synchronous XMLHttpRequest on the main thread is deprecated because of its detrimental effects to the end user's experience. For more help, check http://xhr.spec.whatwg.org/.") // avoid this warning to be displayed
+						return
 					webPreview.javaScriptMessage(level, sourceID, lineNumber - 1, message);
 				}
 				onLoadingChanged: {
 					if (!loading) {
 						initialized = true;
-						webView.runJavaScript("init(\"" + httpServer.url + "/rpc/\")");
-						if (pendingPageUrl)
-							setPreviewUrl(pendingPageUrl);
-						ready();
+						webView.runJavaScript("init(\"" + httpServer.url + "/rpc/\")", function() {
+							if (pendingPageUrl)
+								setPreviewUrl(pendingPageUrl);
+							ready();
+						});
 					}
 				}
 			}
@@ -415,7 +390,6 @@ Item {
 					updateView()
 				}
 				onVisibleChanged: { if (visible) updateView() }
-
 
 				function addExpression()
 				{

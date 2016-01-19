@@ -5,15 +5,9 @@
 <script src="qrc:///qml/js/Printer.js"></script>
 <script src="qrc:///qml/js/ansi2html.js"></script>
 <script>
-var confLoaded = false
 loadPage = function(url) {
 	var preview = document.getElementById('preview');
 	preview.src = url;
-	if (web3 && !confLoaded && web3.eth.accounts.length > 0)
-	{
-	    web3.eth.defaultAccount = web3.eth.accounts[0]
-	    confLoaded = true
-	}
 };
 
 reloadPage = function() {
@@ -23,7 +17,9 @@ reloadPage = function() {
 
 resetWeb3 = function() {
     if (window.web3)
+    {
 	window.web3.reset();
+    }
 }
 
 updateContracts = function(contracts) {

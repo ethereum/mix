@@ -370,7 +370,7 @@ ColumnLayout {
 				if (ensureNotFuturetime.running || !model)
 					return
 
-				projectModel.saveContracts()
+				projectModel.saveDocuments(true)
 				blockChainPanel.calls = {}
 				stopBlinking()
 				rebuilding()

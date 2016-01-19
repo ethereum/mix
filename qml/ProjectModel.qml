@@ -14,24 +14,24 @@ Item {
 	signal projectLoading(var projectData)
 	signal projectLoaded()
 	signal documentSaving(var document)
-	signal documentChanged(var documentId)
+	signal documentChanged(var path)
 	signal documentOpened(var document)
 	signal documentRemoved(var documentId)
-	signal documentUpdated(var documentId) //renamed
 	signal documentAdded(var documentId)
 	signal projectSaving()
 	signal projectFileSaving(var projectData)
 	signal projectSaved()
 	signal projectFileSaved()
 	signal newProject(var projectData)
-	signal documentSaved(var documentId)
-	signal contractSaved(var documentId)
+	signal documentSaved(var document)
+	signal contractSaved(var document)
 	signal deploymentStarted()
 	signal deploymentStepChanged(string message)
 	signal deploymentComplete()
 	signal deploymentError(string error)
-	signal isCleanChanged(var isClean, string documentId)
+	signal isCleanChanged(var isClean, var document)
 	signal contractSelected(var _contractIndex)
+	signal folderAdded(string path)
 
 	property bool isEmpty: (projectPath === "")
 	readonly property string projectFileName: ".mix"
@@ -40,8 +40,6 @@ Item {
 	property bool projectIsClosing: false
 	property string projectPath: ""
 	property string projectTitle: ""
-	property string currentDocumentId: ""
-	property int currentContractIndex: -1
 	property var deploymentAddresses: ({})
 	property string deploymentDir
 	property var listModel: projectListModel
@@ -60,11 +58,16 @@ Item {
 	property int registerContentHashBlockNumber: -1
 	property int registerUrlBlockNumber: -1
 	property alias deploymentDialog: deploymentDialog
+	property variant filesMap: ({})
+	property variant filesPath: ({})
+	property variant currentDocument
+	property string currentFolder
+	property string startUrl
 
 	//interface
 	function saveAll() { ProjectModelCode.saveAll(); }
 	function saveCurrentDocument() { ProjectModelCode.saveCurrentDocument(); }
-	function saveDocument(documentId) { ProjectModelCode.saveDocument(documentId); }
+	function saveDocument(doc) { ProjectModelCode.saveDocument(doc); }
 	function createProject() { ProjectModelCode.createProject(); }
 	function closeProject(callBack) { ProjectModelCode.closeProject(callBack); }
 	function saveProject() { ProjectModelCode.saveProject(); }
@@ -74,20 +77,13 @@ Item {
 	function newJsFile() { ProjectModelCode.newJsFile(); }
 	function newCssFile() { ProjectModelCode.newCssFile(); }
 	function newContract() { ProjectModelCode.newContract(); }
-	function openDocument(documentId) { ProjectModelCode.openDocument(documentId); }
-	function selectContractByIndex(index, name) { ProjectModelCode.selectContractByIndex(index, name); }
-	function openNextDocument() { ProjectModelCode.openNextDocument(); }
-	function openPrevDocument() { ProjectModelCode.openPrevDocument(); }
-	function renameDocument(documentId, newName) { ProjectModelCode.renameDocument(documentId, newName); }
-	function removeDocument(documentId) { ProjectModelCode.removeDocument(documentId); }
-	function getDocument(documentId) { return ProjectModelCode.getDocument(documentId); }
-	function getDocumentIdByName(documentName) { return ProjectModelCode.getDocumentIdByName(documentName); }
-	function getDocumentIndex(documentId) { return ProjectModelCode.getDocumentIndex(documentId); }
-	function addExistingFiles(paths) { ProjectModelCode.doAddExistingFiles(paths); }
+	function newFolder() { newFolderDialog.open() }
 	function deployProject() { NetworkDeploymentCode.deployProject(false); }
-	function registerToUrlHint(url, gasPrice, callback) { NetworkDeploymentCode.registerToUrlHint(url, gasPrice, callback); }
+	function registerToUrlHint(url, gasPrice, callback) { NetworkDeploymentCode.registerToUrlHint(url, gasPrice, callback) }
 	function formatAppUrl() { NetworkDeploymentCode.formatAppUrl(url); }
-	function saveContracts() { ProjectModelCode.saveContracts(); }
+	function saveDocuments(onlyContracts) { ProjectModelCode.saveDocuments(onlyContracts) }
+	function file(docData) { return ProjectModelCode.file(docData) }
+	function saveProjectProperty(key, value) { return ProjectModelCode.saveProjectProperty(key, value) }
 
 	function cleanDeploymentStatus()
 	{
@@ -129,12 +125,22 @@ Item {
 		onIsCleanChanged: {
 			for (var i in unsavedFiles)
 			{
-				if (unsavedFiles[i] === documentId && isClean)
+				if (unsavedFiles[i].path === document.path && isClean)
 					unsavedFiles.splice(i, 1);
 			}
 			if (!isClean)
-				unsavedFiles.push(documentId);
-			isCleanChanged(isClean, documentId);
+				unsavedFiles.push(document);
+			isCleanChanged(isClean, document);
+		}
+	}
+
+	NewFolderDialog
+	{
+		id: newFolderDialog
+		visible: false
+		onAccepted: {
+			fileIo.makeDir(newFolderDialog.path)
+			folderAdded(newFolderDialog.path)
 		}
 	}
 
@@ -154,9 +160,7 @@ Item {
 		property bool saving: false
 		onFileChanged:
 		{
-			fileIo.watchFileChanged(_filePath);
-			var documentId = ProjectModelCode.getDocumentByPath(_filePath);
-			documentChanged(documentId);
+			documentChanged(_filePath);
 		}
 	}
 

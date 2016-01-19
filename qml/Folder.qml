@@ -46,16 +46,6 @@ ColumnLayout {
 			model.remove(i);
 	}
 
-	SourceSansProRegular
-	{
-		id: fileNameFont
-	}
-
-	SourceSansProBold
-	{
-		id: boldFont
-	}
-
 	RowLayout
 	{
 		anchors.top: parent.top
@@ -76,7 +66,6 @@ ColumnLayout {
 			text: sectionName
 			anchors.verticalCenter: parent.verticalCenter
 			color: projectFilesStyle.documentsList.sectionColor
-			font.family: boldFont.name
 			states: [
 				State {
 					name: "hidden"
@@ -97,7 +86,7 @@ ColumnLayout {
 				else
 					section.state = "hidden";
 			}
-		}		
+		}
 	}
 
 	ColumnLayout {
@@ -180,7 +169,6 @@ ColumnLayout {
 						visible: !renameMode
 						color: rootItem.isSelected ? projectFilesStyle.documentsList.selectedColor : projectFilesStyle.documentsList.color
 						text: name
-						font.family: fileNameFont.name
 						Connections
 						{
 							target: selManager
@@ -243,7 +231,7 @@ ColumnLayout {
 								nameText.text = name
 								//we have to check in the document if the modified contract is this one.
 								if (codeModel.contracts[name])
-								{									
+								{
 									var isClean = hex === (codeModel.contracts[name].codeHex + name)
 									editStatusLabel.visible = !isClean
 								}

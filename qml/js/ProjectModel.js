@@ -70,32 +70,35 @@ var contractTemplate = "//Sample contract\n" +
 		"}\n";
 
 
-function saveDocument(documentId)
+function saveDocument(doc)
 {
-	var doc = projectListModel.get(getDocumentIndex(documentId));
 	documentSaving(doc);
 	if (doc.isContract)
-		contractSaved(currentDocumentId);
+		contractSaved(doc);
 	else
-		documentSaved(currentDocumentId);
+		documentSaved(doc);
 }
 
 function saveCurrentDocument()
 {	
-	saveDocument(currentDocumentId)
+	saveDocument(currentDocument)
 }
 
-function saveContracts()
+function saveDocuments(onlyContracts)
 {
-	for (var i = 0; i < projectListModel.count; i++)
+	for (var i = 0; i < unsavedFiles.length; i++)
 	{
-		var d = projectListModel.get(i)
-		if (d.isContract)
-			saveDocument(d.documentId)
+		var d = unsavedFiles[i]
+		if (!onlyContracts)
+			saveDocument(d)
+		else if (d.isContract)
+			saveDocument(d)
 	}
 }
 
-function saveAll() {
+function saveAll()
+{
+	saveDocuments(false)
 	saveProject();
 }
 
@@ -129,6 +132,18 @@ function saveProject() {
 	}
 }
 
+function saveProjectProperty(key, value)
+{
+	var projectFile = projectPath + projectFileName;
+	var json = fileIo.readFile(projectFile);
+	if (!json)
+		return;
+	var projectData = JSON.parse(json);
+	projectData[key] = value
+	json = JSON.stringify(projectData, null, "\t");
+	fileIo.writeFile(projectFile, json);
+}
+
 function saveProjectFile()
 {
 	if (!isEmpty) {
@@ -148,7 +163,8 @@ function saveProjectFile()
 			registerContentHashTrHash: projectModel.registerContentHashTrHash,
 			registerUrlTrHash: projectModel.registerUrlTrHash,
 			registerContentHashBlockNumber: projectModel.registerContentHashBlockNumber,
-			registerUrlBlockNumber: projectModel.registerUrlBlockNumber
+			registerUrlBlockNumber: projectModel.registerUrlBlockNumber,
+			startUrl: mainContent.webView.relativePath()
 		};
 		for (var i = 0; i < projectListModel.count; i++)
 			projectData.files.push({
@@ -158,7 +174,7 @@ function saveProjectFile()
 
 		projectFileSaving(projectData);
 		var json = JSON.stringify(projectData, null, "\t");
-		var projectFile = projectPath + projectFileName;
+		var projectFile = projectPath + "/" + projectFileName;
 		fileIo.writeFile(projectFile, json);
 		projectFileSaved(projectData);
 		return projectData;
@@ -169,7 +185,7 @@ function saveProjectFile()
 function loadProject(path) {
 	closeProject(function() {
 		console.log("Loading project at " + path);
-		var projectFile = path + projectFileName;
+		var projectFile = path + "/" + projectFileName;
 		var json = fileIo.readFile(projectFile);
 		if (!json)
 			return;
@@ -200,25 +216,25 @@ function loadProject(path) {
 			projectModel.registerContentHashBlockNumber = projectData.registerContentHashBlockNumber
 		if (projectData.registerUrlBlockNumber)
 			projectModel.registerUrlBlockNumber = projectData.registerUrlBlockNumber
+		if (projectData.startUrl)
+			projectModel.startUrl = projectData.startUrl
 		if (!projectData.title) {
 			var parts = path.split("/");
 			projectData.title = parts[parts.length - 2];
 		}
 		deploymentAddresses = projectData.deploymentAddresses ? projectData.deploymentAddresses : {};
 		projectTitle = projectData.title;
+		if (path.lastIndexOf("/") === path.length - 1)
+			path = path.substring(0, path.length - 1)
 		projectPath = path;
+
+		// all files/folders from the root path are included in Mix.
 		if (!projectData.files)
 			projectData.files = [];
 
-		for(var i = 0; i < projectData.files.length; i++) {
-			var entry = projectData.files[i];
-			if (typeof(entry) === "string")
-				addFile(entry); //TODO: remove old project file support
-			else
-				addFile(entry.fileName, entry.title);
-		}
 		if (mainApplication.trackLastProject)
 			projectSettings.lastProjectPath = path;
+
 		projectLoading(projectData);
 		//TODO: move this to codemodel
 		var contractSources = {};
@@ -226,14 +242,16 @@ function loadProject(path) {
 			var doc = listModel.get(d);
 			if (doc.isContract)
 				projectModel.openDocument(doc.documentId)
-		}
+		}	
 		projectLoaded()
 	});
 }
 
-function addFile(fileName, title) {
-	var p = projectPath + fileName;
+function file(docData)
+{
+	var fileName = docData.fileName
 	var extension = fileName.substring(fileName.lastIndexOf("."), fileName.length);
+	var path = docData.path
 	var isContract = extension === ".sol";
 	var isHtml = extension === ".html";
 	var isCss = extension === ".css";
@@ -243,163 +261,33 @@ function addFile(fileName, title) {
 	var groupName = isContract ? qsTr("Contracts") : isJs ? qsTr("Javascript") : isHtml ? qsTr("Web Pages") : isCss ? qsTr("Styles") : isImg ? qsTr("Images") : qsTr("Misc");
 	var docData = {
 		contract: false,
-		path: p,
+		path: path,
 		fileName: fileName,
-		name: title !== undefined ? title : fileName,
-									documentId: fileName,
-									syntaxMode: syntaxMode,
-									isText: isContract || isHtml || isCss || isJs,
-									isContract: isContract,
-									isHtml: isHtml,
-									groupName: groupName
+		name: fileName,
+		documentId: path,
+		syntaxMode: syntaxMode,
+		isText: isContract || isHtml || isCss || isJs,
+		isContract: isContract,
+		isHtml: isHtml,
+		groupName: groupName
 	};
-
-	projectListModel.append(docData);
-	fileIo.watchFileChanged(p);
-	return docData.documentId;
-}
-
-function getDocumentIndex(documentId)
-{
-	for (var i = 0; i < projectListModel.count; i++)
-		if (projectListModel.get(i).documentId === documentId)
-			return i;
-	console.error("Can't find document " + documentId);
-	return -1;
-}
-
-function getDocumentByPath(_path)
-{
-	for (var i = 0; i < projectListModel.count; i++)
-	{
-		var doc = projectListModel.get(i);
-		if (doc.path.indexOf(_path) !== -1)
-			return doc.documentId;
-	}
-	return null;
-}
-
-function selectContractByIndex(contractIndex)
-{
-	currentContractIndex = contractIndex	
-	contractSelected(contractIndex)
-}
-
-function openDocument(documentId) {
-	if (documentId !== currentDocumentId) {
-		documentOpened(projectListModel.get(getDocumentIndex(documentId)));
-		currentDocumentId = documentId;
-	}
-}
-
-function openNextContract()
-{
-	if (Object.keys(codeModel.contracts).length - 1 > currentContractIndex)
-	{
-		currentContractIndex++
-		selectContractByIndex(currentContractIndex)
-		return true
-	}
-	else
-	{
-		currentContractIndex = -1
-		return false
-	}
-}
-
-function openNextDocument() {
-	var docIndex = getDocumentIndex(currentDocumentId)
-	var doc = getDocument(currentDocumentId)
-	if (doc.isContract)
-	{
-		if (openNextContract())
-			return;
-	}
-
-	var nextDocId = "";
-	while (nextDocId === "") {
-		docIndex++;
-		if (docIndex >= projectListModel.count)
-			docIndex = 0;
-		var document = projectListModel.get(docIndex);
-		if (document.isText)
-			nextDocId = document.documentId;
-		if (document.isContract && doc.isContract)
-			nextDocId = ""
-	}
-
-	openDocument(nextDocId);
-	doc = getDocument(nextDocId)
-	if (doc.isContract)
-	{
-		currentContractIndex = 0
-		selectContractByIndex(currentContractIndex)
-	}
-}
-
-function openPrevContract()
-{
-	if (currentContractIndex === -1)
-		currentContractIndex = Object.keys(codeModel.contracts).length
-	if (currentContractIndex > 0)
-	{
-		currentContractIndex--
-		selectContractByIndex(currentContractIndex)
-		return true
-	}
-	else
-	{
-		currentContractIndex = -1
-		return false
-	}
-}
-
-function openPrevDocument() {
-	var docIndex = getDocumentIndex(currentDocumentId);
-	var doc = getDocument(currentDocumentId)
-	if (doc.isContract)
-	{
-		if (openPrevContract())
-			return
-	}
-	// selecting the next document
-	var prevDocId = "";
-	while (prevDocId === "") {
-		docIndex--;
-		if (docIndex < 0)
-			docIndex = projectListModel.count - 1;
-		var document = projectListModel.get(docIndex);
-		if (document.isText)
-			prevDocId = document.documentId;
-		if (document.isContract && doc.isContract)
-			prevDocId = ""
-	}	
-	openDocument(prevDocId);
-	doc = getDocument(prevDocId)
-	if (doc.isContract)
-	{
-		currentContractIndex = Object.keys(codeModel.contracts).length - 1
-		selectContractByIndex(currentContractIndex)
-	}
+	return docData
 }
 
 function doCloseProject() {
 	console.log("Closing project");
 	projectListModel.clear();
 	projectPath = "";
-	currentDocumentId = "";
+	currentDocument = null
 	projectClosed();
 }
 
 function doCreateProject(title, path) {
 	closeProject(function() {
 		console.log("Creating project " + title + " at " + path);
-		if (path[path.length - 1] !== "/")
-			path += "/";
-		var dirPath = path + title + "/";
+		var dirPath = path + "/" + title
 		fileIo.makeDir(dirPath);
-		var projectFile = dirPath + projectFileName;
-
+		var projectFile = dirPath + "/" + projectFileName;
 		var indexFile = "index.html";
 		var contractsFile = "contract.sol";
 		var projectData = {
@@ -407,74 +295,16 @@ function doCreateProject(title, path) {
 			files: [ contractsFile, indexFile ]
 		};
 		//TODO: copy from template
-		if (!fileIo.fileExists(dirPath + indexFile))
-			fileIo.writeFile(dirPath + indexFile, htmlTemplate);
-		if (!fileIo.fileExists(dirPath + contractsFile))
-			fileIo.writeFile(dirPath + contractsFile, contractTemplate);
+		if (!fileIo.fileExists(dirPath + "/" + indexFile))
+			fileIo.writeFile(dirPath + "/" + indexFile, htmlTemplate);
+		if (!fileIo.fileExists(dirPath + "/" + contractsFile))
+			fileIo.writeFile(dirPath + "/" + contractsFile, contractTemplate);
+
 		newProject(projectData);
 		var json = JSON.stringify(projectData, null, "\t");
 		fileIo.writeFile(projectFile, json);
 		loadProject(dirPath);
 	});
-}
-
-function doAddExistingFiles(files) {
-	for(var i = 0; i < files.length; i++) {
-		var sourcePath = files[i];
-		var sourceFileName = sourcePath.substring(sourcePath.lastIndexOf("/") + 1, sourcePath.length);
-		var destPath = projectPath + sourceFileName;
-		if (sourcePath !== destPath)
-			fileIo.copyFile(sourcePath, destPath);
-		var id = addFile(sourceFileName);
-		saveProjectFile();
-		documentAdded(id)
-	}
-}
-
-function renameDocument(documentId, newName) {
-	var i = getDocumentIndex(documentId);
-	var document = projectListModel.get(i);
-	if (!document.isContract) {
-		fileIo.stopWatching(document.path);
-		var sourcePath = document.path;
-		var destPath = projectPath + newName;
-		fileIo.moveFile(sourcePath, destPath);
-		document.path = destPath;
-		document.name = newName;
-		document.fileName = newName;
-		projectListModel.set(i, document);
-		fileIo.watchFileChanged(destPath);
-		saveProjectFile();
-		documentUpdated(documentId);
-	}
-}
-
-function getDocument(documentId) {
-	var i = getDocumentIndex(documentId);
-	if (i === -1)
-		return undefined;
-	else
-		return projectListModel.get(i);
-}
-
-function getDocumentIdByName(fileName)
-{
-	for (var i = 0; i < projectListModel.count; i++)
-		if (projectListModel.get(i).fileName === fileName)
-			return projectListModel.get(i).documentId;
-	return null;
-}
-
-function removeDocument(documentId) {
-	var i = getDocumentIndex(documentId);
-	var document = projectListModel.get(i);
-	fileIo.stopWatching(document.path);
-	fileIo.deleteFile(document.path);
-	if (document.isContract)
-		codeModel.unregisterContractSrc(documentId);
-	projectListModel.remove(i);
-	saveProjectFile();
-	documentRemoved(documentId);
 }
 
 function newHtmlFile() {
@@ -490,27 +320,25 @@ function newJsFile() {
 }
 
 function newContract() {
-	var ctrName = "contract" + projectListModel.count
+	var ctrName = "contract" + Object.keys(codeModel.contracts).length
 	var ctr = basicContractTemplate.replace("FirstContract", ctrName)
 	createAndAddFile("contract", "sol", ctr, ctrName + ".sol");
 }
 
 function createAndAddFile(name, extension, content, fileName) {
-	if (!fileName)
-		fileName = generateFileName(name, extension);
-	var filePath = projectPath + fileName;
+	fileName = generateFileName(name, extension);
+	var filePath = currentFolder + "/" + fileName;
 	if (!fileIo.fileExists(filePath))
 		fileIo.writeFile(filePath, content);
-	var id = addFile(fileName);
 	saveProjectFile();
-	documentAdded(id);
+	documentAdded(filePath);
 }
 
 function generateFileName(name, extension) {
 	var i = 1;
 	do {
 		var fileName = name + i + "." + extension;
-		var filePath = projectPath + fileName;
+		var filePath = currentFolder + "/" + fileName;
 		i++;
 	} while (fileIo.fileExists(filePath));
 	return fileName

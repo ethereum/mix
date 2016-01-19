@@ -9,14 +9,24 @@ Item {
 	id: codeEditorView
 	property string currentDocumentId: ""
 	property string sourceInError
-	property int openDocCount: 0
 	signal documentEdit(string documentId)
 	signal breakpointsChanged(string documentId)
-	signal isCleanChanged(var isClean, string documentId)
+	signal isCleanChanged(var isClean, var document)
 	signal loadComplete
+	signal documentClosed(string path)
+
+	onDocumentClosed:
+	{
+		if (path === currentDocumentId)
+		{
+			currentDocumentId = ""
+			if (openedDocuments().length > 0)
+				currentDocumentId = openedDocuments()[0].documentId
+		}
+	}
 
 	function getDocumentText(documentId) {
-		for (var i = 0; i < openDocCount; i++)	{
+		for (var i = 0; i < editorListModel.count; i++)	{
 			if (editorListModel.get(i).documentId === documentId) {
 				return editors.itemAt(i).item.getText();
 			}
@@ -27,18 +37,16 @@ Item {
 	function getContracts()
 	{
 		var ctr = []
-		for (var i = 0; i < openDocCount; i++)
+		for (var i = 0; i < editorListModel.count; i++)
 		{
 			if (editorListModel.get(i).isContract)
-			{
 				ctr.push(editors.itemAt(i).item)
-			}
 		}
 		return ctr;
 	}
 
 	function isDocumentOpen(documentId) {
-		for (var i = 0; i < openDocCount; i++)
+		for (var i = 0; i < editorListModel.count; i++)
 			if (editorListModel.get(i).documentId === documentId &&
 					editors.itemAt(i).item)
 				return true;
@@ -47,23 +55,56 @@ Item {
 
 	function openDocument(document)	{
 		loadDocument(document);
-		currentDocumentId = document.documentId;
+		currentDocumentId = document.path;
+		fileIo.watchFileChanged(currentDocumentId)
+		for (var i = 0; i < editorListModel.count; i++)
+			if (editorListModel.get(i).documentId === document.documentId)
+			{
+				editorListModel.get(i).opened = true
+				break;
+			}
+	}
+
+	function openedDocuments()
+	{
+		var ret = []
+		for (var k = 0; k < editorListModel.count; k++)
+		{
+			if (editorListModel.get(k).opened)
+				ret.push(editorListModel.get(k))
+		}
+		return ret
+	}
+
+	function closeDocument(path)
+	{
+		for (var k = 0; k < editorListModel.count; k++)
+		{
+			if (editorListModel.get(k).path === path)
+			{
+				if (editorListModel.count > k)
+				{
+					editorListModel.get(k).opened = false
+					fileIo.stopWatching(path)
+					documentClosed(path)
+				}
+				break;
+			}
+		}		
+	}
+
+	function displayOpenedDocument(index)
+	{
+		if (editorListModel.count > index)
+			currentDocumentId = editorListModel.get(index).documentId
 	}
 
 	function loadDocument(document) {
-		for (var i = 0; i < openDocCount; i++)
+		for (var i = 0; i < editorListModel.count; i++)
 			if (editorListModel.get(i).documentId === document.documentId)
-				return; //already open
+				return; //already opened
 
-		if (editorListModel.count <= openDocCount)
-			editorListModel.append(document);
-		else
-		{
-			editorListModel.set(openDocCount, document);
-			doLoadDocument(editors.itemAt(openDocCount).item, editorListModel.get(openDocCount), false)
-			loadComplete();
-		}
-		openDocCount++;
+		editorListModel.append(document);
 	}
 
 	function doLoadDocument(editor, document, create) {
@@ -83,11 +124,12 @@ Item {
 					breakpointsChanged(editor.document.documentId);
 			});
 			editor.onIsCleanChanged.connect(function() {
-				if (!editor.document.isContract)
-					isCleanChanged(editor.isClean, editor.document.documentId);
+				isCleanChanged(editor.isClean, editor.document);
 			});
 		}
 		editor.document = document;
+		if (document.isContract)
+			codeModel.registerCodeChange(document.documentId, data);
 		editor.setFontSize(editorSettings.fontSize);
 		editor.sourceName = document.documentId;
 		editor.setText(data, document.syntaxMode);
@@ -95,7 +137,7 @@ Item {
 	}
 
 	function getEditor(documentId) {
-		for (var i = 0; i < openDocCount; i++)
+		for (var i = 0; i < editorListModel.count; i++)
 		{
 			if (editorListModel.get(i).documentId === documentId)
 				return editors.itemAt(i).item;
@@ -140,7 +182,7 @@ Item {
 	}
 
 	function editingContract() {
-		for (var i = 0; i < openDocCount; i++)
+		for (var i = 0; i < editorListModel.count; i++)
 			if (editorListModel.get(i).documentId === currentDocumentId)
 				return editorListModel.get(i).isContract;
 		return false;
@@ -148,7 +190,7 @@ Item {
 
 	function getBreakpoints() {
 		var bpMap = {};
-		for (var i = 0; i < openDocCount; i++)  {
+		for (var i = 0; i < editorListModel.count; i++)  {
 			var documentId = editorListModel.get(i).documentId;
 			var editor = editors.itemAt(i).item;
 			if (editor) {
@@ -164,8 +206,8 @@ Item {
 			editor.toggleBreakpoint();
 	}
 
-	function resetEditStatus(docId) {
-		var editor = getEditor(docId);
+	function resetEditStatus(document) {
+		var editor = getEditor(document.documentId);
 		if (editor)
 			editor.changeGeneration();
 	}
@@ -175,7 +217,7 @@ Item {
 			return;
 		if (currentDocumentId !== sourceInError)
 			projectModel.openDocument(sourceInError);
-		for (var i = 0; i < openDocCount; i++)
+		for (var i = 0; i < editorListModel.count; i++)
 		{
 			var doc = editorListModel.get(i);
 			if (doc.isContract && doc.documentId === sourceInError)
@@ -226,7 +268,7 @@ Item {
 		}
 
 		onProjectSaving: {
-			for (var i = 0; i < openDocCount; i++)
+			for (var i = 0; i < editorListModel.count; i++)
 			{
 				var doc = editorListModel.get(i);
 				if (editors.itemAt(i))
@@ -241,7 +283,7 @@ Item {
 		onProjectSaved: {
 			if (projectModel.appIsClosing || projectModel.projectIsClosing)
 				return;
-			for (var i = 0; i < openDocCount; i++)
+			for (var i = 0; i < editorListModel.count; i++)
 			{
 				var doc = editorListModel.get(i);
 				resetEditStatus(doc.documentId);
@@ -250,15 +292,15 @@ Item {
 
 		onProjectClosed: {
 			currentDocumentId = "";
-			openDocCount = 0;
+			editorListModel.clear()
 		}
 
 		onDocumentSaved: {
-			resetEditStatus(documentId);
+			resetEditStatus(document);
 		}
 
 		onContractSaved: {
-			resetEditStatus(documentId);
+			resetEditStatus(document);
 		}
 
 		onDocumentSaving: {
@@ -291,16 +333,13 @@ Item {
 	Repeater {
 		id: editors
 		model: editorListModel
-		onItemRemoved: {
-			item.item.unloaded = true;
-		}
 		delegate: Loader {
 			id: loader
 			active: false
 			asynchronous: true
 			anchors.fill:  parent
 			source: appService.haveWebEngine ? "WebCodeEditor.qml" : "CodeEditor.qml"
-			visible: (index >= 0 && index < openDocCount && currentDocumentId === editorListModel.get(index).documentId)
+			visible: (index >= 0 && index < editorListModel.count && currentDocumentId === editorListModel.get(index).documentId)
 			property bool changed: false
 			onVisibleChanged: {
 				loadIfNotLoaded()
@@ -322,6 +361,7 @@ Item {
 			}
 			onLoaded: {
 				doLoadDocument(loader.item, editorListModel.get(index), true)
+				loadComplete()
 			}
 
 			Connections
@@ -331,7 +371,7 @@ Item {
 					if (!item)
 						return;
 					var current = editorListModel.get(index);
-					if (documentId === current.documentId)
+					if (path === current.path)
 					{
 						if (currentDocumentId === current.documentId)
 						{
@@ -344,22 +384,11 @@ Item {
 					}
 				}
 
-				onDocumentUpdated: {
-					var document = projectModel.getDocument(documentId);
-					for (var i = 0; i < editorListModel.count; i++)
-						if (editorListModel.get(i).documentId === documentId)
-						{
-							editorListModel.set(i, document);
-							break;
-						}
-				}
-
 				onDocumentRemoved: {
 					for (var i = 0; i < editorListModel.count; i++)
 						if (editorListModel.get(i).documentId === documentId)
 						{
 							editorListModel.remove(i);
-							openDocCount--;
 							break;
 						}
 				}

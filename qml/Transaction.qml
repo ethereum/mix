@@ -213,8 +213,7 @@ ColumnLayout
 						anchors.verticalCenter: parent.verticalCenter
 						color: labelColor
 						text:  {
-
-							if (!tx || tx.exception === "None")
+							if (!tx || tx.exception === "None" || tx.exception === undefined)
 							{
 								color = labelColor
 								return "→"

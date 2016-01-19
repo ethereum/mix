@@ -176,7 +176,8 @@ Rectangle {
 				anchors.fill: parent
 				orientation: Qt.Horizontal
 
-				ProjectList	{
+				ProjectList
+				{
 					id: projectList
 					Layout.minimumWidth: 200
 					Layout.fillHeight: true
@@ -190,13 +191,69 @@ Rectangle {
 						id: codeWebSplitter
 						anchors.fill: parent
 						orientation: Qt.Horizontal
-						CodeEditorView {
-							id: codeEditor
-							height: parent.height * 0.6
-							anchors.top: parent.top
-							Layout.fillWidth: true
-							Layout.fillHeight: true
+
+						Connections
+						{
+							target: projectList
+							onDocDoubleClicked:
+							{
+								codeEditor.openDocument(fileData)
+								path.text = fileData.path
+								projectModel.currentDocument = fileData
+							}
 						}
+
+						Connections
+						{
+							target: codeEditor
+							onCurrentDocumentIdChanged:
+							{
+								path.text = mainContent.codeEditor.currentDocumentId
+							}
+							onDocumentClosed:
+							{
+								path.text = ""
+							}
+						}
+
+						ColumnLayout
+						{
+							Layout.fillHeight: true
+							Layout.fillWidth: true
+							anchors.top: parent.top
+							spacing: 0
+							Rectangle
+							{
+
+								WebPreviewStyle {
+									id: webPreviewStyle
+								}
+
+								Layout.minimumHeight: 38
+								Layout.fillWidth: true
+								color: webPreviewStyle.general.headerBackgroundColor
+								DefaultLabel
+								{
+									id: path
+									anchors.centerIn: parent
+								}
+							}
+
+							Rectangle
+							{
+								Layout.minimumHeight: 1
+								Layout.preferredWidth: parent.width
+								color: webPreviewStyle.general.separatorColor
+							}
+
+							CodeEditorView
+							{
+								id: codeEditor
+								Layout.fillHeight: true
+								Layout.fillWidth: true
+							}
+						}
+
 						WebPreview {
 							id: webPreview
 							height: parent.height * 0.4
