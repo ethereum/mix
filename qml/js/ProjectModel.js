@@ -88,7 +88,7 @@ function saveDocuments(onlyContracts)
 {
 	for (var i = 0; i < unsavedFiles.length; i++)
 	{
-		var d = unsavedFiles[k]
+		var d = unsavedFiles[i]
 		if (!onlyContracts)
 			saveDocument(d)
 		else if (d.isContract)
