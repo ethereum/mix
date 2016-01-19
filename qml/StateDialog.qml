@@ -278,6 +278,7 @@ Dialog {
 						CopyButton
 						{
 							id: cpBtn
+							tooltip: qsTr("Copy All Users Details to Clipboard")
 							getContent: function() {
 								return JSON.stringify(stateAccounts, null, "\t");
 							}
@@ -445,13 +446,14 @@ Dialog {
 										anchors.verticalCenter: parent.verticalCenter
 										id: addressCopy
 										Layout.preferredWidth: 150
+										tooltip: qsTr("Copy User Adress to Clipboard")
 
 										DefaultButton {
 											width: 35
-											height: 28
+											height: parent.height
 											anchors.verticalCenter: parent.verticalCenter
 											anchors.left: parent.right
-											anchors.leftMargin: 50
+											anchors.leftMargin: 5
 											tooltip: qsTr("Delete Account")
 											onClicked: deleteAccountMsg.open()
 											Image {
