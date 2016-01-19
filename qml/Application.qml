@@ -91,6 +91,7 @@ ApplicationWindow {
 			title: qsTr("File")
 			MenuItem { action: createProjectAction }
 			MenuItem { action: openProjectAction }
+			MenuItem { action: saveProjectAction }
 			MenuSeparator {}
 			MenuItem { action: saveAllFilesAction }
 			MenuItem { action: saveCurrentDocument }
@@ -334,6 +335,14 @@ ApplicationWindow {
 		shortcut: "Ctrl+N"
 		enabled: true;
 		onTriggered: projectModel.createProject();
+	}
+
+	Action {
+		id: saveProjectAction
+		text: qsTr("Save Project")
+		shortcut: "Ctrl+Shift+S"
+		enabled: projectModel.projectPath !== ""
+		onTriggered: projectModel.saveProject()
 	}
 
 	Action {
