@@ -248,16 +248,13 @@ Rectangle
 				javascriptButton.height = logStyle.generic.layout.headerButtonHeight
 				runButton.height = logStyle.generic.layout.headerButtonHeight
 				stateButton.height = logStyle.generic.layout.headerButtonHeight
-				deloyButton.height = logStyle.generic.layout.headerButtonHeight
 				javascriptButton.width = 30
 				runButton.width = 40
 				stateButton.width = 50
-				deloyButton.width = 60
 				rectSearch.height = 25
 				javascriptButton.labelWidth = 15
 				runButton.labelWidth = 25
 				stateButton.labelWidth = 40
-				deloyButton.labelWidth = 40
 			}
 			else
 			{
@@ -266,16 +263,13 @@ Rectangle
 				javascriptButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
 				runButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
 				stateButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
-				deloyButton.height = logStyle.generic.layout.headerButtonHeight + Math.round(appSettings.systemPointSize / 2)
 				javascriptButton.width = 30 + (2 * appSettings.systemPointSize)
 				runButton.width = 40 + (3 * appSettings.systemPointSize)
 				stateButton.width = 50 + (3 * appSettings.systemPointSize)
-				deloyButton.width = 60 + (3 * appSettings.systemPointSize)
 				rectSearch.height = 25 + Math.round(appSettings.systemPointSize / 2)
 				javascriptButton.labelWidth = 15 + 2 * appSettings.systemPointSize
 				runButton.labelWidth = 25 + 3 * appSettings.systemPointSize
 				stateButton.labelWidth = 40 + 3 * appSettings.systemPointSize
-				deloyButton.labelWidth = 40 + 3 * appSettings.systemPointSize
 			}
 		}
 	}

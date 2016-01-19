@@ -25,6 +25,7 @@ Rectangle {
 		}
 		else
 		{
+			var errorInfo = ErrorLocationFormater.extractErrorInfo(message, true);
 			updateText(errorInfo.errorLocation + " " + errorInfo.errorDetail, "error")
 			debugImg.state = "";
 			currentStatus = { "type": "Comp", "date": Qt.formatDateTime(new Date(), "hh:mm:ss"), "content": status.text, "level": "error" }
