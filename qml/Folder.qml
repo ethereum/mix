@@ -120,9 +120,8 @@ ColumnLayout {
 					anchors.verticalCenter: parent.verticalCenter
 					spacing: 3
 
-					DefaultImgButton
+					DefaultButton
 					{
-						iconSource: "qrc:/qml/img/edit_combox.png"
 						tooltip: qsTr("Rename")
 						visible: !isContract
 						height: 25
@@ -132,9 +131,16 @@ ColumnLayout {
 							rootItem.renameMode = true;
 						}
 						anchors.verticalCenter: parent.verticalCenter
+						Image {
+							height: 20
+							width: 20
+							anchors.verticalCenter: parent.verticalCenter
+							anchors.horizontalCenter: parent.horizontalCenter
+							source: "qrc:/qml/img/edit_combox.png"
+						}
 					}
 
-					Button
+					DefaultButton
 					{
 						tooltip: qsTr("Delete")
 						visible: !isContract
