@@ -25,6 +25,11 @@ Column {
 	property string selectedBlockForeground: "#445e7f"
 	signal updated()
 
+	Component.onCompleted:
+	{
+		clear()
+	}
+
 	function clear()
 	{
 		accounts.clear()
