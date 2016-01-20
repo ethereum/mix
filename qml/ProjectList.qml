@@ -146,10 +146,15 @@ ScrollView
 			onDocumentAdded:
 			{
 				projectFiles.updateView()
+				projectModel.saveContractCompilationResult(path)
 			}
 			onFolderAdded:
 			{
 				projectFiles.updateView()
+			}
+			onContractSaved:
+			{
+				projectModel.saveContractCompilationResult(document.documentId)
 			}
 		}
 

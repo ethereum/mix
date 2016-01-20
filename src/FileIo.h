@@ -79,6 +79,8 @@ public:
 	Q_INVOKABLE QVariantList directories(QString const& _root);
 	/// path from url
 	Q_INVOKABLE QString pathFromUrl(QString const& _url);
+	/// dir exists
+	Q_INVOKABLE bool dirExists(QString const& _url);
 
 	//TODO: remove once qt 5.5.1 is out
 	Q_INVOKABLE QString urlToPath(QUrl const& _url) { return _url.toLocalFile(); }

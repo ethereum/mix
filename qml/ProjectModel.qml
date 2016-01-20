@@ -63,6 +63,7 @@ Item {
 	property variant currentDocument
 	property string currentFolder
 	property string startUrl
+	property string compilationFolder: projectPath + "/package/compilation"
 
 	//interface
 	function saveAll() { ProjectModelCode.saveAll(); }
@@ -84,6 +85,7 @@ Item {
 	function saveDocuments(onlyContracts) { ProjectModelCode.saveDocuments(onlyContracts) }
 	function file(docData) { return ProjectModelCode.file(docData) }
 	function saveProjectProperty(key, value) { return ProjectModelCode.saveProjectProperty(key, value) }
+	function saveContractCompilationResult(documentId) { ProjectModelCode.saveContractCompilationResult(documentId) }
 
 	function cleanDeploymentStatus()
 	{
