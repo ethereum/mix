@@ -120,7 +120,19 @@ Column {
 		DefaultTextField
 		{
 			Layout.fillWidth: true
+			property string defaultLabel: qsTr("Filter by Contract Name or Addresses")
+			text: defaultLabel
+			font.italic: true
+			onFocusChanged:
+			{
+				if (focus && text === defaultLabel)
+					text = ""
+				else if (!focus && text.trim() == "")
+					text = defaultLabel
+			}
 			onTextChanged: {
+				if (text === defaultLabel)
+					return
 				for (var k = 0; k < stoRepeater.count; k++)
 				{
 					var label = storages.get(k).key.split(" - ")
