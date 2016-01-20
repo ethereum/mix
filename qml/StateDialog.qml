@@ -446,15 +446,17 @@ Dialog {
 										id: addressCopy
 										Layout.preferredWidth: 150
 
-										Button {
-											width: 40
+										DefaultButton {
+											width: 35
+											height: 28
 											anchors.verticalCenter: parent.verticalCenter
 											anchors.left: parent.right
 											anchors.leftMargin: 50
 											tooltip: qsTr("Delete Account")
 											onClicked: deleteAccountMsg.open()
 											Image {
-												width: 28
+												width: 25
+												height: 25
 												anchors.centerIn: parent
 												source: "qrc:/qml/img/delete-block-icon@2x.png"
 											}
