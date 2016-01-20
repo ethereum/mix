@@ -330,6 +330,12 @@ Item {
 		}
 	}
 
+	Rectangle
+	{
+		anchors.fill: parent
+		color: "#ededed"
+	}
+
 	Repeater {
 		id: editors
 		model: editorListModel

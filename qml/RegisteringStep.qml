@@ -369,7 +369,7 @@ Rectangle {
 
 		function registerUrl(gasPrice, callback)
 		{
-			if (applicationUrlHttp.text === "" || deploymentDialog.packageHash === "")
+			if (applicationUrlHttp.text === "")
 			{
 				deployDialog.title = text;
 				deployDialog.text = qsTr("Please provide the link where the resources are stored and ensure the package is aleary built using the deployment step.")

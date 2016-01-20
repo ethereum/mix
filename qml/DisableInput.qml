@@ -10,7 +10,7 @@ import "js/QEtherHelper.js" as QEtherHelper
 
 DefaultTextField
 {
-	id: localPackageUrl
+	id: rootDisableInput
 	readOnly: true
 	property var originalText
 
@@ -36,7 +36,7 @@ DefaultTextField
 	style: TextFieldStyle {
 		background: Rectangle
 		{
-		width: localPackageUrl.width
+		width: rootDisableInput.width
 		color: "#cccccc"
 		radius: 2
 	}
@@ -50,7 +50,7 @@ DefaultTextField
 		anchors.verticalCenter: parent.verticalCenter
 		getContent: function()
 		{
-			return localPackageUrl.originalText;
+			return rootDisableInput.originalText;
 		}
 	}
 }

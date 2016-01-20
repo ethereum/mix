@@ -153,10 +153,8 @@ function saveProjectFile()
 			deploymentAddresses: deploymentAddresses,
 			applicationUrlEth: projectModel.applicationUrlEth,
 			applicationUrlHttp: projectModel.applicationUrlHttp,
-			packageHash: deploymentDialog.packageStep.packageHash,
-			packageBase64: deploymentDialog.packageStep.packageBase64,
 			deploymentDir: deploymentDialog.packageStep.packageDir,
-			lastPackageDate:  deploymentDialog.packageStep.lastDeployDate,
+			lastPackageDate:  deploymentDialog.packageStep.lastPackageDate,
 			deployBlockNumber: projectModel.deployBlockNumber,
 			localPackageUrl: deploymentDialog.packageStep.localPackageUrl,
 			deploymentTrHashes: JSON.stringify(projectModel.deploymentTrHashes),
@@ -192,16 +190,12 @@ function loadProject(path) {
 		var projectData = JSON.parse(json);
 		if (projectData.deploymentDir)
 			projectModel.deploymentDir = projectData.deploymentDir
-		if (projectData.packageHash)
-			deploymentDialog.packageStep.packageHash =  projectData.packageHash
-		if (projectData.packageBase64)
-			deploymentDialog.packageStep.packageBase64 =  projectData.packageBase64
 		if (projectData.applicationUrlEth)
 			projectModel.applicationUrlEth = projectData.applicationUrlEth
 		if (projectData.applicationUrlHttp)
 			projectModel.applicationUrlHttp = projectData.applicationUrlHttp
 		if (projectData.lastPackageDate)
-			deploymentDialog.packageStep.lastDeployDate = projectData.lastPackageDate
+			deploymentDialog.packageStep.lastPackageDate = projectData.lastPackageDate
 		if (projectData.deployBlockNumber)
 			projectModel.deployBlockNumber = projectData.deployBlockNumber
 		if (projectData.localPackageUrl)
