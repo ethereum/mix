@@ -309,6 +309,7 @@ ApplicationWindow {
 		text: qsTr("Show Web View")
 		shortcut: "F2"
 		checkable: true
+		enabled: !projectModel.isEmpty
 		checked: mainContent.webViewVisible
 		onTriggered: mainContent.toggleWebPreview();
 	}
@@ -318,6 +319,7 @@ ApplicationWindow {
 		text: qsTr("Show Project Navigator")
 		shortcut: "Alt+0"
 		checkable: true
+		enabled: !projectModel.isEmpty
 		checked: mainContent.projectViewVisible
 		onTriggered: mainContent.toggleProjectView();
 	}
@@ -327,6 +329,7 @@ ApplicationWindow {
 		text: qsTr("Horizontal Web View")
 		shortcut: "Alt+W"
 		checkable: true
+		enabled: !projectModel.isEmpty
 		checked: mainContent.webViewHorizontal
 		onTriggered: mainContent.toggleWebPreviewOrientation();
 	}
@@ -345,6 +348,7 @@ ApplicationWindow {
 		text: qsTr("Show Right View")
 		shortcut: "F7"
 		checkable: true
+		enabled: !projectModel.isEmpty
 		checked: mainContent.rightViewVisible
 		onTriggered: mainContent.toggleRightView();
 	}
@@ -353,7 +357,7 @@ ApplicationWindow {
 		id: createProjectAction
 		text: qsTr("&New Project")
 		shortcut: "Ctrl+N"
-		enabled: true;
+		enabled: !projectModel.isEmpty
 		onTriggered: projectModel.createProject();
 	}
 

@@ -295,6 +295,28 @@ Rectangle {
 							debugPanel.close()
 						scenarioExe.clear()
 					}
+					Component.onCompleted: resetPanels()
+					onIsEmptyChanged:
+					{
+						resetPanels();
+					}
+					function resetPanels()
+					{
+						if (projectModel.isEmpty)
+						{
+							//hide Scenario Panel, WebVew panel and FolderStructor
+							scenarioExe.visible = false;
+							webPreview.visible = false;
+							projectList.visible = false;
+						}
+						else
+						{
+							//show Scenario Panel, WebVew panel and FolderStructor
+							scenarioExe.visible = true;
+							webPreview.visible = true;
+							projectList.visible = true;
+						}
+					}
 				}
 
 				ScenarioExecution
