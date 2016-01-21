@@ -344,13 +344,18 @@ ScrollView
 							standardButtons: StandardIcon.Ok | StandardIcon.Cancel
 							onAccepted:
 							{
-								if (projectFiles.model.get(styleData.row).type === "folder")
-									fileIo.deleteDir(projectFiles.model.get(styleData.row).path)
+								var item = projectFiles.model.get(styleData.row)
+								var doc = projectModel.file(item)
+								if (item.type === "folder")
+									fileIo.deleteDir(item.path)
 								else
 								{
-									mainContent.codeEditor.closeDocument(projectFiles.model.get(styleData.row).path)
-									fileIo.stopWatching(projectFiles.model.get(styleData.row).path)
-									fileIo.deleteFile(projectFiles.model.get(styleData.row).path)
+									if (doc.isContract)
+										codeModel.unregisterContractSrc(doc.path)
+									mainContent.codeEditor.closeDocument(doc.path)
+									fileIo.stopWatching(doc.path)
+									fileIo.deleteFile(doc.path)
+
 								}
 								projectFiles.updateView()
 							}
