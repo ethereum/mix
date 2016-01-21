@@ -324,7 +324,7 @@ function packageDapp(addresses)
 	saveProject();
 
 	var packageRet = fileIo.makePackage(wwwFolder);
-	deploymentDialog.packageStep.localPackageUrl = packageRet[2] + "?hash=" + packageRet[0];
+	deploymentDialog.packageStep.localPackageUrl = wwwFolder
 	deploymentDialog.packageStep.lastPackageDate = date
 	deploymentStepChanged(qsTr("Dapp is Packaged"))
 }

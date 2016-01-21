@@ -119,6 +119,15 @@ ScrollView
 			onProjectLoaded:
 			{
 				projectFiles.setFolder(fileIo.pathFromUrl(projectModel.projectPath))
+				for (var k = 0; k < projectFiles.model.count; k++)
+				{
+					if (projectFiles.model.get(k).type === "file")
+					{
+						projectFiles.currentRow = k
+						projectFiles.executeSelection(k)
+						break
+					}
+				}
 			}
 
 			onIsCleanChanged:
