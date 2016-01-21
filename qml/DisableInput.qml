@@ -13,6 +13,7 @@ DefaultTextField
 	id: localPackageUrl
 	readOnly: true
 	property var originalText
+	property string tooltip
 
 	function init()
 	{
@@ -45,9 +46,12 @@ DefaultTextField
 	CopyButton
 	{
 		id: buttonCopy
-		anchors.left: parent.right
-		anchors.leftMargin: 5
+		anchors.right: parent.right
+		anchors.rightMargin: 1
 		anchors.verticalCenter: parent.verticalCenter
+		height: parent.height - 2
+		width: 30
+		tooltip: localPackageUrl.tooltip
 		getContent: function()
 		{
 			return localPackageUrl.originalText;
