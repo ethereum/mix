@@ -342,7 +342,7 @@ ApplicationWindow {
 		text: qsTr("Save Project")
 		shortcut: "Ctrl+Shift+S"
 		enabled: projectModel.projectPath !== ""
-		onTriggered: projectModel.saveProject()
+		onTriggered: projectModel.saveAll()
 	}
 
 	Action {
@@ -419,7 +419,7 @@ ApplicationWindow {
 
 	Action {
 		id: saveAllFilesAction
-		text: qsTr("Save All")
+		text: qsTr("Save All Opened Documents")
 		shortcut: "Ctrl+Shift+A"
 		enabled: !projectModel.isEmpty
 		onTriggered: projectModel.saveAll();
