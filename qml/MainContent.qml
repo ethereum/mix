@@ -244,6 +244,7 @@ Rectangle {
 								Layout.minimumHeight: 1
 								Layout.preferredWidth: parent.width
 								color: webPreviewStyle.general.separatorColor
+								visible: codeEditor.currentDocumentId !== ""
 							}
 
 							CodeEditorView

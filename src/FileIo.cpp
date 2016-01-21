@@ -218,70 +218,66 @@ bool FileIo::fileExists(QString const& _url)
 	}
 }
 
+Json::Value FileIo::generateManifest(QString const& _rootPath, QString const& _path)
+{
+	QMimeDatabase mimeDb;
+	Json::Value entries(Json::arrayValue);
+	for (auto f: files(_path))
+	{
+		QVariantMap map = f.toMap();
+		QFile qFile(map["path"].toString());
+		if (qFile.open(QIODevice::ReadOnly))
+		{
+			QFileInfo fileInfo = QFileInfo(qFile.fileName());
+			Json::Value jsonValue;
+			QString path = fileInfo.fileName() == "index.html" ? "" : fileInfo.fileName().replace(_rootPath, "");
+			jsonValue["path"] = "/" + path.toStdString();
+			jsonValue["file"] = fileInfo.fileName().toStdString();
+			jsonValue["contentType"] = mimeDb.mimeTypeForFile(qFile.fileName()).name().toStdString();
+			QByteArray a = qFile.readAll();
+			bytes data = bytes(a.begin(), a.end());
+			jsonValue["hash"] = toHex(dev::sha3(data).ref());
+			entries.append(jsonValue);
+		}
+		qFile.close();
+	}
+	for (auto path: directories(_path))
+	{
+		QVariantMap map = path.toMap();
+		if (map["fileName"] != ".." && map["fileName"] != ".")
+		{
+			Json::Value pathEntries = generateManifest(_rootPath, map["path"].toString());
+			entries.append(pathEntries);
+		}
+	}
+	return entries;
+}
+
+
 QStringList FileIo::makePackage(QString const& _deploymentFolder)
 {
 	QStringList ret;
 	try
 	{
 		Json::Value manifest;
-		Json::Value entries(Json::arrayValue);
+		QUrl url(_deploymentFolder);
 
-		QDir deployDir = QDir(pathFromUrl(_deploymentFolder));
-		dev::RLPStream rlpStr;
-		int k = 1;
-		std::vector<bytes> files;
-		QMimeDatabase mimeDb;
-		for (auto item: deployDir.entryInfoList(QDir::Files))
-		{
-			QFile qFile(item.filePath());
-			if (qFile.open(QIODevice::ReadOnly))
-			{
-				k++;
-				QFileInfo fileInfo = QFileInfo(qFile.fileName());
-				Json::Value jsonValue;
-				std::string path = fileInfo.fileName() == "index.html" ? "/" : fileInfo.fileName().toStdString();
-				jsonValue["path"] = path; //TODO: Manage relative sub folder
-				jsonValue["file"] = "/" + fileInfo.fileName().toStdString();
-				jsonValue["contentType"] = mimeDb.mimeTypeForFile(qFile.fileName()).name().toStdString();
-				QByteArray a = qFile.readAll();
-				bytes data = bytes(a.begin(), a.end());
-				files.push_back(data);
-				jsonValue["hash"] = toHex(dev::sha3(data).ref());
-				entries.append(jsonValue);
-			}
-			qFile.close();
-		}
-		rlpStr.appendList(k);
+		Json::Value entries = generateManifest(url.path(), url.path());
 
 		manifest["entries"] = entries;
 		std::stringstream jsonStr;
 		jsonStr << manifest;
-		QByteArray b =  QString::fromStdString(jsonStr.str()).toUtf8();
-		rlpStr.append(bytesConstRef((const unsigned char*)b.data(), b.size()));
 
-		for (unsigned int k = 0; k < files.size(); k++)
-			rlpStr.append(files.at(k));
+		writeFile(url.path() + "/manifest.json", QString::fromStdString(jsonStr.str()));
 
+		/*
 		bytes dapp = rlpStr.out();
 		dev::h256 dappHash = dev::sha3(dapp);
 		//encrypt
 		KeyPair key((Secret(dappHash)));
 		Secp256k1PP::get()->encrypt(key.pub(), dapp);
+		*/
 
-		QUrl url(_deploymentFolder + "package.dapp");
-		QFile compressed(url.path());
-		QByteArray qFileBytes((char*)dapp.data(), static_cast<int>(dapp.size()));
-		if (compressed.open(QIODevice::WriteOnly | QIODevice::Truncate))
-		{
-			compressed.write(qFileBytes);
-			compressed.flush();
-		}
-		else
-			error(tr("Error creating package.dapp"));
-		compressed.close();
-
-		ret.append(QString::fromStdString(toHex(dappHash.ref())));
-		ret.append(qFileBytes.toBase64());
 		ret.append(url.toString());
 	}
 	catch (...)
@@ -346,7 +342,7 @@ QUrl FileIo::pathFolder(QString const& _path)
 
 QVariantList FileIo::files(QString const& _root)
 {
-	QDirIterator it(_root, QDir::Files, QDirIterator::NoIteratorFlags);
+	QDirIterator it(pathFromUrl(_root), QDir::Files, QDirIterator::NoIteratorFlags);
 	QVariantList ret;
 	while (it.hasNext())
 	{
@@ -360,7 +356,7 @@ QVariantList FileIo::files(QString const& _root)
 
 QVariantList FileIo::directories(QString const& _root)
 {
-	QDirIterator it(_root, QDir::Dirs, QDirIterator::NoIteratorFlags);
+	QDirIterator it(pathFromUrl(_root), QDir::Dirs, QDirIterator::NoIteratorFlags);
 	QVariantList ret;
 	while (it.hasNext())
 	{
