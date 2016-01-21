@@ -19,16 +19,14 @@ Rectangle {
 			return
 		if (!message)
 		{
-			status.state = "";
-			status.text = qsTr("Compiled successfully.");
+			updateText(qsTr("Compiled successfully."), "")
 			debugImg.state = "active";
 			currentStatus = { "type": "Comp", "date": Qt.formatDateTime(new Date(), "hh:mm:ss"), "content": status.text, "level": "info" }
 		}
 		else
 		{
-			status.state = "error";
 			var errorInfo = ErrorLocationFormater.extractErrorInfo(message, true);
-			status.text = errorInfo.errorLocation + " " + errorInfo.errorDetail;
+			updateText(errorInfo.errorLocation + " " + errorInfo.errorDetail, "error")
 			debugImg.state = "";
 			currentStatus = { "type": "Comp", "date": Qt.formatDateTime(new Date(), "hh:mm:ss"), "content": status.text, "level": "error" }
 		}
@@ -36,10 +34,7 @@ Rectangle {
 
 	function infoMessage(text, type)
 	{
-		if (!projectLoaded)
-			return
-		status.state = "";
-		status.text = text
+		updateText(text, "")
 		logPane.push("info", type, text);
 		currentStatus = { "type": type, "date": Qt.formatDateTime(new Date(), "hh:mm:ss"), "content": text, "level": "info" }
 	}
@@ -49,8 +44,7 @@ Rectangle {
 		if (!projectLoaded)
 			return
 		errorOccurred.visible = true
-		status.state = "warning";
-		status.text = text
+		updateText(text, "warning")
 		logPane.push("warning", type, text);
 		currentStatus = { "type": type, "date": Qt.formatDateTime(new Date(), "hh:mm:ss"), "content": text, "level": "warning" }
 	}
@@ -60,17 +54,29 @@ Rectangle {
 		if (!projectLoaded)
 			return
 		errorOccurred.visible = true
-		status.state = "error";
-		status.text = text;
+		updateText(text, "error")
 		logPane.push("error", type, text);
 		currentStatus = { "type": type, "date": Qt.formatDateTime(new Date(), "hh:mm:ss"), "content": text, "level": "error" }
+	}
+
+	function updateText(text, state)
+	{
+		status.state = state
+		status.text = text
+		status.font.italic = false
 	}
 
 	function clear()
 	{
 		status.state = "";
-		status.text = "";
+		status.text = "<no log>";
+		status.font.italic = true
 		errorOccurred.visible = false
+	}
+
+	Component.onCompleted:
+	{
+		clear()
 	}
 
 	StatusPaneStyle {
@@ -377,7 +383,7 @@ Rectangle {
 					statusContainer.visible = true
 					logsContainer.state = "closed"
 				}
-				else
+				else if (logPane.length > 0)
 				{
 					statusContainer.visible = false
 					logsContainer.state = "opened";
@@ -429,7 +435,7 @@ Rectangle {
 
 			LogsPane
 			{
-				id: logPane;
+				id: logPane
 				statusPane: statusHeader
 				onContentXPosChanged:
 				{

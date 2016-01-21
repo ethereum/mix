@@ -240,7 +240,7 @@ ApplicationWindow {
 		id: editStatesAction
 		text: qsTr("Edit Scenarios")
 		shortcut: "Ctrl+Alt+E"
-		onTriggered: stateList.open();
+		onTriggered: if (!projectModel.isEmpty) { stateList.open() }
 	}
 
 	Action {
