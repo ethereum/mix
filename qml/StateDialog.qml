@@ -446,7 +446,7 @@ Dialog {
 										anchors.verticalCenter: parent.verticalCenter
 										id: addressCopy
 										Layout.preferredWidth: 150
-										tooltip: qsTr("Copy User Adress to Clipboard")
+										tooltip: qsTr("Copy User Address to Clipboard")
 
 										DefaultButton {
 											width: 35

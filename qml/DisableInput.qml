@@ -49,7 +49,8 @@ DefaultTextField
 		anchors.right: parent.right
 		anchors.rightMargin: 1
 		anchors.verticalCenter: parent.verticalCenter
-		height: parent.height
+		height: parent.height - 2
+		width: 30
 		tooltip: localPackageUrl.tooltip
 		getContent: function()
 		{
