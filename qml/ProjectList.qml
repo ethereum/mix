@@ -145,8 +145,7 @@ ScrollView
 			}
 			onDocumentAdded:
 			{
-				projectFiles.updateView()
-				projectModel.saveContractCompilationResult(path)
+				projectFiles.updateView()				
 			}
 			onFolderAdded:
 			{
@@ -155,6 +154,15 @@ ScrollView
 			onContractSaved:
 			{
 				projectModel.saveContractCompilationResult(document.documentId)
+			}
+		}
+
+		Connections
+		{
+			target: codeModel
+			onNewContractCompiled:
+			{
+				projectModel.saveContractCompilationResult(codeModel.contracts[_name].documentId)
 			}
 		}
 
