@@ -154,9 +154,8 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 	m_contract.reset(new QContractDefinition(nullptr, &contractDefinition));
 	QQmlEngine::setObjectOwnership(m_contract.get(), QQmlEngine::CppOwnership);
 	m_contract->moveToThread(QApplication::instance()->thread());
-	eth::LinkerObject const& object = _compiler.object(_contractName.toStdString());
-	if (object.linkReferences.empty())
-		m_bytes = object.bytecode; //@todo handle unlinked objects
+	m_linkerObject = _compiler.object(_contractName.toStdString());
+	m_bytes = m_linkerObject.bytecode; // use linkLibrairies() to link object
 
 	dev::solidity::InterfaceHandler interfaceHandler;
 	m_contractInterface = QString::fromStdString(interfaceHandler.abiInterface(contractDefinition));
@@ -171,6 +170,19 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 	m_assemblyItems = *_compiler.runtimeAssemblyItems(name);
 	m_constructorAssemblyItems = *_compiler.assemblyItems(name);
 }
+
+bytes CompiledContract::linkLibraries(std::map<Address, QString> const& _deployedContracts, QVariantMap _compiledContracts)
+{
+	std::map<std::string, h160> toLink;
+	for (auto const& c: _deployedContracts)
+	{
+		CompiledContract* ctr = qvariant_cast<CompiledContract*>(_compiledContracts.value(c.second));
+		toLink[ctr->contract()->name().toStdString()] = c.first;
+	}
+	m_linkerObject.link(toLink);
+	return m_linkerObject.bytecode;
+}
+
 
 QString CompiledContract::codeHex() const
 {
@@ -321,6 +333,13 @@ CompiledContract* CodeModel::contractByDocumentId(QString const& _documentId) co
 		manageException();
 		return nullptr;
 	}
+}
+
+bytes CodeModel::linkLibrairies(QString const& _contractName, std::map<Address, QString> const& _deployedContracts)
+{
+	auto contract = m_contractMap.value(_contractName);
+	bytes code = contract->linkLibraries(_deployedContracts, contracts());
+	return code;
 }
 
 CompiledContract const* CodeModel::contract(QString const& _name) const

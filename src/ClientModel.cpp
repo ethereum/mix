@@ -540,7 +540,6 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 				//encode data
 				CompiledContract const* compilerRes = m_codeModel->contract(ctrInstance.first);
 				QFunctionDefinition const* f = nullptr;
-				bytes contractCode = compilerRes->bytes();
 				shared_ptr<QContractDefinition> contractDef = compilerRes->sharedContract();
 				if (transaction.functionId.isEmpty())
 					f = contractDef->constructor();
@@ -592,6 +591,8 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 				if (transaction.functionId.isEmpty() || transaction.functionId == ctrInstance.first)
 				{
 					bytes param = encoder.encodedData();
+					bytes contractCode = compilerRes->bytes();
+					contractCode = m_codeModel->linkLibrairies(ctrInstance.first, m_contractNames);
 					contractCode.insert(contractCode.end(), param.begin(), param.end());
 					Address newAddress = deployContract(contractCode, transaction);
 					std::pair<QString, int> contractToken = retrieveToken(transaction.contractId);
