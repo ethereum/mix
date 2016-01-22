@@ -342,6 +342,21 @@ function generateFileName(name, extension) {
 	return fileName
 }
 
+function regenerateCompilationResult()
+{
+	fileIo.deleteDir(compilationFolder)
+	fileIo.makeDir(compilationFolder)
+	var ctrJson = {}
+	for (var c in codeModel.contracts)
+	{
+		var contract = codeModel.contracts[c]
+		ctrJson[contract.documentId] = ""
+	}
+
+	for (var doc in ctrJson)
+		saveContractCompilationResult(doc)
+}
+
 function saveContractCompilationResult(documentId)
 {
 	if (!fileIo.dirExists(compilationFolder))
@@ -355,12 +370,12 @@ function saveContractCompilationResult(documentId)
 		if (contract.documentId === documentId)
 		{
 			newCompilationResult = true
-			var contract = {
+			var ctr = {
 				name: c,
 				codeHex: contract.codeHex,
 				abi: contract.contractInterface
 			}
-			ret += "var " + c + " = " + JSON.stringify(contract, null, "\t") + "\n\n"
+			ret += "var " + c + " = " + JSON.stringify(ctr, null, "\t") + "\n\n"
 		}
 	}
 	if (newCompilationResult)

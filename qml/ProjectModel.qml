@@ -86,6 +86,7 @@ Item {
 	function file(docData) { return ProjectModelCode.file(docData) }
 	function saveProjectProperty(key, value) { return ProjectModelCode.saveProjectProperty(key, value) }
 	function saveContractCompilationResult(documentId) { ProjectModelCode.saveContractCompilationResult(documentId) }
+	function regenerateCompilationResult() { ProjectModelCode.regenerateCompilationResult() }
 
 	function cleanDeploymentStatus()
 	{

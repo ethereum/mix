@@ -145,7 +145,7 @@ ScrollView
 			}
 			onDocumentAdded:
 			{
-				projectFiles.updateView()				
+				projectFiles.updateView()
 			}
 			onFolderAdded:
 			{
@@ -355,6 +355,7 @@ ScrollView
 							id: deleteConfirmation
 							text: qsTr("Are you sure to delete this file ?")
 							standardButtons: StandardIcon.Ok | StandardIcon.Cancel
+							property bool regenerateCompilationResult: false
 							onAccepted:
 							{
 								if (projectFiles.model.get(styleData.row).type === "folder")
@@ -365,7 +366,21 @@ ScrollView
 									fileIo.stopWatching(projectFiles.model.get(styleData.row).path)
 									fileIo.deleteFile(projectFiles.model.get(styleData.row).path)
 								}
+								regenerateCompilationResult = true
 								projectFiles.updateView()
+							}
+						}
+
+						Connections
+						{
+							target: codeModel
+							onCompilationComplete:
+							{
+								if (deleteConfirmation.regenerateCompilationResult)
+								{
+									deleteConfirmation.regenerateCompilationResult = false
+									projectModel.regenerateCompilationResult()
+								}
 							}
 						}
 					}
