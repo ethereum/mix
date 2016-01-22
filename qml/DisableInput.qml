@@ -10,7 +10,7 @@ import "js/QEtherHelper.js" as QEtherHelper
 
 DefaultTextField
 {
-	id: localPackageUrl
+	id: rootDisableInput
 	readOnly: true
 	property var originalText
 	property string tooltip
@@ -37,7 +37,7 @@ DefaultTextField
 	style: TextFieldStyle {
 		background: Rectangle
 		{
-		width: localPackageUrl.width
+		width: rootDisableInput.width
 		color: "#cccccc"
 		radius: 2
 	}
@@ -54,7 +54,7 @@ DefaultTextField
 		tooltip: localPackageUrl.tooltip
 		getContent: function()
 		{
-			return localPackageUrl.originalText;
+			return rootDisableInput.originalText;
 		}
 	}
 }

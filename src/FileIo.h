@@ -23,6 +23,7 @@
 #pragma once
 
 #include <QFileSystemModel>
+#include <json/json.h>
 #include <libdevcore/CommonData.h>
 #include <QObject>
 
@@ -79,6 +80,8 @@ public:
 	Q_INVOKABLE QVariantList directories(QString const& _root);
 	/// path from url
 	Q_INVOKABLE QString pathFromUrl(QString const& _url);
+	/// returns manifest file
+	Q_INVOKABLE Json::Value generateManifest(QString const& _rootPath, QString const& _path);
 
 	//TODO: remove once qt 5.5.1 is out
 	Q_INVOKABLE QString urlToPath(QUrl const& _url) { return _url.toLocalFile(); }
