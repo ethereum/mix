@@ -105,7 +105,7 @@ public:
 	QHash<unsigned, SolidityDeclarations> const& storage() const { return m_storage; }
 
 	/// link @arg _contract to referenced libraries
-	dev::bytes linkLibraries(std::map<Address, QString> const& _deployedContracts, QVariantMap _compiledContracts);
+	dev::bytes linkLibraries(QVariantMap const& _deployedLibraries, QVariantMap _compiledItems);
 
 private:
 	uint m_sourceHash;
@@ -257,7 +257,7 @@ public:
 	/// Return the location of the given contract
 	Q_INVOKABLE QVariantMap locationOf(QString _contract);
 	/// link libraries referenced in @arg _contractName
-	bytes linkLibrairies(QString const& _contractName, std::map<Address, QString> const& _deployedContracts);
+	bytes linkLibraries(QString const& _contractName, QVariantMap const& _deployedLibraries);
 
 signals:
 	/// Emited on internal error

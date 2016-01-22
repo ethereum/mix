@@ -364,6 +364,7 @@ private:
 	QString m_dbpath;
 	ExecutionCtx m_executionCtx;
 	QString m_lastTransactionIndex;
+	QVariantMap m_deployedLibrary;
 };
 
 }

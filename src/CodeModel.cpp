@@ -171,18 +171,22 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 	m_constructorAssemblyItems = *_compiler.assemblyItems(name);
 }
 
-bytes CompiledContract::linkLibraries(std::map<Address, QString> const& _deployedContracts, QVariantMap _compiledContracts)
+bytes CompiledContract::linkLibraries(QVariantMap const& _deployedLibraries, QVariantMap _compiledItems)
 {
 	std::map<std::string, h160> toLink;
-	for (auto const& c: _deployedContracts)
+	for (auto const& linkRef: m_linkerObject.linkReferences)
 	{
-		CompiledContract* ctr = qvariant_cast<CompiledContract*>(_compiledContracts.value(c.second));
-		toLink[ctr->contract()->name().toStdString()] = c.first;
+		QString refName = QString::fromStdString(linkRef.second);
+		if (_deployedLibraries.find(refName) != _deployedLibraries.cend())
+		{
+			CompiledContract* ctr = qvariant_cast<CompiledContract*>(_compiledItems.value(refName));
+			toLink[ctr->contract()->name().toStdString()] = Address(_deployedLibraries.value(refName).toString().toStdString());
+		}
 	}
 	m_linkerObject.link(toLink);
+	m_bytes = m_linkerObject.bytecode;
 	return m_linkerObject.bytecode;
 }
-
 
 QString CompiledContract::codeHex() const
 {
@@ -335,10 +339,10 @@ CompiledContract* CodeModel::contractByDocumentId(QString const& _documentId) co
 	}
 }
 
-bytes CodeModel::linkLibrairies(QString const& _contractName, std::map<Address, QString> const& _deployedContracts)
+bytes CodeModel::linkLibraries(QString const& _contractName, QVariantMap const& _deployedLibraries)
 {
 	auto contract = m_contractMap.value(_contractName);
-	bytes code = contract->linkLibraries(_deployedContracts, contracts());
+	bytes code = contract->linkLibraries(_deployedLibraries, contracts());
 	return code;
 }
 

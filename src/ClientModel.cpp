@@ -591,10 +591,11 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 				if (transaction.functionId.isEmpty() || transaction.functionId == ctrInstance.first)
 				{
 					bytes param = encoder.encodedData();
-					bytes contractCode = compilerRes->bytes();
-					contractCode = m_codeModel->linkLibrairies(ctrInstance.first, m_contractNames);
+					bytes contractCode = m_codeModel->linkLibraries(ctrInstance.first, m_deployedLibrary);
 					contractCode.insert(contractCode.end(), param.begin(), param.end());
-					Address newAddress = deployContract(contractCode, transaction);
+					Address newAddress = deployContract(contractCode, transaction);					
+					if (compilerRes->contract()->isLibrary())
+						m_deployedLibrary[ctrInstance.first] = QString::fromStdString(newAddress.hex());
 					std::pair<QString, int> contractToken = retrieveToken(transaction.contractId);
 					m_contractAddresses[contractToken] = newAddress;
 					m_contractNames[newAddress] = contractToken.first;
@@ -1005,6 +1006,7 @@ void ClientModel::onStateReset()
 		m_stdContractNames.clear();
 		m_queueTransactions.clear();
 		m_gasCosts.clear();
+		m_deployedLibrary.clear();
 		m_mining = false;
 		m_running = false;
 		emit stateCleared();
