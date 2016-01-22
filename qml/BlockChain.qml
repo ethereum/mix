@@ -22,7 +22,6 @@ ColumnLayout {
 	spacing: 0
 	property int previousWidth
 	signal chainChanged(var blockIndex, var txIndex, var item)
-	signal chainReloaded
 	signal txSelected(var blockIndex, var txIndex, var callIndex)
 	signal rebuilding
 	signal accountAdded(string address, string amount)
@@ -121,6 +120,7 @@ ColumnLayout {
 			if (rebuild.txChanged.length === 0)
 				rebuild.notNeedRebuild("txChanged")
 		}
+		projectModel.saveProjectFile()
 	}
 
 	onWidthChanged:
@@ -370,6 +370,7 @@ ColumnLayout {
 				if (ensureNotFuturetime.running || !model)
 					return
 
+				projectModel.saveProjectFile()
 				projectModel.saveDocuments(true)
 				blockChainPanel.calls = {}
 				stopBlinking()
@@ -663,34 +664,7 @@ ColumnLayout {
 			onMiningComplete:
 			{
 			}
-		}
-
-		ScenarioButton {
-			id: newAccount
-			enabled: scenarioIndex !== -1
-			text: qsTr("New Account...")
-			onClicked: {
-				newAddressWin.accounts = model.accounts
-				newAddressWin.open()
-			}
-			width: btnWidth
-			Layout.minimumHeight: 30
-			buttonShortcut: ""
-			sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
-			roundLeft: false
-			roundRight: true
-		}
-
-		NewAccount
-		{
-			id: newAddressWin
-			onAccepted:
-			{
-				model.accounts.push(ac)
-				clientModel.addAccount(ac.secret);
-				projectModel.saveProject()
-			}
-		}
+		}		
 	}
 
 	Rectangle
@@ -1067,8 +1041,8 @@ ColumnLayout {
 			else {
 				model.blocks[blockIndex].transactions[transactionIndex] = item
 				blockModel.setTransaction(blockIndex, transactionIndex, item)
-				chainChanged(blockIndex, transactionIndex, item)
 			}
+			chainChanged(blockIndex, transactionIndex, item)
 			blockChainPanel.forceActiveFocus()
 		}
 

@@ -60,7 +60,6 @@ ColumnLayout
 		deleteScenario.width = w
 		duplicateScenario.width = w
 		addScenario.width = w
-		restoreScenario.width = w
 		saveScenario.width = w
 		rowBtn.width = 6 * w
 	}
@@ -118,7 +117,17 @@ ColumnLayout
 
 				onCurrentIndexChanged:
 				{
-					restoreScenario.restore()
+					restore()
+				}
+
+				function restore()
+				{
+					var state = projectModel.stateListModel.reloadStateFromProject(scenarioList.currentIndex)
+					if (state)
+					{
+						restored(state)
+						loaded(state)
+					}
 				}
 
 				function init()
@@ -375,6 +384,10 @@ ColumnLayout
 				}
 			}
 
+			/*
+				REMOVED Reset and Save Button. To be readded later if needed
+			*/
+			/*
 			Rectangle
 			{
 				width: 1
@@ -393,15 +406,6 @@ ColumnLayout
 					restore()
 				}
 				text: qsTr("Reset")
-				function restore()
-				{
-					var state = projectModel.stateListModel.reloadStateFromProject(scenarioList.currentIndex)
-					if (state)
-					{
-						restored(state)
-						loaded(state)
-					}
-				}
 				roundRight: false
 				roundLeft: false
 			}
@@ -430,7 +434,7 @@ ColumnLayout
 					projectModel.saveProjectFile()
 					saved(state)
 				}
-			}
+			}*/
 
 			Connections
 			{

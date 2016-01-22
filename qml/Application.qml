@@ -91,7 +91,6 @@ ApplicationWindow {
 			title: qsTr("File")
 			MenuItem { action: createProjectAction }
 			MenuItem { action: openProjectAction }
-			MenuItem { action: saveProjectAction }
 			MenuSeparator {}
 			MenuItem { action: saveAllFilesAction }
 			MenuItem { action: saveCurrentDocument }
@@ -419,7 +418,7 @@ ApplicationWindow {
 
 	Action {
 		id: saveAllFilesAction
-		text: qsTr("Save All Opened Documents")
+		text: qsTr("Save All")
 		shortcut: "Ctrl+Shift+A"
 		enabled: !projectModel.isEmpty
 		onTriggered: projectModel.saveAll();
