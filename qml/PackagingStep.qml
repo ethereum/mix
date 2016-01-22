@@ -109,7 +109,7 @@ Rectangle {
 			{
 				id: messageDialogPackage
 				title: qsTr("Package")
-				text: qsTr("This will erase the previous package (\"www\" folder) if any. Are you sure to continue?")
+				text: qsTr("This will erase the previous package (\"www\" folder) if any. Are you sure you want to continue?")
 				standardButtons: StandardButton.Yes | StandardButton.No
 				onYes: {
 					NetworkDeploymentCode.packageDapp(projectModel.deploymentAddresses);
