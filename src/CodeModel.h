@@ -106,6 +106,8 @@ public:
 
 	/// link @arg _contract to referenced libraries
 	dev::bytes linkLibraries(QVariantMap const& _deployedLibraries, QVariantMap _compiledItems);
+	/// linker object
+	eth::LinkerObject linkerObject() const { return m_linkerObject; }
 
 private:
 	uint m_sourceHash;

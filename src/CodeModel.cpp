@@ -155,7 +155,7 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 	QQmlEngine::setObjectOwnership(m_contract.get(), QQmlEngine::CppOwnership);
 	m_contract->moveToThread(QApplication::instance()->thread());
 	m_linkerObject = _compiler.object(_contractName.toStdString());
-	m_bytes = m_linkerObject.bytecode; // use linkLibrairies() to link object
+	m_bytes = m_linkerObject.bytecode; // use linkLibraries() to link object
 
 	dev::solidity::InterfaceHandler interfaceHandler;
 	m_contractInterface = QString::fromStdString(interfaceHandler.abiInterface(contractDefinition));

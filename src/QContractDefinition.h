@@ -53,8 +53,8 @@ public:
 	QQmlListProperty<QFunctionDefinition> events() const { return QQmlListProperty<QFunctionDefinition>(const_cast<QContractDefinition*>(this), const_cast<QContractDefinition*>(this)->m_events); }
 	/// Get events
 	QList<QFunctionDefinition*> const& eventsList() const { return m_events; }
-	/// is Library
-	bool isLibrary() { return m_isLibrary; }
+	/// Is Library
+	Q_INVOKABLE bool isLibrary() { return m_isLibrary; }
 
 private:
 	QList<QFunctionDefinition*> m_functions;

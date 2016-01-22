@@ -592,6 +592,13 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 				{
 					bytes param = encoder.encodedData();
 					bytes contractCode = m_codeModel->linkLibraries(ctrInstance.first, m_deployedLibrary);
+					eth::LinkerObject object = m_codeModel->contract(ctrInstance.first)->linkerObject();
+					if (!object.linkReferences.empty())
+					{
+						for (auto const& ref: object.linkReferences)
+							emit runFailed(QString::fromStdString(ref.second));
+						emit runFailed(ctrInstance.first + " deployment. Cannot link referenced libraries:");
+					}
 					contractCode.insert(contractCode.end(), param.begin(), param.end());
 					Address newAddress = deployContract(contractCode, transaction);					
 					if (compilerRes->contract()->isLibrary())
