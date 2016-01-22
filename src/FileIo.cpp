@@ -108,6 +108,20 @@ void FileIo::makeDir(QString const& _url)
 	}
 }
 
+bool FileIo::dirExists(QString const& _url)
+{
+	try
+	{
+		QDir dirPath(pathFromUrl(_url));
+		return dirPath.exists();
+	}
+	catch (...)
+	{
+		manageException();
+		return false;
+	}
+}
+
 void FileIo::deleteDir(QString const& _url)
 {
 	try

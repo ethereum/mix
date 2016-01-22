@@ -80,6 +80,8 @@ public:
 	Q_INVOKABLE QVariantList directories(QString const& _root);
 	/// path from url
 	Q_INVOKABLE QString pathFromUrl(QString const& _url);
+	/// dir exists
+	Q_INVOKABLE bool dirExists(QString const& _url);
 	/// returns manifest file
 	Q_INVOKABLE Json::Value generateManifest(QString const& _rootPath, QString const& _path);
 

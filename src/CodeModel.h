@@ -267,9 +267,9 @@ signals:
 	/// Emitted if there are any changes in the code model
 	void codeChanged();
 	/// Emitted if there are any changes in the contract interface
-	void contractInterfaceChanged(QString _documentId);
+	void contractInterfaceChanged(QString _name);
 	/// Emitted if there is a new contract compiled for the first time
-	void newContractCompiled(QString _documentId);
+	void newContractCompiled(QString _name);
 	/// Emitted if a contract name has been changed
 	void contractRenamed(QString _documentId, QString _oldName, QString _newName);
 

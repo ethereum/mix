@@ -150,6 +150,19 @@ ScrollView
 			{
 				projectFiles.updateView()
 			}
+			onContractSaved:
+			{
+				projectModel.saveContractCompilationResult(document.documentId)
+			}
+		}
+
+		Connections
+		{
+			target: codeModel
+			onNewContractCompiled:
+			{
+				projectModel.saveContractCompilationResult(codeModel.contracts[_name].documentId)
+			}
 		}
 
 		DefaultText
@@ -341,6 +354,7 @@ ScrollView
 							id: deleteConfirmation
 							text: qsTr("Are you sure to delete this file ?")
 							standardButtons: StandardIcon.Ok | StandardIcon.Cancel
+							property bool regenerateCompilationResult: false
 							onAccepted:
 							{
 								var item = projectFiles.model.get(styleData.row)
@@ -356,7 +370,21 @@ ScrollView
 									fileIo.deleteFile(doc.path)
 
 								}
+								regenerateCompilationResult = true
 								projectFiles.updateView()
+							}
+						}
+
+						Connections
+						{
+							target: codeModel
+							onCompilationComplete:
+							{
+								if (deleteConfirmation.regenerateCompilationResult)
+								{
+									deleteConfirmation.regenerateCompilationResult = false
+									projectModel.regenerateCompilationResult()
+								}
 							}
 						}
 					}

@@ -160,6 +160,7 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 
 	dev::solidity::InterfaceHandler interfaceHandler;
 	m_contractInterface = QString::fromStdString(interfaceHandler.abiInterface(contractDefinition));
+	m_contractInterface = m_contractInterface.replace("\n", "");
 	if (m_contractInterface.isEmpty())
 		m_contractInterface = "[]";
 	if (contractDefinition.location().sourceName.get())

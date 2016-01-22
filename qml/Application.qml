@@ -109,6 +109,7 @@ ApplicationWindow {
 			title: qsTr("Deploy")
 			MenuItem { action: mineAction }
 			MenuSeparator {}
+			MenuItem { action: getCompilatonResultAction }
 			MenuItem { action: deployViaRpcAction }
 			MenuSeparator {}
 			MenuItem { action: toggleRunOnLoadAction }
@@ -454,6 +455,14 @@ ApplicationWindow {
 		shortcut: "F9"
 		enabled: mainContent.codeEditor.editingContract();
 		onTriggered: mainContent.toggleBreakpoint();
+	}
+
+	Action {
+		id: getCompilatonResultAction
+		text: qsTr("Open Compilation Result")
+		shortcut: "Ctrl+Shift+C"
+		enabled: !projectModel.isEmpty
+		onTriggered: Qt.openUrlExternally(projectModel.projectPath + "/package/compilation")
 	}
 
 	Action {
