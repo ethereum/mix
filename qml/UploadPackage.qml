@@ -39,25 +39,5 @@ Rectangle
 			wrapMode: Text.WordWrap
 			clip: true
 		}
-
-		RowLayout
-		{
-			height: 40
-			DefaultButton
-			{
-				Layout.preferredWidth: 200
-				text: qsTr("Copy Base64")
-				onClicked: clipboard.text = deploymentDialog.packageStep.packageBase64
-				enabled: deploymentDialog.packageStep.packageBase64 != ""
-			}
-
-			DefaultButton
-			{
-				width: 200
-				text: qsTr("Host in pastebin.com")
-				onClicked: Qt.openUrlExternally("http://pastebin.com/")
-				enabled: deploymentDialog.packageStep.packageBase64 != ""
-			}
-		}
 	}
 }

@@ -119,16 +119,15 @@ ScrollView
 			onProjectLoaded:
 			{
 				projectFiles.setFolder(fileIo.pathFromUrl(projectModel.projectPath))
-				if (projectFiles.model.count > 1)
+				for (var k = 0; k < projectFiles.model.count; k++)
 				{
-					projectFiles.currentRow = 1
-					if (projectFiles.model.get(1).type === "file")
-						projectFiles.executeSelection(1)
-					else
-						projectFiles.currentRow = 0
+					if (projectFiles.model.get(k).type === "file")
+					{
+						projectFiles.currentRow = k
+						projectFiles.executeSelection(k)
+						break
+					}
 				}
-				else
-					projectFiles.currentRow = 0
 			}
 
 			onIsCleanChanged:
@@ -358,13 +357,18 @@ ScrollView
 							property bool regenerateCompilationResult: false
 							onAccepted:
 							{
-								if (projectFiles.model.get(styleData.row).type === "folder")
-									fileIo.deleteDir(projectFiles.model.get(styleData.row).path)
+								var item = projectFiles.model.get(styleData.row)
+								var doc = projectModel.file(item)
+								if (item.type === "folder")
+									fileIo.deleteDir(item.path)
 								else
 								{
-									mainContent.codeEditor.closeDocument(projectFiles.model.get(styleData.row).path)
-									fileIo.stopWatching(projectFiles.model.get(styleData.row).path)
-									fileIo.deleteFile(projectFiles.model.get(styleData.row).path)
+									if (doc.isContract)
+										codeModel.unregisterContractSrc(doc.path)
+									mainContent.codeEditor.closeDocument(doc.path)
+									fileIo.stopWatching(doc.path)
+									fileIo.deleteFile(doc.path)
+
 								}
 								regenerateCompilationResult = true
 								projectFiles.updateView()

@@ -50,8 +50,9 @@ Item {
 	}
 
 	function updateContract() {
+		if (!initialized)
+			return
 		var contracts = {};
-
 		for (var c in clientModel.contractAddresses)
 		{
 			var address = clientModel.contractAddresses[c];

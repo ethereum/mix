@@ -10,9 +10,10 @@ import "js/QEtherHelper.js" as QEtherHelper
 
 DefaultTextField
 {
-	id: localPackageUrl
+	id: rootDisableInput
 	readOnly: true
 	property var originalText
+	property string tooltip
 
 	function init()
 	{
@@ -36,7 +37,7 @@ DefaultTextField
 	style: TextFieldStyle {
 		background: Rectangle
 		{
-		width: localPackageUrl.width
+		width: rootDisableInput.width
 		color: "#cccccc"
 		radius: 2
 	}
@@ -45,12 +46,15 @@ DefaultTextField
 	CopyButton
 	{
 		id: buttonCopy
-		anchors.left: parent.right
-		anchors.leftMargin: 5
+		anchors.right: parent.right
+		anchors.rightMargin: 1
 		anchors.verticalCenter: parent.verticalCenter
+		height: parent.height - 2
+		width: 30
+		tooltip: localPackageUrl.tooltip
 		getContent: function()
 		{
-			return localPackageUrl.originalText;
+			return rootDisableInput.originalText;
 		}
 	}
 }

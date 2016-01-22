@@ -360,10 +360,14 @@ void CodeModel::runCompilationJob(int _jobId)
 		std::vector<std::string> sourceNames;
 		{
 			Guard l(x_pendingContracts);
+			FileIo f;
 			for (auto const& c: m_pendingContracts)
 			{
-				cs.addSource(c.first.toStdString(), c.second.toStdString());
-				sourceNames.push_back(c.first.toStdString());
+				if (f.fileExists(c.first))
+				{
+					cs.addSource(c.first.toStdString(), c.second.toStdString());
+					sourceNames.push_back(c.first.toStdString());
+				}
 			}
 		}
 		cs.compile(m_optimizeCode);

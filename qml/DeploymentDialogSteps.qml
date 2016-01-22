@@ -106,12 +106,12 @@ Rectangle {
 							step: 3,
 							type:"package",
 							label: qsTr("Generate local\npackage")
-						},
+						}/*,
 						{
 							step: 4,
 							type:"upload",
 							label: qsTr("Upload and share\npackage")
-						}]
+						}*/]
 				}/*,
 				{
 					step: 3,

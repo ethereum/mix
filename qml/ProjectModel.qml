@@ -95,10 +95,8 @@ Item {
 		deploymentTrHashes = {}
 		deploymentAddresses = {}
 		deploymentDir = ""
-		deploymentDialog.packageStep.packageHash = ""
-		deploymentDialog.packageStep.packageBase64 = ""
 		deploymentDialog.packageStep.packageDir = ""
-		deploymentDialog.packageStep.lastDeployDate = ""
+		deploymentDialog.packageStep.lastPackageDate = ""
 		deploymentDialog.packageStep.localPackageUrl = ""
 		saveProject()
 		cleanRegisteringStatus()
