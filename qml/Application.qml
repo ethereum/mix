@@ -239,7 +239,7 @@ ApplicationWindow {
 		id: editStatesAction
 		text: qsTr("Edit Scenarios")
 		shortcut: "Ctrl+Alt+E"
-		onTriggered: stateList.open();
+		onTriggered: if (!projectModel.isEmpty) { stateList.open() }
 	}
 
 	Action {
@@ -334,6 +334,14 @@ ApplicationWindow {
 		shortcut: "Ctrl+N"
 		enabled: true;
 		onTriggered: projectModel.createProject();
+	}
+
+	Action {
+		id: saveProjectAction
+		text: qsTr("Save Project")
+		shortcut: "Ctrl+Shift+S"
+		enabled: projectModel.projectPath !== ""
+		onTriggered: projectModel.saveAll()
 	}
 
 	Action {
