@@ -46,7 +46,7 @@ Dialog {
 
 	function open(index, blockIdx, item) {
 		loaded = false
-		gasEstimationClient.reset()
+		gasEstimationClient.reset(codeModel)
 		if (mainApplication.systemPointSize >= appSettings.systemPointSize)
 		{
 			width = 580
@@ -747,6 +747,15 @@ Dialog {
 									estimatedGas.updateView()
 								}
 							}
+
+							Button
+							{
+								text: "calculate"
+								onClicked:
+								{
+									gasEstimationClient.setupContext()
+								}
+							}
 						}
 					}
 			}
@@ -898,18 +907,21 @@ Dialog {
 			txRequested = true
 		}
 
-		function reset()
+		function reset(devCodeModel)
 		{
 			if (enableGasEstimation)
 			{
 				scenarioLoaded = false
-				for (var si = 0; si < projectModel.listModel.count; si++)
+				var docs = {}
+				for (var c in devCodeModel.contracts)
 				{
-					var document = projectModel.listModel.get(si);
-					if (document.isContract)
-						gasEstimationCode.registerCodeChange(document.documentId, fileIo.readFile(document.path));
+					var docId = devCodeModel.contracts[c].documentId
+					if (!docs[docId])
+					{
+						gasEstimationCode.registerCodeChange(docId, fileIo.readFile(docId));
+						docs[docId] = ""
+					}
 				}
-				var scenario = projectModel.stateListModel.getState(mainContent.rightPane.bcLoader.selectedScenarioIndex)
 			}
 		}
 
@@ -929,8 +941,8 @@ Dialog {
 
 		function executeTempTx()
 		{
-			if (enableGasEstimation)
-				setupContext()
+			//if (enableGasEstimation)
+			//	setupContext()
 		}
 	}
 }
