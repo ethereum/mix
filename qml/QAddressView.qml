@@ -79,7 +79,7 @@ ColumnLayout
                         if (i > transactionIndex)
                             break;
                         var tr = blockChainPanel.model.blocks[k].transactions[i]
-						if (tr.functionId === tr.contractId)
+						if (tr.functionId === tr.contractId && !codeModel.contracts[tr.contractId].contract.isLibrary())
                         {
                             accountRef.append({ "itemid": tr.contractId + " - " + trCr, "value": "<" + tr.contractId + " - " + trCr + ">", "type": "contract" });
                             trCr++;

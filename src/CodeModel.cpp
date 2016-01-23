@@ -154,9 +154,8 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 	m_contract.reset(new QContractDefinition(nullptr, &contractDefinition));
 	QQmlEngine::setObjectOwnership(m_contract.get(), QQmlEngine::CppOwnership);
 	m_contract->moveToThread(QApplication::instance()->thread());
-	eth::LinkerObject const& object = _compiler.object(_contractName.toStdString());
-	if (object.linkReferences.empty())
-		m_bytes = object.bytecode; //@todo handle unlinked objects
+	m_linkerObject = _compiler.object(_contractName.toStdString());
+	m_bytes = m_linkerObject.bytecode; // use linkLibraries() to link object
 
 	dev::solidity::InterfaceHandler interfaceHandler;
 	m_contractInterface = QString::fromStdString(interfaceHandler.abiInterface(contractDefinition));
@@ -171,6 +170,23 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 	contractDefinition.accept(visitor);
 	m_assemblyItems = *_compiler.runtimeAssemblyItems(name);
 	m_constructorAssemblyItems = *_compiler.assemblyItems(name);
+}
+
+bytes CompiledContract::linkLibraries(QVariantMap const& _deployedLibraries, QVariantMap _compiledItems)
+{
+	std::map<std::string, h160> toLink;
+	for (auto const& linkRef: m_linkerObject.linkReferences)
+	{
+		QString refName = QString::fromStdString(linkRef.second);
+		if (_deployedLibraries.find(refName) != _deployedLibraries.cend())
+		{
+			CompiledContract* ctr = qvariant_cast<CompiledContract*>(_compiledItems.value(refName));
+			toLink[ctr->contract()->name().toStdString()] = Address(_deployedLibraries.value(refName).toString().toStdString());
+		}
+	}
+	m_linkerObject.link(toLink);
+	m_bytes = m_linkerObject.bytecode;
+	return m_linkerObject.bytecode;
 }
 
 QString CompiledContract::codeHex() const
@@ -322,6 +338,13 @@ CompiledContract* CodeModel::contractByDocumentId(QString const& _documentId) co
 		manageException();
 		return nullptr;
 	}
+}
+
+bytes CodeModel::linkLibraries(QString const& _contractName, QVariantMap const& _deployedLibraries)
+{
+	auto contract = m_contractMap.value(_contractName);
+	bytes code = contract->linkLibraries(_deployedLibraries, contracts());
+	return code;
 }
 
 CompiledContract const* CodeModel::contract(QString const& _name) const

@@ -34,6 +34,7 @@ function deployProject(force) {
 
 function deployContracts(gas, gasPrice, callback)
 {	
+	deployedLibraries = {}
 	deploymentGas = gas;
 	deploymentGasPrice = gasPrice
 	deploymentStarted();
@@ -138,6 +139,7 @@ function getFunction(ctrName, functionId)
 var deploymentGas
 var deploymentGasPrice
 var trRealIndex = -1
+var deployedLibraries = {}
 function executeTr(blockIndex, trIndex, state, ctrAddresses, trHashes, callBack)
 {
 	trRealIndex++;
@@ -155,7 +157,7 @@ function executeTr(blockIndex, trIndex, state, ctrAddresses, trHashes, callBack)
 		var encodedParams = clientModel.encodeParams(params, contractFromToken(tr.contractId), tr.functionId);
 
 		if (tr.contractId === tr.functionId)
-			rpcParams.code = codeModel.contracts[tr.contractId].codeHex + encodedParams.join("");
+			rpcParams.code = codeModel.linkLibraries(contractFromToken(tr.contractId), deployedLibraries) + encodedParams.join("");
 		else
 		{
 			rpcParams.data = "0x" + func.qhash() + encodedParams.join("");
@@ -184,6 +186,8 @@ function executeTr(blockIndex, trIndex, state, ctrAddresses, trHashes, callBack)
 					{
 						ctrAddresses[tr.contractId] = receipt.contractAddress
 						ctrAddresses["<" + tr.contractId + " - " + trIndex  + ">"] = receipt.contractAddress //get right ctr address if deploy more than one contract of same type.
+						if (codeModel.contracts[contractFromToken(tr.contractId)].contract().isLibrary())
+							deployedLibraries[contractFromToken(tr.contractId)] = receipt.contractAddress
 					}
 					executeTrNextStep(blockIndex, trIndex, state, ctrAddresses, trHashes, callBack)
 				}

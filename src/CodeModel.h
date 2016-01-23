@@ -104,6 +104,11 @@ public:
 	QHash<LocationPair, SolidityDeclaration> const& locals() const { return m_locals; }
 	QHash<unsigned, SolidityDeclarations> const& storage() const { return m_storage; }
 
+	/// link @arg _contract to referenced libraries
+	dev::bytes linkLibraries(QVariantMap const& _deployedLibraries, QVariantMap _compiledItems);
+	/// linker object
+	eth::LinkerObject linkerObject() const { return m_linkerObject; }
+
 private:
 	uint m_sourceHash;
 	std::shared_ptr<QContractDefinition> m_contract;
@@ -115,6 +120,7 @@ private:
 	eth::AssemblyItems m_constructorAssemblyItems;
 	QHash<LocationPair, SolidityDeclaration> m_locals;
 	QHash<unsigned, SolidityDeclarations> m_storage;
+	eth::LinkerObject m_linkerObject;
 
 	friend class CodeModel;
 };
@@ -252,6 +258,8 @@ public:
 	int callStipend() { return static_cast<int>(m_schedule.callStipend); }
 	/// Return the location of the given contract
 	Q_INVOKABLE QVariantMap locationOf(QString _contract);
+	/// link libraries referenced in @arg _contractName
+	bytes linkLibraries(QString const& _contractName, QVariantMap const& _deployedLibraries);
 
 signals:
 	/// Emited on internal error
