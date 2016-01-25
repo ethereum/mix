@@ -318,7 +318,6 @@ Rectangle {
 							webPreview.visible = false;
 							projectList.visible = false;
 							welcomeView.visible = true;
-							show
 						}
 						else
 						{
