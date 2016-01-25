@@ -107,7 +107,7 @@ public:
 	/// link @arg _contract to referenced libraries
 	void linkLibraries(QVariantMap const& _deployedLibraries, QVariantMap _compiledItems);
 	/// linker object
-	eth::LinkerObject linkerObject() const& { return m_linkerObject; }
+	eth::LinkerObject& linkerObject() { return m_linkerObject; }
 
 private:
 	uint m_sourceHash;
@@ -228,7 +228,7 @@ public:
 	bool hasContract() const;
 	/// Get contract by name
 	/// Throws if not found
-	CompiledContract const* contract(QString const& _name) const;
+	CompiledContract* contract(QString const& _name);
 	/// Find a contract by document id
 	/// @returns CompiledContract object or null if not found
 	Q_INVOKABLE CompiledContract* contractByDocumentId(QString const& _documentId) const;

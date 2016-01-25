@@ -342,7 +342,7 @@ void CodeModel::linkLibraries(QString const& _contractName, QVariantMap const& _
 	contract->linkLibraries(_deployedLibraries, contracts());
 }
 
-CompiledContract const* CodeModel::contract(QString const& _name) const
+CompiledContract* CodeModel::contract(QString const& _name)
 {
 	CompiledContract* res = nullptr;
 	try
