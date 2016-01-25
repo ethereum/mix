@@ -591,8 +591,9 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 				if (transaction.functionId.isEmpty() || transaction.functionId == ctrInstance.first)
 				{
 					bytes param = encoder.encodedData();
-					bytes contractCode = m_codeModel->linkLibraries(ctrInstance.first, m_deployedLibrary);
+					m_codeModel->linkLibraries(ctrInstance.first, m_deployedLibraries);
 					eth::LinkerObject object = m_codeModel->contract(ctrInstance.first)->linkerObject();
+					bytes contractCode = object.bytecode;
 					if (!object.linkReferences.empty())
 					{
 						for (auto const& ref: object.linkReferences)
@@ -602,12 +603,14 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 					contractCode.insert(contractCode.end(), param.begin(), param.end());
 					Address newAddress = deployContract(contractCode, transaction);					
 					if (compilerRes->contract()->isLibrary())
-						m_deployedLibrary[ctrInstance.first] = QString::fromStdString(newAddress.hex());
-					std::pair<QString, int> contractToken = retrieveToken(transaction.contractId);
-					m_contractAddresses[contractToken] = newAddress;
-					m_contractNames[newAddress] = contractToken.first;
-					contractAddressesChanged();
-					gasCostsChanged();
+						m_deployedLibraries[ctrInstance.first] = QString::fromStdString(newAddress.hex());
+					else
+					{
+						std::pair<QString, int> contractToken = retrieveToken(transaction.contractId);
+						m_contractAddresses[contractToken] = newAddress;
+						m_contractNames[newAddress] = contractToken.first;
+						contractAddressesChanged();
+					}
 				}
 				else
 				{
@@ -624,6 +627,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 						callAddress(contractAddressIter->second, encoder.encodedData(), transaction);
 				}
 				m_gasCosts.append(m_client->lastExecution().gasUsed);
+				gasCostsChanged();
 				onNewTransaction(RecordLogEntry::TxSource::MixGui);
 				TransactionException exception = m_client->lastExecution().excepted;
 				if (exception != TransactionException::None)
@@ -1013,7 +1017,7 @@ void ClientModel::onStateReset()
 		m_stdContractNames.clear();
 		m_queueTransactions.clear();
 		m_gasCosts.clear();
-		m_deployedLibrary.clear();
+		m_deployedLibraries.clear();
 		m_mining = false;
 		m_running = false;
 		emit stateCleared();
