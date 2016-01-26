@@ -121,7 +121,7 @@ Rectangle {
 		property alias codeWebOrientation: codeWebSplitter.orientation
 		property alias webWidth: webPreview.width
 		property alias webHeight: webPreview.height
-		property alias showProjectView: projectList.visible
+		//property alias showProjectView: projectList.visible
 		property bool runOnProjectLoad: true
 		property int scenarioMinWidth: scenarioMinWidth
 	}
@@ -193,19 +193,21 @@ Rectangle {
 				property alias rightViewWidth: scenarioExe.width
 			}
 
+			WelcomeView
+			{
+				id: welcomeView
+				anchors.fill: parent
+				Layout.fillHeight: true
+				Layout.fillWidth: true
+				visible: projectModel.isEmpty
+			}
+
 			Splitter
 			{
 				anchors.fill: parent
 				orientation: Qt.Horizontal
+				id: mainPanels
 
-				WelcomeView
-				{
-					id: welcomeView
-					anchors.fill: parent
-					Layout.fillHeight: true
-					Layout.fillWidth: true
-					visible: projectModel.isEmpty
-				}
 				ProjectList
 				{
 					id: projectList
@@ -317,6 +319,8 @@ Rectangle {
 							scenarioExe.visible = false;
 							webPreview.visible = false;
 							projectList.visible = false;
+							codeEditor.visible = false;
+							mainPanels.visible = false;
 							welcomeView.visible = true;
 						}
 						else
@@ -324,6 +328,8 @@ Rectangle {
 							scenarioExe.visible = true;
 							webPreview.visible = true;
 							projectList.visible = true;
+							codeEditor.visible = true;
+							mainPanels.visible = true;
 							welcomeView.visible = false;
 						}
 					}
