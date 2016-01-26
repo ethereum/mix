@@ -56,10 +56,6 @@ ColumnLayout
 
 	function updatebtnWidth(w)
 	{
-		editScenario.width = w
-		deleteScenario.width = w
-		restoreScenario.width = w
-		saveScenario.width = w
 		rowBtn.width = 6 * w
 	}
 
@@ -70,7 +66,7 @@ ColumnLayout
 
 	RowLayout
 	{
-		spacing: 0
+		spacing: 15
 		anchors.top: parent.top
 		anchors.topMargin: 7
 		id: btnRowContainer
@@ -116,7 +112,7 @@ ColumnLayout
 
 				onCurrentIndexChanged:
 				{
-					restoreScenario.restore()
+					dropBtns.restore()
 				}
 
 				function init()
@@ -245,8 +241,8 @@ ColumnLayout
 
 					for (var k = 0; k < projectModel.stateListModel.count; ++k)
 					{
-							if (projectModel.stateListModel.get(k).title === scenarioNameEdit.text)
-								return //title already exists
+						if (projectModel.stateListModel.get(k).title === scenarioNameEdit.text)
+							return //title already exists
 					}
 
 					projectModel.stateListModel.getState(scenarioList.currentIndex).title = scenarioNameEdit.text
@@ -294,10 +290,10 @@ ColumnLayout
 				Component.onCompleted:
 				{
 					actions.push({ label: qsTr("Edit Title") , action: editTitle })
-					actions.push({ label: qsTr("Delete") , action: deleteSce })
-					actions.push({ label: qsTr("New") , action: newSce })
-					actions.push({ label: qsTr("Duplicate") , action: duplicate })
-					actions.push({ label: qsTr("Create") , action: addSce })
+					actions.push({ label: qsTr("Delete Scenario") , action: deleteSce })
+					actions.push({ label: qsTr("New Scenario") , action: newSce })
+					actions.push({ label: qsTr("Duplicate Scenario") , action: duplicate })
+					actions.push({ label: qsTr("Create Scenario") , action: addSce })
 					init()
 				}
 
@@ -348,6 +344,16 @@ ColumnLayout
 					else
 						scenarioNameEdit.toggleEdit()
 				}
+
+				function restore()
+				{
+					var state = projectModel.stateListModel.reloadStateFromProject(scenarioList.currentIndex)
+					if (state)
+					{
+						restored(state)
+						loaded(state)
+					}
+				}
 			}
 
 			MessageDialog
@@ -360,14 +366,6 @@ ColumnLayout
 					scenarioList.init()
 				}
 				standardButtons: StandardButton.Yes | StandardButton.No
-			}
-
-			Connections
-			{
-				target: clientModel
-				onSetupFinished: {
-					saveScenario.save()
-				}
 			}
 		}
 	}
