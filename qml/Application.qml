@@ -51,6 +51,7 @@ ApplicationWindow {
 	property alias appService: appService;
 	property alias mainSettings: appSettings
 	property bool trackLastProject: true;
+	WelcomeViewStyle { id: welcomeViewStyleId }
 
 	ApplicationService {
 		id: appService
