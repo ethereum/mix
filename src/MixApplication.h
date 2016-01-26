@@ -38,14 +38,20 @@ class ApplicationService: public QObject
 	Q_OBJECT
 	Q_PROPERTY(int systemPointSize READ systemPointSize CONSTANT)
 	Q_PROPERTY(bool haveWebEngine READ haveWebEngine CONSTANT)
+	Q_PROPERTY(QString solidityVersionNumber READ solidityVersionNumber CONSTANT)
+	Q_PROPERTY(QString solidityVersionString READ solidityVersionString CONSTANT)
 
 public:
 	ApplicationService();
 	int systemPointSize() const { return m_systemPointSize; }
+	QString solidityVersionString() { return m_solidityVersionString; }
+	QString solidityVersionNumber() { return m_solidityVersionNumber; }
 	bool haveWebEngine() const { return true; }
 
 private:
 	int m_systemPointSize = 0;
+	QString m_solidityVersionString;
+	QString m_solidityVersionNumber;
 };
 
 

@@ -26,6 +26,7 @@
 #include <QIcon>
 #include <QFont>
 #include <QtWebEngine/QtWebEngine>
+#include <libsolidity/interface/Version.h>
 #include "CodeModel.h"
 #include "ClientModel.h"
 #include "FileIo.h"
@@ -44,6 +45,8 @@ ApplicationService::ApplicationService()
 	QFont f;
 
 	m_systemPointSize = f.pointSize();
+	m_solidityVersionNumber = QString(dev::solidity::VersionNumber);
+	m_solidityVersionString = QString::fromStdString(dev::solidity::VersionString);
 }
 
 MixApplication::MixApplication(int& _argc, char* _argv[]):
