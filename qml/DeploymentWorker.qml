@@ -62,7 +62,7 @@ Item
 			nodeReachable()
 			var ids = JSON.parse(arg2)[0].result;
 			requests = [];
-            accounts = []
+			accounts = []
 			for (var k in ids)
 			{
 				requests.push({
@@ -77,7 +77,7 @@ Item
 
 			TransactionHelper.rpcCall(requests, function (request, response){
 				var balanceRet = JSON.parse(response);
-                balances = {}
+				balances = {}
 				for (var k in balanceRet)
 				{
 					var ether = QEtherHelper.createEther(balanceRet[k].result, QEther.Wei);
@@ -191,12 +191,17 @@ Item
 
 	function estimateGas(scenario)
 	{
-		for (var si = 0; si < projectModel.listModel.count; si++)
+		var docs = {}
+		for (var c in codeModel.contracts)
 		{
-			var document = projectModel.listModel.get(si);
-			if (document.isContract)
-				codeModelGasEstimation.registerCodeChange(document.documentId, fileIo.readFile(document.path));
+			var docId = codeModel.contracts[c].documentId
+			if (!docs[docId])
+			{
+				codeModelGasEstimation.registerCodeChange(docId, fileIo.readFile(docId));
+				docs[docId] = ""
+			}
 		}
+
 		var sce = projectModel.stateListModel.copyScenario(scenario)
 		for (var k = 0; k < sce.blocks.length; k++)
 		{
@@ -207,7 +212,7 @@ Item
 			}
 		}
 		clientModelGasEstimation.setupScenario(sce)
-	}	
+	}
 
 	CodeModel {
 		id: codeModelGasEstimation

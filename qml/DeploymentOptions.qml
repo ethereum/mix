@@ -467,7 +467,7 @@ Rectangle
 						projectModel.deployBlockNumber = nb
 						projectModel.saveProject()
 						root.updateVerification(nb, trLost)
-						root.deployed()
+						root.deployStep.deployed()
 					})
 					projectModel.deploymentAddresses = addresses
 					projectModel.saveProject()
