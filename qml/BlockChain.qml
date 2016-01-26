@@ -274,7 +274,7 @@ ColumnLayout {
 		anchors.leftMargin: 5
 		anchors.top: parent.top
 		anchors.topMargin: -4
-		spacing: 1
+		spacing: 10
 		id: rowBtns
 		Settings
 		{
@@ -315,6 +315,7 @@ ColumnLayout {
 				rebuildEnable = true;
 			}
 		}
+
 		ScenarioButton {
 			id: rebuild
 			text: qsTr("Rebuild Scenario")
@@ -470,7 +471,68 @@ ColumnLayout {
 			sourceImg: "qrc:/qml/img/recycleicon@2x.png"
 		}
 
-		ScenarioButton {
+		DropdownButton
+		{
+			id: actionsButtons
+			width: btnWidth
+			height: 30
+			Component.onCompleted:
+			{
+				actions.push({ label: qsTr("Add Transaction...") , action: addTransaction })
+				actions.push({ label: qsTr("Mine Block") , action: mineBlock })
+				init()
+			}
+
+			function addTransaction()
+			{
+				if (model && model.blocks)
+				{
+					var lastBlock = model.blocks[model.blocks.length - 1];
+					if (lastBlock.status === "mined")
+					{
+						var newblock = projectModel.stateListModel.createEmptyBlock()
+						blockModel.appendBlock(newblock)
+						model.blocks.push(newblock);
+					}
+
+					var item = TransactionHelper.defaultTransaction()
+					transactionDialog.execute = !rebuild.isBlinking
+					transactionDialog.stateAccounts = model.accounts
+					transactionDialog.editMode = false
+					transactionDialog.open(model.blocks[model.blocks.length - 1].transactions.length, model.blocks.length - 1, item)
+				}
+			}
+
+			function mineBlock()
+			{
+				if (ensureNotFuturetime.running)
+					return
+				if (clientModel.mining || clientModel.running)
+					return
+				if (model.blocks.length > 0)
+				{
+					var lastBlock = model.blocks[model.blocks.length - 1]
+					if (lastBlock.status === "pending")
+					{
+						ensureNotFuturetime.start()
+						clientModel.mine()
+					}
+					else
+						addNewBlock()
+				}
+				else
+					addNewBlock()
+			}
+
+			function addNewBlock()
+			{
+				var block = projectModel.stateListModel.createEmptyBlock()
+				model.blocks.push(block)
+				blockModel.appendBlock(block)
+			}
+		}
+
+		/*ScenarioButton {
 			id: addTransaction
 			text: qsTr("Add Transaction...")
 			enabled: scenarioIndex !== -1
@@ -499,7 +561,7 @@ ColumnLayout {
 			sourceImg: "qrc:/qml/img/sendtransactionicon@2x.png"
 			roundLeft: false
 			roundRight: false
-		}
+		}*/
 
 		Timer
 		{
@@ -509,7 +571,7 @@ ColumnLayout {
 			running: false
 		}
 
-		ScenarioButton {
+		/*ScenarioButton {
 			id: addBlockBtn
 			text: qsTr("Add Block")
 			enabled: scenarioIndex !== -1
@@ -547,7 +609,7 @@ ColumnLayout {
 
 			buttonShortcut: ""
 			sourceImg: "qrc:/qml/img/newblock@2x.png"
-		}
+		}*/
 
 		Connections
 		{
@@ -563,7 +625,7 @@ ColumnLayout {
 					var lastB = blockModel.get(model.blocks.length - 1)
 					lastB.status = "mined"
 					lastB.number = model.blocks.length
-					addBlockBtn.addNewBlock()
+					actionsButtons.addNewBlock()
 				}
 			}
 			onStateCleared:
@@ -662,33 +724,6 @@ ColumnLayout {
 
 			onMiningComplete:
 			{
-			}
-		}
-
-		ScenarioButton {
-			id: newAccount
-			enabled: scenarioIndex !== -1
-			text: qsTr("New Account...")
-			onClicked: {
-				newAddressWin.accounts = model.accounts
-				newAddressWin.open()
-			}
-			width: btnWidth
-			Layout.minimumHeight: 30
-			buttonShortcut: ""
-			sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
-			roundLeft: false
-			roundRight: true
-		}
-
-		NewAccount
-		{
-			id: newAddressWin
-			onAccepted:
-			{
-				model.accounts.push(ac)
-				clientModel.addAccount(ac.secret);
-				projectModel.saveProject()
 			}
 		}
 	}
