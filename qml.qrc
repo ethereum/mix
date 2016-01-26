@@ -85,5 +85,6 @@
         <file>qml/js/ScientificNumber.js</file>
         <file>qml/NewFolderDialog.qml</file>
         <file>qml/TooltipArea.qml</file>
+        <file>qml/AboutMix.qml</file>
     </qresource>
 </RCC>

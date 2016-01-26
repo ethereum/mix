@@ -145,6 +145,11 @@ ApplicationWindow {
 			MenuItem { action: decreaseAppFontSize }
 			MenuItem { action: setEnvFontSize }
 		}
+		Menu
+		{
+			title: qsTr("Help")
+			MenuItem { action: aboutMixAction }
+		}
 	}
 
 	MainContent {
@@ -439,6 +444,17 @@ ApplicationWindow {
 		shortcut: "Ctrl+Tab"
 		enabled: !projectModel.isEmpty
 		onTriggered: mainContent.projectNavigator.openNextOpenedDocument();
+	}
+
+	Action {
+		id: aboutMixAction
+		text: qsTr("About Mix")
+		onTriggered: aboutMix.open()
+	}
+
+	AboutMix
+	{
+		id: aboutMix
 	}
 
 	Action {
