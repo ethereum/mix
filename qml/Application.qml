@@ -358,7 +358,7 @@ ApplicationWindow {
 		id: createProjectAction
 		text: qsTr("&New Project")
 		shortcut: "Ctrl+N"
-		enabled: !projectModel.isEmpty
+		enabled: true
 		onTriggered: projectModel.createProject();
 	}
 

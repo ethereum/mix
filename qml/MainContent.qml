@@ -121,7 +121,6 @@ Rectangle {
 		property alias codeWebOrientation: codeWebSplitter.orientation
 		property alias webWidth: webPreview.width
 		property alias webHeight: webPreview.height
-		//property alias showProjectView: projectList.visible
 		property bool runOnProjectLoad: true
 		property int scenarioMinWidth: scenarioMinWidth
 	}

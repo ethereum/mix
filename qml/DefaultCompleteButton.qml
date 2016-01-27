@@ -41,7 +41,7 @@ DefaultImgButton {
 			   id: openProjectImg
 			   anchors.top: parent.top
 			}
-			Label
+			DefaultLabel
 			{
 			   text: labelText
 			   font.pixelSize: 22
