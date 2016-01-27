@@ -532,37 +532,6 @@ ColumnLayout {
 			}
 		}
 
-		/*ScenarioButton {
-			id: addTransaction
-			text: qsTr("Add Transaction...")
-			enabled: scenarioIndex !== -1
-			onClicked:
-			{
-				if (model && model.blocks)
-				{
-					var lastBlock = model.blocks[model.blocks.length - 1];
-					if (lastBlock.status === "mined")
-					{
-						var newblock = projectModel.stateListModel.createEmptyBlock()
-						blockModel.appendBlock(newblock)
-						model.blocks.push(newblock);
-					}
-
-					var item = TransactionHelper.defaultTransaction()
-					transactionDialog.execute = !rebuild.isBlinking
-					transactionDialog.stateAccounts = model.accounts
-					transactionDialog.editMode = false
-					transactionDialog.open(model.blocks[model.blocks.length - 1].transactions.length, model.blocks.length - 1, item)
-				}
-			}
-			width: btnWidth
-			Layout.minimumHeight: 30
-			buttonShortcut: ""
-			sourceImg: "qrc:/qml/img/sendtransactionicon@2x.png"
-			roundLeft: false
-			roundRight: false
-		}*/
-
 		Timer
 		{
 			id: ensureNotFuturetime
@@ -570,46 +539,6 @@ ColumnLayout {
 			repeat: false
 			running: false
 		}
-
-		/*ScenarioButton {
-			id: addBlockBtn
-			text: qsTr("Add Block")
-			enabled: scenarioIndex !== -1
-			roundLeft: false
-			roundRight: false
-			onClicked:
-			{
-				if (ensureNotFuturetime.running)
-					return
-				if (clientModel.mining || clientModel.running)
-					return
-				if (model.blocks.length > 0)
-				{
-					var lastBlock = model.blocks[model.blocks.length - 1]
-					if (lastBlock.status === "pending")
-					{
-						ensureNotFuturetime.start()
-						clientModel.mine()
-					}
-					else
-						addNewBlock()
-				}
-				else
-					addNewBlock()
-			}
-
-			function addNewBlock()
-			{
-				var block = projectModel.stateListModel.createEmptyBlock()
-				model.blocks.push(block)
-				blockModel.appendBlock(block)
-			}
-			width: btnWidth
-			Layout.minimumHeight: 30
-
-			buttonShortcut: ""
-			sourceImg: "qrc:/qml/img/newblock@2x.png"
-		}*/
 
 		Connections
 		{
