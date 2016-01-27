@@ -76,23 +76,17 @@ ColumnLayout
 
 	function updatebtnWidth(w)
 	{
-		editScenario.width = w
-		deleteScenario.width = w
-		duplicateScenario.width = w
-		addScenario.width = w
-		restoreScenario.width = w
-		saveScenario.width = w
 		rowBtn.width = 6 * w
 	}
 
 	function createScenario(defaultScenario)
 	{
-		addScenario.createScenario(defaultScenario)
+		dropBtns.createScenario(defaultScenario)
 	}
 
 	RowLayout
 	{
-		spacing: 0
+		spacing: 15
 		anchors.top: parent.top
 		anchors.topMargin: 7
 		id: btnRowContainer
@@ -138,7 +132,7 @@ ColumnLayout
 
 				onCurrentIndexChanged:
 				{
-					restoreScenario.restore()
+					dropBtns.restore()
 				}
 
 				function init()
@@ -267,8 +261,8 @@ ColumnLayout
 
 					for (var k = 0; k < projectModel.stateListModel.count; ++k)
 					{
-							if (projectModel.stateListModel.get(k).title === scenarioNameEdit.text)
-								return //title already exists
+						if (projectModel.stateListModel.get(k).title === scenarioNameEdit.text)
+							return //title already exists
 					}
 
 					projectModel.stateListModel.getState(scenarioList.currentIndex).title = scenarioNameEdit.text
@@ -307,73 +301,50 @@ ColumnLayout
 			Layout.preferredWidth: btnWidth * 6
 			Layout.minimumHeight: 30
 			id: rowBtn
-			ScenarioButton {
-				id: editScenario
+
+			DropdownButton
+			{
 				width: btnWidth
 				height: parent.height
-				sourceImg: "qrc:/qml/img/edittransaction.png"
-				onClicked: {
+				id: dropBtns
+				Component.onCompleted:
+				{
+					actions.push({ label: qsTr("Edit Title") , action: editTitle })
+					actions.push({ label: qsTr("Delete Scenario") , action: deleteSce })
+					actions.push({ label: qsTr("New Scenario") , action: newSce })
+					actions.push({ label: qsTr("Duplicate Scenario") , action: duplicate })
+					actions.push({ label: qsTr("Create Scenario") , action: addSce })
+					init()
+				}
+
+				function editTitle()
+				{
 					scenarioNameEdit.toggleEdit()
 				}
-				text: qsTr("Edit Title")
-				roundRight: false
-				roundLeft: true
-				enabled: panelLoaded
-			}
 
-			Rectangle
-			{
-				width: 1
-				height: parent.height
-				color: "#ededed"
-			}
-
-			ScenarioButton {
-				id: deleteScenario
-				enabled: panelLoaded
-				width: btnWidth
-				height: parent.height
-				sourceImg: "qrc:/qml/img/delete-block-icon@2x.png"
-				onClicked: {
+				function deleteSce()
+				{
 					if (projectModel.stateListModel.count > 1)
 						deleteWarning.open()
 				}
-				text: qsTr("Delete")
-				roundRight: true
-				roundLeft: false
-			}
 
-			MessageDialog
-			{
-				id: deleteWarning
-				text: qsTr("Are you sure to delete this scenario ?")
-				onYes:
+				function newSce()
 				{
-					projectModel.stateListModel.deleteState(scenarioList.currentIndex)
-					scenarioList.init()
+					createScenario(false)
 				}
-				standardButtons: StandardButton.Yes | StandardButton.No
-			}
 
-			Rectangle
-			{
-				width: 1
-				height: parent.height
-				color: "#ededed"
-			}
-
-			ScenarioButton {
-				id: addScenario
-				enabled: panelLoaded
-				width: btnWidth
-				height: parent.height
-				sourceImg: "qrc:/qml/img/newIcon@2x.png"
-				onClicked: {
-					addScenario.createScenario(false)
+				function duplicate()
+				{
+					projectModel.stateListModel.duplicateState(scenarioList.currentIndex)
+					duplicated(state)
+					scenarioList.currentIndex = projectModel.stateListModel.count - 1
+					scenarioNameEdit.toggleEdit()
 				}
-				text: qsTr("New")
-				roundRight: false
-				roundLeft: false
+
+				function addSce()
+				{
+					createScenario(false)
+				}
 
 				function createScenario(defaultScenario)
 				{
@@ -393,26 +364,7 @@ ColumnLayout
 					else
 						scenarioNameEdit.toggleEdit()
 				}
-			}
 
-			Rectangle
-			{
-				width: 1
-				height: parent.height
-				color: "#ededed"
-			}
-
-			ScenarioButton {
-				id: restoreScenario
-				enabled: panelLoaded
-				width: btnWidth
-				height: parent.height
-				buttonShortcut: ""
-				sourceImg: "qrc:/qml/img/restoreicon@2x.png"
-				onClicked: {
-					restore()
-				}
-				text: qsTr("Reset")
 				function restore()
 				{
 					var state = projectModel.stateListModel.reloadStateFromProject(scenarioList.currentIndex)
@@ -422,68 +374,18 @@ ColumnLayout
 						loaded(state)
 					}
 				}
-				roundRight: false
-				roundLeft: false
 			}
 
-			Rectangle
+			MessageDialog
 			{
-				width: 1
-				height: parent.height
-				color: "#ededed"
-			}
-
-			ScenarioButton {
-				id: saveScenario
-				enabled: panelLoaded
-				text: qsTr("Save")
-				onClicked: save()
-				width: btnWidth
-				height: parent.height
-				buttonShortcut: ""
-				sourceImg: "qrc:/qml/img/saveicon@2x.png"
-				roundRight: false
-				roundLeft: false
-
-				function save()
+				id: deleteWarning
+				text: qsTr("Are you sure to delete this scenario ?")
+				onYes:
 				{
-					projectModel.saveProjectFile()
-					saved(state)
+					projectModel.stateListModel.deleteState(scenarioList.currentIndex)
+					scenarioList.init()
 				}
-			}
-
-			Connections
-			{
-				target: clientModel
-				onSetupFinished: {
-					saveScenario.save()
-				}
-			}
-
-			Rectangle
-			{
-				width: 1
-				height: parent.height
-				color: "#ededed"
-			}
-
-			ScenarioButton
-			{
-				id: duplicateScenario
-				enabled: panelLoaded
-				text: qsTr("Duplicate")
-				onClicked: {
-					projectModel.stateListModel.duplicateState(scenarioList.currentIndex)
-					duplicated(state)
-					scenarioList.currentIndex = projectModel.stateListModel.count - 1
-					scenarioNameEdit.toggleEdit()
-				}
-				width: btnWidth
-				height: parent.height
-				buttonShortcut: ""
-				sourceImg: "qrc:/qml/img/duplicateicon@2x.png"
-				roundRight: true
-				roundLeft: false
+				standardButtons: StandardButton.Yes | StandardButton.No
 			}
 		}
 	}

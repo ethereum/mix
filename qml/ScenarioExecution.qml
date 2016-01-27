@@ -123,7 +123,7 @@ Rectangle {
 					Layout.minimumHeight: 40
 					Layout.preferredWidth: parent.width
 					width: parent.width
-					visible: false
+					visible: true
 					id: loader
 					anchors.left: parent.left
 					anchors.leftMargin: 5

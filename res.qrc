@@ -117,5 +117,6 @@
         <file>res/Mix-1024.png</file>
         <file>qml/img/folder-icon-64x64.png</file>
         <file>qml/img/unknown.png</file>
+        <file>qml/DropdownButton.qml</file>
     </qresource>
 </RCC>

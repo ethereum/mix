@@ -583,12 +583,15 @@ ScrollView
 								}
 							}
 
-							Button
+							DefaultImgButton
 							{
 								id: fileCloseBtn
+								height: 20
+								width: 20
 								anchors.left: parent.left
 								anchors.leftMargin: 10
-								text: qsTr("Close")
+								iconSource: "qrc:/qml/img/delete_sign.png"
+								tooltip: qsTr("Close")
 								anchors.verticalCenter: parent.verticalCenter
 								onClicked:
 								{
