@@ -87,7 +87,7 @@ Item {
 				}
 			}
 
-			Label
+			DefaultLabel
 			{
 				text: "To get started"
 				font.pixelSize: 32
