@@ -168,51 +168,6 @@ ColumnLayout
 				callIndex: -1
 				isCall: false
 
-				Menu
-				{
-					id: contextMenu
-					visible: false
-					MenuItem {
-						text: qsTr("Delete")
-						onTriggered: {
-							deleteConfirmation.open();
-						}
-					}
-				}
-
-				MouseArea
-				{
-					anchors.fill: parent
-					acceptedButtons: Qt.RightButton
-					onClicked:
-					{
-						contextMenu.popup()
-					}
-				}
-
-				Menu {
-					id: contextMenuContract
-					MenuItem {
-						text: qsTr("Delete")
-						onTriggered: {
-							deleteConfirmation.open();
-						}
-					}
-				}
-
-				MessageDialog
-				{
-					id: deleteConfirmation
-					text: qsTr("Are you sure you want to delete this transaction?\n\nTo mark multiple transactions to delete on reload, click on 'Mark to delete' icon at the left")
-
-					standardButtons: StandardIcon.Ok | StandardIcon.Cancel
-					onAccepted:
-					{
-						deleteTransaction(blockIndex, txIndex)
-						contextMenu.visible = false
-					}
-				}
-
 				function select(direction)
 				{
 					highlight()

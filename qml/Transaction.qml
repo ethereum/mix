@@ -107,17 +107,25 @@ ColumnLayout
 			func.color = labelColor
 		}
 
+		Menu
+		{
+			id: contextMenu
+			visible: false
+			MenuItem {
+				text: qsTr("Delete")
+				onTriggered: {
+					deleteConfirmation.open();
+				}
+			}
+		}
+
 		MouseArea
 		{
 			anchors.fill: parent
-			onClicked: {
-				if (!rowContentTr.selected)
-					rowContentTr.select()
-			}
-			onDoubleClicked:
+			acceptedButtons: Qt.RightButton
+			onClicked:
 			{
-				if (!isCall)
-					root.editTx(index)
+				contextMenu.popup()
 			}
 		}
 
@@ -129,7 +137,21 @@ ColumnLayout
 			standardButtons: StandardIcon.Ok | StandardIcon.Cancel
 			onAccepted:
 			{
-				blockChain.deleteTransaction(blockIndex, txIndex)
+				deleteTransaction(blockIndex, txIndex)
+				contextMenu.visible = false
+			}
+		}
+		MouseArea
+		{
+			anchors.fill: parent
+			onClicked: {
+				if (!rowContentTr.selected)
+					rowContentTr.select()
+			}
+			onDoubleClicked:
+			{
+				if (!isCall)
+					root.editTx(index)
 			}
 		}
 
