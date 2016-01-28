@@ -343,7 +343,7 @@ ColumnLayout {
 			width: btnWidth
 			Layout.minimumHeight: 30
 			roundLeft: true
-			roundRight: false
+			roundRight: true
 			enabled: (scenarioIndex !== -1) && (compilationResultChecker.rebuildEnable)
 			property variant contractsHex: ({})
 			property variant txSha3: ({})
@@ -496,11 +496,12 @@ ColumnLayout {
 		{
 			id: actionsButtons
 			width: btnWidth
+			tooltip: qsTr("Add Transaction/Block")
 			height: 30
 			Component.onCompleted:
 			{
 				actions.push({ label: qsTr("Add Transaction...") , action: addTransaction })
-				actions.push({ label: qsTr("Mine Block") , action: mineBlock })
+				actions.push({ label: qsTr("Seal Block") , action: mineBlock })
 				init()
 			}
 
