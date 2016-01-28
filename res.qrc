@@ -118,5 +118,6 @@
         <file>qml/img/folder-icon-64x64.png</file>
         <file>qml/img/unknown.png</file>
         <file>qml/DropdownButton.qml</file>
+        <file>qml/img/createfolder.png</file>
     </qresource>
 </RCC>

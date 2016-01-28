@@ -223,6 +223,22 @@ Rectangle {
 
 		Connections
 		{
+			target: projectModel
+			onIsEmptyChanged:
+				if (projectModel.isEmpty)
+				{
+					debugImg.visible = false
+					visible = false
+				}
+				else
+				{
+					debugImg.visible = true;
+					visible = true
+				}
+		}
+
+		Connections
+		{
 			target: appSettings
 			onSystemPointSizeChanged:
 			{

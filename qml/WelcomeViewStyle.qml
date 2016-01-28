@@ -11,25 +11,17 @@
 	You should have received a copy of the GNU General Public License
 	along with cpp-ethereum.  If not, see <http://www.gnu.org/licenses/>.
 */
-/** @file WebPreviewStyle.qml
- * @author Yann yann@ethdev.com
- * @author Arkadiy Paronyan arkadiy@ethdev.com
- * @date 2015
- * Ethereum IDE client.
+/**
+ * @file WelcomeViewStyle.qml
+ * @author Liana liana@ethdev.com
+ * @date 2016
+ * Mix: Ethereum IDE client.
  */
 
 import QtQuick 2.0
 
 QtObject {
-
-	function absoluteSize(rel)
-	{
-		return systemPointSize + rel;
-	}
-
-	property QtObject general: QtObject {
-		property string headerBackgroundColor: "#ededed"
-		property string separatorColor: "#808080"
-		property string fontName: "sans serif"
-	}
+	property string bgColor: "dimgray"
+	property string fontColor: "silver"
+	property string headerColor: "silver"
 }
