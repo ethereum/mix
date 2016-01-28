@@ -158,6 +158,7 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 
 	dev::solidity::InterfaceHandler interfaceHandler;
 	m_contractInterface = QString::fromStdString(interfaceHandler.abiInterface(contractDefinition));
+	m_contractInterface = m_contractInterface.replace("\n", "");
 	if (m_contractInterface.isEmpty())
 		m_contractInterface = "[]";
 	if (contractDefinition.location().sourceName.get())
@@ -378,10 +379,14 @@ void CodeModel::runCompilationJob(int _jobId)
 		std::vector<std::string> sourceNames;
 		{
 			Guard l(x_pendingContracts);
+			FileIo f;
 			for (auto const& c: m_pendingContracts)
 			{
-				cs.addSource(c.first.toStdString(), c.second.toStdString());
-				sourceNames.push_back(c.first.toStdString());
+				if (f.fileExists(c.first))
+				{
+					cs.addSource(c.first.toStdString(), c.second.toStdString());
+					sourceNames.push_back(c.first.toStdString());
+				}
 			}
 		}
 		cs.compile(m_optimizeCode);

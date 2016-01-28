@@ -180,6 +180,7 @@ void ClientModel::mine()
 				m_mining = false;
 				cerr << boost::current_exception_diagnostic_information();
 				emit runFailed(QString::fromStdString(boost::current_exception_diagnostic_information()));
+				return;
 			}
 			emit miningStateChanged();
 		});
@@ -553,7 +554,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 				if (!f)
 				{
 					emit runFailed("Function '" + transaction.functionId + tr("' not found. Please check transactions or the contract code."));
-					break;
+					return;
 				}
 				if (!transaction.functionId.isEmpty())
 					encoder.encode(f);
@@ -618,10 +619,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 					if (contractAddressIter == m_contractAddresses.end())
 					{
 						emit runFailed("Contract '" + transaction.contractId + tr(" not deployed.") + "' " + tr(" Cannot call ") + transaction.functionId);
-						Address fakeAddress = Address::random();
-						std::pair<QString, int> contractToken = resolvePair(transaction.contractId);
-						m_contractNames[fakeAddress] = contractToken.first;
-						callAddress(fakeAddress, encoder.encodedData(), transaction); //Transact to a random fake address to that transaction is added to the list anyway
+						return;
 					}
 					else
 						callAddress(contractAddressIter->second, encoder.encodedData(), transaction);
@@ -631,7 +629,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 				onNewTransaction(RecordLogEntry::TxSource::MixGui);
 				TransactionException exception = m_client->lastExecution().excepted;
 				if (exception != TransactionException::None)
-					break;
+					return;
 			}
 			emit runComplete();
 		}
@@ -639,16 +637,19 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 		{
 			cerr << boost::current_exception_diagnostic_information();
 			emit runFailed(QString::fromStdString(boost::current_exception_diagnostic_information()));
+			return;
 		}
 		catch(std::exception const& e)
 		{
 			cerr << boost::current_exception_diagnostic_information();
 			emit runFailed(e.what());
+			return;
 		}
 		catch(...)
 		{
 			cerr << boost::current_exception_diagnostic_information();
 			emit runFailed("Unknown Error");
+			return;
 		}
 		emit runStateChanged();
 	});
@@ -1043,7 +1044,7 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 		{
 			exception = RecordLogEntry::TransactionException::NotEnoughCash;
 			emit runFailed("Insufficient balance");
-			break;
+			return;
 		}
 		case TransactionException::OutOfGasIntrinsic:
 		case TransactionException::OutOfGasBase:
@@ -1051,32 +1052,32 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 		{
 			exception = RecordLogEntry::TransactionException::OutOfGas;
 			emit runFailed("Not enough gas");
-			break;
+			return;
 		}
 		case TransactionException::BlockGasLimitReached:
 		{
 			exception = RecordLogEntry::TransactionException::BlockGasLimitReached;
 			emit runFailed("Block gas limit reached");
-			break;
+			return;
 		}
 		case TransactionException::BadJumpDestination:
 		{
 			exception = RecordLogEntry::TransactionException::BadJumpDestination;
 			emit runFailed("Solidity exception (bad jump)");
-			break;
+			return;
 		}
 		case TransactionException::OutOfStack:
 		{
 			exception = RecordLogEntry::TransactionException::OutOfStack;
 			emit runFailed("Out of stack");
-			break;
+			return;
 		}
 
 		case TransactionException::StackUnderflow:
 		{
 			exception = RecordLogEntry::TransactionException::StackUnderflow;
 			emit runFailed("Stack underflow");
-			break;
+			return;
 		}
 			//these should not happen in mix
 		case TransactionException::Unknown:
@@ -1088,7 +1089,7 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 		{
 			exception = RecordLogEntry::TransactionException::Unknown;
 			emit runFailed("Internal execution error");
-			break;
+			return;
 		}
 
 		}

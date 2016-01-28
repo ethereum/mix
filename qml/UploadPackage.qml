@@ -1,3 +1,23 @@
+/*
+	This file is part of cpp-ethereum.
+	cpp-ethereum is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+	cpp-ethereum is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	You should have received a copy of the GNU General Public License
+	along with cpp-ethereum.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file UploadPackage.qml
+ * @author Yann yann@ethdev.com
+ * @author Arkadiy Paronyan arkadiy@ethdev.com
+ * @date 2015
+ * Ethereum IDE client.
+ */
+
 import QtQuick 2.0
 import QtQuick.Layouts 1.0
 import QtQuick.Controls 1.1
@@ -38,26 +58,6 @@ Rectangle
 			text: qsTr("To share your dapp, upload the package to a remote folder by copying the Base64 to a service like pastebin")
 			wrapMode: Text.WordWrap
 			clip: true
-		}
-
-		RowLayout
-		{
-			height: 40
-			DefaultButton
-			{
-				Layout.preferredWidth: 200
-				text: qsTr("Copy Base64")
-				onClicked: clipboard.text = deploymentDialog.packageStep.packageBase64
-				enabled: deploymentDialog.packageStep.packageBase64 != ""
-			}
-
-			DefaultButton
-			{
-				width: 200
-				text: qsTr("Host in pastebin.com")
-				onClicked: Qt.openUrlExternally("http://pastebin.com/")
-				enabled: deploymentDialog.packageStep.packageBase64 != ""
-			}
 		}
 	}
 }

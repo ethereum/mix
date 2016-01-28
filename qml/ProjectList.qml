@@ -1,3 +1,23 @@
+/*
+	This file is part of cpp-ethereum.
+	cpp-ethereum is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+	cpp-ethereum is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	You should have received a copy of the GNU General Public License
+	along with cpp-ethereum.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file ProjectList.qml
+ * @author Yann yann@ethdev.com
+ * @author Arkadiy Paronyan arkadiy@ethdev.com
+ * @date 2015
+ * Ethereum IDE client.
+ */
+
 import QtQuick 2.0
 import QtQuick.Window 2.0
 import QtQuick.Layouts 1.0
@@ -119,16 +139,15 @@ ScrollView
 			onProjectLoaded:
 			{
 				projectFiles.setFolder(fileIo.pathFromUrl(projectModel.projectPath))
-				if (projectFiles.model.count > 1)
+				for (var k = 0; k < projectFiles.model.count; k++)
 				{
-					projectFiles.currentRow = 1
-					if (projectFiles.model.get(1).type === "file")
-						projectFiles.executeSelection(1)
-					else
-						projectFiles.currentRow = 0
+					if (projectFiles.model.get(k).type === "file")
+					{
+						projectFiles.currentRow = k
+						projectFiles.executeSelection(k)
+						break
+					}
 				}
-				else
-					projectFiles.currentRow = 0
 			}
 
 			onIsCleanChanged:
@@ -150,6 +169,19 @@ ScrollView
 			onFolderAdded:
 			{
 				projectFiles.updateView()
+			}
+			onContractSaved:
+			{
+				projectModel.saveContractCompilationResult(document.documentId)
+			}
+		}
+
+		Connections
+		{
+			target: codeModel
+			onNewContractCompiled:
+			{
+				projectModel.saveContractCompilationResult(codeModel.contracts[_name].documentId)
 			}
 		}
 
@@ -342,17 +374,37 @@ ScrollView
 							id: deleteConfirmation
 							text: qsTr("Are you sure to delete this file ?")
 							standardButtons: StandardIcon.Ok | StandardIcon.Cancel
+							property bool regenerateCompilationResult: false
 							onAccepted:
 							{
-								if (projectFiles.model.get(styleData.row).type === "folder")
-									fileIo.deleteDir(projectFiles.model.get(styleData.row).path)
+								var item = projectFiles.model.get(styleData.row)
+								var doc = projectModel.file(item)
+								if (item.type === "folder")
+									fileIo.deleteDir(item.path)
 								else
 								{
-									mainContent.codeEditor.closeDocument(projectFiles.model.get(styleData.row).path)
-									fileIo.stopWatching(projectFiles.model.get(styleData.row).path)
-									fileIo.deleteFile(projectFiles.model.get(styleData.row).path)
+									if (doc.isContract)
+										codeModel.unregisterContractSrc(doc.path)
+									mainContent.codeEditor.closeDocument(doc.path)
+									fileIo.stopWatching(doc.path)
+									fileIo.deleteFile(doc.path)
+
 								}
+								regenerateCompilationResult = true
 								projectFiles.updateView()
+							}
+						}
+
+						Connections
+						{
+							target: codeModel
+							onCompilationComplete:
+							{
+								if (deleteConfirmation.regenerateCompilationResult)
+								{
+									deleteConfirmation.regenerateCompilationResult = false
+									projectModel.regenerateCompilationResult()
+								}
 							}
 						}
 					}
@@ -531,12 +583,15 @@ ScrollView
 								}
 							}
 
-							Button
+							DefaultImgButton
 							{
 								id: fileCloseBtn
+								height: 20
+								width: 20
 								anchors.left: parent.left
 								anchors.leftMargin: 10
-								text: qsTr("Close")
+								iconSource: "qrc:/qml/img/delete_sign.png"
+								tooltip: qsTr("Close")
 								anchors.verticalCenter: parent.verticalCenter
 								onClicked:
 								{
