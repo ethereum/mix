@@ -137,10 +137,11 @@ Dialog {
 					id: deleteScenario
 					onYes: list.model.deleteState(styleData.row);
 					standardButtons: StandardButton.Yes | StandardButton.No
-					text: qsTr("Are you sure to delete this scenario?")
+					text: qsTr("Are you sure you want to delete this scenario?")
 				}
 			}
 		}
 	}
 }
+
 

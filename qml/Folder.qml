@@ -423,7 +423,7 @@ ColumnLayout {
 				MessageDialog
 				{
 					id: deleteConfirmation
-					text: qsTr("Are you sure to delete this file ?")
+					text: qsTr("Are you sure you want to delete this file?")
 					standardButtons: StandardIcon.Ok | StandardIcon.Cancel
 					onAccepted:
 					{

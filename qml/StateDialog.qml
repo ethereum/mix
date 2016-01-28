@@ -339,7 +339,7 @@ Dialog {
 									MessageDialog
 									{
 										id: deleteAccountMsg
-										text: qsTr("Are you sure to delete this account?")
+										text: qsTr("Are you sure you want to delete this account?")
 										onYes:
 										{
 											stateAccounts.splice(styleData.row, 1)

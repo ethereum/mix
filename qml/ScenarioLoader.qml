@@ -328,7 +328,15 @@ ColumnLayout
 						deleteWarning.open()
 				}
 
+<<<<<<< HEAD
 				function newSce()
+=======
+			MessageDialog
+			{
+				id: deleteWarning
+				text: qsTr("Are you sure you want to delete this scenario?")
+				onYes:
+>>>>>>> 2b35418... added menu to delete trasnaction
 				{
 					createScenario(false)
 				}

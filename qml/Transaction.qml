@@ -47,8 +47,7 @@ ColumnLayout
 	{
 		if (!isCall && blockChain)
 		{
-			blockChain.deleteTransaction(blockIndex, txIndex)
-			blockChain.rebuildRequired()
+			deleteConfirmation.open();
 		}
 	}
 
@@ -122,6 +121,19 @@ ColumnLayout
 			}
 		}
 
+		MessageDialog
+		{
+			id: deleteConfirmation
+			text: qsTr("Are you sure you want to delete this transaction?\n\nTo mark multiple transactions to delete on reload, click on 'Mark to delete' icon at the left")
+
+			standardButtons: StandardIcon.Ok | StandardIcon.Cancel
+			onAccepted:
+			{
+				blockChain.deleteTransaction(blockIndex, txIndex)
+				blockChain.rebuildRequired()
+			}
+		}
+
 		Rectangle
 		{
 			color: rowContentTr.selected ? selectedTxColor : (status === "mined" ? (isCall ? callColor : txColor) : halfOpacity)
@@ -139,6 +151,10 @@ ColumnLayout
 				width: statusWidth
 				height: rowTransactionItem.height < trHeight ? trHeight : rowTransactionItem.height
 				color: "transparent"
+				TooltipArea {
+					text: qsTr("Mark to delete")
+					anchors.fill: parent
+				}
 				property bool saveStatus
 				Image {
 					anchors.verticalCenter: parent.verticalCenter

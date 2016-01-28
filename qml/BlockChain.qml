@@ -819,6 +819,7 @@ ColumnLayout {
 							else
 								return []
 						}
+
 						transactionModel:
 						{
 							if (index >= 0)

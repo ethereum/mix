@@ -852,7 +852,7 @@ Dialog {
 
 			DefaultButton {
 				anchors.verticalCenter: parent.verticalCenter
-				text: editMode ? qsTr("Update") : qsTr("Ok")
+				text: editMode ? qsTr("Update") : qsTr("OK")
 				onClicked: {
 					var invalid = InputValidator.validate(paramsModel, paramValues);
 					if (invalid.length === 0)
