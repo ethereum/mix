@@ -138,7 +138,7 @@ ScrollView
 			}
 			onProjectLoaded:
 			{
-				projectFiles.setFolder(fileIo.pathFromUrl(projectModel.projectPath))
+				projectFiles.setFolder(fileIo.pathFromUrl(projectModel.projectPath).toLowerCase())
 				for (var k = 0; k < projectFiles.model.count; k++)
 				{
 					if (projectFiles.model.get(k).type === "file")
@@ -195,7 +195,7 @@ ScrollView
 			font.pointSize: appSettings.getFormattedPointSize() - 1
 			color:
 			{
-				return text.indexOf(fileIo.pathFromUrl(projectModel.projectPath)) !== -1 ? "undefined" : "red"
+				return text.indexOf(fileIo.pathFromUrl(projectModel.projectPath.toLowerCase())) !== -1 ? "undefined" : "red"
 			}
 			verticalAlignment: Text.AlignVCenter
 		}

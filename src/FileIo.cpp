@@ -361,7 +361,8 @@ QVariantList FileIo::files(QString const& _root)
 	while (it.hasNext())
 	{
 		QVariantMap file;
-		file["path"] = it.next();
+		it.next();
+		file["path"] = it.fileInfo().absoluteFilePath().toLower();
 		file["fileName"] = it.fileName();
 		ret.append(file);
 	}
@@ -375,7 +376,8 @@ QVariantList FileIo::directories(QString const& _root)
 	while (it.hasNext())
 	{
 		QVariantMap path;
-		path["path"] = it.next();
+		it.next();
+		path["path"] = it.fileInfo().absoluteFilePath().toLower();
 		path["fileName"] = it.fileName();
 		ret.append(path);
 	}
