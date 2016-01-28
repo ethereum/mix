@@ -27,10 +27,14 @@ import "."
 
 Dialog {
 	id: modalAboutMix
+	title: qsTr("About Mix")
 	modality: Qt.ApplicationModal
-	width: 680
-	height: 300
+	width: 790
+	height: 450
 	visible: false
+	Layout.maximumHeight: Layout.minimumHeight
+	Layout.maximumWidth: Layout.minimumWidth
+
 	contentItem: Rectangle {
 		id: containerRect
 		anchors.fill: parent
@@ -52,7 +56,7 @@ Dialog {
 
 			ColumnLayout
 			{
-				Layout.preferredWidth: 380
+				Layout.preferredWidth: 400
 				Layout.fillHeight: true
 				anchors.top: parent.top
 				anchors.topMargin: 20
@@ -61,45 +65,75 @@ Dialog {
 					id: mixInfo
 					text: Qt.application.name + " " + Qt.application.version
 					font.pointSize: appSettings.getFormattedPointSize() + 10
+					font.bold: true
 				}
 
 				DefaultLabel
 				{
-					id: solInfo
-					text: "Solidity " + appService.solidityVersionNumber
-					font.pointSize: appSettings.getFormattedPointSize() + 5
-				}
-
-				Text
-				{
-					id: generalInfo
-					text: appService.solidityVersionString
-					wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-					Layout.preferredWidth: parent.width
-					anchors.horizontalCenter: parent.horizontalCenter
-				}
-
-				DefaultLabel
-				{					
-					text: Qt.application.organization
-					anchors.horizontalCenter: parent.horizontalCenter
-				}
-
-				DefaultLabel
-				{
-					text: qsTr("GNU General Public License")
+					text: qsTr("\nGNU General Public License")
 					font.italic: true
 				}
 
 				DefaultLabel
 				{
-					text: qsTr("<a href='https://github.com/ethereum/mix'>source code</a>")
+					text: qsTr("Copyright (c) 2015, 2016. All Rights Reserved.")
+				}
+
+				DefaultLabel
+				{
+					text: qsTr("The program is provided AS IS with NO WARRANTY OF ANY KIND,\nINCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY\nAND FITNESS FOR A PARTICULAR PURPOSE.")
+				}
+
+				DefaultLabel
+				{
+					text: qsTr("<a href='https://github.com/ethereum/mix'><font color=\"cornflowerblue\" size=\"3\">Source code</font></a>")
 					onLinkActivated: Qt.openUrlExternally(link)
 				}
 
 				DefaultLabel
 				{
-					text: qsTr("<a href='http://forum.ethereum.org/categories/mix'>forum</a>")
+					text: qsTr("<a href='http://forum.ethereum.org/categories/mix'><font color=\"cornflowerblue\" size=\"3\">Forum</font></a>")
+					onLinkActivated: Qt.openUrlExternally(link)
+				}
+
+				DefaultLabel
+				{
+					id: solInfo
+					text: "\nSolidity " + appService.solidityVersionNumber
+					font.pointSize: appSettings.getFormattedPointSize() + 5
+				}
+
+				TextArea
+				{
+					id: generalInfo
+					text: appService.solidityVersionString
+					//wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+					Layout.preferredWidth: parent.width
+					Layout.preferredHeight: 50
+					anchors.horizontalCenter: parent.horizontalCenter
+					font.pointSize: appSettings.getFormattedPointSize()
+					style: TextFieldStyle
+					{
+						textColor: "black"
+						background: Rectangle {
+							  border.color: "transparent"
+						}
+						selectedTextColor: "white"
+						selectionColor: "gray"
+					}
+				}
+
+				DefaultLabel
+				{
+					anchors.left: parent.left
+					text: Qt.application.organization
+					font.pointSize: appSettings.getFormattedPointSize() + 5
+					anchors.horizontalCenter: parent.horizontalCenter
+				}
+
+				DefaultLabel
+				{
+					text: qsTr("<a href='https://ethereum.org/'><font color=\"cornflowerblue\" size=\"3\">Visit us\n</font></a>")
 					onLinkActivated: Qt.openUrlExternally(link)
 				}
 
@@ -110,6 +144,7 @@ Dialog {
 					spacing: 5
 					CopyButton
 					{
+						id: copyButton
 						getContent: function()
 						{
 							var ret = {
@@ -121,17 +156,16 @@ Dialog {
 						}
 					}
 
-					Button
+					DefaultButton
 					{
 						text: qsTr("Close")
+						height: copyButton.height
 						onClicked:
 						{
 							modalAboutMix.visible = false
 						}
 					}
 				}
-
-
 			}
 		}
 	}
