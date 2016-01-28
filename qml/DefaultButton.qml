@@ -25,6 +25,7 @@ import QtQuick.Controls.Styles 1.1
 Button {
 	id: root
 	property string text
+
 	style: ButtonStyle {
 		label: DefaultText
 		{

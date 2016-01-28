@@ -168,6 +168,7 @@ Dialog {
 
 				DefaultButton {
 					id: okButton;
+					activeFocusOnPress : true
 					text: qsTr("OK");
 					enabled: newAddressWin.secret !== ""
 					onClicked: {
