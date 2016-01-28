@@ -87,7 +87,7 @@ QString FileIo::pathFromUrl(QString const& _url)
 		if (path.startsWith("/"))
 			path = path.right(path.length() - 1);
 		if (!url.host().isEmpty())
-			path = url.host() + ":/" + path;
+			path = url.host().toUpper() + ":/" + path;
 	}
 #endif
 	return path;
@@ -362,7 +362,7 @@ QVariantList FileIo::files(QString const& _root)
 	{
 		QVariantMap file;
 		it.next();
-		file["path"] = it.fileInfo().absoluteFilePath().toLower();
+		file["path"] = it.fileInfo().absoluteFilePath();
 		file["fileName"] = it.fileName();
 		ret.append(file);
 	}
@@ -377,7 +377,7 @@ QVariantList FileIo::directories(QString const& _root)
 	{
 		QVariantMap path;
 		it.next();
-		path["path"] = it.fileInfo().absoluteFilePath().toLower();
+		path["path"] = it.fileInfo().absoluteFilePath();
 		path["fileName"] = it.fileName();
 		ret.append(path);
 	}
