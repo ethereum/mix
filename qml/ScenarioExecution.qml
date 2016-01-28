@@ -98,8 +98,6 @@ Rectangle {
 					width: 10
 					Layout.minimumHeight: 10
 					Layout.preferredHeight: 12
-					text: qsTr("Manage Scenario")
-					sourceImg: qsTr("Manage Scenario")
 
 					roundRight: true
 					roundLeft: true

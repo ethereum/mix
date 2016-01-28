@@ -126,6 +126,7 @@ Rectangle {
 		property int scenarioMinWidth: scenarioMinWidth
 	}
 
+
 	ColumnLayout
 	{
 		id: mainColumn
@@ -137,6 +138,7 @@ Rectangle {
 			Layout.row: 0
 			Layout.fillWidth: true
 			Layout.minimumHeight: 40
+
 			Connections
 			{
 				target: appSettings
@@ -196,6 +198,14 @@ Rectangle {
 				anchors.fill: parent
 				orientation: Qt.Horizontal
 
+				WelcomeView
+				{
+					id: welcomeView
+					anchors.fill: parent
+					Layout.fillHeight: true
+					Layout.fillWidth: true
+					visible: projectModel.isEmpty
+				}
 				ProjectList
 				{
 					id: projectList
@@ -304,17 +314,18 @@ Rectangle {
 					{
 						if (projectModel.isEmpty)
 						{
-							//hide Scenario Panel, WebVew panel and FolderStructor
 							scenarioExe.visible = false;
 							webPreview.visible = false;
 							projectList.visible = false;
+							welcomeView.visible = true;
+							show
 						}
 						else
 						{
-							//show Scenario Panel, WebVew panel and FolderStructor
 							scenarioExe.visible = true;
 							webPreview.visible = true;
 							projectList.visible = true;
+							welcomeView.visible = false;
 						}
 					}
 				}
