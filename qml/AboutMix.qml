@@ -30,7 +30,7 @@ Dialog {
 	title: qsTr("About Mix")
 	modality: Qt.ApplicationModal
 	width: 790
-	height: 420
+	height: 450
 	visible: false
 	Layout.maximumHeight: Layout.minimumHeight
 	Layout.maximumWidth: Layout.minimumWidth
@@ -99,18 +99,28 @@ Dialog {
 				DefaultLabel
 				{
 					id: solInfo
-					text: "Solidity " + appService.solidityVersionNumber
+					text: "\nSolidity " + appService.solidityVersionNumber
 					font.pointSize: appSettings.getFormattedPointSize() + 5
 				}
 
-				Text
+				TextArea
 				{
 					id: generalInfo
 					text: appService.solidityVersionString
-					wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+					//wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 					Layout.preferredWidth: parent.width
+					Layout.preferredHeight: 50
 					anchors.horizontalCenter: parent.horizontalCenter
 					font.pointSize: appSettings.getFormattedPointSize()
+					style: TextFieldStyle
+					{
+						textColor: "black"
+						background: Rectangle {
+							  border.color: "transparent"
+						}
+						selectedTextColor: "white"
+						selectionColor: "gray"
+					}
 				}
 
 				DefaultLabel
@@ -134,6 +144,7 @@ Dialog {
 					spacing: 5
 					CopyButton
 					{
+						id: copyButton
 						getContent: function()
 						{
 							var ret = {
@@ -145,9 +156,10 @@ Dialog {
 						}
 					}
 
-					Button
+					DefaultButton
 					{
 						text: qsTr("Close")
+						height: copyButton.height
 						onClicked:
 						{
 							modalAboutMix.visible = false
