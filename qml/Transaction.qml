@@ -130,7 +130,6 @@ ColumnLayout
 			onAccepted:
 			{
 				blockChain.deleteTransaction(blockIndex, txIndex)
-				blockChain.rebuildRequired()
 			}
 		}
 

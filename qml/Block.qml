@@ -209,7 +209,6 @@ ColumnLayout
 					onAccepted:
 					{
 						deleteTransaction(blockIndex, txIndex)
-						rebuildRequired()
 						contextMenu.visible = false
 					}
 				}
