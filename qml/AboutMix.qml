@@ -27,10 +27,14 @@ import "."
 
 Dialog {
 	id: modalAboutMix
+	title: qsTr("About Mix")
 	modality: Qt.ApplicationModal
-	width: 680
-	height: 300
+	width: 790
+	height: 420
 	visible: false
+	Layout.maximumHeight: Layout.minimumHeight
+	Layout.maximumWidth: Layout.minimumWidth
+
 	contentItem: Rectangle {
 		id: containerRect
 		anchors.fill: parent
@@ -52,7 +56,7 @@ Dialog {
 
 			ColumnLayout
 			{
-				Layout.preferredWidth: 380
+				Layout.preferredWidth: 400
 				Layout.fillHeight: true
 				anchors.top: parent.top
 				anchors.topMargin: 20
@@ -61,6 +65,35 @@ Dialog {
 					id: mixInfo
 					text: Qt.application.name + " " + Qt.application.version
 					font.pointSize: appSettings.getFormattedPointSize() + 10
+					font.bold: true
+				}
+
+				DefaultLabel
+				{
+					text: qsTr("\nGNU General Public License")
+					font.italic: true
+				}
+
+				DefaultLabel
+				{
+					text: qsTr("Copyright (c) 2015, 2016. All Rights Reserved.")
+				}
+
+				DefaultLabel
+				{
+					text: qsTr("The program is provided AS IS with NO WARRANTY OF ANY KIND,\nINCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY\nAND FITNESS FOR A PARTICULAR PURPOSE.")
+				}
+
+				DefaultLabel
+				{
+					text: qsTr("<a href='https://github.com/ethereum/mix'><font color=\"cornflowerblue\" size=\"3\">Source code</font></a>")
+					onLinkActivated: Qt.openUrlExternally(link)
+				}
+
+				DefaultLabel
+				{
+					text: qsTr("<a href='http://forum.ethereum.org/categories/mix'><font color=\"cornflowerblue\" size=\"3\">Forum</font></a>")
+					onLinkActivated: Qt.openUrlExternally(link)
 				}
 
 				DefaultLabel
@@ -77,29 +110,20 @@ Dialog {
 					wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 					Layout.preferredWidth: parent.width
 					anchors.horizontalCenter: parent.horizontalCenter
+					font.pointSize: appSettings.getFormattedPointSize()
 				}
 
 				DefaultLabel
-				{					
+				{
+					anchors.left: parent.left
 					text: Qt.application.organization
+					font.pointSize: appSettings.getFormattedPointSize() + 5
 					anchors.horizontalCenter: parent.horizontalCenter
 				}
 
 				DefaultLabel
 				{
-					text: qsTr("GNU General Public License")
-					font.italic: true
-				}
-
-				DefaultLabel
-				{
-					text: qsTr("<a href='https://github.com/ethereum/mix'>source code</a>")
-					onLinkActivated: Qt.openUrlExternally(link)
-				}
-
-				DefaultLabel
-				{
-					text: qsTr("<a href='http://forum.ethereum.org/categories/mix'>forum</a>")
+					text: qsTr("<a href='https://ethereum.org/'><font color=\"cornflowerblue\" size=\"3\">Visit us\n</font></a>")
 					onLinkActivated: Qt.openUrlExternally(link)
 				}
 
@@ -130,8 +154,6 @@ Dialog {
 						}
 					}
 				}
-
-
 			}
 		}
 	}
