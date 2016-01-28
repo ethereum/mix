@@ -1,3 +1,23 @@
+/*
+	This file is part of cpp-ethereum.
+	cpp-ethereum is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+	cpp-ethereum is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	You should have received a copy of the GNU General Public License
+	along with cpp-ethereum.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file DeploymentWorker.qml
+ * @author Yann yann@ethdev.com
+ * @author Arkadiy Paronyan arkadiy@ethdev.com
+ * @date 2015
+ * Ethereum IDE client.
+ */
+
 import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
@@ -42,7 +62,7 @@ Item
 			nodeReachable()
 			var ids = JSON.parse(arg2)[0].result;
 			requests = [];
-            accounts = []
+			accounts = []
 			for (var k in ids)
 			{
 				requests.push({
@@ -57,7 +77,7 @@ Item
 
 			TransactionHelper.rpcCall(requests, function (request, response){
 				var balanceRet = JSON.parse(response);
-                balances = {}
+				balances = {}
 				for (var k in balanceRet)
 				{
 					var ether = QEtherHelper.createEther(balanceRet[k].result, QEther.Wei);
@@ -171,12 +191,17 @@ Item
 
 	function estimateGas(scenario)
 	{
-		for (var si = 0; si < projectModel.listModel.count; si++)
+		var docs = {}
+		for (var c in codeModel.contracts)
 		{
-			var document = projectModel.listModel.get(si);
-			if (document.isContract)
-				codeModelGasEstimation.registerCodeChange(document.documentId, fileIo.readFile(document.path));
+			var docId = codeModel.contracts[c].documentId
+			if (!docs[docId])
+			{
+				codeModelGasEstimation.registerCodeChange(docId, fileIo.readFile(docId));
+				docs[docId] = ""
+			}
 		}
+
 		var sce = projectModel.stateListModel.copyScenario(scenario)
 		for (var k = 0; k < sce.blocks.length; k++)
 		{
@@ -187,7 +212,7 @@ Item
 			}
 		}
 		clientModelGasEstimation.setupScenario(sce)
-	}	
+	}
 
 	CodeModel {
 		id: codeModelGasEstimation

@@ -90,7 +90,7 @@ public:
 	/// @returns contract definition
 	std::shared_ptr<QContractDefinition> sharedContract() const { return m_contract; }
 	/// @returns contract bytecode
-	dev::bytes const& bytes() const { return m_bytes; }
+	dev::bytes const& bytes() const { return m_linkerObject.bytecode; }
 	/// @returns contract bytecode as hex string
 	QString codeHex() const;
 	/// @returns contract definition in JSON format
@@ -105,15 +105,14 @@ public:
 	QHash<unsigned, SolidityDeclarations> const& storage() const { return m_storage; }
 
 	/// link @arg _contract to referenced libraries
-	dev::bytes linkLibraries(QVariantMap const& _deployedLibraries, QVariantMap _compiledItems);
+	void linkLibraries(QVariantMap const& _deployedLibraries, QVariantMap _compiledItems);
 	/// linker object
-	eth::LinkerObject linkerObject() const { return m_linkerObject; }
+	eth::LinkerObject& linkerObject() { return m_linkerObject; }
 
 private:
 	uint m_sourceHash;
 	std::shared_ptr<QContractDefinition> m_contract;
 	QString m_compilerMessage; ///< @todo: use some structure here
-	dev::bytes m_bytes;
 	QString m_contractInterface;
 	QString m_documentId;
 	eth::AssemblyItems m_assemblyItems;
@@ -229,7 +228,7 @@ public:
 	bool hasContract() const;
 	/// Get contract by name
 	/// Throws if not found
-	CompiledContract const* contract(QString const& _name) const;
+	CompiledContract* contract(QString const& _name);
 	/// Find a contract by document id
 	/// @returns CompiledContract object or null if not found
 	Q_INVOKABLE CompiledContract* contractByDocumentId(QString const& _documentId) const;
@@ -259,7 +258,7 @@ public:
 	/// Return the location of the given contract
 	Q_INVOKABLE QVariantMap locationOf(QString _contract);
 	/// link libraries referenced in @arg _contractName
-	bytes linkLibraries(QString const& _contractName, QVariantMap const& _deployedLibraries);
+	void linkLibraries(QString const& _contractName, QVariantMap const& _deployedLibraries);
 
 signals:
 	/// Emited on internal error

@@ -35,6 +35,7 @@ function deployProject(force) {
 function deployContracts(gas, gasPrice, callback)
 {	
 	deployedLibraries = {}
+	trRealIndex = -1
 	deploymentGas = gas;
 	deploymentGasPrice = gasPrice
 	deploymentStarted();

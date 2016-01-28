@@ -155,7 +155,6 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 	QQmlEngine::setObjectOwnership(m_contract.get(), QQmlEngine::CppOwnership);
 	m_contract->moveToThread(QApplication::instance()->thread());
 	m_linkerObject = _compiler.object(_contractName.toStdString());
-	m_bytes = m_linkerObject.bytecode; // use linkLibraries() to link object
 
 	dev::solidity::InterfaceHandler interfaceHandler;
 	m_contractInterface = QString::fromStdString(interfaceHandler.abiInterface(contractDefinition));
@@ -172,7 +171,7 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 	m_constructorAssemblyItems = *_compiler.assemblyItems(name);
 }
 
-bytes CompiledContract::linkLibraries(QVariantMap const& _deployedLibraries, QVariantMap _compiledItems)
+void CompiledContract::linkLibraries(QVariantMap const& _deployedLibraries, QVariantMap _compiledItems)
 {
 	std::map<std::string, h160> toLink;
 	for (auto const& linkRef: m_linkerObject.linkReferences)
@@ -185,13 +184,11 @@ bytes CompiledContract::linkLibraries(QVariantMap const& _deployedLibraries, QVa
 		}
 	}
 	m_linkerObject.link(toLink);
-	m_bytes = m_linkerObject.bytecode;
-	return m_linkerObject.bytecode;
 }
 
 QString CompiledContract::codeHex() const
 {
-	return QString::fromStdString(toJS(m_bytes));
+	return QString::fromStdString(toJS(m_linkerObject.bytecode));
 }
 
 CodeModel::CodeModel():
@@ -340,14 +337,13 @@ CompiledContract* CodeModel::contractByDocumentId(QString const& _documentId) co
 	}
 }
 
-bytes CodeModel::linkLibraries(QString const& _contractName, QVariantMap const& _deployedLibraries)
+void CodeModel::linkLibraries(QString const& _contractName, QVariantMap const& _deployedLibraries)
 {
 	auto contract = m_contractMap.value(_contractName);
-	bytes code = contract->linkLibraries(_deployedLibraries, contracts());
-	return code;
+	contract->linkLibraries(_deployedLibraries, contracts());
 }
 
-CompiledContract const* CodeModel::contract(QString const& _name) const
+CompiledContract* CodeModel::contract(QString const& _name)
 {
 	CompiledContract* res = nullptr;
 	try
