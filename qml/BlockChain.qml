@@ -154,6 +154,7 @@ ColumnLayout {
 	{
 		model.blocks[_block].transactions.splice(_txIndex, 1)
 		blockModel.removeTransaction(_block, _txIndex)
+		rebuildRequired()
 	}
 
 	function getAccountNickname(address)
@@ -819,6 +820,7 @@ ColumnLayout {
 							else
 								return []
 						}
+
 						transactionModel:
 						{
 							if (index >= 0)

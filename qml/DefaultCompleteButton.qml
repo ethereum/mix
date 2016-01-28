@@ -11,29 +11,43 @@
 	You should have received a copy of the GNU General Public License
 	along with cpp-ethereum.  If not, see <http://www.gnu.org/licenses/>.
 */
-/** @file DefaultButton.qml
- * @author Yann yann@ethdev.com
- * @author Arkadiy Paronyan arkadiy@ethdev.com
- * @date 2015
- * Ethereum IDE client.
+/**
+ * @file DefaultCompleteButton.qml
+ * @author Liana liana@ethdev.com
+ * @date 2016
+ * Mix: Ethereum IDE client.
  */
 
 import QtQuick 2.0
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
+import QtQuick.Layouts 1.0
 
-Button {
-	id: root
-	property string text
-
+DefaultImgButton {
+	id: completeButton
+	property var imageSource
+	property var labelText
 	style: ButtonStyle {
-		label: DefaultText
-		{
-			text: root.text
-			verticalAlignment: Text.AlignVCenter
-			horizontalAlignment: Text.AlignHCenter
-			font.pointSize: appSettings.getFormattedPointSize()
+		background: Rectangle {
+			color: welcomeViewStyleId.bgColor
+			implicitWidth: 48
+			implicitHeight: 48
+		}
+		label: RowLayout {
+			Image {
+			   source: imageSource
+			   width: 48
+			   height: 48
+			   id: openProjectImg
+			   anchors.top: parent.top
+			}
+			DefaultLabel
+			{
+			   text: labelText
+			   font.pixelSize: 22
+			   font.italic: true
+			   color: welcomeViewStyleId.fontColor
+			}
 		}
 	}
 }
-

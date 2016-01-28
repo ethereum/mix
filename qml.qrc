@@ -86,5 +86,8 @@
         <file>qml/NewFolderDialog.qml</file>
         <file>qml/TooltipArea.qml</file>
         <file>qml/AboutMix.qml</file>
+        <file>qml/WelcomeView.qml</file>
+        <file>qml/DefaultCompleteButton.qml</file>
+        <file>qml/WelcomeViewStyle.qml</file>
     </qresource>
 </RCC>

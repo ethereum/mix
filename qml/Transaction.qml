@@ -47,8 +47,7 @@ ColumnLayout
 	{
 		if (!isCall && blockChain)
 		{
-			blockChain.deleteTransaction(blockIndex, txIndex)
-			blockChain.rebuildRequired()
+			deleteConfirmation.open();
 		}
 	}
 
@@ -108,6 +107,40 @@ ColumnLayout
 			func.color = labelColor
 		}
 
+		Menu
+		{
+			id: contextMenu
+			visible: false
+			MenuItem {
+				text: qsTr("Delete")
+				onTriggered: {
+					deleteConfirmation.open();
+				}
+			}
+		}
+
+		MouseArea
+		{
+			anchors.fill: parent
+			acceptedButtons: Qt.RightButton
+			onClicked:
+			{
+				contextMenu.popup()
+			}
+		}
+
+		MessageDialog
+		{
+			id: deleteConfirmation
+			text: qsTr("Are you sure you want to delete this transaction?\n\nTo mark multiple transactions to delete on reload, click on 'Mark to delete' icon at the left")
+
+			standardButtons: StandardIcon.Ok | StandardIcon.Cancel
+			onAccepted:
+			{
+				deleteTransaction(blockIndex, txIndex)
+				contextMenu.visible = false
+			}
+		}
 		MouseArea
 		{
 			anchors.fill: parent
@@ -139,6 +172,10 @@ ColumnLayout
 				width: statusWidth
 				height: rowTransactionItem.height < trHeight ? trHeight : rowTransactionItem.height
 				color: "transparent"
+				TooltipArea {
+					text: qsTr("Mark to delete")
+					anchors.fill: parent
+				}
 				property bool saveStatus
 				Image {
 					anchors.verticalCenter: parent.verticalCenter

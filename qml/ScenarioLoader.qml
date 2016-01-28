@@ -379,7 +379,7 @@ ColumnLayout
 			MessageDialog
 			{
 				id: deleteWarning
-				text: qsTr("Are you sure to delete this scenario ?")
+				text: qsTr("Are you sure you want to delete this scenario?")
 				onYes:
 				{
 					projectModel.stateListModel.deleteState(scenarioList.currentIndex)
