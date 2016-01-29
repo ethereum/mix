@@ -156,7 +156,7 @@ function executeTr(blockIndex, trIndex, state, ctrAddresses, trHashes, callBack)
 		var encodedParams = clientModel.encodeParams(params, contractFromToken(tr.contractId), tr.functionId);
 
 		if (tr.contractId === tr.functionId)
-			rpcParams.code = codeModel.contracts[tr.contractId].codeHex + encodedParams.join("");
+			rpcParams.data = codeModel.contracts[tr.contractId].codeHex + encodedParams.join("");
 		else
 		{
 			rpcParams.data = "0x" + func.qhash() + encodedParams.join("");
