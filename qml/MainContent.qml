@@ -207,14 +207,6 @@ Rectangle {
 				orientation: Qt.Horizontal
 				id: mainPanels
 
-				WelcomeView
-				{
-					id: welcomeView
-					anchors.fill: parent
-					Layout.fillHeight: true
-					Layout.fillWidth: true
-					visible: projectModel.isEmpty
-				}
 				ProjectList
 				{
 					id: projectList
