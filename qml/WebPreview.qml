@@ -242,7 +242,6 @@ Item {
 					text: qsTr("Reload frontend")
 					height: 24
 					width: 24
-					border: false
 					anchors.verticalCenter: parent.verticalCenter
 					roundLeft: true
 					roundRight: true
