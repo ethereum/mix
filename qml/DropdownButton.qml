@@ -39,8 +39,8 @@ Item
 		id: labelButton
 		roundLeft: false
 		roundRight: false
-		width: 30
-		height: 30
+		width: parent.width
+		height: parent.height
 		sourceImg: "qrc:/qml/img/showmoreactions.png"
 		text: tooltip
 		onClicked:

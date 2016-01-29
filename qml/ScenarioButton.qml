@@ -135,8 +135,8 @@ Rectangle {
 			}
 			source: sourceImg
 			fillMode: Image.PreserveAspectFit
-			height: 30
-			width: 30
+			height: 32
+			width: 32
 		}
 
 		DefaultButton {

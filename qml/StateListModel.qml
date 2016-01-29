@@ -319,16 +319,20 @@ Item {
 			return false;
 		}
 
+		function correctTitle(title)
+		{
+			var copyIndex = 1;
+			while (titleExists(stateList, title + "_" + copyIndex))
+				copyIndex++;
+
+			return title + "_" + copyIndex;
+		}
+
 		function duplicateState(index)
 		{
 			var state = stateList[index]
 			var item = copyScenario(state)
-
-			var copyIndex = 1;
-			while (titleExists(stateList, state.title + "_" + copyIndex))
-				copyIndex++;
-			item.title = state.title + "_" + copyIndex;
-
+			item.title = correctTitle(item.title)
 			appendState(item)
 			save()
 		}
