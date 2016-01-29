@@ -187,7 +187,7 @@ function executeTr(blockIndex, trIndex, state, ctrAddresses, trHashes, callBack)
 					{
 						ctrAddresses[tr.contractId] = receipt.contractAddress
 						ctrAddresses["<" + tr.contractId + " - " + trIndex  + ">"] = receipt.contractAddress //get right ctr address if deploy more than one contract of same type.
-						if (codeModel.contracts[contractFromToken(tr.contractId)].contract().isLibrary())
+						if (codeModel.contracts[contractFromToken(tr.contractId)].contract.isLibrary())
 							deployedLibraries[contractFromToken(tr.contractId)] = receipt.contractAddress
 					}
 					executeTrNextStep(blockIndex, trIndex, state, ctrAddresses, trHashes, callBack)

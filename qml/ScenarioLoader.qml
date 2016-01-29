@@ -307,6 +307,7 @@ ColumnLayout
 				width: btnWidth
 				height: parent.height
 				id: dropBtns
+				tooltip: qsTr("Manage Scenario")
 				Component.onCompleted:
 				{
 					actions.push({ label: qsTr("Edit Title") , action: editTitle })

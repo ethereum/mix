@@ -7,6 +7,7 @@ import org.ethereum.qml.InverseMouseArea 1.0
 
 Item
 {
+	property string tooltip
 	property var actions: []
 	id: root
 	function init()
@@ -36,12 +37,12 @@ Item
 	ScenarioButton
 	{
 		id: labelButton
-		roundLeft: true
-		roundRight: true
-		width: 40
+		roundLeft: false
+		roundRight: false
+		width: 30
 		height: 30
-		sourceImg: "qrc:/qml/img/plus.png"
-		text: qsTr("Add Transaction/Block")
+		sourceImg: "qrc:/qml/img/showmoreactions.png"
+		text: tooltip
 		onClicked:
 		{
 			btnClicked()

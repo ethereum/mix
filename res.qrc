@@ -119,5 +119,6 @@
         <file>qml/img/unknown.png</file>
         <file>qml/DropdownButton.qml</file>
         <file>qml/img/createfolder.png</file>
+        <file>qml/img/showmoreactions.png</file>
     </qresource>
 </RCC>
