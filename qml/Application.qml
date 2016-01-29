@@ -1,3 +1,23 @@
+/*
+	This file is part of cpp-ethereum.
+	cpp-ethereum is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+	cpp-ethereum is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	You should have received a copy of the GNU General Public License
+	along with cpp-ethereum.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file Application.qml
+ * @author Yann yann@ethdev.com
+ * @author Arkadiy Paronyan arkadiy@ethdev.com
+ * @date 2015
+ * Ethereum IDE client.
+ */
+
 import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
@@ -31,6 +51,7 @@ ApplicationWindow {
 	property alias appService: appService;
 	property alias mainSettings: appSettings
 	property bool trackLastProject: true;
+	WelcomeViewStyle { id: welcomeViewStyleId }
 
 	ApplicationService {
 		id: appService
@@ -144,6 +165,11 @@ ApplicationWindow {
 			MenuItem { action: increaseAppFontSize }
 			MenuItem { action: decreaseAppFontSize }
 			MenuItem { action: setEnvFontSize }
+		}
+		Menu
+		{
+			title: qsTr("Help")
+			MenuItem { action: aboutMixAction }
 		}
 	}
 
@@ -289,6 +315,7 @@ ApplicationWindow {
 		text: qsTr("Show Web View")
 		shortcut: "F2"
 		checkable: true
+		enabled: !projectModel.isEmpty
 		checked: mainContent.webViewVisible
 		onTriggered: mainContent.toggleWebPreview();
 	}
@@ -298,6 +325,7 @@ ApplicationWindow {
 		text: qsTr("Show Project Navigator")
 		shortcut: "Alt+0"
 		checkable: true
+		enabled: !projectModel.isEmpty
 		checked: mainContent.projectViewVisible
 		onTriggered: mainContent.toggleProjectView();
 	}
@@ -307,6 +335,7 @@ ApplicationWindow {
 		text: qsTr("Horizontal Web View")
 		shortcut: "Alt+W"
 		checkable: true
+		enabled: !projectModel.isEmpty
 		checked: mainContent.webViewHorizontal
 		onTriggered: mainContent.toggleWebPreviewOrientation();
 	}
@@ -325,6 +354,7 @@ ApplicationWindow {
 		text: qsTr("Show Right View")
 		shortcut: "F7"
 		checkable: true
+		enabled: !projectModel.isEmpty
 		checked: mainContent.rightViewVisible
 		onTriggered: mainContent.toggleRightView();
 	}
@@ -333,7 +363,7 @@ ApplicationWindow {
 		id: createProjectAction
 		text: qsTr("&New Project")
 		shortcut: "Ctrl+N"
-		enabled: true;
+		enabled: true
 		onTriggered: projectModel.createProject();
 	}
 
@@ -439,6 +469,17 @@ ApplicationWindow {
 		shortcut: "Ctrl+Tab"
 		enabled: !projectModel.isEmpty
 		onTriggered: mainContent.projectNavigator.openNextOpenedDocument();
+	}
+
+	Action {
+		id: aboutMixAction
+		text: qsTr("About Mix")
+		onTriggered: aboutMix.open()
+	}
+
+	AboutMix
+	{
+		id: aboutMix
 	}
 
 	Action {

@@ -1,3 +1,23 @@
+/*
+	This file is part of cpp-ethereum.
+	cpp-ethereum is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+	cpp-ethereum is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	You should have received a copy of the GNU General Public License
+	along with cpp-ethereum.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file QAddressView.qml
+ * @author Yann yann@ethdev.com
+ * @author Arkadiy Paronyan arkadiy@ethdev.com
+ * @date 2015
+ * Ethereum IDE client.
+ */
+
 import QtQuick 2.0
 import QtQuick.Controls 1.3
 import QtQuick.Controls.Styles 1.3
@@ -69,23 +89,23 @@ ColumnLayout
 		if (subType.indexOf("contract") !== -1 || subType.indexOf("address") !== -1)
 		{
 			var trCr = 0;
-            if (blockChainPanel)
-                for (var k = 0; k < blockChainPanel.model.blocks.length; k++)
-                {
-                    if (k > blockIndex)
-                        break;
-                    for (var i = 0; i < blockChainPanel.model.blocks[k].transactions.length; i++)
-                    {
-                        if (i > transactionIndex)
-                            break;
-                        var tr = blockChainPanel.model.blocks[k].transactions[i]
-						if (tr.functionId === tr.contractId)
-                        {
-                            accountRef.append({ "itemid": tr.contractId + " - " + trCr, "value": "<" + tr.contractId + " - " + trCr + ">", "type": "contract" });
-                            trCr++;
-                        }
-                    }
-                }
+			if (blockChainPanel)
+				for (var k = 0; k < blockChainPanel.model.blocks.length; k++)
+				{
+					if (k > blockIndex)
+						break;
+					for (var i = 0; i < blockChainPanel.model.blocks[k].transactions.length; i++)
+					{
+						if (i > transactionIndex)
+							break;
+						var tr = blockChainPanel.model.blocks[k].transactions[i]
+						if (tr.functionId === tr.contractId && !codeModel.contracts[tr.contractId].contract.isLibrary())
+						{
+							accountRef.append({ "itemid": tr.contractId + " - " + trCr, "value": "<" + tr.contractId + " - " + trCr + ">", "type": "contract" });
+							trCr++;
+						}
+					}
+				}
 		}
 		if (subType.indexOf("address") !== -1)
 		{
@@ -197,7 +217,7 @@ ColumnLayout
 			onCurrentIndexChanged: {
 				if (!isArray())
 					update()
-			}			
+			}
 		}
 
 		DefaultButton

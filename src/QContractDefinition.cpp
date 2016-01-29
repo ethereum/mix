@@ -31,7 +31,7 @@
 using namespace dev::solidity;
 using namespace dev::mix;
 
-QContractDefinition::QContractDefinition(QObject* _parent, dev::solidity::ContractDefinition const* _contract): QBasicNodeDefinition(_parent, _contract)
+QContractDefinition::QContractDefinition(QObject* _parent, dev::solidity::ContractDefinition const* _contract): QBasicNodeDefinition(_parent, _contract), m_isLibrary(_contract->isLibrary())
 {
 	QObject* parent = _parent ? _parent : this;
 	if (_contract->constructor() != nullptr)

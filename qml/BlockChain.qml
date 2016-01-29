@@ -1,3 +1,23 @@
+/*
+	This file is part of cpp-ethereum.
+	cpp-ethereum is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+	cpp-ethereum is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	You should have received a copy of the GNU General Public License
+	along with cpp-ethereum.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file BlockChain.qml
+ * @author Yann yann@ethdev.com
+ * @author Arkadiy Paronyan arkadiy@ethdev.com
+ * @date 2015
+ * Ethereum IDE client.
+ */
+
 import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
@@ -31,7 +51,8 @@ ColumnLayout {
 	property bool firstLoad: true
 	property bool buildUseOptimizedCode: false
 	property bool built: false
-	property int btnWidth: 60
+	property int btnWidth: 32
+	property int btnHeight: 32
 
 	Keys.onUpPressed:
 	{
@@ -134,6 +155,7 @@ ColumnLayout {
 	{
 		model.blocks[_block].transactions.splice(_txIndex, 1)
 		blockModel.removeTransaction(_block, _txIndex)
+		rebuildRequired()
 	}
 
 	function getAccountNickname(address)
@@ -274,7 +296,7 @@ ColumnLayout {
 		anchors.leftMargin: 5
 		anchors.top: parent.top
 		anchors.topMargin: -4
-		spacing: 1
+		spacing: 10
 		id: rowBtns
 		Settings
 		{
@@ -315,13 +337,14 @@ ColumnLayout {
 				rebuildEnable = true;
 			}
 		}
+
 		ScenarioButton {
 			id: rebuild
 			text: qsTr("Rebuild Scenario")
 			width: btnWidth
-			Layout.minimumHeight: 30
+			height: btnHeight
 			roundLeft: true
-			roundRight: false
+			roundRight: true
 			enabled: (scenarioIndex !== -1) && (compilationResultChecker.rebuildEnable)
 			property variant contractsHex: ({})
 			property variant txSha3: ({})
@@ -470,11 +493,20 @@ ColumnLayout {
 			sourceImg: "qrc:/qml/img/recycleicon@2x.png"
 		}
 
-		ScenarioButton {
-			id: addTransaction
-			text: qsTr("Add Transaction...")
-			enabled: scenarioIndex !== -1
-			onClicked:
+		DropdownButton
+		{
+			id: actionsButtons
+			width: btnWidth
+			tooltip: qsTr("Add Transaction/Block")
+			height: btnHeight
+			Component.onCompleted:
+			{
+				actions.push({ label: qsTr("Add Transaction...") , action: addTransaction })
+				actions.push({ label: qsTr("Seal Block") , action: mineBlock })
+				init()
+			}
+
+			function addTransaction()
 			{
 				if (model && model.blocks)
 				{
@@ -493,29 +525,8 @@ ColumnLayout {
 					transactionDialog.open(model.blocks[model.blocks.length - 1].transactions.length, model.blocks.length - 1, item)
 				}
 			}
-			width: btnWidth
-			Layout.minimumHeight: 30
-			buttonShortcut: ""
-			sourceImg: "qrc:/qml/img/sendtransactionicon@2x.png"
-			roundLeft: false
-			roundRight: false
-		}
 
-		Timer
-		{
-			id: ensureNotFuturetime
-			interval: 1000
-			repeat: false
-			running: false
-		}
-
-		ScenarioButton {
-			id: addBlockBtn
-			text: qsTr("Add Block")
-			enabled: scenarioIndex !== -1
-			roundLeft: false
-			roundRight: false
-			onClicked:
+			function mineBlock()
 			{
 				if (ensureNotFuturetime.running)
 					return
@@ -542,11 +553,14 @@ ColumnLayout {
 				model.blocks.push(block)
 				blockModel.appendBlock(block)
 			}
-			width: btnWidth
-			Layout.minimumHeight: 30
+		}
 
-			buttonShortcut: ""
-			sourceImg: "qrc:/qml/img/newblock@2x.png"
+		Timer
+		{
+			id: ensureNotFuturetime
+			interval: 1000
+			repeat: false
+			running: false
 		}
 
 		Connections
@@ -563,7 +577,7 @@ ColumnLayout {
 					var lastB = blockModel.get(model.blocks.length - 1)
 					lastB.status = "mined"
 					lastB.number = model.blocks.length
-					addBlockBtn.addNewBlock()
+					actionsButtons.addNewBlock()
 				}
 			}
 			onStateCleared:
@@ -662,33 +676,6 @@ ColumnLayout {
 
 			onMiningComplete:
 			{
-			}
-		}
-
-		ScenarioButton {
-			id: newAccount
-			enabled: scenarioIndex !== -1
-			text: qsTr("New Account...")
-			onClicked: {
-				newAddressWin.accounts = model.accounts
-				newAddressWin.open()
-			}
-			width: btnWidth
-			Layout.minimumHeight: 30
-			buttonShortcut: ""
-			sourceImg: "qrc:/qml/img/newaccounticon@2x.png"
-			roundLeft: false
-			roundRight: true
-		}
-
-		NewAccount
-		{
-			id: newAddressWin
-			onAccepted:
-			{
-				model.accounts.push(ac)
-				clientModel.addAccount(ac.secret);
-				projectModel.saveProject()
 			}
 		}
 	}
@@ -835,6 +822,7 @@ ColumnLayout {
 							else
 								return []
 						}
+
 						transactionModel:
 						{
 							if (index >= 0)
