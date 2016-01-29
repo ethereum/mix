@@ -258,7 +258,7 @@ public:
 	/// Return the location of the given contract
 	Q_INVOKABLE QVariantMap locationOf(QString _contract);
 	/// link libraries referenced in @arg _contractName
-	void linkLibraries(QString const& _contractName, QVariantMap const& _deployedLibraries);
+	Q_INVOKABLE void linkLibraries(QString const& _contractName, QVariantMap const& _deployedLibraries);
 
 signals:
 	/// Emited on internal error
