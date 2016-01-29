@@ -188,7 +188,7 @@ Rectangle {
 			Settings {
 				id: splitSettings
 				property alias projectWidth: projectList.width
-				property alias contentViewWidth: contentView.width
+				property alias contentViewWidth: codeWebSplitter.width
 				property alias rightViewWidth: scenarioExe.width
 			}
 
@@ -214,86 +214,77 @@ Rectangle {
 					Layout.fillHeight: true
 				}
 
-				Rectangle {
-					id: contentView
+				Splitter {
+					id: codeWebSplitter
 					Layout.fillHeight: true
 					Layout.fillWidth: true
-					Splitter {
-						id: codeWebSplitter
-						anchors.fill: parent
-						orientation: Qt.Horizontal
+					orientation: Qt.Horizontal
 
-						Connections
+					Connections
+					{
+						target: projectList
+						onDocDoubleClicked:
 						{
-							target: projectList
-							onDocDoubleClicked:
-							{
-								codeEditor.openDocument(fileData)
-								path.text = fileData.path
-								projectModel.currentDocument = fileData
-							}
+							codeEditor.openDocument(fileData)
+							path.text = fileData.path
+							projectModel.currentDocument = fileData
 						}
+					}
 
-						Connections
+					Connections
+					{
+						target: codeEditor
+						onCurrentDocumentIdChanged:
 						{
-							target: codeEditor
-							onCurrentDocumentIdChanged:
-							{
-								path.text = mainContent.codeEditor.currentDocumentId
-							}
-							onDocumentClosed:
-							{
-								path.text = ""
-							}
+							path.text = mainContent.codeEditor.currentDocumentId
 						}
-
-						ColumnLayout
+						onDocumentClosed:
 						{
-							Layout.fillHeight: true
-							Layout.fillWidth: true
-							anchors.top: parent.top
-							spacing: 0
-							Rectangle
-							{
+							path.text = ""
+						}
+					}
 
-								WebPreviewStyle {
-									id: webPreviewStyle
-								}
-
-								Layout.minimumHeight: 38
-								Layout.fillWidth: true
-								color: webPreviewStyle.general.headerBackgroundColor
-								DefaultLabel
-								{
-									id: path
-									anchors.centerIn: parent
-								}
+					Column
+					{
+						Layout.fillHeight: true
+						Layout.fillWidth: true
+						onHeightChanged:
+						{
+							console.log("poi")
+						}
+						anchors.top: parent.top
+						spacing: 0
+						Rectangle
+						{
+							id: pathHeader
+							WebPreviewStyle {
+								id: webPreviewStyle
 							}
 
-							Rectangle
+							height: 38
+							width: parent.width
+							color: webPreviewStyle.general.headerBackgroundColor
+							DefaultLabel
 							{
-								Layout.minimumHeight: 1
-								Layout.preferredWidth: parent.width
-								color: webPreviewStyle.general.separatorColor
-								visible: codeEditor.currentDocumentId !== ""
-							}
-
-							CodeEditorView
-							{
-								id: codeEditor
-								Layout.fillHeight: true
-								Layout.fillWidth: true
+								id: path
+								anchors.centerIn: parent
 							}
 						}
 
-						WebPreview {
-							id: webPreview
-							height: parent.height * 0.4
-							Layout.fillWidth: codeWebSplitter.orientation === Qt.Vertical
-							Layout.fillHeight: codeWebSplitter.orientation === Qt.Horizontal
-							Layout.minimumHeight: codeWebSplitter.orientation === Qt.Horizontal ? /*parent.height*/300 : 300
-							Layout.minimumWidth: codeWebSplitter.orientation === Qt.Vertical ? /*parent.width*/500 : 500
+						CodeEditorView
+						{
+							id: codeEditor
+							height: parent.height - pathHeader.height
+							width: parent.width
 						}
+					}
+
+					WebPreview {
+						id: webPreview
+						Layout.fillWidth: codeWebSplitter.orientation === Qt.Vertical
+						Layout.fillHeight: codeWebSplitter.orientation === Qt.Horizontal
+						Layout.minimumHeight: 50
+						Layout.minimumWidth: 50
 					}
 				}
 
