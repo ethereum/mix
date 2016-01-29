@@ -37,7 +37,6 @@ Item {
 
 	visible: false
 
-
 	Rectangle
 	{
 		color: welcomeViewStyleId.bgColor
@@ -81,7 +80,7 @@ Item {
 						labelText: "New Project"
 						onClicked:
 						{
-							openProjectFileDialog.open()
+							projectModel.createProject()
 						}
 					}
 				}
