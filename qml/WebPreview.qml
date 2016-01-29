@@ -213,9 +213,32 @@ Item {
 
 			Row {
 				anchors.verticalCenter: parent.verticalCenter
-				anchors.leftMargin: 3
+				anchors.leftMargin: 8
 				anchors.left: parent.left
 				spacing: 10
+
+				ScenarioButton {
+					id: reloadFrontend
+					text: qsTr("Reload frontend")
+					height: 24
+					width: 24
+					border: false
+					anchors.verticalCenter: parent.verticalCenter
+					roundLeft: true
+					roundRight: true
+					onClicked:
+					{
+						reload()
+					}
+					buttonShortcut: ""
+					sourceImg: "qrc:/qml/img/recycleicon@2x.png"
+					function reload()
+					{
+						mainContent.webView.reload()
+						reloadFrontend.stopBlinking()
+					}
+				}
+
 				DefaultTextField
 				{
 					id: urlInput
@@ -240,26 +263,7 @@ Item {
 					}
 				}
 
-				ScenarioButton {
-					id: reloadFrontend
-					text: qsTr("Reload frontend")
-					height: 30
-					width: 30
-					anchors.verticalCenter: parent.verticalCenter
-					roundLeft: true
-					roundRight: true
-					onClicked:
-					{
-						reload()
-					}
-					buttonShortcut: ""
-					sourceImg: "qrc:/qml/img/recycleicon@2x.png"
-					function reload()
-					{
-						mainContent.webView.reload()
-						reloadFrontend.stopBlinking()
-					}
-				}
+
 
 				Connections
 				{
@@ -299,9 +303,22 @@ Item {
 				CheckBox {
 					id: autoReloadOnSave
 					checked: true
-					height: 21
 					anchors.verticalCenter: parent.verticalCenter
 					style: CheckBoxStyle {
+						indicator: Rectangle {
+										implicitWidth: 22
+										implicitHeight: 22
+										radius: 3
+										border.color: control.activeFocus ? "darkblue" : "gray"
+										border.width: 1
+										Rectangle {
+											visible: control.checked
+											color: "#5391d8"
+											radius: 1
+											anchors.margins: 4
+											anchors.fill: parent
+										}
+								}
 						label: DefaultLabel {
 							text: qsTr("Auto reload on save")
 						}
@@ -311,8 +328,8 @@ Item {
 
 				DefaultImgButton
 				{
-					height: 25
-					width: 25
+					height: 28
+					width: 28
 					anchors.verticalCenter: parent.verticalCenter
 					action: expressionAction
 					iconSource: "qrc:/qml/img/console.png"
