@@ -51,7 +51,8 @@ ColumnLayout {
 	property bool firstLoad: true
 	property bool buildUseOptimizedCode: false
 	property bool built: false
-	property int btnWidth: 60
+	property int btnWidth: 32
+	property int btnHeight: 32
 
 	Keys.onUpPressed:
 	{
@@ -341,7 +342,7 @@ ColumnLayout {
 			id: rebuild
 			text: qsTr("Rebuild Scenario")
 			width: btnWidth
-			Layout.minimumHeight: 30
+			height: btnHeight
 			roundLeft: true
 			roundRight: true
 			enabled: (scenarioIndex !== -1) && (compilationResultChecker.rebuildEnable)
@@ -497,7 +498,7 @@ ColumnLayout {
 			id: actionsButtons
 			width: btnWidth
 			tooltip: qsTr("Add Transaction/Block")
-			height: 30
+			height: btnHeight
 			Component.onCompleted:
 			{
 				actions.push({ label: qsTr("Add Transaction...") , action: addTransaction })

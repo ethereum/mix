@@ -43,7 +43,8 @@ ColumnLayout
 	signal closed()
 	property alias selectedScenarioIndex: scenarioList.currentIndex
 	property bool panelLoaded: false
-	property int btnWidth: 60
+	property int btnWidth: 32
+	property int btnHeight: 32
 
 	function init()
 	{
@@ -90,9 +91,9 @@ ColumnLayout
 		anchors.top: parent.top
 		anchors.topMargin: 7
 		id: btnRowContainer
-		property int comboboxWidth: 100
+		property int comboboxWidth: 160
 		property int minimalWidth: 100 + 6 * btnRowContainer.comboboxWidth
-		Layout.minimumHeight: 30
+		Layout.minimumHeight: btnHeight
 
 		Item
 		{
@@ -305,7 +306,7 @@ ColumnLayout
 			DropdownButton
 			{
 				width: btnWidth
-				height: parent.height
+				height: btnHeight
 				id: dropBtns
 				tooltip: qsTr("Manage Scenario")
 				Component.onCompleted:
@@ -357,6 +358,7 @@ ColumnLayout
 					}
 
 					item.title = defaultScenario ? qsTr("Default") : qsTr("New Scenario")
+					item.title = projectModel.stateListModel.correctTitle(item.title)
 					projectModel.stateListModel.appendState(item)
 					projectModel.stateListModel.save()
 					scenarioList.currentIndex = defaultScenario ? 0 : projectModel.stateListModel.count - 1
