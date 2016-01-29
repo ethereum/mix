@@ -89,23 +89,23 @@ ColumnLayout
 		if (subType.indexOf("contract") !== -1 || subType.indexOf("address") !== -1)
 		{
 			var trCr = 0;
-            if (blockChainPanel)
-                for (var k = 0; k < blockChainPanel.model.blocks.length; k++)
-                {
-                    if (k > blockIndex)
-                        break;
-                    for (var i = 0; i < blockChainPanel.model.blocks[k].transactions.length; i++)
-                    {
-                        if (i > transactionIndex)
-                            break;
-                        var tr = blockChainPanel.model.blocks[k].transactions[i]
+			if (blockChainPanel)
+				for (var k = 0; k < blockChainPanel.model.blocks.length; k++)
+				{
+					if (k > blockIndex)
+						break;
+					for (var i = 0; i < blockChainPanel.model.blocks[k].transactions.length; i++)
+					{
+						if (i > transactionIndex)
+							break;
+						var tr = blockChainPanel.model.blocks[k].transactions[i]
 						if (tr.functionId === tr.contractId && !codeModel.contracts[tr.contractId].contract.isLibrary())
-                        {
-                            accountRef.append({ "itemid": tr.contractId + " - " + trCr, "value": "<" + tr.contractId + " - " + trCr + ">", "type": "contract" });
-                            trCr++;
-                        }
-                    }
-                }
+						{
+							accountRef.append({ "itemid": tr.contractId + " - " + trCr, "value": "<" + tr.contractId + " - " + trCr + ">", "type": "contract" });
+							trCr++;
+						}
+					}
+				}
 		}
 		if (subType.indexOf("address") !== -1)
 		{
@@ -217,7 +217,7 @@ ColumnLayout
 			onCurrentIndexChanged: {
 				if (!isArray())
 					update()
-			}			
+			}
 		}
 
 		DefaultButton

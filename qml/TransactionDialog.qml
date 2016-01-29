@@ -66,7 +66,7 @@ Dialog {
 
 	function open(index, blockIdx, item) {
 		loaded = false
-		gasEstimationClient.reset()
+		gasEstimationClient.reset(codeModel)
 		if (mainApplication.systemPointSize >= appSettings.systemPointSize)
 		{
 			width = 580
@@ -216,6 +216,7 @@ Dialog {
 
 	function close()
 	{
+		gasEstimationTimer.running = false
 		visible = false;
 		closed()
 	}
@@ -546,7 +547,6 @@ Dialog {
 								}
 								var addr = getAddress()
 								addrRecipient.originalText = addr.indexOf("0x") === 0 ? addr.replace("0x", "") : addr
-								gasEstimationClient.executeTempTx()
 							}
 						}
 
@@ -574,7 +574,6 @@ Dialog {
 							if (loaded)
 								paramValues = {}
 							loadCtorParameters(currentValue());
-							gasEstimationClient.executeTempTx()
 						}
 					}
 				}
@@ -638,10 +637,6 @@ Dialog {
 						paramScroll.Layout.minimumHeight = paramScroll.colHeight
 						if (paramsModel.length === 0)
 							paramScroll.height = 0
-					}
-					onValuesChanged:
-					{
-						gasEstimationClient.executeTempTx()
 					}
 				}
 
@@ -738,22 +733,11 @@ Dialog {
 							Connections
 							{
 								target: functionComboBox
-								onCurrentIndexChanged:
-								{
-									gasEstimationClient.executeTempTx()
-								}
 							}
 
 							function updateView()
 							{
-								if (rbbuttonList.current.objectName === "trTypeExecute")
-									gasEstimationClient.executeTempTx()
-								else if (rbbuttonList.current.objectName === "trTypeCreate")
-								{
-									var contractName = contractCreationComboBox.currentValue()
-									gasEstimationClient.executeTempTx()
-								}
-								else if (rbbuttonList.current.objectName === "trTypeSend")
+								if (rbbuttonList.current.objectName === "trTypeSend")
 								{
 									var gas = codeModel.txGas + codeModel.callStipend
 									estimatedGas.text = qsTr("Estimated cost: ") + gas + " gas"
@@ -883,6 +867,27 @@ Dialog {
 	}
 
 	property variant clientEstimation
+
+	Timer
+	{
+		property string txHash: ""
+		id: gasEstimationTimer
+		repeat: true
+		running: false
+		interval: 700
+		onTriggered:
+		{
+			var item = getItem()
+			item.gasAuto = true
+			var newHash = codeModel.sha3(JSON.stringify(item))
+			if (txHash !== newHash)
+			{
+				txHash = newHash
+				gasEstimationClient.setupContext(item)
+			}
+		}
+	}
+
 	ClientModel
 	{
 		id: gasEstimationClient
@@ -891,6 +896,7 @@ Dialog {
 		property bool txRequested: false
 		property int txLength: 0
 		property int currentTx: 0
+		property var tx
 		Component.onCompleted:
 		{
 			if (enableGasEstimation)
@@ -912,31 +918,34 @@ Dialog {
 		onSetupFinished:
 		{
 			scenarioLoaded = true
-			var item = getItem()
-			item.gasAuto = true
-			gasEstimationClient.executeTr(item);
+			gasEstimationClient.executeTr(tx);
 			txRequested = true
 		}
 
-		function reset()
+		function reset(devCodeModel)
 		{
 			if (enableGasEstimation)
 			{
 				scenarioLoaded = false
-				for (var si = 0; si < projectModel.listModel.count; si++)
+				var docs = {}
+				for (var c in devCodeModel.contracts)
 				{
-					var document = projectModel.listModel.get(si);
-					if (document.isContract)
-						gasEstimationCode.registerCodeChange(document.documentId, fileIo.readFile(document.path));
+					var docId = devCodeModel.contracts[c].documentId
+					if (!docs[docId])
+					{
+						gasEstimationCode.registerCodeChange(docId, fileIo.readFile(docId));
+						docs[docId] = ""
+					}
 				}
-				var scenario = projectModel.stateListModel.getState(mainContent.rightPane.bcLoader.selectedScenarioIndex)
+				gasEstimationTimer.running = true
 			}
 		}
 
-		function setupContext()
+		function setupContext(tx)
 		{
 			if (!gasEstimationClient.running && enableGasEstimation)
 			{
+				gasEstimationClient.tx = tx
 				estimatedGas.text = qsTr("Computing gas estimation...")
 				var scenario = projectModel.stateListModel.getState(mainContent.rightPane.bcLoader.selectedScenarioIndex)
 				txLength = 0
@@ -945,12 +954,6 @@ Dialog {
 					txLength += scenario.blocks[i].transactions.length
 				gasEstimationClient.setupScenario(scenario)
 			}
-		}
-
-		function executeTempTx()
-		{
-			if (enableGasEstimation)
-				setupContext()
 		}
 	}
 }

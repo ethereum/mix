@@ -71,7 +71,7 @@ DefaultTextField
 		anchors.verticalCenter: parent.verticalCenter
 		height: parent.height - 2
 		width: 30
-		tooltip: localPackageUrl.tooltip
+		tooltip: rootDisableInput.tooltip
 		getContent: function()
 		{
 			return rootDisableInput.originalText;
