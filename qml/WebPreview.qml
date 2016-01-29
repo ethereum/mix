@@ -42,7 +42,7 @@ Item {
 	}
 
 	function reload() {
-		if (initialized) {			
+		if (initialized) {
 			//webView.runJavaScript("reloadPage()");
 			setPreviewUrl(urlInput.text);
 			updateContract();
@@ -103,7 +103,7 @@ Item {
 			var containerPage = fileIo.readFile("qrc:///qml/html/WebContainer.html")
 			webView.loadHtml(containerPage, httpServer.url + "/WebContainer.html")
 		}
-	}	
+	}
 
 	Connections {
 		target: projectModel
@@ -306,19 +306,19 @@ Item {
 					anchors.verticalCenter: parent.verticalCenter
 					style: CheckBoxStyle {
 						indicator: Rectangle {
-										implicitWidth: 22
-										implicitHeight: 22
-										radius: 3
-										border.color: control.activeFocus ? "darkblue" : "gray"
-										border.width: 1
-										Rectangle {
-											visible: control.checked
-											color: "#5391d8"
-											radius: 1
-											anchors.margins: 4
-											anchors.fill: parent
-										}
-								}
+							implicitWidth: 22
+							implicitHeight: 22
+							radius: 3
+							border.color: control.activeFocus ? "darkblue" : "gray"
+							border.width: 1
+							Rectangle {
+								visible: control.checked
+								color: "#5391d8"
+								radius: 1
+								anchors.margins: 4
+								anchors.fill: parent
+							}
+						}
 						label: DefaultLabel {
 							text: qsTr("Auto reload on save")
 						}
