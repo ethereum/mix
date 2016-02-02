@@ -467,7 +467,6 @@ ScrollView
 
 				function fillView(items, type)
 				{
-					items.sort()
 					for (var k = 0; k < items.length; k++)
 					{
 						if (items[k].fileName !== "" && items[k].fileName !== ".." && items[k].fileName !== ".")

@@ -361,7 +361,7 @@ QVariantList FileIo::files(QString const& _root)
 
 QVariantList FileIo::directories(QString const& _root)
 {
-	return createSortedList(_root, QDir::Dirs);
+	return createSortedList(_root, QDir::AllDirs);
 }
 
 QVariantList FileIo::createSortedList(QString const& _root, QDir::Filter _filter)
@@ -369,6 +369,7 @@ QVariantList FileIo::createSortedList(QString const& _root, QDir::Filter _filter
 	QDir dir = QDir(pathFromUrl(_root));
 	dir.setFilter(_filter);
 	dir.setSorting(QDir::Name);
+	dir.setSorting(QDir::IgnoreCase);
 	QFileInfoList fileInfoList = dir.entryInfoList();
 	QVariantList ret;
 
