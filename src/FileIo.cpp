@@ -356,31 +356,28 @@ QUrl FileIo::pathFolder(QString const& _path)
 
 QVariantList FileIo::files(QString const& _root)
 {
-	QDirIterator it(pathFromUrl(_root), QDir::Files, QDirIterator::NoIteratorFlags);
-	QVariantList ret;
-	while (it.hasNext())
-	{
-		QVariantMap file;
-		it.next();
-		file["path"] = it.fileInfo().absoluteFilePath();
-		file["fileName"] = it.fileName();
-		ret.append(file);
-	}
-	return ret;
+	return createSortedList(_root, QDir::Files);
 }
 
 QVariantList FileIo::directories(QString const& _root)
 {
-	QDirIterator it(pathFromUrl(_root), QDir::Dirs, QDirIterator::NoIteratorFlags);
+	return createSortedList(_root, QDir::Dirs);
+}
+
+QVariantList FileIo::createSortedList(QString const& _root, QDir::Filter _filter)
+{
+	QDir dir = QDir(pathFromUrl(_root));
+	dir.setFilter(_filter);
+	dir.setSorting(QDir::Name);
+	QFileInfoList fileInfoList = dir.entryInfoList();
 	QVariantList ret;
-	while (it.hasNext())
+
+	foreach(QFileInfo fileInfo, fileInfoList)
 	{
-		QVariantMap path;
-		it.next();
-		path["path"] = it.fileInfo().absoluteFilePath();
-		path["fileName"] = it.fileName();
-		ret.append(path);
+		QVariantMap file;
+		file["path"] = fileInfo.absoluteFilePath();
+		file["fileName"] = fileInfo.fileName();
+		ret.append(file);
 	}
 	return ret;
 }
-
