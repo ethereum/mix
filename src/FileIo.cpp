@@ -85,7 +85,11 @@ QString FileIo::pathFromUrl(QString const& _url)
 	if (url.scheme() == "file")
 	{
 		if (path.startsWith("/"))
-			path = path.right(path.length() - 1);
+		{
+			path = path.remove(0, 1);
+			if (path.startsWith("/"))
+				path = path.remove(0, 1);
+		}
 		if (!url.host().isEmpty())
 			path = url.host().toUpper() + ":/" + path;
 	}
