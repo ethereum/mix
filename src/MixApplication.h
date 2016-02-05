@@ -33,6 +33,8 @@ namespace dev
 namespace mix
 {
 
+extern char const* VersionNumber;
+
 class ApplicationService: public QObject
 {
 	Q_OBJECT
