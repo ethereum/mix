@@ -74,7 +74,7 @@ void MixApplication::initialize()
 	setOrganizationName(tr("Ethereum"));
 	setOrganizationDomain(tr("ethereum.org"));
 	setApplicationName(tr("Mix"));
-	setApplicationVersion("0.1");
+	setApplicationVersion("1.0");
 
 	qmlRegisterType<CodeModel>("org.ethereum.qml.CodeModel", 1, 0, "CodeModel");
 	qmlRegisterType<ClientModel>("org.ethereum.qml.ClientModel", 1, 0, "ClientModel");
