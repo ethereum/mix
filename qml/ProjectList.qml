@@ -441,7 +441,7 @@ ScrollView
 					currentFolder = folder
 					folderPath.text = folder
 					projectModel.currentFolder = folder
-					if (currentFolder.indexOf("/") !== -1)
+					if (currentFolder.indexOf("/") !== -1 && currentFolder.substring(1) !== ":")
 						model.append({ fileName: "..", type: "folder", path: currentFolder })
 					fillView(fileIo.directories(folder), "folder")
 					fillView(fileIo.files(folder), "file")
