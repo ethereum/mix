@@ -95,6 +95,7 @@ private:
 	QFileSystemWatcher* m_watcher;
 
 	void manageException();
+	QVariantList createSortedList(QString const& _root, QDir::Filter _filter);
 };
 
 }
