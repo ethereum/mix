@@ -743,7 +743,7 @@ SolidityType CodeModel::nodeType(dev::solidity::Type const* _type)
 	case Type::Category::Magic:
 	case Type::Category::Mapping:
 	case Type::Category::Modifier:
-	case Type::Category::FixedPoint:
+	case Type::Category::Real:
 	case Type::Category::TypeType:
 	case Type::Category::Tuple:
 	default:
