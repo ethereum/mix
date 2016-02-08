@@ -27,6 +27,7 @@
 #include <QFont>
 #include <QtWebEngine/QtWebEngine>
 #include <libsolidity/interface/Version.h>
+#include <mix/BuildInfo.h>
 #include "CodeModel.h"
 #include "ClientModel.h"
 #include "FileIo.h"
@@ -38,6 +39,8 @@
 #include "InverseMouseArea.h"
 
 using namespace dev::mix;
+
+char const* dev::mix::VersionNumber = ETH_PROJECT_VERSION;
 
 ApplicationService::ApplicationService()
 {
@@ -74,7 +77,7 @@ void MixApplication::initialize()
 	setOrganizationName(tr("Ethereum"));
 	setOrganizationDomain(tr("ethereum.org"));
 	setApplicationName(tr("Mix"));
-	setApplicationVersion("0.1");
+	setApplicationVersion(dev::mix::VersionNumber);
 
 	qmlRegisterType<CodeModel>("org.ethereum.qml.CodeModel", 1, 0, "CodeModel");
 	qmlRegisterType<ClientModel>("org.ethereum.qml.ClientModel", 1, 0, "ClientModel");
