@@ -3,7 +3,7 @@
 [![Join the chat at https://gitter.im/ethereum/mix](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ethereum/mix?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 The Mix Ethereum Dapp Development Tool
 
-Mix is an IDE that allows developers to build, deploy contracts and decentralized applications on top of the Ethereum blockchain.
+Mix is an IDE that allows developers to build and deploy contracts and decentralized applications on top of the Ethereum blockchain.
 
 ![Mix Screenshot](https://github.com/yann300/mix/blob/ReadMe/MixScreenshot.png?raw=true)
 
@@ -15,7 +15,7 @@ it includes:
   - Internal RPC server (allows debugging transactions/calls created from the web3 JavaScript API)
   - Dapp/Contract deployment (deploying to test or live chain)
 
-Download binaries (1.0.0):
+Download binaries:
     https://github.com/ethereum/mix/releases
     
 Build from source:
