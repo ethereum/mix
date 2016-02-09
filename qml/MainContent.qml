@@ -250,7 +250,6 @@ Rectangle {
 						Layout.fillWidth: true
 						onHeightChanged:
 						{
-							console.log("poi")
 						}
 						anchors.top: parent.top
 						spacing: 0

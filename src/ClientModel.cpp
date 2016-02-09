@@ -992,7 +992,7 @@ RecordLogEntry* ClientModel::lastBlock() const
 		strGas << blockInfo.gasUsed();
 		stringstream strNumber;
 		strNumber << blockInfo.number();
-		RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList(), RecordLogEntry::TxSource::MixGui, RecordLogEntry::TransactionException::None);
+		RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), "0", "0", QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList(), RecordLogEntry::TxSource::MixGui, RecordLogEntry::TransactionException::None);
 		QQmlEngine::setObjectOwnership(record, QQmlEngine::JavaScriptOwnership);
 		return record;
 	}
@@ -1105,11 +1105,17 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 		QString function;
 		QString returned;
 		QString gasUsed;
+		QString gasRequired;
+		QString gasRefunded;
 
 		bool creation = (bool)tr.contractAddress;
 
 		if (!tr.isCall())
+		{
 			gasUsed = QString::fromStdString(toString(tr.gasUsed));
+			gasRequired = QString::fromStdString(toString(tr.gasRequired));
+			gasRefunded = QString::fromStdString(toString(tr.gasRefunded));
+		}
 
 		//TODO: handle value transfer
 		FixedHash<4> functionHash;
@@ -1246,7 +1252,7 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 			label = address;
 
 		RecordLogEntry* log = new RecordLogEntry(recordIndex, transactionIndex, contract, function, value, address, returned, tr.isCall(), RecordLogEntry::RecordType::Transaction,
-												 gasUsed, sender, label, inputParameters, returnParameters, logs, _source, exception);
+												 gasUsed, gasRequired, gasRefunded, sender, label, inputParameters, returnParameters, logs, _source, exception);
 		if (transactionIndex != QObject::tr("Call"))
 			m_lastTransactionIndex = transactionIndex;
 

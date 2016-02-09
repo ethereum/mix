@@ -648,8 +648,8 @@ ColumnLayout {
 				itemTr.functionId = _r.function
 				itemTr.contractId = _r.contract
 				itemTr.isCall = _isCall
-				itemTr.gasAuto = false
-				itemTr.gas =  QEtherHelper.createBigInt(_r.gasUsed)
+				itemTr.gasAuto = true
+				itemTr.gas = QEtherHelper.createBigInt(_r.gasUsed)
 				itemTr.isContractCreation = itemTr.functionId === itemTr.contractId
 				itemTr.label = _r.label
 				itemTr.isFunctionCall = itemTr.functionId !== "" && itemTr.functionId !== "<none>"
