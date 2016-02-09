@@ -379,6 +379,8 @@ QVariantList FileIo::createSortedList(QString const& _root, QDir::Filter _filter
 	dir.setFilter(_filter);
 	dir.setSorting(QDir::Name);
 	dir.setSorting(QDir::IgnoreCase);
+	dir.setNameFilters(QStringList() << "*.mix" << "*.sol" << "*.html");
+
 	QFileInfoList fileInfoList = dir.entryInfoList();
 	QVariantList ret;
 
