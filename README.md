@@ -5,6 +5,8 @@ The Mix Ethereum Dapp Development Tool
 
 Mix is an IDE that allows developers to build, deploy contracts and decentralized applications on top of the Ethereum blockchain.
 
+![Mix Screenshot](https://github.com/yann300/mix/blob/ReadMe/MixScreenshot.png?raw=true)
+
 it includes:
 
   - Source code editor for Solidity (contract - backend) and HTML/JS (frontend)
@@ -19,4 +21,3 @@ Download binaries (1.0.0):
 Build from source:
     https://github.com/ethereum/webthree-umbrella/wiki
 
-![Mix Screenshot](https://github.com/yann300/mix/blob/ReadMe/MixScreenshot.png?raw=true)
