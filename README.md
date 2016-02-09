@@ -19,4 +19,4 @@ Download binaries (1.0.0):
 Build from source:
     https://github.com/ethereum/webthree-umbrella/wiki
 
-![alt tag]()
+![Mix Screenshot](https://github.com/yann300/mix/blob/ReadMe/MixScreenshot.png?raw=true)
