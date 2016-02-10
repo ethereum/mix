@@ -167,6 +167,20 @@ QString FileIo::readFile(QString const& _url)
 	}
 }
 
+int FileIo::getFileSize(QString const& _url)
+{
+	try
+	{
+		QString path = pathFromUrl(_url);
+		QFile file(path);
+		return file.size();
+	}
+	catch (...)
+	{
+		manageException();
+	}
+}
+
 void FileIo::writeFile(QString const& _url, QString const& _data)
 {
 	try
@@ -379,7 +393,6 @@ QVariantList FileIo::createSortedList(QString const& _root, QDir::Filter _filter
 	dir.setFilter(_filter);
 	dir.setSorting(QDir::Name);
 	dir.setSorting(QDir::IgnoreCase);
-	dir.setNameFilters(QStringList() << "*.mix" << "*.sol" << "*.html");
 
 	QFileInfoList fileInfoList = dir.entryInfoList();
 	QVariantList ret;
