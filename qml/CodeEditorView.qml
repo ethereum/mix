@@ -265,6 +265,13 @@ Item {
 			editor.displayGasEstimation(checked);
 	}
 
+	function setReadOnly(status)
+	{
+		var editor = getEditor(currentDocumentId);
+		if (editor)
+			editor.setReadOnly(status);
+	}
+
 	Component.onCompleted: projectModel.codeEditor = codeEditorView;
 
 	Connections {
