@@ -728,7 +728,7 @@ Dialog {
 							{
 								if (rbbuttonList.current.objectName === "trTypeSend")
 								{
-									var gas = codeModel.txGas + codeModel.callStipend
+									var gas = codeModel.txGas
 									estimatedGas.text = qsTr("Estimated cost: ") + gas + " gas"
 								}
 							}

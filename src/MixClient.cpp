@@ -242,7 +242,7 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 	d.executionCode = std::move(codes);
 	d.transactionData = std::move(data);
 	EVMSchedule schedule; // TODO: make relevant to supposed context.
-	d.gasUsed = er.gasUsed + schedule.callStipend;
+	d.gasUsed = er.gasUsed;
 	d.gasRequired = _t.gasRequired(schedule);
 	d.gasRefunded = er.gasRefunded;
 	if (_t.isCreation())
@@ -260,13 +260,12 @@ void MixClient::executeTransaction(Transaction const& _t, Block& _block, bool _c
 	// execute on a state
 	if (!_call && d.excepted == TransactionException::None)
 	{
-		u256 useGas = min(d.gasUsed, _block.gasLimitRemaining());
-		t = _gasAuto ? replaceGas(_t, useGas, _secret) : _t;
+		t = _gasAuto ? replaceGas(_t, _block.gasLimitRemaining(), _secret) : _t;
 		eth::ExecutionResult const& er = _block.execute(envInfo.lastHashes(), t);
 		if (t.isCreation() && _block.state().code(d.contractAddress).empty())
 			BOOST_THROW_EXCEPTION(OutOfGas() << errinfo_comment("Not enough gas for contract deployment"));
 		EVMSchedule schedule;	// TODO: make relevant to supposed context.
-		d.gasUsed = er.gasUsed + schedule.callStipend;
+		d.gasUsed = er.gasUsed;
 		d.gasRequired = _t.gasRequired(schedule);
 		d.gasRefunded = er.gasRefunded;
 		LocalisedLogEntries logs;
