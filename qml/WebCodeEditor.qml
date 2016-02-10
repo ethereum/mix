@@ -40,6 +40,7 @@ Item {
 	property string sourceName
 	property var document
 	property int fontSize: 0
+	property int c_max_open_filesize: 5120000
 
 	function setText(text, mode) {
 		currentText = text;
@@ -172,7 +173,16 @@ Item {
 			if (!loading && editorBrowser) {
 				initialized = true;
 				setFontSize(fontSize);
-				setText(currentText, currentMode);
+
+				var size = fileIo.getFileSize(document.path);
+				if (size > c_max_open_filesize)
+				{
+					setText("File size is too large!", currentMode);
+					setReadOnly(true);
+				}
+				else 
+					setText(currentText, currentMode);
+					
 				runJavaScript("getTextChanged()", function(result) { });
 				pollTimer.running = true;
 				syncClipboard();
