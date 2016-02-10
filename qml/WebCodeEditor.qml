@@ -128,6 +128,11 @@ Item {
 			editorBrowser.runJavaScript("displayGasEstimation('" + show + "')", function(result) {});
 	}
 
+	function setReadOnly(status) {
+		if (initialized && editorBrowser)
+			editorBrowser.runJavaScript("setReadOnly('" + status + "')", function(result) {});
+	}
+
 	Clipboard
 	{
 		id: clipboard
