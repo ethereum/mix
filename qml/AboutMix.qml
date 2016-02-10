@@ -107,7 +107,6 @@ Dialog {
 				{
 					id: generalInfo
 					text: appService.solidityVersionString
-					//wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 					Layout.preferredWidth: parent.width
 					Layout.preferredHeight: 50
 					anchors.horizontalCenter: parent.horizontalCenter
@@ -121,6 +120,14 @@ Dialog {
 						selectedTextColor: "white"
 						selectionColor: "gray"
 					}
+				}
+
+				DefaultLabel
+				{
+					text: "Qt " + appService.qtVersion
+					font.pointSize: appSettings.getFormattedPointSize() + 2
+					anchors.left: parent.left
+					anchors.horizontalCenter: parent.horizontalCenter
 				}
 
 				DefaultLabel
@@ -150,7 +157,8 @@ Dialog {
 							var ret = {
 								mix: mixInfo.text,
 								solidity: solInfo.text,
-								build: generalInfo.text
+								build: generalInfo.text,
+								qt: appService.qtVersion
 							}
 							return JSON.stringify(ret)
 						}
