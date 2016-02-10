@@ -22,6 +22,7 @@ import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.0
 import QtQuick.Controls.Styles 1.1
+import QtQuick.Dialogs 1.2
 import Qt.labs.settings 1.0
 import org.ethereum.qml.QEther 1.0
 import "js/QEtherHelper.js" as QEtherHelper
@@ -54,6 +55,22 @@ Rectangle {
 	property bool displayCalls
 	property int scenarioMinWidth: 485
 	property int scenarioMaxWidth: parent.width * 0.6
+
+	Component.onCompleted:
+	{
+		var qtversion = appService.qtVersion.split(".")
+		if (!(parseInt(qtversion[0]) >= 5 && parseInt(qtversion[1]) >= 3))
+			qtVersionDialog.open()
+
+	}
+
+	MessageDialog
+	{
+		id: qtVersionDialog
+		text: qsTr("The current installed Qt version is not compatible with Mix. Qt 5.3 minimun is needed. Usability might be degraded.")
+		standardButtons: StandardIcon.Ok
+		icon: StandardIcon.Critical
+	}
 
 	Connections {
 		target: debugPanel
