@@ -179,6 +179,8 @@ int FileIo::getFileSize(QString const& _url)
 	{
 		manageException();
 	}
+
+	return 0;
 }
 
 void FileIo::writeFile(QString const& _url, QString const& _data)
