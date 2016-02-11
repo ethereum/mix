@@ -192,6 +192,36 @@ bool FileIo::isFileText(QString const& _url)
 		if (file.open(QIODevice::ReadOnly | QIODevice::Text))
 		{
 			QByteArray buf = file.read(file.bytesAvailable());
+
+			if (buf.size() >= 2)
+			{
+				//FF FE        UTF - 16, little endian
+				if ((quint8)buf[0] == 0xFF && (quint8)buf[1] == 0xFE)
+					return true;
+
+				//FE FF        UTF - 16, big endian
+				if ((quint8)buf[0] == 0xFE && (quint8)buf[1] == 0xFF)
+					return true;
+			}
+
+			if (buf.size() >= 3)
+			{
+				//EF BB BF     UTF - 8
+				if ((quint8)buf[0] == 0xEF && (quint8)buf[1] == 0xBB && (quint8)buf[2] == 0xBF)
+					return true;
+			}
+
+			if (buf.size() >= 4)
+			{
+				//FF FE 00 00  UTF - 32, little endian
+				if ((quint8)buf[0] == 0xFF && (quint8)buf[1] == 0xFE && (quint8)buf[2] == 0x00 && (quint8)buf[3] == 0x00)
+					return true;
+
+				//00 00 FE FF  UTF - 32, big - endian
+				if ((quint8)buf[0] == 0x00 && (quint8)buf[1] == 0x00 && (quint8)buf[2] == 0xFE && (quint8)buf[3] == 0xFF)
+					return true;
+			}
+
 			for (int i = 0; i < buf.size(); i++)
 			{
 				if (!isascii(buf[i]) ||
