@@ -67,7 +67,7 @@ Rectangle {
 	MessageDialog
 	{
 		id: qtVersionDialog
-		text: qsTr("The current installed Qt version is not compatible with Mix. Qt 5.3 minimun is needed. Usability might be degraded.")
+		text: qsTr("The current installed Qt version is not compatible with Mix. Qt 5.3 minimum is needed. Usability might be degraded.")
 		standardButtons: StandardIcon.Ok
 		icon: StandardIcon.Critical
 	}
