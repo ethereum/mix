@@ -183,6 +183,35 @@ int FileIo::getFileSize(QString const& _url)
 	return 0;
 }
 
+bool FileIo::isFileText(QString const& _url)
+{
+	try
+	{
+		QString path = pathFromUrl(_url);
+		QFile file(path);
+		if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+		{
+			QByteArray buf = file.read(file.bytesAvailable());
+			for (int i = 0; i < buf.size(); i++)
+			{
+				if (!isascii(buf[i]) ||
+					(iscntrl(buf[i]) && !isspace(buf[i]) &&
+					buf[i] != '\b' && buf[i] != '\032' && buf[i] != '\033'))
+					return false;	/* not all ASCII */
+			}
+			return true;
+		}
+		else
+			error(tr("Error reading file %1").arg(_url));
+	}
+	catch (...)
+	{
+		manageException();
+	}
+
+	return false;
+}
+
 void FileIo::writeFile(QString const& _url, QString const& _data)
 {
 	try

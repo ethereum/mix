@@ -180,6 +180,12 @@ Item {
 					setText("File size is too large!", currentMode);
 					setReadOnly(true);
 				}
+				else
+				if (!fileIo.isFileText(document.path))
+				{
+					setText("Can't read binary file!", currentMode);
+					setReadOnly(true);
+				}
 				else 
 					setText(currentText, currentMode);
 					
