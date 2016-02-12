@@ -50,6 +50,7 @@ ApplicationService::ApplicationService()
 	m_systemPointSize = f.pointSize();
 	m_solidityVersionNumber = QString(dev::solidity::VersionNumber);
 	m_solidityVersionString = QString::fromStdString(dev::solidity::VersionString);
+	m_qtVersion = QString::fromStdString(qVersion());
 }
 
 MixApplication::MixApplication(int& _argc, char* _argv[]):

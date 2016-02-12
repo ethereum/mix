@@ -42,6 +42,7 @@ class ApplicationService: public QObject
 	Q_PROPERTY(bool haveWebEngine READ haveWebEngine CONSTANT)
 	Q_PROPERTY(QString solidityVersionNumber READ solidityVersionNumber CONSTANT)
 	Q_PROPERTY(QString solidityVersionString READ solidityVersionString CONSTANT)
+	Q_PROPERTY(QString qtVersion READ qtVersion CONSTANT)
 
 public:
 	ApplicationService();
@@ -49,11 +50,13 @@ public:
 	QString solidityVersionString() { return m_solidityVersionString; }
 	QString solidityVersionNumber() { return m_solidityVersionNumber; }
 	bool haveWebEngine() const { return true; }
+	QString qtVersion() { return m_qtVersion; }
 
 private:
 	int m_systemPointSize = 0;
 	QString m_solidityVersionString;
 	QString m_solidityVersionNumber;
+	QString m_qtVersion;
 };
 
 
