@@ -95,7 +95,7 @@ public:
 	Q_INVOKABLE QUrl pathFolder(QString const& _path);
 
 private:
-	QString getHomePath() const;	
+	QString getHomePath() const;
 	QFileSystemWatcher* m_watcher;
 
 	void manageException();

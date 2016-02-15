@@ -81,7 +81,7 @@ QString FileIo::pathFromUrl(QString const& _url)
 	QString path(url.path());
 #ifdef WIN32
 	if (_url.midRef(1, 1) == ":")
-	path = _url.mid(0, 2).toUpper() + "\\" + path;
+		path = _url.mid(0, 2).toUpper() + "\\" + path;
 #endif
 
 	if (url.scheme() == "qrc")
@@ -226,8 +226,8 @@ bool FileIo::isFileText(QString const& _url)
 			for (int i = 0; i < checkLength; i++)
 			{
 				if (!isascii(buf[i]) ||
-					(iscntrl(buf[i]) && !isspace(buf[i]) &&
-					buf[i] != '\b' && buf[i] != '\032' && buf[i] != '\033'))
+						(iscntrl(buf[i]) && !isspace(buf[i]) &&
+						 buf[i] != '\b' && buf[i] != '\032' && buf[i] != '\033'))
 					return false;	/* not all ASCII */
 			}
 			return true;
