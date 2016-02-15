@@ -32,8 +32,7 @@ Item {
 	signal documentEdit(string documentId)
 	signal breakpointsChanged(string documentId)
 	signal isCleanChanged(var isClean, var document)
-	signal loadComplete
-    signal changeDocument(var document)
+    signal loadComplete
 	signal documentClosed(string path)
 
 	onDocumentClosed:
@@ -135,9 +134,6 @@ Item {
 			editor.onLoadComplete.connect(function() {
 				codeEditorView.loadComplete();
 			});
-            editor.onChangeDocument.connect(function() {
-                codeEditorView.changeDocument(editor.document);
-            });
 			editor.onEditorTextChanged.connect(function() {
 				documentEdit(editor.document.documentId);
 				if (editor.document.isContract)
@@ -400,19 +396,6 @@ Item {
 				doLoadDocument(loader.item, editorListModel.get(index), true)
 				loadComplete()
 			}
-
-            Connections
-            {
-                target: mainContent.codeEditor
-                onChangeDocument: {
-                    var docs = mainContent.codeEditor.openedDocuments();
-                    for (var d = 0; d < editorListModel.count; d++)
-                    {
-                        if (editorListModel.get(d).path === document.path)
-                            editorListModel.get(d).readOnly = document.readOnly;
-                    }
-                }
-            }
 
 			Connections
 			{
