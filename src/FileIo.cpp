@@ -222,7 +222,7 @@ bool FileIo::isFileText(QString const& _url)
 					return true;
 			}
 
-			int checkLength = std::min(buf.size(), 1024000);
+			int checkLength = std::min(buf.size(), 1024000); //check first megabyte
 			for (int i = 0; i < checkLength; i++)
 			{
 				if (!isascii(buf[i]) ||

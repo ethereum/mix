@@ -170,21 +170,26 @@ Item {
 
 		onLoadingChanged:
 		{
+			editorQuestionHeader.visible = false;
 			if (!loading && editorBrowser) {
 				initialized = true;
 				setFontSize(fontSize);
+
 				var size = fileIo.getFileSize(document.path);
 				if (size > c_max_open_filesize)
 				{
 					setText("File size is too large!", currentMode);
 					setReadOnly(true);
 					document.readOnly = true;
+					editorQuestionHeader.visible = false;
 				}
-				else if (!fileIo.isFileText(document.path))
+				else if (!document.editAnyway && !fileIo.isFileText(document.path))
 				{
 					setText("Can't read binary file!", currentMode);
 					setReadOnly(true);
 					document.readOnly = true;
+					editorQuestionHeader.visible = true;
+					editorQuestionLabel.text = "File contains unrecognized characters. Edit anyway?";
 				}
 				else
 					setText(currentText, currentMode);

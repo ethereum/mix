@@ -254,6 +254,7 @@ function file(docData)
 	var docData = {
 		contract: false,
 		readOnly: false,
+		editAnyway: false,
 		path: path,
 		fileName: fileName,
 		name: fileName,
