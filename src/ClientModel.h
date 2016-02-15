@@ -121,6 +121,10 @@ class RecordLogEntry: public QObject
 	Q_PROPERTY(RecordType type MEMBER m_type CONSTANT)
 	/// Gas used
 	Q_PROPERTY(QString gasUsed MEMBER m_gasUsed CONSTANT)
+	/// Gas required
+	Q_PROPERTY(QString gasRequired MEMBER m_gasRequired CONSTANT)
+	/// Gas refunded
+	Q_PROPERTY(QString gasRefunded MEMBER m_gasRefunded CONSTANT)
 	/// Sender
 	Q_PROPERTY(QString sender MEMBER m_sender CONSTANT)
 	/// label
@@ -171,9 +175,9 @@ public:
 	RecordLogEntry():
 		m_recordIndex(0), m_call(false), m_type(RecordType::Transaction) {}
 	RecordLogEntry(unsigned _recordIndex, QString _transactionIndex, QString _contract, QString _function, QString _value, QString _address, QString _returned, bool _call, RecordType _type, QString _gasUsed,
-				   QString _sender, QString _label, QVariantMap _inputParameters, QVariantMap _returnParameters, QVariantList _logs, TxSource _source, TransactionException _exception):
+				   QString _gasRequired, QString _gasRefunded, QString _sender, QString _label, QVariantMap _inputParameters, QVariantMap _returnParameters, QVariantList _logs, TxSource _source, TransactionException _exception):
 		m_recordIndex(_recordIndex), m_transactionIndex(_transactionIndex), m_contract(_contract), m_function(_function), m_value(_value), m_address(_address), m_returned(_returned), m_call(_call), m_type(_type), m_gasUsed(_gasUsed),
-		m_sender(_sender), m_label(_label), m_inputParameters(_inputParameters), m_returnParameters(_returnParameters), m_logs(_logs), m_source(_source), m_exception(_exception)
+		m_gasRequired(_gasRequired), m_gasRefunded(_gasRefunded), m_sender(_sender), m_label(_label), m_inputParameters(_inputParameters), m_returnParameters(_returnParameters), m_logs(_logs), m_source(_source), m_exception(_exception)
 	{
 		QMetaEnum ex = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("TransactionException"));
 		m_strException = QString(ex.valueToKey(m_exception));
@@ -190,6 +194,8 @@ private:
 	bool m_call;
 	RecordType m_type;
 	QString m_gasUsed;
+	QString m_gasRequired;
+	QString m_gasRefunded;
 	QString m_sender;
 	QString m_label;
 	QVariantMap m_inputParameters;

@@ -81,6 +81,8 @@ struct ExecutionResult
 	dev::Address contractAddress;
 	dev::u256 value;
 	dev::u256 gasUsed;
+	dev::u256 gasRefunded;
+	dev::bigint gasRequired;
 	unsigned transactionIndex;
 	unsigned executonIndex = 0;
 	bytes inputParameters;

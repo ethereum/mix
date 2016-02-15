@@ -242,17 +242,17 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 	d.executionCode = std::move(codes);
 	d.transactionData = std::move(data);
 	EVMSchedule schedule; // TODO: make relevant to supposed context.
-	d.gasUsed = er.gasUsed + er.gasRefunded + schedule.callStipend;
+	d.gasUsed = er.gasUsed;
+	d.gasRequired = _t.gasRequired(schedule);
+	d.gasRefunded = er.gasRefunded;
 	if (_t.isCreation())
 		d.contractAddress = right160(sha3(rlpList(_t.sender(), _t.nonce())));
 	return d;
 }
 
-
 void MixClient::executeTransaction(Transaction const& _t, Block& _block, bool _call, bool _gasAuto, Secret const& _secret)
 {
 	Transaction t = _gasAuto ? replaceGas(_t, m_postSeal.gasLimitRemaining()) : _t;
-
 	// do debugging run first
 	EnvInfo envInfo(bc().info(), bc().lastHashes());
 	ExecutionResult d = debugTransaction(t, _block.state(), envInfo, _call);
@@ -260,13 +260,14 @@ void MixClient::executeTransaction(Transaction const& _t, Block& _block, bool _c
 	// execute on a state
 	if (!_call && d.excepted == TransactionException::None)
 	{
-		u256 useGas = min(d.gasUsed, _block.gasLimitRemaining());
-		t = _gasAuto ? replaceGas(_t, useGas, _secret) : _t;
+		t = _gasAuto ? replaceGas(_t, _block.gasLimitRemaining(), _secret) : _t;
 		eth::ExecutionResult const& er = _block.execute(envInfo.lastHashes(), t);
 		if (t.isCreation() && _block.state().code(d.contractAddress).empty())
 			BOOST_THROW_EXCEPTION(OutOfGas() << errinfo_comment("Not enough gas for contract deployment"));
 		EVMSchedule schedule;	// TODO: make relevant to supposed context.
-		d.gasUsed = er.gasUsed + er.gasRefunded + er.gasForDeposit + schedule.callStipend;
+		d.gasUsed = er.gasUsed;
+		d.gasRequired = _t.gasRequired(schedule);
+		d.gasRefunded = er.gasRefunded;
 		LocalisedLogEntries logs;
 		TransactionReceipt const& tr = _block.receipt(_block.pending().size() - 1);
 

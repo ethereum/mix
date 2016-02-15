@@ -51,7 +51,6 @@ Dialog {
 	property alias functionId: functionComboBox.currentText;
 	property var paramValues;
 	property var paramsModel: [];
-	property bool useTransactionDefaultValue: false
 	property alias stateAccounts: senderComboBox.model
 	property bool saveStatus
 	property bool loaded: false
@@ -223,26 +222,16 @@ Dialog {
 
 	function getItem()
 	{
-		var item;
-		if (!useTransactionDefaultValue)
-		{
-			item = {
-				contractId: transactionDialog.contractId,
-				functionId: transactionDialog.functionId,
-				gas: transactionDialog.gas,
-				gasAuto: transactionDialog.gasAuto,
-				gasPrice: transactionDialog.gasPrice,
-				value: transactionDialog.transactionValue,
-				parameters: {},
-			};
-		}
-		else
-		{
-			item = TransactionHelper.defaultTransaction();
-			item.contractId = transactionDialog.contractId;
-			item.functionId = transactionDialog.functionId;
-		}
-
+		var item = TransactionHelper.defaultTransaction();
+		item = {
+			contractId: transactionDialog.contractId,
+			functionId: transactionDialog.functionId,
+			gas: transactionDialog.gas,
+			gasAuto: transactionDialog.gasAuto,
+			gasPrice: transactionDialog.gasPrice,
+			value: transactionDialog.transactionValue,
+			parameters: {},
+		};
 		item.isContractCreation = trTypeCreate.checked;
 		if (item.isContractCreation)
 			item.functionId = item.contractId;
@@ -739,7 +728,7 @@ Dialog {
 							{
 								if (rbbuttonList.current.objectName === "trTypeSend")
 								{
-									var gas = codeModel.txGas + codeModel.callStipend
+									var gas = codeModel.txGas
 									estimatedGas.text = qsTr("Estimated cost: ") + gas + " gas"
 								}
 							}
