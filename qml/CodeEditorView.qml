@@ -305,7 +305,7 @@ Item {
 				if (editors.itemAt(i))
 				{
 					var editor = editors.itemAt(i).item;
-					if (editor)
+                    if (editor && !doc.readOnly)
 						fileIo.writeFile(doc.path, editor.getText());
 				}
 			}
@@ -334,16 +334,16 @@ Item {
 			resetEditStatus(document);
 		}
 
-		onDocumentSaving: {
+        onDocumentSaving: {
 			for (var i = 0; i < editorListModel.count; i++)
 			{
 				var doc = editorListModel.get(i);
-                if (doc.path === document.path && !document.readOnly)
+                if (doc.path === document.path && !doc.readOnly)
 				{
 					fileIo.writeFile(document.path, editors.itemAt(i).item.getText());
 					break;
 				}
-			}
+            }
 		}
 	}
 
@@ -411,7 +411,6 @@ Item {
                         if (editorListModel.get(d).path === document.path)
                             editorListModel.get(d).readOnly = document.readOnly;
                     }
-                    console.log("signal " + editorListModel.count);
                 }
             }
 
