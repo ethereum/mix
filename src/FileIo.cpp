@@ -222,7 +222,8 @@ bool FileIo::isFileText(QString const& _url)
 					return true;
 			}
 
-			for (int i = 0; i < buf.size(); i++)
+			int checkLength = std::min(buf.size(), 1024000);
+			for (int i = 0; i < checkLength; i++)
 			{
 				if (!isascii(buf[i]) ||
 					(iscntrl(buf[i]) && !isspace(buf[i]) &&

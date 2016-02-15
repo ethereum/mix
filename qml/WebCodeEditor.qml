@@ -31,6 +31,7 @@ Item {
 	signal breakpointsChanged
 	signal editorTextChanged
 	signal loadComplete
+    signal changeDocument(var document)
 	property bool isClean: true
 	property string currentText: ""
 	property string currentMode: ""
@@ -172,18 +173,21 @@ Item {
 		{
 			if (!loading && editorBrowser) {
 				initialized = true;
-				setFontSize(fontSize);
-
+                setFontSize(fontSize);
 				var size = fileIo.getFileSize(document.path);
 				if (size > c_max_open_filesize)
 				{
 					setText("File size is too large!", currentMode);
 					setReadOnly(true);
+                    document.readOnly = true;
+                    changeDocument(document);
 				}
 				else if (!fileIo.isFileText(document.path))
 				{
 					setText("Can't read binary file!", currentMode);
 					setReadOnly(true);
+                    document.readOnly = true;
+                    changeDocument(document);
 				}
 				else 
 					setText(currentText, currentMode);
