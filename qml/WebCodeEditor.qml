@@ -30,8 +30,7 @@ import "js/ErrorLocationFormater.js" as ErrorLocationFormater
 Item {
 	signal breakpointsChanged
 	signal editorTextChanged
-	signal loadComplete
-    signal changeDocument(var document)
+    signal loadComplete
 	property bool isClean: true
 	property string currentText: ""
 	property string currentMode: ""
@@ -180,14 +179,12 @@ Item {
 					setText("File size is too large!", currentMode);
 					setReadOnly(true);
                     document.readOnly = true;
-                    changeDocument(document);
 				}
 				else if (!fileIo.isFileText(document.path))
 				{
 					setText("Can't read binary file!", currentMode);
 					setReadOnly(true);
                     document.readOnly = true;
-                    changeDocument(document);
 				}
 				else 
 					setText(currentText, currentMode);
