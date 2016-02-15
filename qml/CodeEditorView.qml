@@ -33,6 +33,7 @@ Item {
 	signal breakpointsChanged(string documentId)
 	signal isCleanChanged(var isClean, var document)
 	signal loadComplete
+    signal changeDocument(var document)
 	signal documentClosed(string path)
 
 	onDocumentClosed:
@@ -134,6 +135,9 @@ Item {
 			editor.onLoadComplete.connect(function() {
 				codeEditorView.loadComplete();
 			});
+            editor.onChangeDocument.connect(function() {
+                codeEditorView.changeDocument(editor.document);
+            });
 			editor.onEditorTextChanged.connect(function() {
 				documentEdit(editor.document.documentId);
 				if (editor.document.isContract)
@@ -321,7 +325,7 @@ Item {
 			for (var i = 0; i < editorListModel.count; i++)
 			{
 				var doc = editorListModel.get(i);
-				if (doc.path === document.path)
+                if (doc.path === document.path && !document.readOnly)
 				{
 					fileIo.writeFile(document.path, editors.itemAt(i).item.getText());
 					break;
@@ -383,6 +387,20 @@ Item {
 				doLoadDocument(loader.item, editorListModel.get(index), true)
 				loadComplete()
 			}
+
+            Connections
+            {
+                target: mainContent.codeEditor
+                onChangeDocument: {
+                    var docs = mainContent.codeEditor.openedDocuments();
+                    for (var d = 0; d < editorListModel.count; d++)
+                    {
+                        if (editorListModel.get(d).path === document.path)
+                            editorListModel.get(d).readOnly = document.readOnly;
+                    }
+                    console.log("signal " + editorListModel.count);
+                }
+            }
 
 			Connections
 			{
