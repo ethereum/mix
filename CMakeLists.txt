@@ -54,7 +54,7 @@ eth_add_executable(${EXECUTABLE}
 )
 
 eth_use(${EXECUTABLE} REQUIRED Qt::Core Qt::Widgets Qt::WebEngine Eth::ethereum Web3::web3jsonrpc Eth::ethashseal)
-eth_use(${EXECUTABLE} OPTIONAL Solidity)
+eth_use(${EXECUTABLE} OPTIONAL Solidity::solidity)
 
 # eth_install_executable is defined in cmake/EthExecutableHelper.cmake
 eth_install_executable(${EXECUTABLE}
