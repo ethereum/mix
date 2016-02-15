@@ -30,7 +30,7 @@ import "js/ErrorLocationFormater.js" as ErrorLocationFormater
 Item {
 	signal breakpointsChanged
 	signal editorTextChanged
-    signal loadComplete
+	signal loadComplete
 	property bool isClean: true
 	property string currentText: ""
 	property string currentMode: ""
@@ -172,23 +172,23 @@ Item {
 		{
 			if (!loading && editorBrowser) {
 				initialized = true;
-                setFontSize(fontSize);
+				setFontSize(fontSize);
 				var size = fileIo.getFileSize(document.path);
 				if (size > c_max_open_filesize)
 				{
 					setText("File size is too large!", currentMode);
 					setReadOnly(true);
-                    document.readOnly = true;
+					document.readOnly = true;
 				}
 				else if (!fileIo.isFileText(document.path))
 				{
 					setText("Can't read binary file!", currentMode);
 					setReadOnly(true);
-                    document.readOnly = true;
+					document.readOnly = true;
 				}
-				else 
+				else
 					setText(currentText, currentMode);
-					
+
 				runJavaScript("getTextChanged()", function(result) { });
 				pollTimer.running = true;
 				syncClipboard();

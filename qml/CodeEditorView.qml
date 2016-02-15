@@ -32,7 +32,7 @@ Item {
 	signal documentEdit(string documentId)
 	signal breakpointsChanged(string documentId)
 	signal isCleanChanged(var isClean, var document)
-    signal loadComplete
+	signal loadComplete
 	signal documentClosed(string path)
 
 	onDocumentClosed:
@@ -110,7 +110,7 @@ Item {
 				}
 				break;
 			}
-		}		
+		}
 	}
 
 	function displayOpenedDocument(index)
@@ -317,16 +317,16 @@ Item {
 			resetEditStatus(document);
 		}
 
-        onDocumentSaving: {
+		onDocumentSaving: {
 			for (var i = 0; i < editorListModel.count; i++)
 			{
 				var doc = editorListModel.get(i);
-                if (doc.path === document.path && !doc.readOnly)
+				if (doc.path === document.path && !doc.readOnly)
 				{
 					fileIo.writeFile(document.path, editors.itemAt(i).item.getText());
 					break;
 				}
-            }
+			}
 		}
 	}
 
