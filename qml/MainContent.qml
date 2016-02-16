@@ -287,6 +287,37 @@ Rectangle {
 							}
 						}
 
+						Rectangle
+						{
+							id: editorQuestionHeader
+							WebPreviewStyle {
+								id: webPreviewStyleEditorQuestion
+							}
+
+							height: 38
+							width: parent.width
+							color: webPreviewStyle.general.headerEditorQuestionColor
+							visible: false
+							DefaultLabel
+							{
+								id: editorQuestionLabel
+								anchors.centerIn: parent
+							}
+
+							DefaultButton
+							{
+								id: editorQuestionButton
+								anchors.verticalCenter: parent.verticalCenter
+								anchors.right: editorQuestionHeader.right
+								anchors.rightMargin: 25
+								onClicked:
+								{
+									console.log(projectModel.currentDocument.path)
+								}
+								text: qsTr("Edit file")
+							}
+						}
+
 						CodeEditorView
 						{
 							id: codeEditor

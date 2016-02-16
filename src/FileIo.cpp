@@ -81,7 +81,7 @@ QString FileIo::pathFromUrl(QString const& _url)
 	QString path(url.path());
 #ifdef WIN32
 	if (_url.midRef(1, 1) == ":")
-	path = _url.mid(0, 2).toUpper() + "\\" + path;
+		path = _url.mid(0, 2).toUpper() + "\\" + path;
 #endif
 
 	if (url.scheme() == "qrc")
@@ -165,6 +165,82 @@ QString FileIo::readFile(QString const& _url)
 		manageException();
 		return QString();
 	}
+}
+
+int FileIo::getFileSize(QString const& _url)
+{
+	try
+	{
+		QString path = pathFromUrl(_url);
+		QFile file(path);
+		return file.size();
+	}
+	catch (...)
+	{
+		manageException();
+	}
+
+	return 0;
+}
+
+bool FileIo::isFileText(QString const& _url)
+{
+	try
+	{
+		QString path = pathFromUrl(_url);
+		QFile file(path);
+		if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+		{
+			QByteArray buf = file.read(file.bytesAvailable());
+
+			if (buf.size() >= 2)
+			{
+				//FF FE        UTF - 16, little endian
+				if ((quint8)buf[0] == 0xFF && (quint8)buf[1] == 0xFE)
+					return true;
+
+				//FE FF        UTF - 16, big endian
+				if ((quint8)buf[0] == 0xFE && (quint8)buf[1] == 0xFF)
+					return true;
+			}
+
+			if (buf.size() >= 3)
+			{
+				//EF BB BF     UTF - 8
+				if ((quint8)buf[0] == 0xEF && (quint8)buf[1] == 0xBB && (quint8)buf[2] == 0xBF)
+					return true;
+			}
+
+			if (buf.size() >= 4)
+			{
+				//FF FE 00 00  UTF - 32, little endian
+				if ((quint8)buf[0] == 0xFF && (quint8)buf[1] == 0xFE && (quint8)buf[2] == 0x00 && (quint8)buf[3] == 0x00)
+					return true;
+
+				//00 00 FE FF  UTF - 32, big - endian
+				if ((quint8)buf[0] == 0x00 && (quint8)buf[1] == 0x00 && (quint8)buf[2] == 0xFE && (quint8)buf[3] == 0xFF)
+					return true;
+			}
+
+			int checkLength = std::min(buf.size(), 1024000); //check first megabyte
+			for (int i = 0; i < checkLength; i++)
+			{
+				if (!isascii(buf[i]) ||
+						(iscntrl(buf[i]) && !isspace(buf[i]) &&
+						 buf[i] != '\b' && buf[i] != '\032' && buf[i] != '\033'))
+					return false;	/* not all ASCII */
+			}
+			return true;
+		}
+		else
+			error(tr("Error reading file %1").arg(_url));
+	}
+	catch (...)
+	{
+		manageException();
+	}
+
+	return false;
 }
 
 void FileIo::writeFile(QString const& _url, QString const& _data)
@@ -379,6 +455,7 @@ QVariantList FileIo::createSortedList(QString const& _root, QDir::Filter _filter
 	dir.setFilter(_filter);
 	dir.setSorting(QDir::Name);
 	dir.setSorting(QDir::IgnoreCase);
+
 	QFileInfoList fileInfoList = dir.entryInfoList();
 	QVariantList ret;
 

@@ -110,7 +110,7 @@ Item {
 				}
 				break;
 			}
-		}		
+		}
 	}
 
 	function displayOpenedDocument(index)
@@ -265,6 +265,13 @@ Item {
 			editor.displayGasEstimation(checked);
 	}
 
+	function setReadOnly(status)
+	{
+		var editor = getEditor(currentDocumentId);
+		if (editor)
+			editor.setReadOnly(status);
+	}
+
 	Component.onCompleted: projectModel.codeEditor = codeEditorView;
 
 	Connections {
@@ -294,7 +301,7 @@ Item {
 				if (editors.itemAt(i))
 				{
 					var editor = editors.itemAt(i).item;
-					if (editor)
+					if (editor && !doc.readOnly)
 						fileIo.writeFile(doc.path, editor.getText());
 				}
 			}
@@ -327,7 +334,7 @@ Item {
 			for (var i = 0; i < editorListModel.count; i++)
 			{
 				var doc = editorListModel.get(i);
-				if (doc.path === document.path)
+				if (doc.path === document.path && !doc.readOnly)
 				{
 					fileIo.writeFile(document.path, editors.itemAt(i).item.getText());
 					break;

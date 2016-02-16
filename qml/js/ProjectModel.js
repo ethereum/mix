@@ -234,7 +234,7 @@ function loadProject(path) {
 			var doc = listModel.get(d);
 			if (doc.isContract)
 				projectModel.openDocument(doc.documentId)
-		}	
+		}
 		projectLoaded()
 	});
 }
@@ -253,6 +253,8 @@ function file(docData)
 	var groupName = isContract ? qsTr("Contracts") : isJs ? qsTr("Javascript") : isHtml ? qsTr("Web Pages") : isCss ? qsTr("Styles") : isImg ? qsTr("Images") : qsTr("Misc");
 	var docData = {
 		contract: false,
+		readOnly: false,
+		editAnyway: false,
 		path: path,
 		fileName: fileName,
 		name: fileName,

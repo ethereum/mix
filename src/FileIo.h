@@ -54,6 +54,10 @@ public:
 	Q_INVOKABLE void makeDir(QString const& _url);
 	/// Read file contents to a string. Signals on failure.
 	Q_INVOKABLE QString readFile(QString const& _url);
+	/// Returns file size
+	Q_INVOKABLE int getFileSize(QString const& _url);
+	/// Is file represent readable text
+	Q_INVOKABLE bool isFileText(QString const& _url);
 	/// Write contents to a file. Signals on failure.
 	Q_INVOKABLE void writeFile(QString const& _url, QString const& _data);
 	/// Copy a file from _sourcePath to _destPath. Signals on failure.
@@ -91,7 +95,7 @@ public:
 	Q_INVOKABLE QUrl pathFolder(QString const& _path);
 
 private:
-	QString getHomePath() const;	
+	QString getHomePath() const;
 	QFileSystemWatcher* m_watcher;
 
 	void manageException();
