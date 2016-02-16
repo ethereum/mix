@@ -287,19 +287,6 @@ Item {
 			openDocument(document);
 		}
 
-		onProjectSaving: {
-			for (var i = 0; i < editorListModel.count; i++)
-			{
-				var doc = editorListModel.get(i);
-				if (editors.itemAt(i))
-				{
-					var editor = editors.itemAt(i).item;
-					if (editor)
-						fileIo.writeFile(doc.path, editor.getText());
-				}
-			}
-		}
-
 		onProjectSaved: {
 			if (projectModel.appIsClosing || projectModel.projectIsClosing)
 				return;

@@ -34,6 +34,7 @@ import "."
 Dialog {
 	id: modalDeploymentDialog
 	modality: Qt.ApplicationModal
+	title: qsTr("Deploy to Network")
 	width: 1050
 	height: 550
 	visible: false
