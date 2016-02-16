@@ -56,8 +56,6 @@ public:
 	Q_INVOKABLE QString readFile(QString const& _url);
 	/// Returns file size
 	Q_INVOKABLE int getFileSize(QString const& _url);
-	/// Is file represent readable text
-	Q_INVOKABLE bool isFileText(QString const& _url);
 	/// Write contents to a file. Signals on failure.
 	Q_INVOKABLE void writeFile(QString const& _url, QString const& _data);
 	/// Copy a file from _sourcePath to _destPath. Signals on failure.
