@@ -176,8 +176,9 @@ Item {
 				var size = fileIo.getFileSize(document.path);
 				if (size > c_max_open_filesize)
 				{
-					setText("File size is too large!", currentMode);
+					setText(qsTr("File size is too large!"), currentMode);
 					setReadOnly(true);
+					document.readOnly = true;
 				}
 				else
 					setText(currentText, currentMode);

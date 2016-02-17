@@ -253,6 +253,7 @@ function file(docData)
 	var groupName = isContract ? qsTr("Contracts") : isJs ? qsTr("Javascript") : isHtml ? qsTr("Web Pages") : isCss ? qsTr("Styles") : isImg ? qsTr("Images") : qsTr("Misc");
 	var docData = {
 		contract: false,
+		readOnly: false,
 		path: path,
 		fileName: fileName,
 		name: fileName,
