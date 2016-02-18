@@ -89,7 +89,11 @@ ClientModel::ClientModel():
 ClientModel::~ClientModel()
 {
 	m_runFuture.waitForFinished();
-	QString tempDir = (m_dbpath != QString() ? QStandardPaths::writableLocation(QStandardPaths::TempLocation) + m_dbpath : QStandardPaths::writableLocation(QStandardPaths::TempLocation));
+	QString tempDir = (
+		m_dbpath != QString() ?
+		QStandardPaths::writableLocation(QStandardPaths::TempLocation) + m_dbpath :
+		QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+	);
 	QDir dir(tempDir);
 	dir.removeRecursively();
 }
@@ -102,17 +106,17 @@ void ClientModel::manageException() const
 	}
 	catch (boost::exception const& _e)
 	{
-		std::cerr << boost::diagnostic_information(_e);
+		cerr << boost::diagnostic_information(_e);
 		emit internalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
 	}
-	catch (std::exception const& _e)
+	catch (exception const& _e)
 	{
-		std::cerr << _e.what();
+		cerr << _e.what();
 		emit internalError("Internal error: " + QString::fromStdString(_e.what()));
 	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		cerr << boost::current_exception_diagnostic_information();
 		emit internalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
 	}
 }
@@ -127,7 +131,7 @@ void ClientModel::init(QString _dbpath)
 		else
 			m_client.reset(new MixClient(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString() + m_dbpath.toStdString()));
 
-		m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, std::vector<KeyPair>());
+		m_ethAccounts = make_shared<FixedAccountHolder>([=](){return m_client.get();}, vector<KeyPair>());
 		auto ethFace = new Web3Server(*m_client.get(), *m_ethAccounts.get());
 		m_web3Server.reset(new ModularServer<rpc::EthFace, rpc::DBFace, rpc::Web3Face>(ethFace, new rpc::MemoryDB(), new rpc::Web3()));
 		m_rpcConnectorId = m_web3Server->addConnector(new RpcConnector());
@@ -169,7 +173,7 @@ void ClientModel::mine()
 		{
 			try
 			{
-				std::this_thread::sleep_for(std::chrono::seconds(1)); //ensure not future time
+				this_thread::sleep_for(chrono::seconds(1)); //ensure not future time
 				m_client->mine();
 				m_mining = false;
 				emit newBlock();
@@ -405,7 +409,7 @@ void ClientModel::setupScenario(QVariantMap _scenario)
 			Address address = Address(fromHex(contract.value("address").toString().toStdString()));
 			Account account(0, qvariant_cast<QEther*>(contract.value("balance"))->toU256Wei(), Account::ContractConception);
 			bytes code = fromHex(contract.value("code").toString().toStdString());
-			account.setCode(std::move(code));
+			account.setCode(move(code));
 			QVariantMap storageMap = contract.value("storage").toMap();
 			for(auto s = storageMap.cbegin(); s != storageMap.cend(); ++s)
 				account.setStorage(fromBigEndian<u256>(fromHex(s.key().toStdString())), fromBigEndian<u256>(fromHex(s.value().toString().toStdString())));
@@ -528,7 +532,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 		{
 			for (TransactionSettings const& transaction: _sequence)
 			{
-				std::pair<QString, int> ctrInstance = resolvePair(transaction.contractId);
+				pair<QString, int> ctrInstance = resolvePair(transaction.contractId);
 				QString address = resolveToken(ctrInstance);
 				if (!transaction.isFunctionCall)
 				{
@@ -572,7 +576,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 							{
 								if (item.toString().startsWith("<"))
 								{
-									std::pair<QString, int> ctrParamInstance = resolvePair(item.toString());
+									pair<QString, int> ctrParamInstance = resolvePair(item.toString());
 									jsonDoc.replace(k, resolveToken(ctrParamInstance));
 								}
 								k++;
@@ -582,7 +586,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 						}
 						else if (value.toString().startsWith("<"))
 						{
-							std::pair<QString, int> ctrParamInstance = resolvePair(value.toString());
+							pair<QString, int> ctrParamInstance = resolvePair(value.toString());
 							value = QVariant(resolveToken(ctrParamInstance));
 						}
 					}
@@ -607,7 +611,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 						m_deployedLibraries[ctrInstance.first] = QString::fromStdString(newAddress.hex());
 					else
 					{
-						std::pair<QString, int> contractToken = retrieveToken(transaction.contractId);
+						pair<QString, int> contractToken = retrieveToken(transaction.contractId);
 						m_contractAddresses[contractToken] = newAddress;
 						m_contractNames[newAddress] = contractToken.first;
 						contractAddressesChanged();
@@ -639,7 +643,7 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 			emit runFailed(QString::fromStdString(boost::current_exception_diagnostic_information()));
 			return;
 		}
-		catch(std::exception const& e)
+		catch(exception const& e)
 		{
 			cerr << boost::current_exception_diagnostic_information();
 			emit runFailed(e.what());
@@ -678,20 +682,20 @@ void ClientModel::executeTr(QVariantMap _tr)
 	}
 }
 
-std::pair<QString, int> ClientModel::resolvePair(QString const& _contractId)
+pair<QString, int> ClientModel::resolvePair(QString const& _contractId)
 {
-	std::pair<QString, int> ret = std::make_pair(_contractId, 0);
+	pair<QString, int> ret = make_pair(_contractId, 0);
 	if (_contractId.startsWith("<") && _contractId.endsWith(">"))
 	{
 		QStringList values = ret.first.remove("<").remove(">").split(" - ");
-		ret = std::make_pair(values[0], values[1].toUInt());
+		ret = make_pair(values[0], values[1].toUInt());
 	}
 	if (_contractId.startsWith("0x"))
-		ret = std::make_pair(_contractId, -2);
+		ret = make_pair(_contractId, -2);
 	return ret;
 }
 
-QString ClientModel::resolveToken(std::pair<QString, int> const& _value)
+QString ClientModel::resolveToken(pair<QString, int> const& _value)
 {
 	if (_value.second == -2) //-2: first contains a real address
 		return _value.first;
@@ -701,15 +705,15 @@ QString ClientModel::resolveToken(std::pair<QString, int> const& _value)
 		return _value.first;
 }
 
-std::pair<QString, int> ClientModel::retrieveToken(QString const& _value)
+pair<QString, int> ClientModel::retrieveToken(QString const& _value)
 {
-	std::pair<QString, int> ret;
+	pair<QString, int> ret;
 	ret.first = _value;
 	ret.second = m_contractAddresses.size();
 	return ret;
 }
 
-QString ClientModel::serializeToken(std::pair<QString, int> const& _value) const
+QString ClientModel::serializeToken(pair<QString, int> const& _value) const
 {
 	return "<" + _value.first + " - " + QString::number(_value.second) + ">";
 }
@@ -742,7 +746,7 @@ QVariantMap ClientModel::contractStorageByIndex(unsigned _index, QString const& 
 	}
 }
 
-QVariantMap ClientModel::contractStorage(std::unordered_map<u256, u256> _storage, CompiledContract const* _contract)
+QVariantMap ClientModel::contractStorage(unordered_map<u256, u256> _storage, CompiledContract const* _contract)
 {
 	QVariantMap storage;
 	try
@@ -883,7 +887,12 @@ void ClientModel::showDebuggerForTransaction(ExecutionResult const& _t, QString 
 							localValues[l.second->name()] = formatMemoryValue(l.second->type()->type(), s.memory, offset);
 						}
 						else if (loc == DataLocation::Storage)
-							localValues[l.second->name()] = formatStorageValue(l.second->type()->type(), s.storage, localDecl[l.second->name()].offset, localDecl[l.second->name()].slot);
+							localValues[l.second->name()] = formatStorageValue(
+								l.second->type()->type(),
+								s.storage,
+								localDecl[l.second->name()].offset,
+								localDecl[l.second->name()].slot
+							);
 						else
 						{
 							ContractCallDataEncoder decoder;
@@ -992,7 +1001,27 @@ RecordLogEntry* ClientModel::lastBlock() const
 		strGas << blockInfo.gasUsed();
 		stringstream strNumber;
 		strNumber << blockInfo.number();
-		RecordLogEntry* record =  new RecordLogEntry(0, QString::fromStdString(strNumber.str()), tr(" - Block - "), tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))), QString(), QString(), QString(), false, RecordLogEntry::RecordType::Block, QString::fromStdString(strGas.str()), "0", "0", QString(), tr("Block"), QVariantMap(), QVariantMap(), QVariantList(), RecordLogEntry::TxSource::MixGui, RecordLogEntry::TransactionException::None);
+		RecordLogEntry* record =  new RecordLogEntry(
+			0,
+			QString::fromStdString(strNumber.str()),
+			tr(" - Block - "),
+			tr("Hash: ") + QString(QString::fromStdString(dev::toHex(blockInfo.hash().ref()))),
+			QString(),
+			QString(),
+			QString(),
+			false,
+			RecordLogEntry::RecordType::Block,
+			QString::fromStdString(strGas.str()),
+			"0",
+			"0",
+			QString(),
+			tr("Block"),
+			QVariantMap(),
+			QVariantMap(),
+			QVariantList(),
+			RecordLogEntry::TxSource::MixGui,
+			RecordLogEntry::TransactionException::None
+		);
 		QQmlEngine::setObjectOwnership(record, QQmlEngine::JavaScriptOwnership);
 		return record;
 	}
@@ -1183,10 +1212,10 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 			{
 				QVariantMap l;
 				l.insert("address",  QString::fromStdString(log.address.hex()));
-				std::ostringstream s;
+				ostringstream s;
 				s << log.data;
 				l.insert("data", QString::fromStdString(s.str()));
-				std::ostringstream streamTopic;
+				ostringstream streamTopic;
 				streamTopic << log.topics;
 				l.insert("topic", QString::fromStdString(streamTopic.str()));
 				auto const& sign = log.topics.front(); // first hash supposed to be the event signature. To check
@@ -1251,8 +1280,27 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 		else
 			label = address;
 
-		RecordLogEntry* log = new RecordLogEntry(recordIndex, transactionIndex, contract, function, value, address, returned, tr.isCall(), RecordLogEntry::RecordType::Transaction,
-												 gasUsed, gasRequired, gasRefunded, sender, label, inputParameters, returnParameters, logs, _source, exception);
+		RecordLogEntry* log = new RecordLogEntry(
+			recordIndex,
+			transactionIndex,
+			contract,
+			function,
+			value,
+			address,
+			returned,
+			tr.isCall(),
+			RecordLogEntry::RecordType::Transaction,
+			gasUsed,
+			gasRequired,
+			gasRefunded,
+			sender,
+			label,
+			inputParameters,
+			returnParameters,
+			logs,
+			_source,
+			exception
+			);
 		if (transactionIndex != QObject::tr("Call"))
 			m_lastTransactionIndex = transactionIndex;
 

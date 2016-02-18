@@ -26,6 +26,7 @@
 
 using namespace dev;
 using namespace dev::mix;
+using namespace std;
 
 void QBigInt::manageException() const
 {
@@ -35,15 +36,15 @@ void QBigInt::manageException() const
 	}
 	catch (boost::exception const& _e)
 	{
-		std::cerr << boost::diagnostic_information(_e);
+		cerr << boost::diagnostic_information(_e);
 	}
-	catch (std::exception const& _e)
+	catch (exception const& _e)
 	{
-		std::cerr << _e.what();
+		cerr << _e.what();
 	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		cerr << boost::current_exception_diagnostic_information();
 	}
 }
 
@@ -51,7 +52,7 @@ QString QBigInt::value() const
 {
 	try
 	{
-		std::ostringstream s;
+		ostringstream s;
 		s << m_internalValue;
 		return QString::fromStdString(s.str());
 	}
@@ -143,7 +144,7 @@ QVariantMap QBigInt::checkAgainst(QString const& _type) const
 		if (_type.startsWith("uint") && value > range - 1)
 		{
 			ret.insert("minValue", "0");
-			std::ostringstream s;
+			ostringstream s;
 			s << range - 1;
 			ret.insert("maxValue", QString::fromStdString(s.str()));
 			if (value > range)
@@ -152,7 +153,7 @@ QVariantMap QBigInt::checkAgainst(QString const& _type) const
 		else if (_type.startsWith("int"))
 		{
 			range = range / 2;
-			std::ostringstream s;
+			ostringstream s;
 			s << -range;
 			ret.insert("minValue", QString::fromStdString(s.str()));
 			s.str("");

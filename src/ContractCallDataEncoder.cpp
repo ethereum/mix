@@ -81,7 +81,7 @@ void ContractCallDataEncoder::encodeArray(QJsonArray const& _array, SolidityType
 		if (c.isArray())
 		{
 			if (_type.baseType->dynamicSize)
-				m_dynamicOffsetMap.push_back(std::make_pair(m_dynamicData.size() + offsetStart + 32 + k * 32, m_dynamicData.size() + _content.size()));
+				m_dynamicOffsetMap.push_back(make_pair(m_dynamicData.size() + offsetStart + 32 + k * 32, m_dynamicData.size() + _content.size()));
 			encodeArray(c.toArray(), *_type.baseType, _content);
 		}
 		else
@@ -106,7 +106,7 @@ void ContractCallDataEncoder::encode(QVariant const& _data, SolidityType const& 
 		encodeSingleItem(_data.toString(), _type, m_dynamicData);
 		vector_ref<byte> sizeRef(m_dynamicData.data() + sizePos, 32);
 		toBigEndian(static_cast<u256>(_data.toString().size()), sizeRef);
-		m_staticOffsetMap.push_back(std::make_pair(m_encodedData.size(), sizePos));
+		m_staticOffsetMap.push_back(make_pair(m_encodedData.size(), sizePos));
 		m_encodedData += empty; //reserve space for offset
 	}
 	else if (_type.array)
@@ -116,7 +116,7 @@ void ContractCallDataEncoder::encode(QVariant const& _data, SolidityType const& 
 		if (_type.dynamicSize)
 		{
 			m_encodedData += bytes(32); // reserve space for offset
-			m_staticOffsetMap.push_back(std::make_pair(size, m_dynamicData.size()));
+			m_staticOffsetMap.push_back(make_pair(size, m_dynamicData.size()));
 		}
 		QJsonDocument jsonDoc = QJsonDocument::fromJson(_data.toString().toUtf8());
 		encodeArray(jsonDoc.array(), _type, content);
@@ -162,7 +162,7 @@ unsigned ContractCallDataEncoder::encodeSingleItem(QString const& _data, Solidit
 				result = bytes(alignSize);
 				toBigEndian((u256)i, result);
 			}
-			catch (std::exception const&)
+			catch (exception const&)
 			{
 				// manage input as a string.
 				result = encodeStringParam(src, alignSize);
@@ -187,8 +187,8 @@ bigint ContractCallDataEncoder::decodeInt(dev::bytes const& _rawValue)
 
 QString ContractCallDataEncoder::toString(dev::bigint const& _int)
 {
-	std::stringstream str;
-	str << std::dec << _int;
+	stringstream str;
+	str << dec << _int;
 	return QString::fromStdString(str.str());
 }
 
@@ -435,7 +435,13 @@ QVariant ContractCallDataEncoder::formatMemoryValue(SolidityType const& _type, b
 	return res;
 }
 
-QVariant ContractCallDataEncoder::formatStorageValue(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot, u256& _endSlot)
+QVariant ContractCallDataEncoder::formatStorageValue(
+	SolidityType const& _type,
+	unordered_map<u256, u256> const& _storage,
+	unsigned _offset,
+	u256 const& _slot,
+	u256& _endSlot
+)
 {
 	_endSlot = _slot;
 	if (_type.array)
@@ -475,7 +481,13 @@ QVariant ContractCallDataEncoder::formatStorageStruct(SolidityType const& _type,
 	return ret;
 }
 
-QVariant ContractCallDataEncoder::formatStorageArray(SolidityType const& _type, unordered_map<u256, u256> const& _storage, unsigned _offset, u256 const& _slot, u256& _endSlot)
+QVariant ContractCallDataEncoder::formatStorageArray(
+	SolidityType const& _type,
+	unordered_map<u256, u256> const& _storage,
+	unsigned _offset,
+	u256 const& _slot,
+	u256& _endSlot
+)
 {
 	Q_UNUSED(_offset);
 	QVariantList array;

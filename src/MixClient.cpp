@@ -39,6 +39,7 @@
 using namespace std;
 using namespace dev;
 using namespace dev::eth;
+using namespace std;
 
 namespace dev
 {
@@ -51,7 +52,7 @@ namespace
 {
 }
 
-MixBlockChain::MixBlockChain(std::string const& _path, AccountMap const& _pre):
+MixBlockChain::MixBlockChain(string const& _path, AccountMap const& _pre):
 	BlockChain(createParams(_pre), _path, WithExisting::Kill)
 {
 }
@@ -74,7 +75,7 @@ ChainParams MixBlockChain::createParams(AccountMap const& _pre)
 	return ret;
 }
 
-MixClient::MixClient(std::string const& _dbPath):
+MixClient::MixClient(string const& _dbPath):
 	m_preSeal(Block::Null),
 	m_postSeal(Block::Null),
 	m_dbPath(_dbPath)
@@ -86,7 +87,7 @@ MixClient::~MixClient()
 {
 }
 
-void MixClient::resetState(std::unordered_map<Address, Account> const& _accounts, Secret const& _miner)
+void MixClient::resetState(unordered_map<Address, Account> const& _accounts, Secret const& _miner)
 {
 	WriteGuard l(x_state);
 	Guard fl(x_filtersWatches);
@@ -170,12 +171,12 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 		return d;
 	}
 
-	std::vector<MachineState> machineStates;
-	std::vector<unsigned> levels;
-	std::vector<MachineCode> codes;
-	std::map<bytes const*, unsigned> codeIndexes;
-	std::vector<bytes> data;
-	std::map<bytesConstRef const*, unsigned> dataIndexes;
+	vector<MachineState> machineStates;
+	vector<unsigned> levels;
+	vector<MachineCode> codes;
+	map<bytes const*, unsigned> codeIndexes;
+	vector<bytes> data;
+	map<bytesConstRef const*, unsigned> dataIndexes;
 	bytes const* lastCode = nullptr;
 	bytesConstRef const* lastData = nullptr;
 	unsigned codeIndex = 0;
@@ -218,19 +219,19 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 			levels.resize(ext.depth);
 
 		machineStates.push_back(MachineState{
-									steps,
-									vm.curPC(),
-									inst,
-									newMemSize,
-									static_cast<u256>(gas),
-									vm.stack(),
-									vm.memory(),
-									gasCost,
-									ext.state().storage(ext.myAddress),
-									std::move(levels),
-									codeIndex,
-									dataIndex
-								});
+			steps,
+			vm.curPC(),
+			inst,
+			newMemSize,
+			static_cast<u256>(gas),
+			vm.stack(),
+			vm.memory(),
+			gasCost,
+			ext.state().storage(ext.myAddress),
+			move(levels),
+			codeIndex,
+			dataIndex
+		});
 	};
 
 	execution.go(onOp);
@@ -239,8 +240,8 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 	d.excepted = er.excepted;
 	d.result = er;
 	d.machineStates = machineStates;
-	d.executionCode = std::move(codes);
-	d.transactionData = std::move(data);
+	d.executionCode = move(codes);
+	d.transactionData = move(data);
 	EVMSchedule schedule; // TODO: make relevant to supposed context.
 	d.gasUsed = er.gasUsed;
 	d.gasRequired = _t.gasRequired(schedule);
@@ -278,10 +279,10 @@ void MixClient::executeTransaction(Transaction const& _t, Block& _block, bool _c
 		d.logs =  logs;
 	}
 	WriteGuard l(x_executions);
-	m_executions.emplace_back(std::move(d));
+	m_executions.emplace_back(move(d));
 }
 
-std::unordered_map<u256, u256> MixClient::contractStorage(Address _contract)
+unordered_map<u256, u256> MixClient::contractStorage(Address _contract)
 {
 	return m_preSeal.state().storage(_contract);
 }
@@ -337,7 +338,17 @@ pair<h256, Address> MixClient::submitTransaction(eth::TransactionSkeleton const&
 	return make_pair(t.sha3(), toAddress(ts.from, ts.nonce));
 }
 
-dev::eth::ExecutionResult MixClient::call(Address const& _from, u256 _value, Address _dest, bytes const& _data, u256 _gas, u256 _gasPrice, BlockNumber _blockNumber, bool _gasAuto, FudgeFactor _ff)
+dev::eth::ExecutionResult MixClient::call(
+	Address const& _from,
+	u256 _value,
+	Address _dest,
+	bytes const& _data,
+	u256 _gas,
+	u256 _gasPrice,
+	BlockNumber _blockNumber,
+	bool _gasAuto,
+	FudgeFactor _ff
+)
 {
 	(void)_blockNumber;
 	Block block = asOf(eth::PendingBlock);
@@ -353,12 +364,28 @@ dev::eth::ExecutionResult MixClient::call(Address const& _from, u256 _value, Add
 	return lastExecution().result;
 }
 
-dev::eth::ExecutionResult MixClient::call(Address const& _from, u256 _value, Address _dest, bytes const& _data, u256 _gas, u256 _gasPrice, BlockNumber _blockNumber, eth::FudgeFactor _ff)
+dev::eth::ExecutionResult MixClient::call(
+	Address const& _from,
+	u256 _value,
+	Address _dest,
+	bytes const& _data,
+	u256 _gas, u256 _gasPrice,
+	BlockNumber _blockNumber,
+	eth::FudgeFactor _ff
+)
 {
 	return call(_from, _value, _dest, _data, _gas, _gasPrice, _blockNumber, false, _ff);
 }
 
-dev::eth::ExecutionResult MixClient::create(Address const& _from, u256 _value, bytes const& _data, u256 _gas, u256 _gasPrice, BlockNumber _blockNumber, eth::FudgeFactor _ff)
+dev::eth::ExecutionResult MixClient::create(
+	Address const& _from,
+	u256 _value,
+	bytes const& _data,
+	u256 _gas,
+	u256 _gasPrice,
+	BlockNumber _blockNumber,
+	eth::FudgeFactor _ff
+)
 {
 	(void)_blockNumber;
 	u256 n;

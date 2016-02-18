@@ -32,6 +32,7 @@
 #include "CodeHighlighter.h"
 
 using namespace dev::mix;
+using namespace std;
 
 CodeHighlighterSettings::CodeHighlighterSettings()
 {
@@ -68,7 +69,7 @@ CodeHighlighter::FormatRange::FormatRange(CodeHighlighterSettings::Token _t, dev
 	token(_t), start(_location.start), length(_location.end - _location.start)
 {}
 
-void CodeHighlighter::processSource(std::string const& _source)
+void CodeHighlighter::processSource(string const& _source)
 {
 	processComments(_source);
 	solidity::CharStream stream(_source);
@@ -76,8 +77,14 @@ void CodeHighlighter::processSource(std::string const& _source)
 	solidity::Token::Value token = scanner.currentToken();
 	while (token != Token::EOS)
 	{
-		if ((token >= Token::Break && token < Token::TypesEnd) ||
-				token == Token::In || token == Token::Delete || token == Token::NullLiteral || token == Token::TrueLiteral || token == Token::FalseLiteral)
+		if (
+			(token >= Token::Break && token < Token::TypesEnd) ||
+			token == Token::In ||
+			token == Token::Delete ||
+			token == Token::NullLiteral ||
+			token == Token::TrueLiteral ||
+			token == Token::FalseLiteral
+		)
 			m_formats.push_back(FormatRange(CodeHighlighterSettings::Keyword, scanner.currentLocation()));
 		else if (token == Token::StringLiteral)
 			m_formats.push_back(FormatRange(CodeHighlighterSettings::StringLiteral, scanner.currentLocation()));
@@ -88,7 +95,7 @@ void CodeHighlighter::processSource(std::string const& _source)
 
 		token = scanner.next();
 	}
-	std::sort(m_formats.begin(), m_formats.end());
+	sort(m_formats.begin(), m_formats.end());
 }
 
 void CodeHighlighter::processAST(dev::solidity::ASTNode const& _ast)
@@ -96,7 +103,7 @@ void CodeHighlighter::processAST(dev::solidity::ASTNode const& _ast)
 	HighlightVisitor visitor(&m_formats);
 	_ast.accept(visitor);
 
-	std::sort(m_formats.begin(), m_formats.end());
+	sort(m_formats.begin(), m_formats.end());
 }
 
 void CodeHighlighter::processError(dev::Exception const& _exception)
@@ -106,7 +113,7 @@ void CodeHighlighter::processError(dev::Exception const& _exception)
 		m_formats.push_back(FormatRange(CodeHighlighterSettings::CompilationError, *location));
 }
 
-void CodeHighlighter::processComments(std::string const& _source)
+void CodeHighlighter::processComments(string const& _source)
 {
 	unsigned i = 0;
 	size_t size = _source.size();
@@ -156,8 +163,8 @@ void CodeHighlighter::updateFormatting(QTextDocument* _document, CodeHighlighter
 		if (!block.isValid())
 			break;
 
-		int intersectionStart = std::max(format->start, block.position());
-		int intersectionLength = std::min(format->start + format->length, block.position() + block.length()) - intersectionStart;
+		int intersectionStart = max(format->start, block.position());
+		int intersectionLength = min(format->start + format->length, block.position() + block.length()) - intersectionStart;
 		if (intersectionLength > 0)
 		{
 			QTextLayout::FormatRange range;

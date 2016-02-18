@@ -29,14 +29,15 @@
 
 using namespace dev::mix;
 using namespace dev;
+using namespace std;
 
 namespace
 {
 class EmptyNetwork : public dev::NetworkFace
 {
-	std::vector<p2p::PeerSessionInfo> peers() override
+	vector<p2p::PeerSessionInfo> peers() override
 	{
-		return std::vector<p2p::PeerSessionInfo>();
+		return vector<p2p::PeerSessionInfo>();
 	}
 
 	size_t peerCount() const override
@@ -92,7 +93,7 @@ class EmptyNetwork : public dev::NetworkFace
 
 	p2p::NodeInfo nodeInfo() const override { return p2p::NodeInfo(); }
 
-	std::string enode() const override { return ""; }
+	string enode() const override { return ""; }
 
 	p2p::NodeID id() const override
 	{
@@ -129,21 +130,21 @@ Web3Server::~Web3Server()
 {
 }
 
-Json::Value Web3Server::eth_getFilterChanges(std::string const& _filterId)
+Json::Value Web3Server::eth_getFilterChanges(string const& _filterId)
 {
 	return rpc::Eth::eth_getFilterChanges(_filterId);
 }
 
-std::string Web3Server::eth_sendTransaction(Json::Value const& _json)
+string Web3Server::eth_sendTransaction(Json::Value const& _json)
 {
-	std::string ret = rpc::Eth::eth_sendTransaction(_json);
+	string ret = rpc::Eth::eth_sendTransaction(_json);
 	emit newTransaction();
 	return ret;
 }
 
-std::string Web3Server::eth_call(Json::Value const& _json, std::string const& _blockNumber)
+string Web3Server::eth_call(Json::Value const& _json, string const& _blockNumber)
 {
-	std::string ret = rpc::Eth::eth_call(_json, _blockNumber);
+	string ret = rpc::Eth::eth_call(_json, _blockNumber);
 	emit newTransaction();
 	return ret;
 }
