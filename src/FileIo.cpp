@@ -79,14 +79,14 @@ QString FileIo::pathFromUrl(QString const& _url)
 {
 	QUrl url(_url);
 	QString path(url.path());
-#ifdef WIN32
+#if defined(_WIN32)
 	if (_url.midRef(1, 1) == ":")
 	path = _url.mid(0, 2).toUpper() + "\\" + path;
 #endif
 
 	if (url.scheme() == "qrc")
 		path = ":" + path;
-#ifdef WIN32
+#if defined(_WIN32)
 	if (url.scheme() == "file")
 	{
 		if (path.startsWith("/"))
