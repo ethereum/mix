@@ -488,10 +488,16 @@ GasMapWrapper* CodeModel::gasEstimation(solidity::CompilerStack const& _cs)
 
 			dev::solidity::SourceUnit const& sourceUnit = _cs.ast(*contractDefinition.location().sourceName);
 			AssemblyItems const* items = _cs.runtimeAssemblyItems(n);
-			map<ASTNode const*, GasMeter::GasConsumption> gasCosts = GasEstimator::breakToStatementLevel(GasEstimator::structuralEstimation(*items, vector<ASTNode const*>({&sourceUnit})), {&sourceUnit});
+			map<ASTNode const*, GasMeter::GasConsumption> gasCosts = GasEstimator::breakToStatementLevel(
+				GasEstimator::structuralEstimation(*items, vector<ASTNode const*>({&sourceUnit})),
+				{&sourceUnit}
+			);
 
 			AssemblyItems const* constructorItems = _cs.assemblyItems(n);
-			map<ASTNode const*, GasMeter::GasConsumption> constructorGasCosts = GasEstimator::breakToStatementLevel(GasEstimator::structuralEstimation(*constructorItems, vector<ASTNode const*>({&sourceUnit})), {&sourceUnit});
+			map<ASTNode const*, GasMeter::GasConsumption> constructorGasCosts =
+				GasEstimator::breakToStatementLevel(GasEstimator::structuralEstimation(*constructorItems, vector<ASTNode const*>({&sourceUnit})),
+				{&sourceUnit}
+			);
 
 			// Structural gas costs (per opcode)
 			for (auto gasItem = gasCosts.begin(); gasItem != gasCosts.end(); ++gasItem)
@@ -504,8 +510,16 @@ GasMapWrapper* CodeModel::gasEstimation(solidity::CompilerStack const& _cs)
 			for (auto gasItem = constructorGasCosts.begin(); gasItem != constructorGasCosts.end(); ++gasItem)
 			{
 				SourceLocation const& itemLocation = gasItem->first->location();
-				GasMeter::GasConsumption cost = gasItem->second;
-				gasCostsMaps->push(sourceName, itemLocation.start, itemLocation.end, gasToString(cost), cost.isInfinite, GasMap::type::Statement);
+				if (contractDefinition.constructor())
+				{
+					SourceLocation const& constructorLocation = contractDefinition.constructor()->location();
+					// check whether the location of the item is in constructor scope
+					if (itemLocation.start > constructorLocation.start && itemLocation.end < constructorLocation.end)
+					{
+						GasMeter::GasConsumption cost = gasItem->second;
+						gasCostsMaps->push(sourceName, itemLocation.start, itemLocation.end, gasToString(cost), cost.isInfinite, GasMap::type::Statement);
+					}
+				}
 			}
 
 			eth::AssemblyItems const& runtimeAssembly = *_cs.runtimeAssemblyItems(n);
