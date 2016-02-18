@@ -478,10 +478,6 @@ GasMapWrapper* CodeModel::gasEstimation(solidity::CompilerStack const& _cs)
 			if (!contractDefinition.annotation().isFullyImplemented)
 				continue;
 
-			dev::solidity::SourceUnit const& sourceUnit = _cs.ast(*contractDefinition.location().sourceName);
-			AssemblyItems const* items = _cs.runtimeAssemblyItems(n);
-			map<ASTNode const*, GasMeter::GasConsumption> gasCosts = GasEstimator::breakToStatementLevel(GasEstimator::structuralEstimation(*items, vector<ASTNode const*>({&sourceUnit})), {&sourceUnit});
-
 			auto gasToString = [](GasMeter::GasConsumption const& _gas)
 			{
 				if (_gas.isInfinite)
@@ -490,8 +486,22 @@ GasMapWrapper* CodeModel::gasEstimation(solidity::CompilerStack const& _cs)
 					return QString::fromStdString(toString(_gas.value));
 			};
 
+			dev::solidity::SourceUnit const& sourceUnit = _cs.ast(*contractDefinition.location().sourceName);
+			AssemblyItems const* items = _cs.runtimeAssemblyItems(n);
+			map<ASTNode const*, GasMeter::GasConsumption> gasCosts = GasEstimator::breakToStatementLevel(GasEstimator::structuralEstimation(*items, vector<ASTNode const*>({&sourceUnit})), {&sourceUnit});
+
+			AssemblyItems const* constructorItems = _cs.assemblyItems(n);
+			map<ASTNode const*, GasMeter::GasConsumption> constructorGasCosts = GasEstimator::breakToStatementLevel(GasEstimator::structuralEstimation(*constructorItems, vector<ASTNode const*>({&sourceUnit})), {&sourceUnit});
+
 			// Structural gas costs (per opcode)
 			for (auto gasItem = gasCosts.begin(); gasItem != gasCosts.end(); ++gasItem)
+			{
+				SourceLocation const& itemLocation = gasItem->first->location();
+				GasMeter::GasConsumption cost = gasItem->second;
+				gasCostsMaps->push(sourceName, itemLocation.start, itemLocation.end, gasToString(cost), cost.isInfinite, GasMap::type::Statement);
+			}
+			// Structural gas costs for constructor
+			for (auto gasItem = constructorGasCosts.begin(); gasItem != constructorGasCosts.end(); ++gasItem)
 			{
 				SourceLocation const& itemLocation = gasItem->first->location();
 				GasMeter::GasConsumption cost = gasItem->second;
