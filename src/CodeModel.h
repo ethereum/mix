@@ -159,8 +159,25 @@ public:
 		Constructor
 	};
 
-	GasMap(int _start, int _end, QString _gas, bool _isInfinite, type _type, QString _contractName, QString _functionName, QObject* _parent): QObject(_parent),
-		m_start(_start), m_end(_end), m_gas(_gas), m_isInfinite(_isInfinite), m_type(_type), m_contractName(_contractName), m_functionName(_functionName) {}
+	GasMap(
+		int _start,
+		int _end,
+		QString _gas,
+		bool _isInfinite,
+		type _type,
+		QString _contractName,
+		QString _functionName,
+		QObject* _parent
+	):
+		QObject(_parent),
+		m_start(_start),
+		m_end(_end),
+		m_gas(_gas),
+		m_isInfinite(_isInfinite),
+		m_type(_type),
+		m_contractName(_contractName),
+		m_functionName(_functionName)
+	{}
 	QString contractName() { return m_contractName; }
 	QString functionName() { return m_functionName; }
 
@@ -193,7 +210,16 @@ class GasMapWrapper: public QObject
 public:
 	GasMapWrapper(QObject* _parent = nullptr): QObject(_parent){}
 	~GasMapWrapper(){ m_gasMaps.clear(); }
-	void push(QString _source, int _start, int _end, QString _value, bool _isInfinite, GasMap::type _type, QString _contractName = "", QString _functionName = "");
+	void push(
+		QString _source,
+		int _start,
+		int _end,
+		QString _value,
+		bool _isInfinite,
+		GasMap::type _type,
+		QString _contractName = "",
+		QString _functionName = ""
+	);
 	bool contains(QString _key);
 	void insert(QString _source, QVariantList _variantList);
 	QVariantList gasCostsByDocId(QString _source);

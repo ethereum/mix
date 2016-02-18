@@ -64,10 +64,34 @@ struct SolidityType;
 struct TransactionSettings
 {
 	TransactionSettings() {}
-	TransactionSettings(QString const& _contractId, QString const& _functionId, u256 _value, u256 _gas, bool _gasAuto, u256 _gasPrice, Secret const& _sender, bool _isContractCreation, bool _isFunctionCall):
-		contractId(_contractId), functionId(_functionId), value(_value), gas(_gas), gasAuto(_gasAuto), gasPrice(_gasPrice), sender(_sender), isContractCreation(_isContractCreation), isFunctionCall(_isFunctionCall)  {}
+	TransactionSettings(
+		QString const& _contractId,
+		QString const& _functionId,
+		u256 _value,
+		u256 _gas,
+		bool _gasAuto,
+		u256 _gasPrice,
+		Secret const& _sender,
+		bool _isContractCreation,
+		bool _isFunctionCall
+	):
+		contractId(_contractId),
+		functionId(_functionId),
+		value(_value),
+		gas(_gas),
+		gasAuto(_gasAuto),
+		gasPrice(_gasPrice),
+		sender(_sender),
+		isContractCreation(_isContractCreation),
+		isFunctionCall(_isFunctionCall)
+	{}
 	TransactionSettings(QString const& _stdContractName, QString const& _stdContractUrl):
-		contractId(_stdContractName), gasAuto(true), stdContractUrl(_stdContractUrl), isContractCreation(true), isFunctionCall(true) {}
+		contractId(_stdContractName),
+		gasAuto(true),
+		stdContractUrl(_stdContractUrl),
+		isContractCreation(true),
+		isFunctionCall(true)
+	{}
 
 	/// Contract name
 	QString contractId;
@@ -174,10 +198,46 @@ public:
 
 	RecordLogEntry():
 		m_recordIndex(0), m_call(false), m_type(RecordType::Transaction) {}
-	RecordLogEntry(unsigned _recordIndex, QString _transactionIndex, QString _contract, QString _function, QString _value, QString _address, QString _returned, bool _call, RecordType _type, QString _gasUsed,
-				   QString _gasRequired, QString _gasRefunded, QString _sender, QString _label, QVariantMap _inputParameters, QVariantMap _returnParameters, QVariantList _logs, TxSource _source, TransactionException _exception):
-		m_recordIndex(_recordIndex), m_transactionIndex(_transactionIndex), m_contract(_contract), m_function(_function), m_value(_value), m_address(_address), m_returned(_returned), m_call(_call), m_type(_type), m_gasUsed(_gasUsed),
-		m_gasRequired(_gasRequired), m_gasRefunded(_gasRefunded), m_sender(_sender), m_label(_label), m_inputParameters(_inputParameters), m_returnParameters(_returnParameters), m_logs(_logs), m_source(_source), m_exception(_exception)
+	RecordLogEntry(
+		unsigned _recordIndex,
+		QString _transactionIndex,
+		QString _contract,
+		QString _function,
+		QString _value,
+		QString _address,
+		QString _returned,
+		bool _call,
+		RecordType _type,
+		QString _gasUsed,
+			   QString _gasRequired,
+		QString _gasRefunded,
+		QString _sender,
+		QString _label,
+		QVariantMap _inputParameters,
+		QVariantMap _returnParameters,
+		QVariantList _logs,
+		TxSource _source,
+		TransactionException _exception
+	):
+		m_recordIndex(_recordIndex),
+		m_transactionIndex(_transactionIndex),
+		m_contract(_contract),
+		m_function(_function),
+		m_value(_value),
+		m_address(_address),
+		m_returned(_returned),
+		m_call(_call),
+		m_type(_type),
+		m_gasUsed(_gasUsed),
+		m_gasRequired(_gasRequired),
+		m_gasRefunded(_gasRefunded),
+		m_sender(_sender),
+		m_label(_label),
+		m_inputParameters(_inputParameters),
+		m_returnParameters(_returnParameters),
+		m_logs(_logs),
+		m_source(_source),
+		m_exception(_exception)
 	{
 		QMetaEnum ex = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("TransactionException"));
 		m_strException = QString(ex.valueToKey(m_exception));
@@ -341,7 +401,13 @@ private:
 	std::pair<QString, int> retrieveToken(QString const& _value);
 	std::pair<QString, int> resolvePair(QString const& _contractId);
 	QString serializeToken(std::pair<QString, int> const& _value) const;
-	QVariant formatStorageValue(SolidityType const& _type, std::unordered_map<dev::u256, dev::u256> const& _storage, unsigned const& _offset, dev::u256 const& _slot);
+	QVariant formatStorageValue(
+		SolidityType const& _type,
+		std::unordered_map<dev::u256,
+		dev::u256> const& _storage,
+		unsigned const& _offset,
+		dev::u256 const& _slot
+	);
 	QVariant formatMemoryValue(SolidityType const& _type, bytes const& _value, u256& _offset);
 	void processNextTransactions();
 	void finalizeBlock();

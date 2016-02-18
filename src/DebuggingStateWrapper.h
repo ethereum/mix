@@ -67,8 +67,22 @@ class QSolState: public QObject
 	Q_PROPERTY(QString sourceName MEMBER m_sourceName CONSTANT)
 
 public:
-	QSolState(QObject* _parent, QVariantMap&& _storage, QVariantList&& _callStack, QVariantMap&& _locals, int _start, int _end, QString _sourceName):
-		QObject(_parent), m_storage(_storage), m_callStack(_callStack), m_locals(_locals), m_start(_start), m_end(_end), m_sourceName(_sourceName)
+	QSolState(
+		QObject* _parent,
+		QVariantMap&& _storage,
+		QVariantList&& _callStack,
+		QVariantMap&& _locals,
+		int _start,
+		int _end,
+		QString _sourceName
+	):
+		QObject(_parent),
+		m_storage(_storage),
+		m_callStack(_callStack),
+		m_locals(_locals),
+		m_start(_start),
+		m_end(_end),
+		m_sourceName(_sourceName)
 	{ }
 
 private:
@@ -91,7 +105,10 @@ class QCode: public QObject
 	Q_PROPERTY(QString documentId MEMBER m_document CONSTANT)
 
 public:
-	QCode(QObject* _owner, QString const& _address, QVariantList&& _instrunctions): QObject(_owner), m_instructions(std::move(_instrunctions)), m_address(_address) {}
+	QCode(QObject* _owner, QString const& _address, QVariantList&& _instrunctions):
+		QObject(_owner),
+		m_instructions(std::move(_instrunctions)), m_address(_address)
+	{}
 	void setDocument(QString const& _documentId) { m_document = _documentId; }
 
 private:

@@ -48,7 +48,12 @@ public:
 	/// Get all input parameters of this function.
 	QList<QVariableDeclaration*> const& parametersList() const { return m_parameters; }
 	/// Get all input parameters of this function as QML property.
-	QQmlListProperty<QVariableDeclaration> parameters() const { return QQmlListProperty<QVariableDeclaration>(const_cast<QFunctionDefinition*>(this), const_cast<QFunctionDefinition*>(this)->m_parameters); }
+	QQmlListProperty<QVariableDeclaration> parameters() const {
+		return QQmlListProperty<QVariableDeclaration>(
+			const_cast<QFunctionDefinition*>(this),
+			const_cast<QFunctionDefinition*>(this)->m_parameters
+		);
+	}
 	/// Get all return parameters of this function.
 	QList<QVariableDeclaration*> returnParameters() const { return m_returnParameters; }
 	/// Get the hash of this function declaration on the contract ABI.

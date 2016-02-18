@@ -404,6 +404,11 @@ dev::eth::ExecutionResult MixClient::create(
 	return lastExecution().result;
 }
 
+pair<h256, Address> MixClient::submitTransaction(const TransactionSkeleton& _ts, const Secret& _secret)
+{
+	return submitTransaction(_ts, _secret, false);
+}
+
 eth::BlockHeader MixClient::blockInfo() const
 {
 	ReadGuard l(x_state);
