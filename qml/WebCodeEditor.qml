@@ -40,6 +40,7 @@ Item {
 	property string sourceName
 	property var document
 	property int fontSize: 0
+	property int c_max_open_filesize: 5120000
 
 	function setText(text, mode) {
 		currentText = text;
@@ -128,6 +129,11 @@ Item {
 			editorBrowser.runJavaScript("displayGasEstimation('" + show + "')", function(result) {});
 	}
 
+	function setReadOnly(status) {
+		if (initialized && editorBrowser)
+			editorBrowser.runJavaScript("setReadOnly('" + status + "')", function(result) {});
+	}
+
 	Clipboard
 	{
 		id: clipboard
@@ -167,7 +173,16 @@ Item {
 			if (!loading && editorBrowser) {
 				initialized = true;
 				setFontSize(fontSize);
-				setText(currentText, currentMode);
+				var size = fileIo.getFileSize(document.path);
+				if (size > c_max_open_filesize)
+				{
+					setText(qsTr("File size is too large!"), currentMode);
+					setReadOnly(true);
+					document.readOnly = true;
+				}
+				else
+					setText(currentText, currentMode);
+
 				runJavaScript("getTextChanged()", function(result) { });
 				pollTimer.running = true;
 				syncClipboard();

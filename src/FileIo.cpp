@@ -81,7 +81,7 @@ QString FileIo::pathFromUrl(QString const& _url)
 	QString path(url.path());
 #if defined(_WIN32)
 	if (_url.midRef(1, 1) == ":")
-	path = _url.mid(0, 2).toUpper() + "\\" + path;
+		path = _url.mid(0, 2).toUpper() + "\\" + path;
 #endif
 
 	if (url.scheme() == "qrc")
@@ -165,6 +165,22 @@ QString FileIo::readFile(QString const& _url)
 		manageException();
 		return QString();
 	}
+}
+
+int FileIo::getFileSize(QString const& _url)
+{
+	try
+	{
+		QString path = pathFromUrl(_url);
+		QFile file(path);
+		return file.size();
+	}
+	catch (...)
+	{
+		manageException();
+	}
+
+	return 0;
 }
 
 void FileIo::writeFile(QString const& _url, QString const& _data)
@@ -379,6 +395,7 @@ QVariantList FileIo::createSortedList(QString const& _root, QDir::Filter _filter
 	dir.setFilter(_filter);
 	dir.setSorting(QDir::Name);
 	dir.setSorting(QDir::IgnoreCase);
+
 	QFileInfoList fileInfoList = dir.entryInfoList();
 	QVariantList ret;
 
