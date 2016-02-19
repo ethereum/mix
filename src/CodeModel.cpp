@@ -507,18 +507,18 @@ GasMapWrapper* CodeModel::gasEstimation(solidity::CompilerStack const& _cs)
 				gasCostsMaps->push(sourceName, itemLocation.start, itemLocation.end, gasToString(cost), cost.isInfinite, GasMap::type::Statement);
 			}
 			// Structural gas costs for constructor
-			for (auto gasItem = constructorGasCosts.begin(); gasItem != constructorGasCosts.end(); ++gasItem)
+			if (contractDefinition.constructor())
 			{
-				SourceLocation const& itemLocation = gasItem->first->location();
-				if (contractDefinition.constructor())
+				for (auto gasItem = constructorGasCosts.begin(); gasItem != constructorGasCosts.end(); ++gasItem)
 				{
-					SourceLocation const& constructorLocation = contractDefinition.constructor()->location();
-					// check whether the location of the item is in constructor scope
-					if (itemLocation.start > constructorLocation.start && itemLocation.end < constructorLocation.end)
-					{
-						GasMeter::GasConsumption cost = gasItem->second;
-						gasCostsMaps->push(sourceName, itemLocation.start, itemLocation.end, gasToString(cost), cost.isInfinite, GasMap::type::Statement);
-					}
+					SourceLocation const& itemLocation = gasItem->first->location();
+						SourceLocation const& constructorLocation = contractDefinition.constructor()->location();
+						// check whether the location of the item is in constructor scope
+						if (itemLocation.start >= constructorLocation.start && itemLocation.end <= constructorLocation.end)
+						{
+							GasMeter::GasConsumption cost = gasItem->second;
+							gasCostsMaps->push(sourceName, itemLocation.start, itemLocation.end, gasToString(cost), cost.isInfinite, GasMap::type::Statement);
+						}
 				}
 			}
 

@@ -1300,7 +1300,7 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 			logs,
 			_source,
 			exception
-			);
+		);
 		if (transactionIndex != QObject::tr("Call"))
 			m_lastTransactionIndex = transactionIndex;
 
