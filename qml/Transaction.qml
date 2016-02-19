@@ -243,12 +243,12 @@ ColumnLayout
 				DefaultText
 				{
 					id: hash
-					Layout.preferredWidth: (parent.width / 2) - 50
+					Layout.preferredWidth: (parent.width / 2) - 80
 					anchors.verticalCenter: parent.verticalCenter
 					anchors.left: parent.left
 					anchors.leftMargin: horizontalMargin
 					elide: Text.ElideRight
-					width: parent.width - 50
+					width: parent.width - 80
 					maximumLineCount: 1
 					clip: true
 					color: labelColor
@@ -263,7 +263,7 @@ ColumnLayout
 
 				Rectangle
 				{
-					Layout.preferredWidth: 60
+					Layout.preferredWidth: 30
 					DefaultLabel
 					{
 						anchors.horizontalCenter: parent.horizontalCenter
@@ -318,31 +318,60 @@ ColumnLayout
 				}
 			}
 
-			Rectangle
+			RowLayout
 			{
-				width: 15
-				height: 15
 				anchors.right: parent.right
-				anchors.verticalCenter: parent.verticalCenter
-				anchors.rightMargin: 10
-				color: "transparent"
-				Image {
-					id: debugImg
-					source: txDetail.visible ? "qrc:/qml/img/contract-icon@2x.png" : "qrc:/qml/img/expand-icon@2x.png"
-					width: parent.width
-					fillMode: Image.PreserveAspectFit
-					anchors.horizontalCenter: parent.horizontalCenter
-					visible: tx !== null && tx !== undefined && tx.recordIndex !== undefined
-					MouseArea
-					{
+
+				DefaultButton
+				{
+					width: 15
+					height: 15
+					id: debugTxButton
+					anchors.verticalCenter: parent.verticalCenter
+					Layout.preferredWidth: 30
+					Layout.preferredHeight: 30
+					TooltipArea {
+						text: qsTr("Debug transaction")
 						anchors.fill: parent
-						onClicked:
+					}
+					onClicked:
+					{
+						if (tx.recordIndex !== undefined)
+							clientModel.debugRecord(tx.recordIndex, tx.label);
+					}
+					style: ButtonStyle
+					{
+						id: name
+						label: Image { source: "qrc:/qml/img/bugiconactive.png" }
+					}
+				}
+				Rectangle
+				{
+					width: 15
+					height: 15
+					color: "transparent"
+					TooltipArea {
+						text: qsTr("Expand transaction")
+						anchors.fill: parent
+					}
+					Image {
+						id: expandImg
+						source: txDetail.visible ? "qrc:/qml/img/contract-icon@2x.png" : "qrc:/qml/img/expand-icon@2x.png"
+						width: parent.width
+						fillMode: Image.PreserveAspectFit
+						anchors.horizontalCenter: parent.horizontalCenter
+						visible: tx !== null && tx !== undefined && tx.recordIndex !== undefined
+						MouseArea
 						{
-							txDetail.visible = !txDetail.visible
-							if (txDetail.visible)
-								colDetail.updateContainerHeight()
-							else
-								txDetail.Layout.preferredHeight = 0
+							anchors.fill: parent
+							onClicked:
+							{
+								txDetail.visible = !txDetail.visible
+								if (txDetail.visible)
+									colDetail.updateContainerHeight()
+								else
+									txDetail.Layout.preferredHeight = 0
+							}
 						}
 					}
 				}

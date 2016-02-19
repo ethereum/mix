@@ -27,7 +27,6 @@ import QtQuick.Dialogs 1.2
 import "."
 
 ColumnLayout {
-
 	id: wrapperItem
 	signal documentSelected(string doc, string groupName)
 	property alias model: filesList.model
