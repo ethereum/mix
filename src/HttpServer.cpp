@@ -27,8 +27,8 @@
 
 using namespace dev::mix;
 
-HttpServer::HttpServer()
-	: m_port(0),
+HttpServer::HttpServer():
+	m_port(0),
 	m_listen(false),
 	m_accept(true),
 	m_componentCompleted(true)
