@@ -330,19 +330,19 @@ ColumnLayout
 					anchors.verticalCenter: parent.verticalCenter
 					Layout.preferredWidth: 30
 					Layout.preferredHeight: 30
-					TooltipArea {
-						text: qsTr("Debug transaction")
-						anchors.fill: parent
-					}
-					onClicked:
-					{
-						if (tx.recordIndex !== undefined)
-							clientModel.debugRecord(tx.recordIndex, tx.label);
-					}
 					style: ButtonStyle
 					{
 						id: name
 						label: Image { source: "qrc:/qml/img/bugiconactive.png" }
+					}
+					TooltipArea {
+						text: qsTr("Debug transaction")
+						anchors.fill: parent
+						onClicked:
+						{
+							if (tx.recordIndex !== undefined)
+								clientModel.debugRecord(tx.recordIndex, tx.label);
+						}
 					}
 				}
 				Rectangle
