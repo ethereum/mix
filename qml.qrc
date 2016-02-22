@@ -89,5 +89,7 @@
         <file>qml/WelcomeView.qml</file>
         <file>qml/DefaultCompleteButton.qml</file>
         <file>qml/WelcomeViewStyle.qml</file>
+        <file>qml/img/panelopen.png</file>
+        <file>qml/img/panelclose.png</file>
     </qresource>
 </RCC>
