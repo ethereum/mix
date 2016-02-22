@@ -814,6 +814,7 @@ ColumnLayout {
 						id: block
 						scenario: blockChainPanel.model
 						Layout.preferredWidth: blockChainScrollView.width
+
 						blockIndex: index
 						transactions:
 						{

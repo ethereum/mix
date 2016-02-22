@@ -86,7 +86,6 @@ Rectangle {
 
 				ScenarioButton
 				{
-
 					Image {
 						anchors.left: parent.left
 						source: loader.visible ? "qrc:/qml/img/down.png" : "qrc:/qml/img/right.png"

@@ -324,8 +324,8 @@ Rectangle {
 			z: 3
 			style:
 				ButtonStyle {
-				background:Rectangle {
-					color: "transparent"
+					background:Rectangle {
+						color: "transparent"
 				}
 			}
 			MouseArea {
@@ -501,28 +501,29 @@ Rectangle {
 	Rectangle
 	{
 		color: "transparent"
-		width: 100
-		height: parent.height
-		anchors.top: parent.top
+		width: parent.height * 0.8
+		height: parent.height * 0.6
+		anchors.verticalCenter: parent.verticalCenter
 		anchors.right: parent.right
-		RowLayout
+		DefaultImgButton
 		{
 			anchors.fill: parent
-			Rectangle
-			{
-				color: "transparent"
-				anchors.fill: parent
-				DefaultImgButton
-				{
-					anchors.right: parent.right
-					anchors.rightMargin: 9
-					anchors.verticalCenter: parent.verticalCenter
-					id: debugImg
-					text: ""
-					iconSource: "qrc:/qml/img/bugiconactive.png"
-					action: showHideRightPanelAction
-				}
+			anchors.right: parent.right
+			style:
+				ButtonStyle {
+					background:Rectangle {
+						color: "transparent"
+					}
 			}
+			anchors.verticalCenter: parent.verticalCenter
+			id: debugImg
+			text: ""
+			Image {
+				id: panelOpen
+				source: rightViewIsVisible() ? "qrc:/qml/img/panelclose.png" : "qrc:/qml/img/panelopen.png"
+				anchors.fill: parent
+			}
+			action: showHideRightPanelAction
 		}
 	}
 }
