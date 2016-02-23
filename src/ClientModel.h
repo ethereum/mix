@@ -209,7 +209,7 @@ public:
 		bool _call,
 		RecordType _type,
 		QString _gasUsed,
-			   QString _gasRequired,
+		QString _gasRequired,
 		QString _gasRefunded,
 		QString _sender,
 		QString _label,
