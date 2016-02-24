@@ -41,6 +41,7 @@
 using namespace dev;
 using namespace dev::crypto;
 using namespace dev::mix;
+using namespace std;
 
 FileIo::FileIo(): m_watcher(new QFileSystemWatcher(this))
 {
@@ -55,17 +56,17 @@ void FileIo::manageException()
 	}
 	catch (boost::exception const& _e)
 	{
-		std::cerr << boost::diagnostic_information(_e);
+		cerr << boost::diagnostic_information(_e);
 		emit fileIOInternalError("Internal error: " + QString::fromStdString(boost::diagnostic_information(_e)));
 	}
-	catch (std::exception const& _e)
+	catch (exception const& _e)
 	{
-		std::cerr << _e.what();
+		cerr << _e.what();
 		emit fileIOInternalError("Internal error: " + QString::fromStdString(_e.what()));
 	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		cerr << boost::current_exception_diagnostic_information();
 		emit fileIOInternalError("Internal error: " + QString::fromStdString(boost::current_exception_diagnostic_information()));
 	}
 }
@@ -304,7 +305,7 @@ QStringList FileIo::makePackage(QString const& _deploymentFolder)
 		Json::Value entries = generateManifest(url.path(), url.path());
 
 		manifest["entries"] = entries;
-		std::stringstream jsonStr;
+		stringstream jsonStr;
 		jsonStr << manifest;
 
 		writeFile(url.path() + "/manifest.json", QString::fromStdString(jsonStr.str()));

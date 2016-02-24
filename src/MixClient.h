@@ -58,13 +58,39 @@ public:
 	ExecutionResult lastExecution() const;
 	ExecutionResult execution(unsigned _index) const;
 
-	dev::eth::ExecutionResult call(Address const& _secret, u256 _value, Address _dest, bytes const& _data, u256 _gas, u256 _gasPrice, eth::BlockNumber _blockNumber = eth::PendingBlock, eth::FudgeFactor _ff = eth::FudgeFactor::Strict) override;
-	dev::eth::ExecutionResult create(Address const& _secret, u256 _value, bytes const& _data = bytes(), u256 _gas = 10000, u256 _gasPrice = 10 * eth::szabo, eth::BlockNumber _blockNumber = eth::PendingBlock, eth::FudgeFactor _ff = eth::FudgeFactor::Strict) override;
+	dev::eth::ExecutionResult call(
+		Address const& _secret,
+		u256 _value,
+		Address _dest,
+		bytes const& _data,
+		u256 _gas, u256 _gasPrice,
+		eth::BlockNumber _blockNumber = eth::PendingBlock,
+		eth::FudgeFactor _ff = eth::FudgeFactor::Strict
+	) override;
+	dev::eth::ExecutionResult create(
+		Address const& _secret,
+		u256 _value,
+		bytes const& _data = bytes(),
+		u256 _gas = 10000,
+		u256 _gasPrice = 10 * eth::szabo,
+		eth::BlockNumber _blockNumber = eth::PendingBlock,
+		eth::FudgeFactor _ff = eth::FudgeFactor::Strict
+	) override;
 
 	using ClientBase::submitTransaction;
-	virtual std::pair<h256, Address> submitTransaction(eth::TransactionSkeleton const& _ts, Secret const& _secret) override { return submitTransaction(_ts, _secret, false); }
+	virtual std::pair<h256, Address> submitTransaction(eth::TransactionSkeleton const& _ts, Secret const& _secret) override;
 	std::pair<h256, Address> submitTransaction(eth::TransactionSkeleton const& _ts, Secret const& _secret, bool _gasAuto);
-	dev::eth::ExecutionResult call(Address const& _secret, u256 _value, Address _dest, bytes const& _data, u256 _gas, u256 _gasPrice, eth::BlockNumber _blockNumber, bool _gasAuto, eth::FudgeFactor _ff = eth::FudgeFactor::Strict);
+	dev::eth::ExecutionResult call(
+		Address const& _secret,
+		u256 _value,
+		Address _dest,
+		bytes const& _data,
+		u256 _gas,
+		u256 _gasPrice,
+		eth::BlockNumber _blockNumber,
+		bool _gasAuto,
+		eth::FudgeFactor _ff = eth::FudgeFactor::Strict
+	);
 	ExecutionResult debugTransaction(dev::eth::Transaction const& _t, eth:: State const& _state, eth::EnvInfo const& _envInfo, bool _call);
 	void setAuthor(Address const& _us) override;
 	void startSealing() override {}

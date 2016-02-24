@@ -28,14 +28,26 @@
 using namespace dev::solidity;
 using namespace dev::mix;
 
-QFunctionDefinition::QFunctionDefinition(QObject* _parent, dev::solidity::FunctionTypePointer const& _f): QBasicNodeDefinition(_parent, &_f->declaration()), m_hash(dev::sha3(_f->externalSignature())),
-	m_fullHash(dev::sha3(_f->externalSignature()))
+QFunctionDefinition::QFunctionDefinition(
+	QObject* _parent,
+	dev::solidity::FunctionTypePointer const& _f
+):
+	QBasicNodeDefinition(_parent, &_f->declaration()),
+	m_hash(dev::sha3(_f->externalSignature())),
+	m_fullHash(dev::sha3(_f->externalSignature())
+)
 {
 	init(_f);
 }
 
-QFunctionDefinition::QFunctionDefinition(QObject* _parent, FunctionDefinition const& _f): QBasicNodeDefinition(_parent, &_f), m_hash(dev::sha3(_f.externalSignature())),
-	m_fullHash(dev::sha3(_f.externalSignature()))
+QFunctionDefinition::QFunctionDefinition(
+	QObject* _parent,
+	FunctionDefinition const& _f
+):
+	QBasicNodeDefinition(_parent, &_f),
+	m_hash(dev::sha3(_f.externalSignature())),
+	m_fullHash(dev::sha3(_f.externalSignature())
+)
 {
 	for (unsigned i = 0; i < _f.parameters().size(); ++i)
 		m_parameters.append(new QVariableDeclaration(parent(), _f.parameters().at(i)));
@@ -44,7 +56,8 @@ QFunctionDefinition::QFunctionDefinition(QObject* _parent, FunctionDefinition co
 		m_returnParameters.append(new QVariableDeclaration(parent(), _f.returnParameters().at(i)));
 }
 
-QFunctionDefinition::QFunctionDefinition(QObject* _parent, dev::solidity::EventDefinition const& _e): QBasicNodeDefinition(_parent, &_e)
+QFunctionDefinition::QFunctionDefinition(QObject* _parent, dev::solidity::EventDefinition const& _e):
+	QBasicNodeDefinition(_parent, &_e)
 {
 	for (unsigned i = 0; i < _e.parameters().size(); ++i)
 		m_parameters.append(new QVariableDeclaration(parent(), _e.parameters().at(i)));

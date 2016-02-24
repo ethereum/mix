@@ -42,7 +42,12 @@ class QContractDefinition: public QBasicNodeDefinition
 public:
 	QContractDefinition(QObject* _parent, solidity::ContractDefinition const* _contract);
 	/// Get all the functions of the contract.
-	QQmlListProperty<QFunctionDefinition> functions() const { return QQmlListProperty<QFunctionDefinition>(const_cast<QContractDefinition*>(this), const_cast<QContractDefinition*>(this)->m_functions); }
+	QQmlListProperty<QFunctionDefinition> functions() const {
+		return QQmlListProperty<QFunctionDefinition>(
+			const_cast<QContractDefinition*>(this),
+			const_cast<QContractDefinition*>(this)->m_functions
+		);
+	}
 	/// Get the constructor of the contract.
 	QFunctionDefinition* constructor() const { return m_constructor; }
 	/// Get all the functions of the contract.
@@ -50,7 +55,12 @@ public:
 	/// Find function by hash, returns nullptr if not found
 	QFunctionDefinition const* getFunction(dev::FixedHash<4> _hash) const;
 	/// Get events
-	QQmlListProperty<QFunctionDefinition> events() const { return QQmlListProperty<QFunctionDefinition>(const_cast<QContractDefinition*>(this), const_cast<QContractDefinition*>(this)->m_events); }
+	QQmlListProperty<QFunctionDefinition> events() const {
+		return QQmlListProperty<QFunctionDefinition>(
+			const_cast<QContractDefinition*>(this),
+			const_cast<QContractDefinition*>(this)->m_events
+		);
+	}
 	/// Get events
 	QList<QFunctionDefinition*> const& eventsList() const { return m_events; }
 	/// Is Library

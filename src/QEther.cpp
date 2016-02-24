@@ -23,6 +23,7 @@
 #include "QEther.h"
 
 using namespace dev::mix;
+using namespace std;
 
 void QEther::manageException() const
 {
@@ -32,15 +33,15 @@ void QEther::manageException() const
 	}
 	catch (boost::exception const& _e)
 	{
-		std::cerr << boost::diagnostic_information(_e);
+		cerr << boost::diagnostic_information(_e);
 	}
-	catch (std::exception const& _e)
+	catch (exception const& _e)
 	{
-		std::cerr << _e.what();
+		cerr << _e.what();
 	}
 	catch (...)
 	{
-		std::cerr << boost::current_exception_diagnostic_information();
+		cerr << boost::current_exception_diagnostic_information();
 	}
 }
 
@@ -63,7 +64,7 @@ QBigInt* QEther::toWei() const
 	{
 		QMetaEnum units = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("EtherUnit"));
 		const char* key = units.valueToKey(m_currentUnit);
-		for (std::pair<dev::u256, std::string> rawUnit: dev::eth::units())
+		for (pair<dev::u256, string> rawUnit: dev::eth::units())
 		{
 			if (QString::fromStdString(rawUnit.second).toLower() == QString(key).toLower())
 				return multiply(new QBigInt(rawUnit.first));

@@ -35,6 +35,7 @@
 using namespace dev;
 using namespace dev::eth;
 using namespace dev::mix;
+using namespace std;
 
 namespace
 {
@@ -43,10 +44,10 @@ namespace
 		QVariantList dumpList;
 		for (unsigned i = 0; i < _bytes.size(); i += _width)
 		{
-			std::stringstream ret;
+			stringstream ret;
 			if (_includeAddress)
 			{
-				ret << std::setfill('0') << std::setw(6) << std::hex << i << " ";
+				ret << setfill('0') << setw(6) << hex << i << " ";
 				ret << "   ";
 			}
 			for (unsigned j = i; j < i + _width; ++j)
@@ -60,10 +61,10 @@ namespace
 			QString strPart = QString::fromStdString(ret.str());
 
 			ret.clear();
-			ret.str(std::string());
+			ret.str(string());
 
 			for (unsigned j = i; j < i + _width && j < _bytes.size(); ++j)
-				ret << std::setfill('0') << std::setw(2) << std::hex << (unsigned)_bytes[j] << " ";
+				ret << setfill('0') << setw(2) << hex << (unsigned)_bytes[j] << " ";
 			QString hexPart = QString::fromStdString(ret.str());
 
 			QStringList line = { strPart, hexPart };
@@ -82,8 +83,8 @@ QCode* QMachineState::getHumanReadableCode(QObject* _owner, const Address& _addr
 		try
 		{
 			QString s = QString::fromStdString(instructionInfo((Instruction)b).name);
-			std::ostringstream out;
-			out << std::hex << std::setw(4) << std::setfill('0') << i;
+			ostringstream out;
+			out << hex << setw(4) << setfill('0') << i;
 			int offset = i;
 			if (b >= (byte)Instruction::PUSH1 && b <= (byte)Instruction::PUSH32)
 			{
@@ -101,7 +102,7 @@ QCode* QMachineState::getHumanReadableCode(QObject* _owner, const Address& _addr
 			break;	// probably hit data segment
 		}
 	}
-	return new QCode(_owner, QString::fromStdString(toString(_address)), std::move(codeStr));
+	return new QCode(_owner, QString::fromStdString(toString(_address)), move(codeStr));
 }
 
 QBigInt* QMachineState::gasCost()
@@ -122,7 +123,7 @@ QBigInt* QMachineState::newMemSize()
 QStringList QMachineState::debugStack()
 {
 	QStringList stack;
-	for (std::vector<u256>::reverse_iterator i = m_state.stack.rbegin(); i != m_state.stack.rend(); ++i)
+	for (vector<u256>::reverse_iterator i = m_state.stack.rbegin(); i != m_state.stack.rend(); ++i)
 		stack.append(QString::fromStdString(prettyU256(*i)));
 	return stack;
 }
@@ -132,7 +133,7 @@ QStringList QMachineState::debugStorage()
 	QStringList storage;
 	for (auto const& i: m_state.storage)
 	{
-		std::stringstream s;
+		stringstream s;
 		s << "@" << prettyU256(i.first) << "\t" << prettyU256(i.second);
 		storage.append(QString::fromStdString(s.str()));
 	}

@@ -71,11 +71,34 @@ class QBigInt: public QObject
 	Q_OBJECT
 
 public:
-	QBigInt(QObject* _parent = 0): QObject(_parent), m_internalValue(dev::u256(0)) { QQmlEngine::setObjectOwnership(this, QQmlEngine::JavaScriptOwnership); }
-	QBigInt(dev::u256 const& _value, QObject* _parent = 0): QObject(_parent), m_internalValue(_value) { QQmlEngine::setObjectOwnership(this, QQmlEngine::JavaScriptOwnership); }
-	QBigInt(dev::bigint const& _value, QObject* _parent = 0): QObject(_parent), m_internalValue(_value) { QQmlEngine::setObjectOwnership(this, QQmlEngine::JavaScriptOwnership); }
-	QBigInt(BigIntVariant const& _value, QObject* _parent = 0): QObject(_parent), m_internalValue(_value){ QQmlEngine::setObjectOwnership(this, QQmlEngine::JavaScriptOwnership); }
-	QBigInt(dev::s256 const& _value, QObject* _parent = 0): QObject(_parent), m_internalValue(_value) { QQmlEngine::setObjectOwnership(this, QQmlEngine::JavaScriptOwnership); }
+	QBigInt(QObject* _parent = 0): QObject(_parent), m_internalValue(dev::u256(0))
+	{
+		QQmlEngine::setObjectOwnership(this, QQmlEngine::JavaScriptOwnership);
+	}
+	QBigInt(dev::u256 const& _value, QObject* _parent = 0):
+		QObject(_parent),
+		m_internalValue(_value)
+	{
+		QQmlEngine::setObjectOwnership(this, QQmlEngine::JavaScriptOwnership);
+	}
+	QBigInt(dev::bigint const& _value, QObject* _parent = 0):
+		QObject(_parent),
+		m_internalValue(_value)
+	{
+		QQmlEngine::setObjectOwnership(this, QQmlEngine::JavaScriptOwnership);
+	}
+	QBigInt(BigIntVariant const& _value, QObject* _parent = 0):
+		QObject(_parent),
+		m_internalValue(_value)
+	{
+		QQmlEngine::setObjectOwnership(this, QQmlEngine::JavaScriptOwnership);
+	}
+	QBigInt(dev::s256 const& _value, QObject* _parent = 0):
+		QObject(_parent),
+		m_internalValue(_value)
+	{
+		QQmlEngine::setObjectOwnership(this, QQmlEngine::JavaScriptOwnership);
+	}
 	~QBigInt() {}
 
 	/// @returns the current used big integer.
