@@ -1191,6 +1191,7 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 				l.insert("topic", QString::fromStdString(streamTopic.str()));
 				auto const& sign = log.topics.front(); // first hash supposed to be the event signature. To check
 				int topicDataIndex = 1;
+				u256 pos = 0;
 				for (auto const& event: def->eventsList())
 				{
 					if (sign == event->fullHash())
@@ -1201,7 +1202,6 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 						{
 							bytes data;
 							QVariant param;
-							u256 pos = 0;
 							if (!e->isIndexed())
 								param = encoder.decodeType(e->type()->type(), log.data, pos);
 							else

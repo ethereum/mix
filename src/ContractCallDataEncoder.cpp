@@ -312,6 +312,8 @@ QJsonArray ContractCallDataEncoder::decodeArray(SolidityType const& _type, bytes
 	if (_type.type == QSolidityType::Type::Bytes || _type.type == QSolidityType::Type::String)
 	{
 		bytesConstRef value(_value.data() + (static_cast<size_t>(offset) + 32), static_cast<size_t>(count));
+		if (value.size() < count)
+			return array;
 		bytes rawParam((static_cast<size_t>(count)));
 		value.populate(&rawParam);
 		if (_type.type == QSolidityType::Type::Bytes)
@@ -382,6 +384,8 @@ QVariant ContractCallDataEncoder::decodeRawArray(SolidityType const& _type, byte
 		value.populate(&rawParam);
 		count = u256(decodeInt(rawParam));
 		pos = pos + 32; //cursor to content
+		if (value.size() < count)
+			return QVariant();
 	}
 
 	QJsonArray array;
