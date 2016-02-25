@@ -1208,7 +1208,8 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 							{
 								data = log.topics.at(topicDataIndex).asBytes();
 								topicDataIndex++;
-								param = encoder.decodeType(e->type()->type(), data, pos);
+								u256 indexedPos = 0;
+								param = encoder.decodeType(e->type()->type(), data, indexedPos);
 							}
 
 							QVariantMap p;
