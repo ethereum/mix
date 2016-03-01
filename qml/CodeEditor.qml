@@ -95,6 +95,18 @@ Item {
 				codeEditor.insert(codeEditor.cursorPosition, "\t");
 				event.accepted = true;
 			}
+			if (event.modifiers().testFlag(Qt.Key_Control))//Qt::ControlModifier))
+				if (event.key() == Qt.Key_Plus)
+				{
+					codeEditor.font.pixelSize = codeEditor.font.pixelSize() * 0.20;
+				} else if (event.key() == Qt.Key_Minus)
+				{
+					codeEditor.font.pixelSize = codeEditor.font.pixelSize() / 0.20;
+				}
+
+
+
+
 		}
 		onTextChanged: {
 			editorTextChanged();
