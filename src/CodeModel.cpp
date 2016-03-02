@@ -373,6 +373,7 @@ void CodeModel::runCompilationJob(int _jobId)
 	if (_jobId != m_backgroundJobId)
 		return; //obsolete job
 	solidity::CompilerStack cs(true);
+	auto scannerFromSourceName = [&](string const& _sourceName) -> solidity::Scanner const& { return cs.scanner(_sourceName); };
 	try
 	{
 		cs.addSource("configUser", R"(contract configUser{function configAddr()constant returns(address a){ return 0xf025d81196b72fba60a1d4dddad12eeb8360d828;}})");
@@ -397,7 +398,7 @@ void CodeModel::runCompilationJob(int _jobId)
 				// This code is duplicated below for a transition period until we switch away from
 				// exceptions for error reporting.
 				stringstream errorStr;
-				solidity::SourceReferenceFormatter::printExceptionInformation(errorStr, *error, (error->type() == solidity::Error::Type::Warning) ? "Warning" : "Error", cs);
+				solidity::SourceReferenceFormatter::printExceptionInformation(errorStr, *error, (error->type() == solidity::Error::Type::Warning) ? "Warning" : "Error", scannerFromSourceName);
 				QString message = QString::fromStdString(errorStr.str());
 				QVariantMap firstLocation;
 				QVariantList secondLocations;
@@ -421,7 +422,7 @@ void CodeModel::runCompilationJob(int _jobId)
 		// This code is duplicated above for a transition period until we switch away from
 		// exceptions for error reporting.
 		stringstream error;
-		solidity::SourceReferenceFormatter::printExceptionInformation(error, _exception, "Error", cs);
+		solidity::SourceReferenceFormatter::printExceptionInformation(error, _exception, "Error", scannerFromSourceName);
 		QString message = QString::fromStdString(error.str());
 		QVariantMap firstLocation;
 		QVariantList secondLocations;
