@@ -47,6 +47,17 @@ Rectangle {
 	color: "#ededed"
 	clip: true
 
+	Keys.onPressed:
+	{
+		if (event.key === Qt.Key_Right)
+		{
+			Debugger.stepOverForward()
+		}
+		else if (event.key === Qt.Key_Left)
+		{
+			Debugger.stepOverBack()
+		}
+	}
 	onVisibleChanged:
 	{
 		if (visible)
