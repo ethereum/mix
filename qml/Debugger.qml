@@ -412,7 +412,6 @@ Rectangle {
 										Debugger.jumpTo(value)
 									}
 
-
 									style: SliderStyle {
 										groove: Rectangle {
 											implicitHeight: 3
