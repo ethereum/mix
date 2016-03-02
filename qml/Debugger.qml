@@ -52,7 +52,8 @@ Rectangle {
 		if (event.key === Qt.Key_Right)
 		{
 			Debugger.stepOverForward()
-		} else if (event.key === Qt.Key_Left)
+		}
+		else if (event.key === Qt.Key_Left)
 		{
 			Debugger.stepOverBack()
 		}
