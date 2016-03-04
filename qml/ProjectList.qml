@@ -215,15 +215,9 @@ ScrollView
 				itemDelegate: renderDelegate
 				model: ListModel {}
 
-				Keys.onDeletePressed:
-				{
-					deleteConfirmation.open();
-					contextMenu.visible = false
-				}
-
-
 				Component {
 					id: renderDelegate
+
 					Item {
 						id: innerItem
 
@@ -376,47 +370,53 @@ ScrollView
 							}
 						}
 
-					}
-				}
-
-				MessageDialog
-				{
-					id: deleteConfirmation
-					text: qsTr("Are you sure you want to delete this file?")
-					standardButtons: StandardIcon.Ok | StandardIcon.Cancel
-					property bool regenerateCompilationResult: false
-					onAccepted:
-					{
-						var item = projectFiles.model.get(styleData.row)
-						var doc = projectModel.file(item)
-						if (item.type === "folder")
-							fileIo.deleteDir(item.path)
-						else
+						MessageDialog
 						{
-							if (doc.isContract)
-								codeModel.unregisterContractSrc(doc.path)
-							mainContent.codeEditor.closeDocument(doc.path)
-							fileIo.stopWatching(doc.path)
-							fileIo.deleteFile(doc.path)
+							id: deleteConfirmation
+							text: qsTr("Are you sure you want to delete this file?")
+							standardButtons: StandardIcon.Ok | StandardIcon.Cancel
+							property bool regenerateCompilationResult: false
+							onAccepted:
+							{
+								var item = projectFiles.model.get(styleData.row)
+								var doc = projectModel.file(item)
+								if (item.type === "folder")
+									fileIo.deleteDir(item.path)
+								else
+								{
+									if (doc.isContract)
+										codeModel.unregisterContractSrc(doc.path)
+									mainContent.codeEditor.closeDocument(doc.path)
+									fileIo.stopWatching(doc.path)
+									fileIo.deleteFile(doc.path)
 
+								}
+								regenerateCompilationResult = true
+								projectFiles.updateView()
+							}
 						}
-						regenerateCompilationResult = true
-						projectFiles.updateView()
-					}
-				}
 
-				Connections
-				{
-					target: codeModel
-					onCompilationComplete:
-					{
-						if (deleteConfirmation.regenerateCompilationResult)
+						Connections
 						{
-							deleteConfirmation.regenerateCompilationResult = false
-							projectModel.regenerateCompilationResult()
+							target: codeModel
+							onCompilationComplete:
+							{
+								if (deleteConfirmation.regenerateCompilationResult)
+								{
+									deleteConfirmation.regenerateCompilationResult = false
+									projectModel.regenerateCompilationResult()
+								}
+							}
+						}
+
+						Keys.onDeletePressed:
+						{
+							console.log("aaaaaaaaa");
+							deleteConfirmation.open();
 						}
 					}
 				}
+
 
 				function updateFileName(newPath, oldPath)
 				{
