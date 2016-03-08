@@ -64,7 +64,7 @@ ChainParams MixBlockChain::createParams(AccountMap const& _pre)
 	ret.author = Address();
 	ret.blockReward = 5000 * ether;
 	ret.difficulty = 0;
-	ret.gasLimit = 3141592;
+	ret.gasLimit = DefaultBlockGasLimit;
 	ret.gasUsed = 0;
 	ret.genesisState = _pre;
 	ret.maximumExtraDataSize = 1024;
