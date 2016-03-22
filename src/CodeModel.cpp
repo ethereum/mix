@@ -157,8 +157,7 @@ CompiledContract::CompiledContract(const dev::solidity::CompilerStack& _compiler
 	m_contract->moveToThread(QApplication::instance()->thread());
 	m_linkerObject = _compiler.object(_contractName.toStdString());
 
-	dev::solidity::InterfaceHandler interfaceHandler;
-	m_contractInterface = QString::fromStdString(interfaceHandler.abiInterface(contractDefinition));
+	m_contractInterface = QString::fromStdString(dev::solidity::InterfaceHandler::abiInterface(contractDefinition));
 	m_contractInterface = m_contractInterface.replace("\n", "");
 	if (m_contractInterface.isEmpty())
 		m_contractInterface = "[]";
