@@ -31,6 +31,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 aux_source_directory("./src" SRC_LIST)
 file(GLOB HEADERS "src/*.h")
 
+eth_name(EXECUTABLE Mix)
 find_package(Qt5Core)
 
 if (APPLE)
@@ -46,17 +47,17 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
 endif()
 
 # eth_add_executable is defined in cmake/EthExecutableHelper.cmake
-eth_add_executable(Mix 
+eth_add_executable(${EXECUTABLE} 
 	ICON mix
 	UI_RESOURCES ${UI_RESOURCES} mix.icns
 	WIN_RESOURCES mix.rc
 )
 
-eth_use(Mix REQUIRED Qt::Core Qt::Widgets Qt::WebEngine Eth::ethereum Web3::web3jsonrpc Eth::ethashseal)
-eth_use(Mix REQUIRED Solidity::solidity)
+eth_use(${EXECUTABLE} REQUIRED Qt::Core Qt::Widgets Qt::WebEngine Eth::ethereum Web3::web3jsonrpc Eth::ethashseal)
+eth_use(${EXECUTABLE} REQUIRED Solidity::solidity)
 
 # eth_install_executable is defined in cmake/EthExecutableHelper.cmake
-eth_install_executable(Mix
+eth_install_executable(${EXECUTABLE}
 	QMLDIR ${CMAKE_CURRENT_SOURCE_DIR}/qml
 )
 
@@ -76,14 +77,14 @@ add_custom_target(mix_qml SOURCES ${QMLFILES} ${SOLFILES} ${TESTFILES})
 #test target
 find_package(Qt5QuickTest REQUIRED)
 find_package(Qt5Test REQUIRED)
+set(TEST_EXECUTABLE mix_test)
 list(APPEND LIBRARIES "Qt5::QuickTest")
 list(APPEND LIBRARIES "Qt5::Test")
 list(REMOVE_ITEM SRC_LIST "src/main.cpp")
 aux_source_directory(test SRC_LIST)
 file(GLOB HEADERS "test/*.h")
-add_executable(mix_test ${SRC_LIST} ${HEADERS})
-target_link_libraries(mix_test ${LIBRARIES})
-set_target_properties(mix_test PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
-
+add_executable(${TEST_EXECUTABLE} ${SRC_LIST} ${HEADERS})
+target_link_libraries(${TEST_EXECUTABLE} ${LIBRARIES})
+set_target_properties(${TEST_EXECUTABLE} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
 
 
