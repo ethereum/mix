@@ -499,6 +499,7 @@ ColumnLayout {
 			width: btnWidth
 			tooltip: qsTr("Add Transaction/Block")
 			height: btnHeight
+			imageSource: "qrc:/qml/img/plus.png"
 			Component.onCompleted:
 			{
 				actions.push({ label: qsTr("Add Transaction...") , action: addTransaction })
