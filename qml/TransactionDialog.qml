@@ -96,7 +96,6 @@ Dialog {
 		valueField.formatInput()
 		var contractId = item.contractId;
 		var functionId = item.functionId;
-
 		paramValues = item.parameters !== undefined ? item.parameters : {};
 		if (item.sender)
 			senderComboBox.select(item.sender)
@@ -168,6 +167,8 @@ Dialog {
 	{
 		var type = parameter.type;
 		var pname = parameter.name;
+		if (pname === "")
+			pname = paramsModel.length
 		paramsModel.push({ name: pname, type: type });
 	}
 

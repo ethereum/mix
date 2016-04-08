@@ -562,10 +562,16 @@ void ClientModel::executeSequence(vector<TransactionSettings> const& _sequence)
 				}
 				if (!transaction.functionId.isEmpty())
 					encoder.encode(f);
-				for (QVariableDeclaration const* p: f->parametersList())
+				for (int k = 0; k < f->parametersList().length(); ++k) //QVariableDeclaration const* p: f->parametersList())
 				{
+					QVariableDeclaration const* p = f->parametersList().at(k);
 					QSolidityType const* type = p->type();
-					QVariant value = transaction.parameterValues.value(p->name());
+					QVariant value;
+					if (p->name().isEmpty())
+						value = transaction.parameterValues.value(QString::number(k));
+					else
+						value = transaction.parameterValues.value(p->name());
+
 					if (type->type().type == SolidityType::Type::Address)
 					{
 						if (type->array())
@@ -1203,7 +1209,12 @@ void ClientModel::onNewTransaction(RecordLogEntry::TxSource _source)
 					data.erase(data.begin(), data.begin() + 4);
 					QStringList parameters = encoder.decode(funcDef->parametersList(), data);
 					for (int k = 0; k < parameters.length(); ++k)
-						inputParameters.insert(funcDef->parametersList().at(k)->name(), parameters.at(k));
+					{
+						QString name = funcDef->parametersList().at(k)->name();
+						if (name.isEmpty())
+							name = QString::number(k);
+						inputParameters.insert(name, parameters.at(k));
+					}
 				}
 			}
 
