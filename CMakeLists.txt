@@ -31,7 +31,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 aux_source_directory("./src" SRC_LIST)
 file(GLOB HEADERS "src/*.h")
 
-eth_name(EXECUTABLE Mix)
+eth_name(EXECUTABLE Mix-ide)
 find_package(Qt5Core)
 
 if (APPLE)
