@@ -196,8 +196,10 @@ Column
 				function getValue()
 				{
 					var r = "";
-					if (value && value[modelData.name] !== undefined)
+					if (value && modelData.name !== "" && value[modelData.name] !== undefined)
 						r = value[modelData.name];
+					else if (value && modelData.name === "" && value[index])
+						r = value[index]
 					else if (modelData.type.category === QSolidityType.Struct)
 						r = {};
 					if (Array.isArray(r))
