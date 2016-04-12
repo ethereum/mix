@@ -28,7 +28,9 @@
 #include <QtGlobal>
 #include <libdevcore/Exceptions.h>
 #include <libethcore/ChainOperationParams.h>
+#include <libethashseal/Ethash.h>
 #include <libethcore/BasicAuthority.h>
+#include <libethcore/SealEngine.h>
 #include <libethereum/BlockChain.h>
 #include <libethereum/Transaction.h>
 #include <libethereum/Executive.h>
@@ -80,6 +82,9 @@ MixClient::MixClient(string const& _dbPath):
 	m_postSeal(Block::Null),
 	m_dbPath(_dbPath)
 {
+	dev::eth::Ethash::init();
+	dev::eth::BasicAuthority::init();
+	dev::eth::NoProof::init();
 	resetState(AccountMap());
 }
 
