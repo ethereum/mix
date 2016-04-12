@@ -9,6 +9,7 @@ Item
 {
 	property string tooltip
 	property var actions: []
+	property string imageSource: "qrc:/qml/img/showmoreactions.png"
 	id: root
 	function init()
 	{
@@ -41,7 +42,7 @@ Item
 		roundRight: false
 		width: parent.width
 		height: parent.height
-		sourceImg: "qrc:/qml/img/showmoreactions.png"
+		sourceImg: imageSource
 		text: tooltip
 		onClicked:
 		{

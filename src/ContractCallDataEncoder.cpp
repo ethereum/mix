@@ -322,7 +322,7 @@ QJsonArray ContractCallDataEncoder::decodeArray(SolidityType const& _type, bytes
 		bytes rawParam((static_cast<size_t>(count)));
 		value.populate(&rawParam);
 		if (_type.type == QSolidityType::Type::Bytes)
-			array.append(toString(decodeBytes(rawParam)));
+			array.append(toChar(decodeBytes(rawParam)));
 		else
 			array.append(toChar(decodeBytes(rawParam)));
 	}
@@ -361,7 +361,7 @@ QVariant ContractCallDataEncoder::decode(SolidityType const& _type, bytes const&
 	else if (type == QSolidityType::Type::Bool)
 		return QVariant::fromValue(toString(decodeBool(rawParam)));
 	else if (type == QSolidityType::Type::Bytes || type == QSolidityType::Type::Hash)
-		return QVariant::fromValue(toString(decodeBytes(rawParam)));
+		return QVariant::fromValue(toChar(decodeBytes(rawParam)));
 	else if (type == QSolidityType::Type::String)
 		return QVariant::fromValue(toChar(decodeBytes(rawParam)));
 	else if (type == QSolidityType::Type::Struct)
@@ -632,7 +632,7 @@ QVariant ContractCallDataEncoder::decodeType(SolidityType _type, bytes _value, u
 	if (_type.array)
 	{
 		QJsonArray array = decodeArray(_type, _value, _readPosition);
-		if (_type.type == SolidityType::String && array.count() <= 1)
+		if ((_type.type == SolidityType::String || _type.type == SolidityType::Bytes) && array.count() <= 1)
 		{
 			if (array.count() == 1)
 				return array[0].toString();
