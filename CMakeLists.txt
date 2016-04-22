@@ -52,6 +52,9 @@ eth_add_executable(${EXECUTABLE}
 	UI_RESOURCES ${UI_RESOURCES} mix.icns
 	WIN_RESOURCES mix.rc
 )
+if (WIN32)
+	target_link_libraries(${EXECUTABLE} shlwapi)
+endif()
 
 eth_use(${EXECUTABLE} REQUIRED Qt::Core Qt::Widgets Qt::WebEngine Eth::ethereum Web3::web3jsonrpc Eth::ethashseal)
 eth_use(${EXECUTABLE} OPTIONAL Solidity::solidity)
