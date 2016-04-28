@@ -27,3 +27,6 @@ build
 *.exe
 *.out
 *.app
+
+# IDEs
+.idea
