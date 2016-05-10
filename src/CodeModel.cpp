@@ -807,12 +807,12 @@ SolidityType CodeModel::nodeType(dev::solidity::Type const* _type)
 	}
 		break;
 	case Type::Category::Function:
-	case Type::Category::IntegerConstant:
+	case Type::Category::RationalNumber:
 	case Type::Category::StringLiteral:
 	case Type::Category::Magic:
 	case Type::Category::Mapping:
 	case Type::Category::Modifier:
-	case Type::Category::Real:
+	case Type::Category::FixedPoint:
 	case Type::Category::TypeType:
 	case Type::Category::Tuple:
 	default:
