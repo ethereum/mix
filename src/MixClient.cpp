@@ -186,7 +186,7 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 	bytesConstRef const* lastData = nullptr;
 	unsigned codeIndex = 0;
 	unsigned dataIndex = 0;
-	auto onOp = [&](uint64_t steps, Instruction inst, bigint newMemSize, bigint gasCost, bigint gas, void* voidVM, void const* voidExt)
+	auto onOp = [&](uint64_t steps, uint64_t PC, Instruction inst, bigint newMemSize, bigint gasCost, bigint gas, void* voidVM, void const* voidExt)
 	{
 		VM& vm = *static_cast<VM*>(voidVM);
 		ExtVM const& ext = *static_cast<ExtVM const*>(voidExt);
@@ -225,7 +225,7 @@ ExecutionResult MixClient::debugTransaction(Transaction const& _t, State const& 
 
 		machineStates.push_back(MachineState{
 			steps,
-			vm.curPC(),
+			PC,
 			inst,
 			newMemSize,
 			static_cast<u256>(gas),
