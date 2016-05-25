@@ -160,8 +160,13 @@ Item {
 		id: newFolderDialog
 		visible: false
 		onAccepted: {
-			fileIo.makeDir(newFolderDialog.path)
-			folderAdded(newFolderDialog.path)
+			if (!fileIo.dirExists(newFolderDialog.path))
+			{
+				fileIo.makeDir(newFolderDialog.path)
+				folderAdded(newFolderDialog.path)
+			}
+			else
+				alertMessageDialog.pop(qsTr("Directory already exists"))
 		}
 	}
 

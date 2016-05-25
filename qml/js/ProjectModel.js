@@ -279,6 +279,11 @@ function doCreateProject(title, path) {
 	closeProject(function() {
 		console.log("Creating project " + title + " at " + path);
 		var dirPath = path + "/" + title
+		if (fileIo.dirExists(dirPath))
+		{
+			alertMessageDialog.pop(qsTr("Directory already exists. Unable to continue."))
+			return
+		}
 		fileIo.makeDir(dirPath);
 		var projectFile = dirPath + "/" + projectFileName;
 		var indexFile = "index.html";

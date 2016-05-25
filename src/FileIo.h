@@ -51,7 +51,7 @@ signals:
 public:
 	FileIo();
 	/// Create a directory if it does not exist. Signals on failure.
-	Q_INVOKABLE void makeDir(QString const& _url);
+	Q_INVOKABLE bool makeDir(QString const& _url);
 	/// Read file contents to a string. Signals on failure.
 	Q_INVOKABLE QString readFile(QString const& _url);
 	/// Returns file size

@@ -278,7 +278,8 @@ function copyFiles(path, target)
 			if (path === projectModel.projectPath && dirs[i].fileName === deploymentDialog.packageStep.folderName)
 				continue
 			var deployDir = target + dirs[i].fileName + "/"
-			fileIo.makeDir(deployDir)
+			if (!fileIo.dirExists(deployDir))
+				fileIo.makeDir(deployDir)
 			copyFiles(dirs[i].path, deployDir)
 		}
 	}

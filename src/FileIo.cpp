@@ -103,18 +103,20 @@ QString FileIo::pathFromUrl(QString const& _url)
 	return path;
 }
 
-void FileIo::makeDir(QString const& _url)
+bool FileIo::makeDir(QString const& _url)
 {
 	try
 	{
 		QDir dirPath(pathFromUrl(_url));
 		if (dirPath.exists())
-			dirPath.removeRecursively();
+			return false;
 		dirPath.mkpath(dirPath.path());
+		return true;
 	}
 	catch (...)
 	{
 		manageException();
+		return false;
 	}
 }
 
