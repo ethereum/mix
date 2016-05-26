@@ -162,8 +162,10 @@ Item {
 		onAccepted: {
 			if (!fileIo.dirExists(newFolderDialog.path))
 			{
-				fileIo.makeDir(newFolderDialog.path)
-				folderAdded(newFolderDialog.path)
+				if (fileIo.makeDir(newFolderDialog.path))
+					folderAdded(newFolderDialog.path)
+				else
+					alertMessageDialog.pop(qsTr("Error while creating folder"))
 			}
 			else
 				alertMessageDialog.pop(qsTr("Directory already exists"))
