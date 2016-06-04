@@ -19,5 +19,5 @@ Download binaries:
     https://github.com/ethereum/mix/releases
     
 Build from source:
-    https://github.com/ethereum/webthree-umbrella/wiki
+    http://www.ethdocs.org/en/latest/ethereum-clients/cpp-ethereum/building-from-source/
 
