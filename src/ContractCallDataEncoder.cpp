@@ -361,7 +361,7 @@ QVariant ContractCallDataEncoder::decode(SolidityType const& _type, bytes const&
 	else if (type == QSolidityType::Type::Bool)
 		return QVariant::fromValue(toString(decodeBool(rawParam)));
 	else if (type == QSolidityType::Type::Bytes || type == QSolidityType::Type::Hash)
-		return QVariant::fromValue(toChar(decodeBytes(rawParam)));
+		return QVariant::fromValue(QString::fromStdString(toHex(decodeBytes(rawParam), 2, HexPrefix::Add)));
 	else if (type == QSolidityType::Type::String)
 		return QVariant::fromValue(toChar(decodeBytes(rawParam)));
 	else if (type == QSolidityType::Type::Struct)
