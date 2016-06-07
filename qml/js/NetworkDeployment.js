@@ -281,11 +281,33 @@ function copyFiles(path, target)
 			if (!fileIo.dirExists(deployDir))
 			{
 				if (fileIo.makeDir(deployDir))
-					copyFiles(dirs[i].path, deployDir)
+				{
+					var ret = copyFiles(dirs[i].path, deployDir)
+					if (!ret.success)
+						return ret
+				}
 				else
-					console.log('Unable to create package directory. Cannot create folder')
+				{
+					var mes = qsTr('Unable to create package directory. Cannot create folder ') + deployDir
+					return {
+						success: false,
+						message: mes
+					}
+				}
+			}
+			else
+			{
+				var mes = qsTr("Unable to create directory. Directory already exists ") + deployDir
+				return {
+					success: false,
+					message: mes
+				}
 			}
 		}
+	}
+	return {
+		success: true,
+		message: ''
 	}
 }
 
@@ -307,16 +329,28 @@ function packageDapp(addresses)
 	{
 		var wwwFolder = deploymentDir + "/www/"
 		if (fileIo.makeDir(wwwFolder))
-			copyFiles(projectModel.projectPath, wwwFolder)
+		{
+			var result = copyFiles(projectModel.projectPath, wwwFolder)
+			if (!result.success)
+			{
+				console.log(result.message)
+				deploymentError(result.message)
+				return
+			}
+		}
 		else
 		{
-			console.log('cannot create ' + deploymentDir)
+			var mes = qsTr('cannot create ') + deploymentDir
+			console.log(mes)
+			deploymentError(mes)
 			return
 		}
 	}
 	else
 	{
-		console.log('cannot create ' + wwwFolder)
+		var mes = qsTr('cannot create ') + wwwFolder
+		console.log(mes)
+		deploymementError(mes)
 		return
 	}
 
