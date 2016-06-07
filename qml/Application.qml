@@ -541,6 +541,21 @@ ApplicationWindow {
 		Component.onCompleted: codeModel.setOptimizeCode(checked)
 	}
 
+
+	MessageDialog {
+		id: alertMessageDialog
+		icon: StandardIcon.Warning
+		function pop(text)
+		{
+			this.text = text
+			this.open()
+		}
+		onAccepted:
+		{
+			this.text = ""
+		}
+	}
+
 	Settings {
 		id: appSettings
 		property alias gasEstimation: gasEstimationAction.checked
