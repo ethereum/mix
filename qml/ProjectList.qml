@@ -217,6 +217,7 @@ ScrollView
 
 				Component {
 					id: renderDelegate
+
 					Item {
 						id: innerItem
 
@@ -407,6 +408,12 @@ ScrollView
 								}
 							}
 						}
+
+						Keys.onDeletePressed:
+						{
+							console.log("aaaaaaaaa");
+							deleteConfirmation.open();
+						}
 					}
 				}
 
@@ -519,7 +526,7 @@ ScrollView
 				{
 					id: rect
 					height: 30
-					color: styleData.selected ? projectFilesStyle.title.background : "transparent"
+					color: styleData.selected ? projectFilesStyle.documentsList.highlightColor : "transparent"
 					Component.onCompleted:
 					{
 						rect.updateLayout()
