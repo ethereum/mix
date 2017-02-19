@@ -32,6 +32,7 @@ aux_source_directory("./src" SRC_LIST)
 file(GLOB HEADERS "src/*.h")
 
 eth_name(EXECUTABLE Mix-ide)
+set (CMAKE_PREFIX_PATH "/usr/local/opt/qt5" ${CMAKE_PREFIX_PATH})
 find_package(Qt5Core)
 
 if (APPLE)
